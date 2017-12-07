@@ -1,0 +1,50 @@
+ALTER TABLE `post` 
+DROP FOREIGN KEY `fk_post_10`,
+DROP FOREIGN KEY `fk_post_2`,
+DROP FOREIGN KEY `fk_post_3`,
+DROP FOREIGN KEY `fk_post_4`,
+DROP FOREIGN KEY `fk_post_5`,
+DROP FOREIGN KEY `fk_post_6`,
+DROP FOREIGN KEY `fk_post_7`,
+DROP FOREIGN KEY `fk_post_9`;
+ALTER TABLE `post` 
+ADD CONSTRAINT `fk_post_10`
+  FOREIGN KEY (`t_course_id`)
+  REFERENCES `course` (`id`)
+  ON DELETE CASCADE
+  ON UPDATE NO ACTION,
+ADD CONSTRAINT `fk_post_2`
+  FOREIGN KEY (`origin_id`)
+  REFERENCES `post` (`id`)
+  ON DELETE CASCADE
+  ON UPDATE NO ACTION,
+ADD CONSTRAINT `fk_post_3`
+  FOREIGN KEY (`organization_id`)
+  REFERENCES `school` (`id`)
+  ON DELETE CASCADE
+  ON UPDATE NO ACTION,
+ADD CONSTRAINT `fk_post_4`
+  FOREIGN KEY (`page_id`)
+  REFERENCES `page` (`id`)
+  ON DELETE CASCADE
+  ON UPDATE NO ACTION,
+ADD CONSTRAINT `fk_post_5`
+  FOREIGN KEY (`parent_id`)
+  REFERENCES `post` (`id`)
+  ON DELETE CASCADE
+  ON UPDATE NO ACTION,
+ADD CONSTRAINT `fk_post_6`
+  FOREIGN KEY (`origin_id`)
+  REFERENCES `post` (`id`)
+  ON DELETE CASCADE
+  ON UPDATE NO ACTION,
+ADD CONSTRAINT `fk_post_7`
+  FOREIGN KEY (`t_page_id`)
+  REFERENCES `page` (`id`)
+  ON DELETE CASCADE
+  ON UPDATE NO ACTION,
+ADD CONSTRAINT `fk_post_9`
+  FOREIGN KEY (`t_user_id`)
+  REFERENCES `user` (`id`)
+  ON DELETE CASCADE
+  ON UPDATE NO ACTION;

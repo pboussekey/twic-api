@@ -1,0 +1,87 @@
+<?php
+
+namespace Application\Service;
+
+use Dal\Service\AbstractService;
+
+class ModuleAssignments extends AbstractService
+{
+    /**
+     * Add Module Assignments.
+     *
+     * @invokable
+     *
+     * @param int    $module_id
+     * @param string $question
+     * @param int    $duration
+     * @param int    $ratio
+     *
+     * @throws \Exception
+     *
+     * @return number
+     */
+    public function add($module_id, $question = null, $duration = null, $ratio = null)
+    {
+        $m_module_assignments = $this->getModel()->setModuleId($module_id)
+                         ->setQuestion($question)
+                         ->setDuration($duration)
+                         ->setRatio($ratio);
+
+        if ($this->getMapper()->insert($m_module_assignments) <= 0) {
+            throw new \Exception('error insert module assignments');
+        }
+
+        return $this->getMapper()->getLastInsertValue();
+    }
+
+    /**
+     * Update.
+     *
+     * @invokable
+     *
+     * @param int    $id
+     * @param string $question
+     * @param string $duration
+     * @param string $ratio
+     *
+     * @return int
+     */
+    public function update($id, $question = null, $duration = null, $ratio = null)
+    {
+        $m_module_assignments = $this->getModel()->setId($id)
+                                                 ->setQuestion($question)
+                                                 ->setDuration($duration)
+                                                 ->setRatio($ratio);
+
+        return $this->getMapper()->update($m_module_assignments);
+    }
+
+    public function getListByModuleId($module)
+    {
+        return $this->getMapper()->select($this->getModel()->setModuleId($module));
+    }
+
+    /**
+     * Delete module assignments.
+     *
+     * @invokable
+     *
+     * @param int $id
+     *
+     * @return int
+     */
+    public function delete($id)
+    {
+        $m_module_assignments = $this->getModel()->setId($id);
+
+        return $this->getMapper()->delete($m_module_assignments);
+    }
+
+    public function deleteByModuleId($module_id)
+    {
+        $m_module_assignments = $this->getModel()->setModuleId($module_id);
+
+        return $this->getMapper()->delete($m_module_assignments);
+    }
+}
+

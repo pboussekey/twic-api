@@ -1,0 +1,42 @@
+<?php
+
+namespace Application\Service;
+
+use Dal\Service\AbstractService;
+
+class MailDoc extends AbstractService
+{
+    public function add($mail, $token)
+    {
+        if ($this->getMapper()->insert($this->getModel()
+                ->setToken($token)
+                ->setMailId($mail)
+                ->setCreatedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'))) <= 0) {
+            throw new \Exception('erro insert document');
+        }
+
+        return $this->getMapper()->getLastInsertValue();
+    }
+
+    public function delete($mail, $document)
+    {
+        return $this->getMapper()->delete($this->getModel()->setMailId($mail)->setId($document));
+    }
+
+    public function replace($document, $mail)
+    {
+        $this->getMapper()->delete($this->getModel()->setMailId($mail));
+
+        foreach ($document as $doc) {
+            $this->add($mail, $doc);
+        }
+
+        return true;
+    }
+
+    public function getByMail($mail)
+    {
+        return $this->getMapper()->select($this->getModel()->setMailId($mail));
+    }
+}
+

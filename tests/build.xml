@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project default="main">
+	<property file="${project.basedir}/test.properties" />
+	<target name="main">
+		<phingcall target="reset-db" />
+		<phingcall target="deploy-db" />
+		<phingcall target="init-conf" />
+	</target>
+	<target name="deploy-db">
+		<echo msg="Deploying database..." />
+		<tstamp />
+		<property name="build.dbdeploy.deployfile" value="${project.basedir}/deploy-db-${DSTAMP}${TSTAMP}.sql" />
+		<property name="build.dbdeploy.undofile" value="${project.basedir}/undo-db-${DSTAMP}${TSTAMP}.sql" />
+		<property name="dbdeploy.passwordParam" value="-p${dbdeploy.password}" override="yes" />
+		<if>
+			<equals arg1="${dbdeploy.passwordParam}" arg2="-p" />
+			<then>
+				<property name="dbdeploy.passwordParam" value="" override="yes" />
+			</then>
+		</if>
+		<echo message="Database undo file ${build.dbdeploy.undofile}" />
+		<echo message="Parse ${project.basedir}/data/db/" />
+		<dbdeploy url="mysql:host=${dbdeploy.host};dbname=${dbdeploy.database}" userid="${dbdeploy.user}" password="${dbdeploy.password}" dir="${project.basedir}/../data/db/" outputfile="${build.dbdeploy.deployfile}" undooutputfile="${build.dbdeploy.undofile}" />
+
+		<exec command="mysql --default-character-set=utf8 -h${dbdeploy.host} -u${dbdeploy.user} ${dbdeploy.passwordParam} ${dbdeploy.database} &lt; ${build.dbdeploy.deployfile}" dir="${project.basedir}" checkreturn="true" />
+		<delete file="${build.dbdeploy.deployfile}" />
+		<delete file="${build.dbdeploy.undofile}" />
+	</target>
+	<target name="reset-db">
+		<echo msg="init database..." />
+		<property name="dbdeploy.passwordParam" value="-p${dbdeploy.password}" override="yes" />
+		<if>
+			<equals arg1="${dbdeploy.passwordParam}" arg2="-p" />
+			<then>
+				<property name="dbdeploy.passwordParam" value="" override="yes" />
+			</then>
+		</if>
+		<exec command="echo 'DROP DATABASE IF EXISTS `${dbdeploy.database}`' | mysql -h ${dbdeploy.host} -u'${dbdeploy.user}' ${dbdeploy.passwordParam}" dir="${project.basedir}" checkreturn="true" />
+		<exec command="echo 'CREATE DATABASE `${dbdeploy.database}`' | mysql -h ${dbdeploy.host} -u'${dbdeploy.user}' ${dbdeploy.passwordParam}" dir="${project.basedir}" checkreturn="true" />
+		<exec command="echo 'DROP TABLE IF EXISTS `${dbdeploy.database}`.`changelog`' | mysql -h ${dbdeploy.host} -u'${dbdeploy.user}' ${dbdeploy.passwordParam}" dir="${project.basedir}" checkreturn="true" />
+		<echo msg="Initialising database..." />
+		<exec command="mysql --default-character-set=utf8 -h${dbdeploy.host} -u${dbdeploy.user} ${dbdeploy.passwordParam} ${dbdeploy.database} &lt; ${project.basedir}/../Zdeploy/build/database.sql" dir="${project.basedir}" checkreturn="true" />
+	</target>
+	<target name="init-conf">
+		<copy todir="${project.basedir}/config/autoload/" overwrite="true">
+			<filelist dir="${project.basedir}/config/autoload/" files="local.php.dist" />
+			<mapper type="regexp" from="^(.*).dist$" to="\1" />
+			<filterchain>
+				<expandproperties />
+			</filterchain>
+		</copy>
+	</target>
+	<target name="test-videoconf">
+		<property name="dbdeploy.passwordParam" value="-p${dbdeploy.password}" override="yes" />
+		<if>
+			<equals arg1="${dbdeploy.passwordParam}" arg2="-p" />
+			<then>
+				<property name="dbdeploy.passwordParam" value="" override="yes" />
+			</then>
+		</if>
+		<exec command="echo 'INSERT INTO `videoconf` (`duration`, `submission_id`,`created_date`) VALUES ('500', 1, '2016-01-01')' | mysql -h ${dbdeploy.host} -u'${dbdeploy.user}' ${dbdeploy.passwordParam} ${dbdeploy.database}" dir="${project.basedir}" checkreturn="true" />
+		<exec command="echo 'INSERT INTO `videoconf_archive` (`id`, `videoconf_id`) VALUES (1, 1)' | mysql -h ${dbdeploy.host} -u'${dbdeploy.user}' ${dbdeploy.passwordParam} ${dbdeploy.database}" dir="${project.basedir}" checkreturn="true" />
+		<exec command="echo 'INSERT INTO `videoconf_archive` (`id`, `videoconf_id`) VALUES (2, 1)' | mysql -h ${dbdeploy.host} -u'${dbdeploy.user}' ${dbdeploy.passwordParam} ${dbdeploy.database}" dir="${project.basedir}" checkreturn="true" />
+	</target>
+	<target name="test-dateitemprog">
+		<property name="dbdeploy.passwordParam" value="-p${dbdeploy.password}" override="yes" />
+		<if>
+			<equals arg1="${dbdeploy.passwordParam}" arg2="-p" />
+			<then>
+				<property name="dbdeploy.passwordParam" value="" override="yes" />
+			</then>
+		</if>
+		<exec command="echo 'UPDATE item_prog SET `start_date`=DATE_SUB(UTC_TIMESTAMP,INTERVAL 1 DAY) WHERE `id`=1;' | mysql -h ${dbdeploy.host} -u'${dbdeploy.user}' ${dbdeploy.passwordParam} ${dbdeploy.database}" dir="${project.basedir}" checkreturn="true" />
+	</target>
+</project>

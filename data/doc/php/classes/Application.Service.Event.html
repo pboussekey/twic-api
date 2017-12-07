@@ -1,0 +1,2823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+    <meta charset="utf-8"/>
+    <title>    API Documentation &raquo; \Application\Service\Event
+</title>
+    <meta name="author" content=""/>
+    <meta name="description" content=""/>
+
+            <link href="../css/template.css" rel="stylesheet" media="all"/>
+    
+            <!--[if lt IE 9]>
+        <script src="https://html5shim.googlecode.com/svn/trunk/html5.js" type="text/javascript"></script>
+        <![endif]-->
+        <script src="../js/jquery-1.7.1.min.js" type="text/javascript"></script>
+        <script src="../js/jquery-ui-1.8.2.custom.min.js" type="text/javascript"></script>
+        <script src="../js/jquery.mousewheel.min.js" type="text/javascript"></script>
+        <script src="../js/bootstrap.js" type="text/javascript"></script>
+        <script src="../js/template.js" type="text/javascript"></script>
+        <script src="../js/prettify/prettify.min.js" type="text/javascript"></script>
+    
+            <link rel="shortcut icon" href="../img/favicon.ico"/>
+        <link rel="apple-touch-icon" href="../img/apple-touch-icon.png"/>
+        <link rel="apple-touch-icon" sizes="72x72" href="../img/apple-touch-icon-72x72.png"/>
+        <link rel="apple-touch-icon" sizes="114x114" href="../img/apple-touch-icon-114x114.png"/>
+    </head>
+<body>
+
+        <div class="navbar navbar-fixed-top">
+        <div class="navbar-inner">
+            <div class="container">
+                <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                    <span class="icon-bar"></span> <span class="icon-bar"></span>
+                    <span class="icon-bar"></span> </a>
+                <a class="brand" href="../index.html">API Documentation</a>
+
+                <div class="nav-collapse">
+                    <ul class="nav">
+                        <li class="dropdown">
+                            <a href="#api" class="dropdown-toggle" data-toggle="dropdown">
+                                API Documentation <b class="caret"></b>
+                            </a>
+                            <ul class="dropdown-menu">
+                                                                    <li><a>Namespaces</a></li>
+                                                                        <li><a href="../namespaces/Application.html">Application</a></li>
+                                                                                                                                </ul>
+                        </li>
+                        <li class="dropdown" id="charts-menu">
+                            <a href="#charts" class="dropdown-toggle" data-toggle="dropdown">
+                                Charts <b class="caret"></b>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a href="../graph_class.html">
+                                        <i class="icon-list-alt"></i>&#160;Class hierarchy diagram
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="dropdown" id="reports-menu">
+                            <a href="#reports" class="dropdown-toggle" data-toggle="dropdown">
+                                Reports <b class="caret"></b>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a href="../errors.html">
+                                        <i class="icon-list-alt"></i>&#160;Errors
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="../markers.html">
+                                        <i class="icon-list-alt"></i>&#160;Markers
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="../deprecated.html">
+                                        <i class="icon-list-alt"></i>&#160;Deprecated
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="go_to_top">
+            <a href="#___" style="color: inherit">Back to top&#160;&#160;<i class="icon-upload icon-white"></i></a>
+        </div>
+    </div>
+    
+    <div id="___" class="container">
+        <noscript>
+            <div class="alert alert-warning">
+                Javascript is disabled; several features are only available if Javascript is enabled.
+            </div>
+        </noscript>
+
+        
+            <style>
+        .deprecated h2 {
+            text-decoration: line-through;
+        }
+    </style>
+    <div class="row">
+        <div class="span4">
+                    <div class="btn-group view pull-right" data-toggle="buttons-radio">
+        <button class="btn details" title="Show descriptions and method names"><i class="icon-list"></i></button>
+        <button class="btn simple" title="Show only method names"><i class="icon-align-justify"></i></button>
+    </div>
+    <div class="btn-group visibility" data-toggle="buttons-checkbox">
+        <button class="btn public active" title="Show public elements">Public</button>
+        <button class="btn protected" title="Show protected elements">Protected</button>
+        <button class="btn private" title="Show private elements">Private</button>
+        <button class="btn inherited active" title="Show inherited elements">Inherited</button>
+    </div>
+
+        <ul class="side-nav nav nav-list">
+        <li class="nav-header">
+            <i class="icon-custom icon-method"></i> Methods
+            <ul>
+                                                                                                    <li class="method public">
+        <a href="#method_courseUpdated" title="courseUpdated :: Event course.updated.">
+            <span class="description">Event course.updated.</span><pre>courseUpdated</pre>
+        </a>
+    </li>
+
+                                                                                                        <li class="method public">
+        <a href="#method_create" title="create :: create event">
+            <span class="description">create event</span><pre>create</pre>
+        </a>
+    </li>
+
+                                                                                                        <li class="method public">
+        <a href="#method_endSubmit" title="endSubmit :: Event submission.submit.">
+            <span class="description">Event submission.submit.</span><pre>endSubmit</pre>
+        </a>
+    </li>
+
+                                                                                                        <li class="method public">
+        <a href="#method_eqcqAvailable" title="eqcqAvailable :: Event eqcq.available.">
+            <span class="description">Event eqcq.available.</span><pre>eqcqAvailable</pre>
+        </a>
+    </li>
+
+                                                                                                        <li class="method public">
+        <a href="#method_get" title="get :: Get Event.">
+            <span class="description">Get Event.</span><pre>get</pre>
+        </a>
+    </li>
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <li class="method public">
+        <a href="#method_getDataSchool" title="getDataSchool :: Get Data School.">
+            <span class="description">Get Data School.</span><pre>getDataSchool</pre>
+        </a>
+    </li>
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <li class="method public">
+        <a href="#method_getList" title="getList :: Get List Event.">
+            <span class="description">Get List Event.</span><pre>getList</pre>
+        </a>
+    </li>
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <li class="method public">
+        <a href="#method_isConnected" title="isConnected :: Check if User is connect.">
+            <span class="description">Check if User is connect.</span><pre>isConnected</pre>
+        </a>
+    </li>
+
+                                                                                                        <li class="method public">
+        <a href="#method_messageNew" title="messageNew :: Event message.new">
+            <span class="description">Event message.new</span><pre>messageNew</pre>
+        </a>
+    </li>
+
+                                                                                                        <li class="method public">
+        <a href="#method_pageNew" title="pageNew :: Event page.new">
+            <span class="description">Event page.new</span><pre>pageNew</pre>
+        </a>
+    </li>
+
+                                                                                                        <li class="method public">
+        <a href="#method_pageUserInvited" title="pageUserInvited :: Event pageuser.invited">
+            <span class="description">Event pageuser.invited</span><pre>pageUserInvited</pre>
+        </a>
+    </li>
+
+                                                                                                        <li class="method public">
+        <a href="#method_pageUserMember" title="pageUserMember :: Event pageuser.member">
+            <span class="description">Event pageuser.member</span><pre>pageUserMember</pre>
+        </a>
+    </li>
+
+                                                                                                        <li class="method public">
+        <a href="#method_pgAssigned" title="pgAssigned :: Event pg.graded.">
+            <span class="description">Event pg.graded.</span><pre>pgAssigned</pre>
+        </a>
+    </li>
+
+                                                                                                        <li class="method public">
+        <a href="#method_profileNewresume" title="profileNewresume :: Event profile.newresume.">
+            <span class="description">Event profile.newresume.</span><pre>profileNewresume</pre>
+        </a>
+    </li>
+
+                                                                                                        <li class="method public">
+        <a href="#method_profileUpdated" title="profileUpdated :: Event profile.updated">
+            <span class="description">Event profile.updated</span><pre>profileUpdated</pre>
+        </a>
+    </li>
+
+                                                                                                        <li class="method public">
+        <a href="#method_programmationNew" title="programmationNew :: Event submission.new.">
+            <span class="description">Event submission.new.</span><pre>programmationNew</pre>
+        </a>
+    </li>
+
+                                                                                                        <li class="method public">
+        <a href="#method_programmationUpdated" title="programmationUpdated :: Event submission.updated.">
+            <span class="description">Event submission.updated.</span><pre>programmationUpdated</pre>
+        </a>
+    </li>
+
+                                                                                                        <li class="method public">
+        <a href="#method_recordAvailable" title="recordAvailable :: Event record.available">
+            <span class="description">Event record.available</span><pre>recordAvailable</pre>
+        </a>
+    </li>
+
+                                                                                                        <li class="method public">
+        <a href="#method_requestSubmit" title="requestSubmit :: Event submit.request.">
+            <span class="description">Event submit.request.</span><pre>requestSubmit</pre>
+        </a>
+    </li>
+
+                                                                                                        <li class="method public">
+        <a href="#method_schoolNew" title="schoolNew :: Event school.new.">
+            <span class="description">Event school.new.</span><pre>schoolNew</pre>
+        </a>
+    </li>
+
+                                                                                                        <li class="method public">
+        <a href="#method_sendRequest" title="sendRequest :: Send Request Event.">
+            <span class="description">Send Request Event.</span><pre>sendRequest</pre>
+        </a>
+    </li>
+
+                                                                                                        <li class="method public">
+        <a href="#method_submissionCommented" title="submissionCommented :: Event submission.commented.">
+            <span class="description">Event submission.commented.</span><pre>submissionCommented</pre>
+        </a>
+    </li>
+
+                                                                                                        <li class="method public">
+        <a href="#method_submissionGraded" title="submissionGraded :: Event submission.graded.">
+            <span class="description">Event submission.graded.</span><pre>submissionGraded</pre>
+        </a>
+    </li>
+
+                                                                                                        <li class="method public">
+        <a href="#method_taskshared" title="taskshared :: Event task.shared.">
+            <span class="description">Event task.shared.</span><pre>taskshared</pre>
+        </a>
+    </li>
+
+                                                                                                        <li class="method public">
+        <a href="#method_threadMessage" title="threadMessage :: Event thread.message.">
+            <span class="description">Event thread.message.</span><pre>threadMessage</pre>
+        </a>
+    </li>
+
+                                                                                                        <li class="method public">
+        <a href="#method_threadNew" title="threadNew :: Event thread.new.">
+            <span class="description">Event thread.new.</span><pre>threadNew</pre>
+        </a>
+    </li>
+
+                                                                                                        <li class="method public">
+        <a href="#method_userAddConnection" title="userAddConnection :: Event user.addconnection.">
+            <span class="description">Event user.addconnection.</span><pre>userAddConnection</pre>
+        </a>
+    </li>
+
+                                                                                                        <li class="method public">
+        <a href="#method_userAnnouncement" title="userAnnouncement :: Event user.announcement">
+            <span class="description">Event user.announcement</span><pre>userAnnouncement</pre>
+        </a>
+    </li>
+
+                                                                                                        <li class="method public">
+        <a href="#method_userComment" title="userComment :: Event user.comment.">
+            <span class="description">Event user.comment.</span><pre>userComment</pre>
+        </a>
+    </li>
+
+                                                                                                        <li class="method public">
+        <a href="#method_userDeleteConnection" title="userDeleteConnection :: Event user.deleteconnection.">
+            <span class="description">Event user.deleteconnection.</span><pre>userDeleteConnection</pre>
+        </a>
+    </li>
+
+                                                                                                        <li class="method public">
+        <a href="#method_userLike" title="userLike :: Event user.like">
+            <span class="description">Event user.like</span><pre>userLike</pre>
+        </a>
+    </li>
+
+                                                                                                        <li class="method public">
+        <a href="#method_userPublication" title="userPublication :: Event user.publication">
+            <span class="description">Event user.publication</span><pre>userPublication</pre>
+        </a>
+    </li>
+
+                                                                                                        <li class="method public">
+        <a href="#method_userRequestconnection" title="userRequestconnection :: Event user.requestconnection.">
+            <span class="description">Event user.requestconnection.</span><pre>userRequestconnection</pre>
+        </a>
+    </li>
+
+                                                </ul>
+        </li>
+        <li class="nav-header protected">» Protected
+            <ul>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </ul>
+        </li>
+        <li class="nav-header private">» Private
+            <ul>
+                                                                                                                                                                                                                                                                <li class="method private">
+                            <a href="#method_getClient" title="getClient :: Get Client Http.">
+                                <span class="description">Get Client Http.</span><pre>getClient</pre>
+                            </a>
+                        </li>
+                                                                                <li class="method private">
+                            <a href="#method_getDataCourseUpdate" title="getDataCourseUpdate :: Get Data Course for update.">
+                                <span class="description">Get Data Course for update.</span><pre>getDataCourseUpdate</pre>
+                            </a>
+                        </li>
+                                                                                <li class="method private">
+                            <a href="#method_getDataEvent" title="getDataEvent :: Get Data Event.">
+                                <span class="description">Get Data Event.</span><pre>getDataEvent</pre>
+                            </a>
+                        </li>
+                                                                                <li class="method private">
+                            <a href="#method_getDataItem" title="getDataItem :: ">
+                                <span class="description"></span><pre>getDataItem</pre>
+                            </a>
+                        </li>
+                                                                                <li class="method private">
+                            <a href="#method_getDataMessage" title="getDataMessage :: Get Data Message.">
+                                <span class="description">Get Data Message.</span><pre>getDataMessage</pre>
+                            </a>
+                        </li>
+                                                                                <li class="method private">
+                            <a href="#method_getDataPage" title="getDataPage :: Get Data Page">
+                                <span class="description">Get Data Page</span><pre>getDataPage</pre>
+                            </a>
+                        </li>
+                                                                                <li class="method private">
+                            <a href="#method_getDataPost" title="getDataPost :: Get Data Post">
+                                <span class="description">Get Data Post</span><pre>getDataPost</pre>
+                            </a>
+                        </li>
+                                                                                <li class="method private">
+                            <a href="#method_getDataProgrammation" title="getDataProgrammation :: Get Data submission.">
+                                <span class="description">Get Data submission.</span><pre>getDataProgrammation</pre>
+                            </a>
+                        </li>
+                                                                                <li class="method private">
+                            <a href="#method_getDataResume" title="getDataResume :: Get Data resume.">
+                                <span class="description">Get Data resume.</span><pre>getDataResume</pre>
+                            </a>
+                        </li>
+                                                                                                                    <li class="method private">
+                            <a href="#method_getDataSubmission" title="getDataSubmission :: Get DataSubmission.">
+                                <span class="description">Get DataSubmission.</span><pre>getDataSubmission</pre>
+                            </a>
+                        </li>
+                                                                                <li class="method private">
+                            <a href="#method_getDataSubmissionComment" title="getDataSubmissionComment :: Get Data Submission Comment.">
+                                <span class="description">Get Data Submission Comment.</span><pre>getDataSubmissionComment</pre>
+                            </a>
+                        </li>
+                                                                                <li class="method private">
+                            <a href="#method_getDataSubmissionWihtUser" title="getDataSubmissionWihtUser :: Get Data Submission With User.">
+                                <span class="description">Get Data Submission With User.</span><pre>getDataSubmissionWihtUser</pre>
+                            </a>
+                        </li>
+                                                                                <li class="method private">
+                            <a href="#method_getDataTask" title="getDataTask :: Get Data Task.">
+                                <span class="description">Get Data Task.</span><pre>getDataTask</pre>
+                            </a>
+                        </li>
+                                                                                <li class="method private">
+                            <a href="#method_getDataThread" title="getDataThread :: Get Data Thread.">
+                                <span class="description">Get Data Thread.</span><pre>getDataThread</pre>
+                            </a>
+                        </li>
+                                                                                <li class="method private">
+                            <a href="#method_getDataThreadMessage" title="getDataThreadMessage :: Get Data THread Message.">
+                                <span class="description">Get Data THread Message.</span><pre>getDataThreadMessage</pre>
+                            </a>
+                        </li>
+                                                                                <li class="method private">
+                            <a href="#method_getDataUpdateProfile" title="getDataUpdateProfile :: Get Data User for update profile.">
+                                <span class="description">Get Data User for update profile.</span><pre>getDataUpdateProfile</pre>
+                            </a>
+                        </li>
+                                                                                <li class="method private">
+                            <a href="#method_getDataUser" title="getDataUser :: Get Data User.">
+                                <span class="description">Get Data User.</span><pre>getDataUser</pre>
+                            </a>
+                        </li>
+                                                                                <li class="method private">
+                            <a href="#method_getDataVideoArchive" title="getDataVideoArchive :: Get Data Vide Archive.">
+                                <span class="description">Get Data Vide Archive.</span><pre>getDataVideoArchive</pre>
+                            </a>
+                        </li>
+                                                                                                                    <li class="method private">
+                            <a href="#method_getServiceContact" title="getServiceContact :: Get Service Contact.">
+                                <span class="description">Get Service Contact.</span><pre>getServiceContact</pre>
+                            </a>
+                        </li>
+                                                                                <li class="method private">
+                            <a href="#method_getServiceCourse" title="getServiceCourse :: Get Service Course.">
+                                <span class="description">Get Service Course.</span><pre>getServiceCourse</pre>
+                            </a>
+                        </li>
+                                                                                <li class="method private">
+                            <a href="#method_getServiceEventSubscription" title="getServiceEventSubscription :: Get Service Event Comment.">
+                                <span class="description">Get Service Event Comment.</span><pre>getServiceEventSubscription</pre>
+                            </a>
+                        </li>
+                                                                                <li class="method private">
+                            <a href="#method_getServiceItem" title="getServiceItem :: Get Service Item">
+                                <span class="description">Get Service Item</span><pre>getServiceItem</pre>
+                            </a>
+                        </li>
+                                                                                <li class="method private">
+                            <a href="#method_getServiceMail" title="getServiceMail :: Get Service Mail.">
+                                <span class="description">Get Service Mail.</span><pre>getServiceMail</pre>
+                            </a>
+                        </li>
+                                                                                <li class="method private">
+                            <a href="#method_getServiceMessage" title="getServiceMessage :: Get Service Message.">
+                                <span class="description">Get Service Message.</span><pre>getServiceMessage</pre>
+                            </a>
+                        </li>
+                                                                                <li class="method private">
+                            <a href="#method_getServiceMessageUser" title="getServiceMessageUser :: Get Service Message User.">
+                                <span class="description">Get Service Message User.</span><pre>getServiceMessageUser</pre>
+                            </a>
+                        </li>
+                                                                                <li class="method private">
+                            <a href="#method_getServicePage" title="getServicePage :: Get Service Message.">
+                                <span class="description">Get Service Message.</span><pre>getServicePage</pre>
+                            </a>
+                        </li>
+                                                                                <li class="method private">
+                            <a href="#method_getServicePost" title="getServicePost :: Get Service Post">
+                                <span class="description">Get Service Post</span><pre>getServicePost</pre>
+                            </a>
+                        </li>
+                                                                                <li class="method private">
+                            <a href="#method_getServiceResume" title="getServiceResume :: Get Service Resume.">
+                                <span class="description">Get Service Resume.</span><pre>getServiceResume</pre>
+                            </a>
+                        </li>
+                                                                                <li class="method private">
+                            <a href="#method_getServiceSchool" title="getServiceSchool :: Get Service School.">
+                                <span class="description">Get Service School.</span><pre>getServiceSchool</pre>
+                            </a>
+                        </li>
+                                                                                <li class="method private">
+                            <a href="#method_getServiceSubmission" title="getServiceSubmission :: Get Service Submission.">
+                                <span class="description">Get Service Submission.</span><pre>getServiceSubmission</pre>
+                            </a>
+                        </li>
+                                                                                <li class="method private">
+                            <a href="#method_getServiceSubmissionComments" title="getServiceSubmissionComments :: Get Service Submission Comments.">
+                                <span class="description">Get Service Submission Comments.</span><pre>getServiceSubmissionComments</pre>
+                            </a>
+                        </li>
+                                                                                <li class="method private">
+                            <a href="#method_getServiceSubmissionPg" title="getServiceSubmissionPg :: Get Service Submission Pg.">
+                                <span class="description">Get Service Submission Pg.</span><pre>getServiceSubmissionPg</pre>
+                            </a>
+                        </li>
+                                                                                <li class="method private">
+                            <a href="#method_getServiceSubscription" title="getServiceSubscription :: Get Service Subscription">
+                                <span class="description">Get Service Subscription</span><pre>getServiceSubscription</pre>
+                            </a>
+                        </li>
+                                                                                <li class="method private">
+                            <a href="#method_getServiceTask" title="getServiceTask :: Get Service Task.">
+                                <span class="description">Get Service Task.</span><pre>getServiceTask</pre>
+                            </a>
+                        </li>
+                                                                                <li class="method private">
+                            <a href="#method_getServiceThread" title="getServiceThread :: Get Service Thread.">
+                                <span class="description">Get Service Thread.</span><pre>getServiceThread</pre>
+                            </a>
+                        </li>
+                                                                                <li class="method private">
+                            <a href="#method_getServiceThreadMessage" title="getServiceThreadMessage :: Get Service Thread Message.">
+                                <span class="description">Get Service Thread Message.</span><pre>getServiceThreadMessage</pre>
+                            </a>
+                        </li>
+                                                                                <li class="method private">
+                            <a href="#method_getServiceUser" title="getServiceUser :: Get Service User.">
+                                <span class="description">Get Service User.</span><pre>getServiceUser</pre>
+                            </a>
+                        </li>
+                                                                                <li class="method private">
+                            <a href="#method_getServiceVideoArchive" title="getServiceVideoArchive :: Get Service Video Archive.">
+                                <span class="description">Get Service Video Archive.</span><pre>getServiceVideoArchive</pre>
+                            </a>
+                        </li>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </ul>
+        </li>
+        <li class="nav-header">
+            <i class="icon-custom icon-constant"></i> Constants
+            <ul>
+                                <li class="constant ">
+                    <a href="#constant_TARGET_TYPE_GLOBAL" title="TARGET_TYPE_GLOBAL :: ">
+                        <span class="description"></span><pre>TARGET_TYPE_GLOBAL</pre>
+                    </a>
+                </li>
+                                <li class="constant ">
+                    <a href="#constant_TARGET_TYPE_SCHOOL" title="TARGET_TYPE_SCHOOL :: ">
+                        <span class="description"></span><pre>TARGET_TYPE_SCHOOL</pre>
+                    </a>
+                </li>
+                                <li class="constant ">
+                    <a href="#constant_TARGET_TYPE_USER" title="TARGET_TYPE_USER :: ">
+                        <span class="description"></span><pre>TARGET_TYPE_USER</pre>
+                    </a>
+                </li>
+                            </ul>
+        </li>
+    </ul>
+
+
+        </div>
+
+        <div class="span8">
+            <div class="element class">
+                <h1>Event</h1>
+                <small style="display: block; text-align: right">
+                                            Extends \Dal\Service\AbstractService
+                                                        </small>
+                <p class="short_description">Class Event</p>
+                <div class="details">
+                    <div class="long_description">
+                        
+                    </div>
+                    <table class="table table-bordered">
+                                                                                    <tr>
+                                    <th>
+                                        package
+                                                                            </th>
+                                    <td>
+                                                                                    
+                                                                                <p>Default</p>
+                                    </td>
+                                </tr>
+                                                                                                                                                                                </table>
+
+                    <h3><i class="icon-custom icon-method"></i> Methods</h3>
+                                                                <a id="method_courseUpdated"></a>
+                        <div class="element clickable method public  method_courseUpdated" data-toggle="collapse" data-target=".method_courseUpdated .collapse">
+                            <h2>Event course.updated.</h2>
+                            <pre>courseUpdated(integer $course_id, array $dataupdated) : integer</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$course_id</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                                    <div class="subelement argument">
+                                                <h4>$dataupdated</h4>
+                                                <code>array</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>integer</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_create"></a>
+                        <div class="element clickable method public  method_create" data-toggle="collapse" data-target=".method_create .collapse">
+                            <h2>create event</h2>
+                            <pre>create(string $event, mixed $source, mixed $object,  $libelle, mixed $target, mixed $src = null) : integer</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                                    <tr>
+                                                <th>
+                                                    throws
+                                                </th>
+                                                <td>
+                                                                                                                                                                        
+                                                                                                                                                                        
+                                                                                                    </td>
+                                            </tr>
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$event</h4>
+                                                <code>string</code><p></p>
+                                            </div>
+                                                                                    <div class="subelement argument">
+                                                <h4>$source</h4>
+                                                <code>mixed</code><p></p>
+                                            </div>
+                                                                                    <div class="subelement argument">
+                                                <h4>$object</h4>
+                                                <code>mixed</code><p></p>
+                                            </div>
+                                                                                    <div class="subelement argument">
+                                                <h4>$libelle</h4>
+                                                <code></code><p></p>
+                                            </div>
+                                                                                    <div class="subelement argument">
+                                                <h4>$target</h4>
+                                                <code>mixed</code><p></p>
+                                            </div>
+                                                                                    <div class="subelement argument">
+                                                <h4>$src</h4>
+                                                <code>mixed</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>integer</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_endSubmit"></a>
+                        <div class="element clickable method public  method_endSubmit" data-toggle="collapse" data-target=".method_endSubmit .collapse">
+                            <h2>Event submission.submit.</h2>
+                            <pre>endSubmit(integer $submission_id) : integer</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$submission_id</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>integer</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_eqcqAvailable"></a>
+                        <div class="element clickable method public  method_eqcqAvailable" data-toggle="collapse" data-target=".method_eqcqAvailable .collapse">
+                            <h2>Event eqcq.available.</h2>
+                            <pre>eqcqAvailable(integer $submission_id) : integer</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$submission_id</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>integer</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_get"></a>
+                        <div class="element clickable method public  method_get" data-toggle="collapse" data-target=".method_get .collapse">
+                            <h2>Get Event.</h2>
+                            <pre>get(integer $id) : \Application\Model\Event</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$id</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>\Application\Model\Event</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_getClient"></a>
+                        <div class="element clickable method private  method_getClient" data-toggle="collapse" data-target=".method_getClient .collapse">
+                            <h2>Get Client Http.</h2>
+                            <pre>getClient() : \Zend\Http\Client</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                                    <tr>
+                                                <th>
+                                                    
+                                                </th>
+                                                <td>
+                                                                                                    </td>
+                                            </tr>
+                                                                            </table>
+
+                                    
+                                                                            <h3>Response</h3>
+                                        <code>\Zend\Http\Client</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_getDataCourseUpdate"></a>
+                        <div class="element clickable method private  method_getDataCourseUpdate" data-toggle="collapse" data-target=".method_getDataCourseUpdate .collapse">
+                            <h2>Get Data Course for update.</h2>
+                            <pre>getDataCourseUpdate(integer $course_id, array $dataupdated) : array</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$course_id</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                                    <div class="subelement argument">
+                                                <h4>$dataupdated</h4>
+                                                <code>array</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>array</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_getDataEvent"></a>
+                        <div class="element clickable method private  method_getDataEvent" data-toggle="collapse" data-target=".method_getDataEvent .collapse">
+                            <h2>Get Data Event.</h2>
+                            <pre>getDataEvent(integer $event) : array</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$event</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>array</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_getDataItem"></a>
+                        <div class="element clickable method private  method_getDataItem" data-toggle="collapse" data-target=".method_getDataItem .collapse">
+                            <h2>getDataItem</h2>
+                            <pre>getDataItem(integer $item_id) : array</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$item_id</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>array</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_getDataMessage"></a>
+                        <div class="element clickable method private  method_getDataMessage" data-toggle="collapse" data-target=".method_getDataMessage .collapse">
+                            <h2>Get Data Message.</h2>
+                            <pre>getDataMessage(integer $message_id) : array</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$message_id</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>array</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_getDataPage"></a>
+                        <div class="element clickable method private  method_getDataPage" data-toggle="collapse" data-target=".method_getDataPage .collapse">
+                            <h2>Get Data Page</h2>
+                            <pre>getDataPage(integer $page_id) : array</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$page_id</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>array</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_getDataPost"></a>
+                        <div class="element clickable method private  method_getDataPost" data-toggle="collapse" data-target=".method_getDataPost .collapse">
+                            <h2>Get Data Post</h2>
+                            <pre>getDataPost(integer $post_id) : array</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$post_id</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>array</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_getDataProgrammation"></a>
+                        <div class="element clickable method private  method_getDataProgrammation" data-toggle="collapse" data-target=".method_getDataProgrammation .collapse">
+                            <h2>Get Data submission.</h2>
+                            <pre>getDataProgrammation(integer $submission_id) : array</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$submission_id</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>array</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_getDataResume"></a>
+                        <div class="element clickable method private  method_getDataResume" data-toggle="collapse" data-target=".method_getDataResume .collapse">
+                            <h2>Get Data resume.</h2>
+                            <pre>getDataResume(integer $resume_id) : array</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$resume_id</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>array</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_getDataSchool"></a>
+                        <div class="element clickable method public  method_getDataSchool" data-toggle="collapse" data-target=".method_getDataSchool .collapse">
+                            <h2>Get Data School.</h2>
+                            <pre>getDataSchool(integer $school_id) : array</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$school_id</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>array</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_getDataSubmission"></a>
+                        <div class="element clickable method private  method_getDataSubmission" data-toggle="collapse" data-target=".method_getDataSubmission .collapse">
+                            <h2>Get DataSubmission.</h2>
+                            <pre>getDataSubmission(\Application\Model\Submission $m_submission) : array</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$m_submission</h4>
+                                                <code>\Application\Model\Submission</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>array</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_getDataSubmissionComment"></a>
+                        <div class="element clickable method private  method_getDataSubmissionComment" data-toggle="collapse" data-target=".method_getDataSubmissionComment .collapse">
+                            <h2>Get Data Submission Comment.</h2>
+                            <pre>getDataSubmissionComment(\Application\Model\Submission $m_submisssion, \Application\Model\SubmissionComments $m_comment) : array</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$m_submisssion</h4>
+                                                <code>\Application\Model\Submission</code><p></p>
+                                            </div>
+                                                                                    <div class="subelement argument">
+                                                <h4>$m_comment</h4>
+                                                <code>\Application\Model\SubmissionComments</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>array</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_getDataSubmissionWihtUser"></a>
+                        <div class="element clickable method private  method_getDataSubmissionWihtUser" data-toggle="collapse" data-target=".method_getDataSubmissionWihtUser .collapse">
+                            <h2>Get Data Submission With User.</h2>
+                            <pre>getDataSubmissionWihtUser(\Application\Model\Submission $m_submission) : array</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$m_submission</h4>
+                                                <code>\Application\Model\Submission</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>array</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_getDataTask"></a>
+                        <div class="element clickable method private  method_getDataTask" data-toggle="collapse" data-target=".method_getDataTask .collapse">
+                            <h2>Get Data Task.</h2>
+                            <pre>getDataTask(integer $task_id) : array</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$task_id</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>array</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_getDataThread"></a>
+                        <div class="element clickable method private  method_getDataThread" data-toggle="collapse" data-target=".method_getDataThread .collapse">
+                            <h2>Get Data Thread.</h2>
+                            <pre>getDataThread(\Application\Model\Thread $m_thread) : array</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$m_thread</h4>
+                                                <code>\Application\Model\Thread</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>array</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_getDataThreadMessage"></a>
+                        <div class="element clickable method private  method_getDataThreadMessage" data-toggle="collapse" data-target=".method_getDataThreadMessage .collapse">
+                            <h2>Get Data THread Message.</h2>
+                            <pre>getDataThreadMessage(\Application\Model\ThreadMessage $m_thread_message) : array</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$m_thread_message</h4>
+                                                <code>\Application\Model\ThreadMessage</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>array</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_getDataUpdateProfile"></a>
+                        <div class="element clickable method private  method_getDataUpdateProfile" data-toggle="collapse" data-target=".method_getDataUpdateProfile .collapse">
+                            <h2>Get Data User for update profile.</h2>
+                            <pre>getDataUpdateProfile(integer $user_id, array $dataupdated) : array</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$user_id</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                                    <div class="subelement argument">
+                                                <h4>$dataupdated</h4>
+                                                <code>array</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>array</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_getDataUser"></a>
+                        <div class="element clickable method private  method_getDataUser" data-toggle="collapse" data-target=".method_getDataUser .collapse">
+                            <h2>Get Data User.</h2>
+                            <pre>getDataUser(integer $user_id = null) : array</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$user_id</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>array</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_getDataVideoArchive"></a>
+                        <div class="element clickable method private  method_getDataVideoArchive" data-toggle="collapse" data-target=".method_getDataVideoArchive .collapse">
+                            <h2>Get Data Vide Archive.</h2>
+                            <pre>getDataVideoArchive(\Application\Model\VideoArchive $m_video_archive) : array</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$m_video_archive</h4>
+                                                <code>\Application\Model\VideoArchive</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>array</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_getList"></a>
+                        <div class="element clickable method public  method_getList" data-toggle="collapse" data-target=".method_getList .collapse">
+                            <h2>Get List Event.</h2>
+                            <pre>getList(array $filter = null, string $events = null, integer $user = null, integer $id = null, integer $source = null) : array</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                                    <tr>
+                                                <th>
+                                                    invokable
+                                                </th>
+                                                <td>
+                                                                                                                                                                        
+                                                                                                                                                                        
+                                                                                                    </td>
+                                            </tr>
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$filter</h4>
+                                                <code>array</code><p></p>
+                                            </div>
+                                                                                    <div class="subelement argument">
+                                                <h4>$events</h4>
+                                                <code>string</code><p></p>
+                                            </div>
+                                                                                    <div class="subelement argument">
+                                                <h4>$user</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                                    <div class="subelement argument">
+                                                <h4>$id</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                                    <div class="subelement argument">
+                                                <h4>$source</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>array</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_getServiceContact"></a>
+                        <div class="element clickable method private  method_getServiceContact" data-toggle="collapse" data-target=".method_getServiceContact .collapse">
+                            <h2>Get Service Contact.</h2>
+                            <pre>getServiceContact() : \Application\Service\Contact</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                                    <tr>
+                                                <th>
+                                                    
+                                                </th>
+                                                <td>
+                                                                                                    </td>
+                                            </tr>
+                                                                            </table>
+
+                                    
+                                                                            <h3>Response</h3>
+                                        <code><a href="../classes/Application.Service.Contact.html">\Application\Service\Contact</a></code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_getServiceCourse"></a>
+                        <div class="element clickable method private  method_getServiceCourse" data-toggle="collapse" data-target=".method_getServiceCourse .collapse">
+                            <h2>Get Service Course.</h2>
+                            <pre>getServiceCourse() : \Application\Service\Course</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                                    <tr>
+                                                <th>
+                                                    
+                                                </th>
+                                                <td>
+                                                                                                    </td>
+                                            </tr>
+                                                                            </table>
+
+                                    
+                                                                            <h3>Response</h3>
+                                        <code><a href="../classes/Application.Service.Course.html">\Application\Service\Course</a></code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_getServiceEventSubscription"></a>
+                        <div class="element clickable method private  method_getServiceEventSubscription" data-toggle="collapse" data-target=".method_getServiceEventSubscription .collapse">
+                            <h2>Get Service Event Comment.</h2>
+                            <pre>getServiceEventSubscription() : \Application\Service\EventSubscription</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                                    <tr>
+                                                <th>
+                                                    
+                                                </th>
+                                                <td>
+                                                                                                    </td>
+                                            </tr>
+                                                                            </table>
+
+                                    
+                                                                            <h3>Response</h3>
+                                        <code><a href="../classes/Application.Service.EventSubscription.html">\Application\Service\EventSubscription</a></code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_getServiceItem"></a>
+                        <div class="element clickable method private  method_getServiceItem" data-toggle="collapse" data-target=".method_getServiceItem .collapse">
+                            <h2>Get Service Item</h2>
+                            <pre>getServiceItem() : \Application\Service\Item</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                                    <tr>
+                                                <th>
+                                                    
+                                                </th>
+                                                <td>
+                                                                                                    </td>
+                                            </tr>
+                                                                            </table>
+
+                                    
+                                                                            <h3>Response</h3>
+                                        <code><a href="../classes/Application.Service.Item.html">\Application\Service\Item</a></code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_getServiceMail"></a>
+                        <div class="element clickable method private  method_getServiceMail" data-toggle="collapse" data-target=".method_getServiceMail .collapse">
+                            <h2>Get Service Mail.</h2>
+                            <pre>getServiceMail() : \Mail\Service\Mail</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                                    <tr>
+                                                <th>
+                                                    
+                                                </th>
+                                                <td>
+                                                                                                    </td>
+                                            </tr>
+                                                                            </table>
+
+                                    
+                                                                            <h3>Response</h3>
+                                        <code>\Mail\Service\Mail</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_getServiceMessage"></a>
+                        <div class="element clickable method private  method_getServiceMessage" data-toggle="collapse" data-target=".method_getServiceMessage .collapse">
+                            <h2>Get Service Message.</h2>
+                            <pre>getServiceMessage() : \Application\Service\Message</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                                    <tr>
+                                                <th>
+                                                    
+                                                </th>
+                                                <td>
+                                                                                                    </td>
+                                            </tr>
+                                                                            </table>
+
+                                    
+                                                                            <h3>Response</h3>
+                                        <code><a href="../classes/Application.Service.Message.html">\Application\Service\Message</a></code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_getServiceMessageUser"></a>
+                        <div class="element clickable method private  method_getServiceMessageUser" data-toggle="collapse" data-target=".method_getServiceMessageUser .collapse">
+                            <h2>Get Service Message User.</h2>
+                            <pre>getServiceMessageUser() : \Application\Service\MessageUser</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                                    <tr>
+                                                <th>
+                                                    
+                                                </th>
+                                                <td>
+                                                                                                    </td>
+                                            </tr>
+                                                                            </table>
+
+                                    
+                                                                            <h3>Response</h3>
+                                        <code><a href="../classes/Application.Service.MessageUser.html">\Application\Service\MessageUser</a></code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_getServicePage"></a>
+                        <div class="element clickable method private  method_getServicePage" data-toggle="collapse" data-target=".method_getServicePage .collapse">
+                            <h2>Get Service Message.</h2>
+                            <pre>getServicePage() : \Application\Service\Page</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                                    <tr>
+                                                <th>
+                                                    
+                                                </th>
+                                                <td>
+                                                                                                    </td>
+                                            </tr>
+                                                                            </table>
+
+                                    
+                                                                            <h3>Response</h3>
+                                        <code><a href="../classes/Application.Service.Page.html">\Application\Service\Page</a></code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_getServicePost"></a>
+                        <div class="element clickable method private  method_getServicePost" data-toggle="collapse" data-target=".method_getServicePost .collapse">
+                            <h2>Get Service Post</h2>
+                            <pre>getServicePost() : \Application\Service\Post</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                                    <tr>
+                                                <th>
+                                                    
+                                                </th>
+                                                <td>
+                                                                                                    </td>
+                                            </tr>
+                                                                            </table>
+
+                                    
+                                                                            <h3>Response</h3>
+                                        <code><a href="../classes/Application.Service.Post.html">\Application\Service\Post</a></code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_getServiceResume"></a>
+                        <div class="element clickable method private  method_getServiceResume" data-toggle="collapse" data-target=".method_getServiceResume .collapse">
+                            <h2>Get Service Resume.</h2>
+                            <pre>getServiceResume() : \Application\Service\Resume</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                                    <tr>
+                                                <th>
+                                                    
+                                                </th>
+                                                <td>
+                                                                                                    </td>
+                                            </tr>
+                                                                            </table>
+
+                                    
+                                                                            <h3>Response</h3>
+                                        <code><a href="../classes/Application.Service.Resume.html">\Application\Service\Resume</a></code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_getServiceSchool"></a>
+                        <div class="element clickable method private  method_getServiceSchool" data-toggle="collapse" data-target=".method_getServiceSchool .collapse">
+                            <h2>Get Service School.</h2>
+                            <pre>getServiceSchool() : \Application\Service\School</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                                    <tr>
+                                                <th>
+                                                    
+                                                </th>
+                                                <td>
+                                                                                                    </td>
+                                            </tr>
+                                                                            </table>
+
+                                    
+                                                                            <h3>Response</h3>
+                                        <code><a href="../classes/Application.Service.School.html">\Application\Service\School</a></code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_getServiceSubmission"></a>
+                        <div class="element clickable method private  method_getServiceSubmission" data-toggle="collapse" data-target=".method_getServiceSubmission .collapse">
+                            <h2>Get Service Submission.</h2>
+                            <pre>getServiceSubmission() : \Application\Service\Submission</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                                    <tr>
+                                                <th>
+                                                    
+                                                </th>
+                                                <td>
+                                                                                                    </td>
+                                            </tr>
+                                                                            </table>
+
+                                    
+                                                                            <h3>Response</h3>
+                                        <code><a href="../classes/Application.Service.Submission.html">\Application\Service\Submission</a></code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_getServiceSubmissionComments"></a>
+                        <div class="element clickable method private  method_getServiceSubmissionComments" data-toggle="collapse" data-target=".method_getServiceSubmissionComments .collapse">
+                            <h2>Get Service Submission Comments.</h2>
+                            <pre>getServiceSubmissionComments() : \Application\Service\SubmissionComments</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                                    <tr>
+                                                <th>
+                                                    
+                                                </th>
+                                                <td>
+                                                                                                    </td>
+                                            </tr>
+                                                                            </table>
+
+                                    
+                                                                            <h3>Response</h3>
+                                        <code><a href="../classes/Application.Service.SubmissionComments.html">\Application\Service\SubmissionComments</a></code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_getServiceSubmissionPg"></a>
+                        <div class="element clickable method private  method_getServiceSubmissionPg" data-toggle="collapse" data-target=".method_getServiceSubmissionPg .collapse">
+                            <h2>Get Service Submission Pg.</h2>
+                            <pre>getServiceSubmissionPg() : \Application\Service\SubmissionPg</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                                    <tr>
+                                                <th>
+                                                    
+                                                </th>
+                                                <td>
+                                                                                                    </td>
+                                            </tr>
+                                                                            </table>
+
+                                    
+                                                                            <h3>Response</h3>
+                                        <code><a href="../classes/Application.Service.SubmissionPg.html">\Application\Service\SubmissionPg</a></code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_getServiceSubscription"></a>
+                        <div class="element clickable method private  method_getServiceSubscription" data-toggle="collapse" data-target=".method_getServiceSubscription .collapse">
+                            <h2>Get Service Subscription</h2>
+                            <pre>getServiceSubscription() : \Application\Service\Subscription</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                                    <tr>
+                                                <th>
+                                                    
+                                                </th>
+                                                <td>
+                                                                                                    </td>
+                                            </tr>
+                                                                            </table>
+
+                                    
+                                                                            <h3>Response</h3>
+                                        <code><a href="../classes/Application.Service.Subscription.html">\Application\Service\Subscription</a></code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_getServiceTask"></a>
+                        <div class="element clickable method private  method_getServiceTask" data-toggle="collapse" data-target=".method_getServiceTask .collapse">
+                            <h2>Get Service Task.</h2>
+                            <pre>getServiceTask() : \Application\Service\Task</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                                    <tr>
+                                                <th>
+                                                    
+                                                </th>
+                                                <td>
+                                                                                                    </td>
+                                            </tr>
+                                                                            </table>
+
+                                    
+                                                                            <h3>Response</h3>
+                                        <code><a href="../classes/Application.Service.Task.html">\Application\Service\Task</a></code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_getServiceThread"></a>
+                        <div class="element clickable method private  method_getServiceThread" data-toggle="collapse" data-target=".method_getServiceThread .collapse">
+                            <h2>Get Service Thread.</h2>
+                            <pre>getServiceThread() : \Application\Service\Thread</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                                    <tr>
+                                                <th>
+                                                    
+                                                </th>
+                                                <td>
+                                                                                                    </td>
+                                            </tr>
+                                                                            </table>
+
+                                    
+                                                                            <h3>Response</h3>
+                                        <code><a href="../classes/Application.Service.Thread.html">\Application\Service\Thread</a></code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_getServiceThreadMessage"></a>
+                        <div class="element clickable method private  method_getServiceThreadMessage" data-toggle="collapse" data-target=".method_getServiceThreadMessage .collapse">
+                            <h2>Get Service Thread Message.</h2>
+                            <pre>getServiceThreadMessage() : \Application\Service\ThreadMessage</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                                    <tr>
+                                                <th>
+                                                    
+                                                </th>
+                                                <td>
+                                                                                                    </td>
+                                            </tr>
+                                                                            </table>
+
+                                    
+                                                                            <h3>Response</h3>
+                                        <code><a href="../classes/Application.Service.ThreadMessage.html">\Application\Service\ThreadMessage</a></code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_getServiceUser"></a>
+                        <div class="element clickable method private  method_getServiceUser" data-toggle="collapse" data-target=".method_getServiceUser .collapse">
+                            <h2>Get Service User.</h2>
+                            <pre>getServiceUser() : \Application\Service\User</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                                    <tr>
+                                                <th>
+                                                    
+                                                </th>
+                                                <td>
+                                                                                                    </td>
+                                            </tr>
+                                                                            </table>
+
+                                    
+                                                                            <h3>Response</h3>
+                                        <code><a href="../classes/Application.Service.User.html">\Application\Service\User</a></code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_getServiceVideoArchive"></a>
+                        <div class="element clickable method private  method_getServiceVideoArchive" data-toggle="collapse" data-target=".method_getServiceVideoArchive .collapse">
+                            <h2>Get Service Video Archive.</h2>
+                            <pre>getServiceVideoArchive() : \Application\Service\VideoArchive</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                                    <tr>
+                                                <th>
+                                                    
+                                                </th>
+                                                <td>
+                                                                                                    </td>
+                                            </tr>
+                                                                            </table>
+
+                                    
+                                                                            <h3>Response</h3>
+                                        <code><a href="../classes/Application.Service.VideoArchive.html">\Application\Service\VideoArchive</a></code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_isConnected"></a>
+                        <div class="element clickable method public  method_isConnected" data-toggle="collapse" data-target=".method_isConnected .collapse">
+                            <h2>Check if User is connect.</h2>
+                            <pre>isConnected(integer $user) : array</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$user</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>array</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_messageNew"></a>
+                        <div class="element clickable method public  method_messageNew" data-toggle="collapse" data-target=".method_messageNew .collapse">
+                            <h2>Event message.new</h2>
+                            <pre>messageNew(integer $message_id, array $to) : integer</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$message_id</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                                    <div class="subelement argument">
+                                                <h4>$to</h4>
+                                                <code>array</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>integer</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_pageNew"></a>
+                        <div class="element clickable method public  method_pageNew" data-toggle="collapse" data-target=".method_pageNew .collapse">
+                            <h2>Event page.new</h2>
+                            <pre>pageNew(array $sub, integer $page) </pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                                    <tr>
+                                                <th>
+                                                    
+                                                </th>
+                                                <td>
+                                                                                                    </td>
+                                            </tr>
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$sub</h4>
+                                                <code>array</code><p></p>
+                                            </div>
+                                                                                    <div class="subelement argument">
+                                                <h4>$page</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                            
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_pageUserInvited"></a>
+                        <div class="element clickable method public  method_pageUserInvited" data-toggle="collapse" data-target=".method_pageUserInvited .collapse">
+                            <h2>Event pageuser.invited</h2>
+                            <pre>pageUserInvited(array $sub, integer $page) </pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                                    <tr>
+                                                <th>
+                                                    
+                                                </th>
+                                                <td>
+                                                                                                    </td>
+                                            </tr>
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$sub</h4>
+                                                <code>array</code><p></p>
+                                            </div>
+                                                                                    <div class="subelement argument">
+                                                <h4>$page</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                            
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_pageUserMember"></a>
+                        <div class="element clickable method public  method_pageUserMember" data-toggle="collapse" data-target=".method_pageUserMember .collapse">
+                            <h2>Event pageuser.member</h2>
+                            <pre>pageUserMember(array $sub, integer $page) </pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                                    <tr>
+                                                <th>
+                                                    
+                                                </th>
+                                                <td>
+                                                                                                    </td>
+                                            </tr>
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$sub</h4>
+                                                <code>array</code><p></p>
+                                            </div>
+                                                                                    <div class="subelement argument">
+                                                <h4>$page</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                            
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_pgAssigned"></a>
+                        <div class="element clickable method public  method_pgAssigned" data-toggle="collapse" data-target=".method_pgAssigned .collapse">
+                            <h2>Event pg.graded.</h2>
+                            <pre>pgAssigned(integer $submission_id) : integer</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$submission_id</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>integer</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_profileNewresume"></a>
+                        <div class="element clickable method public  method_profileNewresume" data-toggle="collapse" data-target=".method_profileNewresume .collapse">
+                            <h2>Event profile.newresume.</h2>
+                            <pre>profileNewresume(\Application\Service\inr $sub, \Application\Service\inr $resume) : integer</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$sub</h4>
+                                                <code>\Application\Service\inr</code><p></p>
+                                            </div>
+                                                                                    <div class="subelement argument">
+                                                <h4>$resume</h4>
+                                                <code>\Application\Service\inr</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>integer</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_profileUpdated"></a>
+                        <div class="element clickable method public  method_profileUpdated" data-toggle="collapse" data-target=".method_profileUpdated .collapse">
+                            <h2>Event profile.updated</h2>
+                            <pre>profileUpdated(array $sub, integer $user_id, array $dataprofile) : integer</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$sub</h4>
+                                                <code>array</code><p></p>
+                                            </div>
+                                                                                    <div class="subelement argument">
+                                                <h4>$user_id</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                                    <div class="subelement argument">
+                                                <h4>$dataprofile</h4>
+                                                <code>array</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>integer</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_programmationNew"></a>
+                        <div class="element clickable method public  method_programmationNew" data-toggle="collapse" data-target=".method_programmationNew .collapse">
+                            <h2>Event submission.new.</h2>
+                            <pre>programmationNew(integer $submission_id) : integer</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$submission_id</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>integer</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_programmationUpdated"></a>
+                        <div class="element clickable method public  method_programmationUpdated" data-toggle="collapse" data-target=".method_programmationUpdated .collapse">
+                            <h2>Event submission.updated.</h2>
+                            <pre>programmationUpdated(integer $submission_id) : integer</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$submission_id</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>integer</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_recordAvailable"></a>
+                        <div class="element clickable method public  method_recordAvailable" data-toggle="collapse" data-target=".method_recordAvailable .collapse">
+                            <h2>Event record.available</h2>
+                            <pre>recordAvailable(\Application\Model\VideoArchive $m_video_archive, integer $item_id = null) : integer</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$m_video_archive</h4>
+                                                <code>\Application\Model\VideoArchive</code><p></p>
+                                            </div>
+                                                                                    <div class="subelement argument">
+                                                <h4>$item_id</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>integer</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_requestSubmit"></a>
+                        <div class="element clickable method public  method_requestSubmit" data-toggle="collapse" data-target=".method_requestSubmit .collapse">
+                            <h2>Event submit.request.</h2>
+                            <pre>requestSubmit(integer $submission_id, integer $user_id) : integer</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$submission_id</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                                    <div class="subelement argument">
+                                                <h4>$user_id</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>integer</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_schoolNew"></a>
+                        <div class="element clickable method public  method_schoolNew" data-toggle="collapse" data-target=".method_schoolNew .collapse">
+                            <h2>Event school.new.</h2>
+                            <pre>schoolNew(integer $school_id) : integer</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$school_id</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>integer</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_sendRequest"></a>
+                        <div class="element clickable method public  method_sendRequest" data-toggle="collapse" data-target=".method_sendRequest .collapse">
+                            <h2>Send Request Event.</h2>
+                            <pre>sendRequest(array $users, array $notification, mixed $target) : \Zend\Json\Server\Response</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                                    <tr>
+                                                <th>
+                                                    throws
+                                                </th>
+                                                <td>
+                                                                                                                                                                        
+                                                                                                                                                                        
+                                                                                                    </td>
+                                            </tr>
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$users</h4>
+                                                <code>array</code><p></p>
+                                            </div>
+                                                                                    <div class="subelement argument">
+                                                <h4>$notification</h4>
+                                                <code>array</code><p></p>
+                                            </div>
+                                                                                    <div class="subelement argument">
+                                                <h4>$target</h4>
+                                                <code>mixed</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>\Zend\Json\Server\Response</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_submissionCommented"></a>
+                        <div class="element clickable method public  method_submissionCommented" data-toggle="collapse" data-target=".method_submissionCommented .collapse">
+                            <h2>Event submission.commented.</h2>
+                            <pre>submissionCommented(integer $submission_id, integer $submission_comments_id) : integer</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$submission_id</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                                    <div class="subelement argument">
+                                                <h4>$submission_comments_id</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>integer</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_submissionGraded"></a>
+                        <div class="element clickable method public  method_submissionGraded" data-toggle="collapse" data-target=".method_submissionGraded .collapse">
+                            <h2>Event submission.graded.</h2>
+                            <pre>submissionGraded(integer $submission_id, integer $user_id) : integer</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$submission_id</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                                    <div class="subelement argument">
+                                                <h4>$user_id</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>integer</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_taskshared"></a>
+                        <div class="element clickable method public  method_taskshared" data-toggle="collapse" data-target=".method_taskshared .collapse">
+                            <h2>Event task.shared.</h2>
+                            <pre>taskshared(integer $task_id, array $users) : integer</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$task_id</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                                    <div class="subelement argument">
+                                                <h4>$users</h4>
+                                                <code>array</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>integer</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_threadMessage"></a>
+                        <div class="element clickable method public  method_threadMessage" data-toggle="collapse" data-target=".method_threadMessage .collapse">
+                            <h2>Event thread.message.</h2>
+                            <pre>threadMessage(integer $thread_message_id) : integer</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$thread_message_id</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>integer</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_threadNew"></a>
+                        <div class="element clickable method public  method_threadNew" data-toggle="collapse" data-target=".method_threadNew .collapse">
+                            <h2>Event thread.new.</h2>
+                            <pre>threadNew(integer $thread_id) : integer</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$thread_id</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>integer</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_userAddConnection"></a>
+                        <div class="element clickable method public  method_userAddConnection" data-toggle="collapse" data-target=".method_userAddConnection .collapse">
+                            <h2>Event user.addconnection.</h2>
+                            <pre>userAddConnection(integer $user_id, integer $contact_id) : integer</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$user_id</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                                    <div class="subelement argument">
+                                                <h4>$contact_id</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>integer</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_userAnnouncement"></a>
+                        <div class="element clickable method public  method_userAnnouncement" data-toggle="collapse" data-target=".method_userAnnouncement .collapse">
+                            <h2>Event user.announcement</h2>
+                            <pre>userAnnouncement(integer $feed_id) : integer</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$feed_id</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>integer</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_userComment"></a>
+                        <div class="element clickable method public  method_userComment" data-toggle="collapse" data-target=".method_userComment .collapse">
+                            <h2>Event user.comment.</h2>
+                            <pre>userComment( $m_comment) : integer</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$m_comment</h4>
+                                                <code></code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>integer</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_userDeleteConnection"></a>
+                        <div class="element clickable method public  method_userDeleteConnection" data-toggle="collapse" data-target=".method_userDeleteConnection .collapse">
+                            <h2>Event user.deleteconnection.</h2>
+                            <pre>userDeleteConnection(integer $user_id, integer $contact_id) : integer</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$user_id</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                                    <div class="subelement argument">
+                                                <h4>$contact_id</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>integer</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_userLike"></a>
+                        <div class="element clickable method public  method_userLike" data-toggle="collapse" data-target=".method_userLike .collapse">
+                            <h2>Event user.like</h2>
+                            <pre>userLike(array $sub, integer $post_id) </pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                                    <tr>
+                                                <th>
+                                                    
+                                                </th>
+                                                <td>
+                                                                                                    </td>
+                                            </tr>
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$sub</h4>
+                                                <code>array</code><p></p>
+                                            </div>
+                                                                                    <div class="subelement argument">
+                                                <h4>$post_id</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                            
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_userPublication"></a>
+                        <div class="element clickable method public  method_userPublication" data-toggle="collapse" data-target=".method_userPublication .collapse">
+                            <h2>Event user.publication</h2>
+                            <pre>userPublication(array $sub, integer $post_id,  $type = null,  $ev = null) : \Application\Service\number</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$sub</h4>
+                                                <code>array</code><p></p>
+                                            </div>
+                                                                                    <div class="subelement argument">
+                                                <h4>$post_id</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                                    <div class="subelement argument">
+                                                <h4>$type</h4>
+                                                <code></code><p></p>
+                                            </div>
+                                                                                    <div class="subelement argument">
+                                                <h4>$ev</h4>
+                                                <code></code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>\Application\Service\number</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                                            <a id="method_userRequestconnection"></a>
+                        <div class="element clickable method public  method_userRequestconnection" data-toggle="collapse" data-target=".method_userRequestconnection .collapse">
+                            <h2>Event user.requestconnection.</h2>
+                            <pre>userRequestconnection(integer $user_id) : integer</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+
+                            
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$user_id</h4>
+                                                <code>integer</code><p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code>integer</code><p></p>
+                                                                    </div>
+                            </div>
+
+                        </div>
+                    
+                                            <h3><i class="icon-custom icon-constant"></i> Constants</h3>
+                                                    <a id="constant_TARGET_TYPE_USER"> </a>
+                            <div class="element clickable constant  constant_TARGET_TYPE_USER" data-toggle="collapse" data-target=".constant_TARGET_TYPE_USER .collapse">
+                                <h2>TARGET_TYPE_USER</h2>
+                                <pre>TARGET_TYPE_USER</pre>
+                                <div class="labels">
+                                                                    </div>
+                                <div class="row collapse">
+                                    <div class="detail-description">
+                                        <div class="long_description"></div>
+                                        <table class="table">
+                                                                                            <tr>
+                                                    <th>
+                                                        
+                                                    </th>
+                                                    <td>
+                                                                                                            </td>
+                                                </tr>
+                                                                                    </table>
+                                    </div>
+                                </div>
+                            </div>
+                                                    <a id="constant_TARGET_TYPE_GLOBAL"> </a>
+                            <div class="element clickable constant  constant_TARGET_TYPE_GLOBAL" data-toggle="collapse" data-target=".constant_TARGET_TYPE_GLOBAL .collapse">
+                                <h2>TARGET_TYPE_GLOBAL</h2>
+                                <pre>TARGET_TYPE_GLOBAL</pre>
+                                <div class="labels">
+                                                                    </div>
+                                <div class="row collapse">
+                                    <div class="detail-description">
+                                        <div class="long_description"></div>
+                                        <table class="table">
+                                                                                            <tr>
+                                                    <th>
+                                                        
+                                                    </th>
+                                                    <td>
+                                                                                                            </td>
+                                                </tr>
+                                                                                    </table>
+                                    </div>
+                                </div>
+                            </div>
+                                                    <a id="constant_TARGET_TYPE_SCHOOL"> </a>
+                            <div class="element clickable constant  constant_TARGET_TYPE_SCHOOL" data-toggle="collapse" data-target=".constant_TARGET_TYPE_SCHOOL .collapse">
+                                <h2>TARGET_TYPE_SCHOOL</h2>
+                                <pre>TARGET_TYPE_SCHOOL</pre>
+                                <div class="labels">
+                                                                    </div>
+                                <div class="row collapse">
+                                    <div class="detail-description">
+                                        <div class="long_description"></div>
+                                        <table class="table">
+                                                                                            <tr>
+                                                    <th>
+                                                        
+                                                    </th>
+                                                    <td>
+                                                                                                            </td>
+                                                </tr>
+                                                                                    </table>
+                                    </div>
+                                </div>
+                            </div>
+                                            
+                                                                <h3><i class="icon-custom icon-property"></i> Properties</h3>
+                                                    <a id="property_id"> </a>
+                            <div class="element clickable property  private property_id" data-toggle="collapse" data-target=".property_id .collapse">
+                                <h2>Identification request.</h2>
+                                <pre>id : integer</pre>
+                                <div class="labels">
+                                                                        <span class="label">static</span>                                </div>
+                                <div class="row collapse">
+                                    <div class="detail-description">
+                                        <div class="long_description"></div>
+
+                                        <table class="table">
+                                                                                            <tr>
+                                                    <th>
+                                                        var
+                                                    </th>
+                                                    <td>
+                                                                                                                    
+                                                                                                            </td>
+                                                </tr>
+                                                                                    </table>
+
+                                                                                    <h3>Type(s)</h3>
+                                            <code>integer</code>
+                                                                            </div>
+                                </div>
+                            </div>
+                                                            </div>
+            </div>
+            <a id="\Application\Service\Event"></a>
+            <ul class="breadcrumb">
+                <li><a href="../index.html"><i class="icon-custom icon-class"></i></a></li>
+                    
+    
+    <li><span class="divider">\</span><a href="../namespaces/Application.Service.html">Service</a></li>
+
+                <li class="active"><span class="divider">\</span><a href="../classes/Application.Service.Event.html">Event</a></li>
+            </ul>
+        </div>
+    </div>
+
+    </div>
+
+        <footer class="span12">
+            Template is built using <a href="http://twitter.github.com/bootstrap/">Twitter Bootstrap 2</a> and icons provided by
+            <a href="http://glyphicons.com/">Glyphicons</a>.<br/>
+            Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and<br/>
+            generated on Fri, 13 Jan 2017 09:30:56 +0100.<br/>
+    </footer>
+    </body>
+</html>

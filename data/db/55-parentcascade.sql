@@ -1,0 +1,9 @@
+ALTER TABLE `item` 
+DROP FOREIGN KEY `fk_item_2`;
+
+ALTER TABLE `item` 
+ADD CONSTRAINT `fk_item_2`
+  FOREIGN KEY (`parent_id`)
+  REFERENCES `item` (`id`)
+  ON DELETE CASCADE
+  ON UPDATE NO ACTION;

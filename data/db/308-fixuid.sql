@@ -1,0 +1,1 @@
+UPDATE post SET uid = NULL WHERE uid = '0';

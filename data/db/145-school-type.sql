@@ -1,0 +1,3 @@
+ALTER TABLE `school` 
+ADD COLUMN `type` ENUM('SCHOOL','NETWORK') NOT NULL DEFAULT 'SCHOOL' AFTER `deleted_date`;
+

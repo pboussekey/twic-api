@@ -1,0 +1,1 @@
+ALTER TABLE `set` ADD COLUMN `is_used` TINYINT NOT NULL DEFAULT 0 AFTER `course_id`;

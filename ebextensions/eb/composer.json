@@ -1,0 +1,58 @@
+{
+	"name" : "buse974/skeleton-application",
+	"description" : "Skeleton Application for ZF2",
+	"license" : "BSD-3-Clause",
+	"keywords" : [
+		"framework",
+		"zf2"
+	],
+	"homepage" : "https://github.com/buse974/ZendSkeletonApplication/",
+	"require" : {
+		"php" : ">=5.6",
+		"zendframework/zendframework" : "3.*",
+		"blanchonvincent/simple-page-crawler" : "dev-master",
+		"buse974/dal" : "dev-master",
+		"buse974/address" : "dev-master",
+		"buse974/jrpc" : "dev-master",
+		"buse974/ZOpenTok" : "dev-master",
+		"buse974/sge" : "dev-master",
+		"zendframework/zendservice-google-fcm" : "dev-master",
+		"aws/aws-sdk-php" : "^3.19",
+		"firebase/php-jwt" : "^4.0",
+		"buse974/dms" : "dev-master",
+		"google/cloud" : "^0.22.0"
+	},
+	"require-dev" : {
+		"phing/phing" : "*",
+		"friendsofphp/php-cs-fixer" : "*",
+		"phpunit/phpunit" : "*"
+	},
+	"repositories" : [{
+			"type" : "vcs",
+			"url" : "git@bitbucket.org:thestudnet/simplepagecrawler.git"
+		}, {
+			"type" : "vcs",
+			"url" : "git@bitbucket.org:thestudnet/zendservice_google_fcm.git"
+		}
+	],
+	"autoload" : {
+		"psr-4" : {
+			"Application\\" : "module/Application/src/",
+			"Auth\\" : "module/Auth/src/",
+			"Mail\\" : "module/Mail/src/",
+			"Rbac\\" : "module/Rbac/src/",
+			"Box\\" : "module/Box/src/",
+			"LinkedIn\\" : "module/LinkedIn/src/"
+		}
+	},
+	"scripts" : {
+		"cs-check" : "phpcs",
+		"cs-fix" : "phpcbf",
+		"development-disable" : "zf-development-mode disable",
+		"development-enable" : "zf-development-mode enable",
+		"development-status" : "zf-development-mode status",
+		"post-create-project-cmd" : "@development-enable",
+		"serve" : "php -S 0.0.0.0:8081 -t public/ public/routing.php",
+		"test" : "phpunit"
+	}
+}

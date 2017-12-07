@@ -1,0 +1,20 @@
+<?php
+
+namespace Application\Service;
+
+use Dal\Service\AbstractService;
+
+class SetGroup extends AbstractService
+{
+    /**
+     * @param int $set
+     * @param int $group
+     * 
+     * @return int
+     */
+    public function add($set, $group)
+    {
+        return $this->getMapper()->insert($this->getModel()->setSetId($set)->setGroupId($group));
+    }
+}
+

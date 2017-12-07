@@ -1,0 +1,3 @@
+ALTER TABLE `page` 
+CHANGE COLUMN `custom` `custom` TEXT NULL DEFAULT NULL ;
+

@@ -1,0 +1,97 @@
+<?php
+
+namespace Application\Service;
+
+use Dal\Service\AbstractService;
+
+class Guidelines extends AbstractService
+{
+    /**
+     * @invokable
+     * 
+     * @param string $state
+     * @param mixed  $data
+     * 
+     * @return int
+     */
+    public function add($state, $data)
+    {
+        if ($this->getMapper()->insert($this->getModel()
+            ->setState($state)
+            ->setData(json_encode($data))) <= 0) {
+            throw new \Exception('error insert guidelines');
+        }
+
+        return $this->getMapper()->getLastInsertValue();
+    }
+
+    /**
+     * @invokable
+     * 
+     * @param int    $id
+     * @param string $state
+     * @param string $data
+     */
+    public function update($id, $state = null, $data = null)
+    {
+        if (null !== $data) {
+            $data = json_encode($data);
+        }
+
+        return $this->getMapper()->update($this->getModel()
+            ->setState($state)
+            ->setId($id)
+            ->setData($data));
+    }
+
+    /**
+     * @invokable
+     * 
+     * @param int $id
+     */
+    public function delete($id)
+    {
+        return $this->getMapper()->delete($this->getModel()->setId($id));
+    }
+
+    /**
+     * @invokable
+     * 
+     * @param string $state
+     */
+    public function getList($state)
+    {
+        $res_guidelines = $this->getMapper()->select($this->getModel()->setState($state));
+
+        $ret = [];
+        foreach ($res_guidelines as $m_guidelines) {
+            $data = $m_guidelines->getData();
+            if (is_string($data)) {
+                $ret[] = json_decode($data, true);
+            }
+        }
+
+        $this->getServiceGuidelinesView()->add($state);
+
+        return $ret;
+    }
+
+    /**
+     * @invokable
+     * 
+     * @param string $state
+     */
+    public function isViewed($state)
+    {
+        return $this->getServiceGuidelinesView()->exist($state);
+    }
+
+    /**
+     * @return \Application\Service\GuidelinesView
+     */
+    public function getServiceGuidelinesView()
+    {
+        return $this->getServiceLocator()->get('app_service_guidelines_view');
+    }
+}
+

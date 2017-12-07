@@ -1,0 +1,4 @@
+dbdeploy.database = apilms
+dbdeploy.user = root
+dbdeploy.password = 
+dbdeploy.host = 127.0.0.1

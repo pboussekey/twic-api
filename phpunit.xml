@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="/home/buse974/workspace/apilms/phpunit-schema/tools/phpunit.xsd.1458729399"
+    bootstrap="./tests/bootstrap.php" 
+    colors="true">
+    <testsuites>
+        <testsuite name="apiwow">
+            <directory>./tests</directory>
+        </testsuite>
+    </testsuites>
+    <filter>
+        <whitelist>
+            <directory suffix=".php">./module</directory>
+            <exclude>
+		<directory suffix=".php">./vendor</directory>
+		<directory suffix=".php">./tests</directory>
+		<directory suffix=".php">./module/Application.bak</directory>
+	    </exclude>
+    	</whitelist>
+    </filter>
+    <php>
+        <ini name="memory_limit" value="-1" />
+        <ini name="zend.enable_gc" value="Off" />
+    </php>
+    <!--logging>
+        <log type="coverage-html"
+             target="./build"
+             charset="UTF-8"
+             highlight="true"
+        />
+        <log type="coverage-text"
+             target="php://stdout"
+             showUncoveredFiles="true"
+	     />
+    </logging-->
+</phpunit>

@@ -1,0 +1,9 @@
+ALTER TABLE `opt_grading` 
+CHANGE COLUMN `has_pg` `has_pg` TINYINT(1) NOT NULL DEFAULT 0,
+CHANGE COLUMN `pg_nb` `pg_nb` INT(11) NOT NULL DEFAULT 0,
+CHANGE COLUMN `pg_auto` `pg_auto` TINYINT(1) NOT NULL DEFAULT 0,
+CHANGE COLUMN `pg_can_view` `pg_can_view` TINYINT(1) NOT NULL DEFAULT 0,
+CHANGE COLUMN `user_can_view` `user_can_view` TINYINT(1) NOT NULL DEFAULT 0,
+CHANGE COLUMN `pg_stars` `pg_stars` TINYINT(1) NOT NULL DEFAULT 0;
+
+

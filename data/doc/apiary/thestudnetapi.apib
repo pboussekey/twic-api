@@ -1,0 +1,258 @@
+FORMAT: 1A
+HOST: https://api.thestudnet.com
+
+# TheStudnet API
+
+[The Studnet](http://www.thestudnet.com) API. 
+
+
+## Json Rpc
+
+###Description
+JSON-RPC is a remote procedure call protocol encoded in JSON. It is a very simple protocol (and very similar to XML-RPC), defining only a handful of data types and commands. JSON-RPC allows for notifications (data sent to the server that does not require a response) and for multiple calls to be sent to the server which may be answered out of order.  ( Source WIKIPEDIA ) 
+
+See Specifications [http://www.jsonrpc.org/specification] (http://www.jsonrpc.org/specification). 
+
+###The API is accessible via the URL
+[https://api.thestudnet.com/api.json-rpc] (https://api.thestudnet.com/api.json-rpc)
+
+## Authentication
+
+###Description
+
+Authentication security is based on a Token. Once the user connects to the API via the method **user.login**,  he gets that Token. 
+            
+            {
+                "result":
+                {
+                    "id":3,
+                    "token":"3fb217058934fbcd73da6b0b21af77akl",
+                    "created_date":"2016-07-11 14:36:13",
+                    "firstname":"Christophe",
+                    "lastname":"Robert",
+                    "email":"crobert@thestudnet.com",
+                    "roles": {
+                        "3":"external"
+                    },
+                    "school":{
+                        "id":1,
+                        "name":"Yale",
+                        "short_name":null,
+                        "logo":"3e09bdf9c98a706505b57f4dfa0a37d8e4783ckl",
+                        "background":null
+                    }
+                },
+                "id":"63",
+                "jsonrpc":"2.0"
+            }
+        
+        
+###Headers
+
+The token must be sent to the html header "Authorization"
+
+    Content-Type:application/json
+    Authorization:3e09bdf9c98a706505b57f4dfa0a37d8e4783ckl
+
+## User Management [/api.json-rpc]
+ 
+### user.auth [POST /]
+
++ Request (application/json)
+
+    + Attributes 
+      + user: external@free.fr (string, required)
+      + password: thestudnet (string, required)
+      
+    + Body
+    
+            {
+                "jsonrpc": "2.0", 
+                "method": "user.auth", 
+                "params": {
+                    "user": "demo", 
+                    "password": "demo"
+                }, 
+                "id": 1
+            }
+
++ Response 200 (application/json)
+
+    + Body
+            
+            {
+                "result": {
+                    "id": 8,
+                    "token": "886c54419472ea797c12e82b583a262kl",
+                    "created_date": "2016-01-19 09:28:14",
+                    "firstname": "firstname_external",
+                    "lastname": "lastname_external",
+                    "email": "external@free.fr",
+                    "expiration_date": null,
+                    "roles": {
+                        "7": "external"
+                    },
+                    "school": {
+                        "id": 1,
+                        "name": "the studnet",
+                        "short_name": "twic",
+                        "logo": null,
+                        "background": null
+                    }
+                },
+                "id": 1,
+                "jsonrpc": 2.0
+            }
+            
+
+### user.create [POST /]
+
++ Request (application/json)
+
+    + Attributes 
+    
+      + email: external@free.fr (string, required)
+      + firstname: f1 (string, optional)
+      + lastname: l1 (string, optional)
+      + uid: azerty (string, optional)
+      + role: student|instructor|academic (string, optional)
+      
+    + Headers
+            
+            Authorization: 886c54419472ea797c12e82b583a262a7
+            
+    + Body
+    
+            {
+                "jsonrpc": "2.0", 
+                "method": "user.create",
+                "params": {
+                    "email":"u1@univ.fr",
+                    "firstname":"f1",
+                    "lastname":"l1",
+                    "uid":"azerty"
+                },
+                "id": 2
+            }
+            
++ Response 200 (application/json)
+
+    + Body
+            
+            {
+                "result": {
+                    "origin": {
+                        "id": null,
+                        "short_name": null
+                    },
+                    "nationality": {
+                        "id": null,
+                        "short_name": null
+                    },
+                    "gender": null,
+                    "contact_state": 3,
+                    "contacts_count": 8,
+                    "school": {
+                        "id": 1,
+                        "name": "the studnet",
+                        "short_name": "twic",
+                        "logo": null,
+                        "background": null
+                    },
+                    "id": 9,
+                    "firstname": "f1",
+                    "lastname": "l1",
+                    "email": "u1@univ.fr",
+                    "birth_date": null,
+                    "position": null,
+                    "school_id": 1,
+                    "interest": null,
+                    "avatar": null,
+                    "has_email_notifier": 1,
+                    "background": null,
+                    "roles": [
+                        "student"
+                    ],
+                    "program": []
+                },
+                "id": 2,
+                "jsonrpc": 2.0
+            }
+
+### user.listing [POST /]
+
++ Request (application/json)
+
+    + Headers
+            
+            Authorization: 886c54419472ea797c12e82b583a262a7
+            
+    + Body
+            
+            {
+                "jsonrpc": "2.0", 
+                "method": "user.listing",
+                "params": [],
+                "id": 4
+            }
+            
++ Response 200 (application/json)
+
+    + Body
+            
+            {
+            "result": {
+                "list": [
+                    {
+                        "contact_state": 3,
+                        "contacts_count": 8,
+                        "school": {
+                            "id": 1,
+                            "name": "the studnet",
+                            "short_name": "twic",
+                            "logo": null,
+                            "background": null
+                        },
+                        "id": 9,
+                        "firstname": "f1",
+                        "lastname": "l1",
+                        "email": "u1@univ.fr",
+                        "birth_date": null,
+                        "position": null,
+                        "interest": null,
+                        "avatar": null,
+                        "roles": [
+                            "student"
+                        ],
+                        "program": []
+                    },
+                    {
+                        "contact_state": 0,
+                        "contacts_count": 8,
+                        "school": {
+                            "id": 1,
+                            "name": "the studnet",
+                            "short_name": "twic",
+                            "logo": null,
+                            "background": null
+                        },
+                        "id": 8,
+                        "firstname": "firstname_external",
+                        "lastname": "lastname_external",
+                        "email": "external@free.fr",
+                        "birth_date": null,
+                        "position": null,
+                        "interest": null,
+                        "avatar": null,
+                        "roles": [
+                            "external"
+                        ],
+                        "program": []
+                    }
+                ],
+                "count": 2
+                },
+                "id": 4,
+                "jsonrpc": 2.0
+            }
+     

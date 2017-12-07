@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="lms" default="main" basedir=".">
+	<property name="git.rev" value=""  />
+		<if>
+			<available file=".git" type="dir" />
+			<then>
+				<exec command="git describe --abbrev=0 --tags" error="/dev/null" outputProperty="git.tag" />
+				<exec command="git rev-list --max-count=1 --abbrev-commit HEAD" error="/dev/null" outputProperty="git.commit.head" />
+				<exec command="git rev-list --max-count=1 --abbrev-commit --tags" error="/dev/null" outputProperty="git.commit.tag" />
+				<if>
+					<equals arg1="${git.tag}" arg2="" />
+					<then>
+						<property name="git.rev" value="${git.commit.head}" override="true" />
+					</then>
+					<else>
+						<if>
+							<equals arg1="${git.commit.head}" arg2="${git.commit.tag}" />
+							<then>
+								<property name="git.rev" value="${git.tag}" override="true" />
+						    </then>
+							<else>
+								<property name="git.rev" value="${git.tag}-${git.commit.head}" override="true" />
+							</else>
+						</if>
+					</else>
+				</if>
+			</then>
+			<else>
+			</else>
+		</if>
+		<if><isset property="env" />
+			<then>
+				   <property file="${project.basedir}/Zdeploy/properties/${env}.properties" override="true" />
+			</then>
+			<else>
+				<php function="get_cfg_var" returnProperty="phing.env">
+			 		<param value="phing.env"/>
+			 	</php>
+				<if>
+					<available file="${project.basedir}/Zdeploy/properties/${phing.env}.properties" />
+					<then>
+						<property file="${project.basedir}/Zdeploy/properties/${phing.env}.properties" override="true" />
+					</then>
+					<else>
+						<property file="${project.basedir}/Zdeploy/properties/default.properties" />
+					</else>
+				</if>
+			</else>
+		</if>
+		<if>
+			<not><isset property="tmp.basedir" /></not>
+			<then>
+				<property name="tmp.basedir" value="/tmp/app" override="true" />
+			</then>
+		</if>
+		
+		<if>
+			<not><isset property="target.basedir" /></not>
+			<then><property name="target.basedir" value="/tmp/www/" override="true" /></then>
+		</if>
+
+		<if>
+		    <equals arg1="${app.eb}" arg2="true" />
+	    	<then>
+	    		<property name="tmp.basedir" value="${tmp.basedir}/${git.rev}" override="true" />
+	        </then>
+	    </if>
+		
+		<php expression='preg_replace("/([^:])(\/{2,})/", "$1/", "${tmp.basedir}/")' returnProperty="tmp.basedir" />
+	
+	<target name="main">
+		<echo message="+------------------------------------------+"/>
+		<echo message="|                                          |"/>
+		<echo message="|          Building The Project            |"/>
+		<echo message="|                                          |"/>
+		<echo message="+------------------------------------------+"/>
+		<echo message="REVISION : ${git.rev}" />
+		<echo message="TMP WORK : ${tmp.basedir}" />
+	</target>
+	
+	<target name="all">
+		<phingcall target="main" />
+		
+		<delete dir="${tmp.basedir}" includeemptydirs="true" quiet="true" />
+		<mkdir dir="${tmp.basedir}" />
+		<phingcall target="configuration" />
+		<if>
+			<equals arg1="${deploy.init}" arg2="true" />
+			<then><phingcall target="database-reset" /></then>
+		</if>
+		<if>
+			<equals arg1="${deploy.database}" arg2="true" />
+			<then><phingcall target="database" /></then>
+		</if>
+		<if>
+			<equals arg1="${app.targz}" arg2="true" />
+			<then><phingcall target="tar" /></then>
+		</if>
+		
+		<phingcall target="numbuild" />
+	</target>
+	<target name="numbuild">
+		<exec 
+		command='sed -i "s/$(cat config/autoload/global.php | grep "version")/ \"version\" => \"${git.rev}\",/" config/autoload/global.php'
+		passthru="true"
+	    dir="${tmp.basedir}" />
+	</target>
+	<target name="configuration">
+		<phing phingfile="${project.basedir}/Zdeploy/build/build-configuration.xml" target="configuration" />
+	</target>
+	<target name="database-reset">
+		<phing phingfile="${project.basedir}/Zdeploy/build/build-database.xml" target="database-reset" />
+	</target>
+    <target name="database">
+        <phing phingfile="${project.basedir}/Zdeploy/build/build-database.xml" target="database" />
+    </target>
+	<target name="tar">
+		<phing phingfile="${project.basedir}/Zdeploy/build/build-configuration.xml" target="create-targz" />
+	</target>
+</project>

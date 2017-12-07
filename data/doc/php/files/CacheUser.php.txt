@@ -1,0 +1,74 @@
+<?php
+
+namespace Application\Service;
+
+class CacheUser implements ServiceLocatorAwareInterface
+{
+    protected $serviceLocator;
+    protected $prefix = 'identity_';
+    protected $key_local = 'token';
+    protected $key_global = 'id';
+
+    public function saveLocal($data)
+    {
+        $identity = $this->getServiceAuth()->getIdentity();
+
+        $this->getCache()->setItem($this->prefix.$identity[$this->key_local], $data);
+    }
+
+    public function save($data)
+    {
+        $identity = $this->getServiceAuth()->getIdentity();
+
+        $this->getCache()->setItem($this->prefix.$identity[$this->key_global], $data);
+    }
+
+    public function getLocal()
+    {
+        $identity = $this->getServiceAuth()->getIdentity();
+
+        return ($this->getCache()->hasItem($this->prefix.$identity[$this->key_local])) ?
+            $this->getCache()->getItem($this->prefix.$identity[$this->key_local]) : false;
+    }
+
+    public function get()
+    {
+        $identity = $this->getServiceAuth()->getIdentity();
+
+        return ($this->getCache()->hasItem($this->prefix.$identity[$this->key_global])) ?
+            $this->getCache()->getItem($this->prefix.$identity[$this->key_global]) : false;
+    }
+
+    /**
+     * Get Storage if define.
+     *
+     * @return \Zend\Cache\Storage\StorageInterface
+     */
+    public function getCache()
+    {
+        $config = $this->getServiceLocator()->get('config')['app-conf'];
+
+        return $this->getServiceLocator()->get($config['cache']);
+    }
+
+    public function setServiceLocator(ServiceLocatorInterface $serviceLocator)
+    {
+        $this->serviceLocator = $serviceLocator;
+
+        return $this;
+    }
+
+    public function getServiceLocator()
+    {
+        return $this->serviceLocator;
+    }
+
+    /**
+     * @return \Zend\Authentication\AuthenticationService
+     */
+    public function getServiceAuth()
+    {
+        return $this->getServiceLocator()->get('auth.service');
+    }
+}
+

@@ -1,0 +1,7 @@
+api:
+  build: .
+  dockerfile: Dockerfile
+  ports:
+   - "1234:80"
+  volumes:
+   - .:/var/www

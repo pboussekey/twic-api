@@ -1,0 +1,15 @@
+ALTER TABLE `item` 
+DROP FOREIGN KEY `fk_item_2`,
+DROP FOREIGN KEY `fk_item_3`;
+ALTER TABLE `item` 
+ADD CONSTRAINT `fk_item_2`
+  FOREIGN KEY (`parent_id`)
+  REFERENCES `item` (`id`)
+  ON DELETE CASCADE
+  ON UPDATE NO ACTION,
+ADD CONSTRAINT `fk_item_3`
+  FOREIGN KEY (`order_id`)
+  REFERENCES `item` (`id`)
+  ON DELETE CASCADE
+  ON UPDATE NO ACTION;
+

@@ -1,0 +1,309 @@
+<?php
+
+namespace Application\Service;
+
+use Dal\Service\AbstractService;
+
+class Mail extends AbstractService
+{
+    /**
+     * Send mail.
+     *
+     * @invokable
+     *
+     * @param string $suject
+     * @param string $content
+     * @param array  $receiver
+     * @param array  $documents
+     * @param int    $group_id
+     *
+     * @throws \Exception
+     *
+     * @return int
+     */
+    public function send($suject, $content, $receiver, $documents = null, $group_id = null)
+    {
+        if (null === $group_id) {
+            $group_id = uniqid();
+        }
+
+        if ($this->getMapper()->insert($this->getModel()
+                ->setSuject($suject)
+                ->setContent($content)
+                ->setCreatedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'))
+                ->setMailGroupId($group_id)
+                ->setDraft(false)) <= 0) {
+            throw new \Exception('error insert messge');
+        }
+
+        $mail_id = $this->getMapper()->getLastInsertValue();
+
+        $receiver[] = array('type' => 'from', 'user' => $this->getServiceAuth()->getIdentity()->getId());
+
+        foreach ($receiver as $mr) {
+            $this->getServiceMailUser()->add($mail_id, $mr['user'], $group_id);
+        }
+        $this->getServiceMailreceiver()->add($mail_id, $receiver);
+
+        if (null !== $documents) {
+            foreach ($documents as $doc) {
+                $this->getServiceMailDoc()->add($mail_id, $doc);
+            }
+        }
+
+        return array('mail' => $mail_id, 'group' => $group_id);
+    }
+
+    /**
+     * Add receiver.
+     *
+     * @invokable
+     *
+     * @param int   $mail
+     * @param array $receiver
+     */
+    public function addReceiver($mail, $receiver)
+    {
+        // @TODO test update only draft
+        return $this->getServiceMailreceiver()->_add($receiver['type'], $receiver['user'], $mail);
+    }
+
+    /**
+     * Delete receiver.
+     *
+     * @invokable
+     *
+     * @param int $mail
+     * @param int $receiver_id
+     */
+    public function deleteReceiver($mail, $receiver_id)
+    {
+        // @TODO test update only draft
+        return $this->getServiceMailreceiver()->delete($receiver_id, $mail);
+    }
+
+    /**
+     * Add Document.
+     *
+     * @invokable
+     *
+     * @param int    $mail
+     * @param string $document
+     */
+    public function addDocument($mail, $document)
+    {
+        return $this->getServiceMailDoc()->add($mail, $document);
+    }
+
+    /**
+     * Delete Document by Id.
+     *
+     * @invokable
+     *
+     * @param int $mail
+     * @param int $document_id
+     */
+    public function deleteDocument($mail, $document_id)
+    {
+        return $this->getServiceMailDoc()->delete($mail, $document_id);
+    }
+
+    /**
+     * Save messge by draft.
+     *
+     * @invokable
+     *
+     * @param strung $suject
+     * @param string $content
+     * @param array  $receiver
+     * @param string $documents
+     * @param string $group_id
+     *
+     * @throws \Exception
+     *
+     * @return int
+     */
+    public function save($suject, $content, $receiver, $documents = null, $group_id = null)
+    {
+        if (null === $group_id) {
+            $group_id = uniqid();
+        }
+
+        if ($this->getMapper()->insert($this->getModel()
+                ->setSuject($suject)
+                ->setContent($content)
+                ->setCreatedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'))
+                ->setMailGroupId($group_id)
+                ->setDraft(true)) <= 0) {
+            throw new \Exception('error insert draft');
+        }
+
+        $mail_id = $this->getMapper()->getLastInsertValue();
+
+        $receiver[] = array('type' => 'from', 'user' => $this->getServiceAuth()->getIdentity()->getId());
+
+        if (null !== $receiver) {
+            $this->getServiceMailreceiver()->add($mail_id, $receiver);
+        }
+
+        if (null !== $documents) {
+            foreach ($documents as $doc) {
+                $this->getServiceMailDoc()->add($mail_id, $doc);
+            }
+        }
+
+        return array('mail' => $mail_id, 'group' => $group_id);
+    }
+
+    /**
+     * Update mail.
+     *
+     * @invokable
+     *
+     * @param int    $id
+     * @param string $suject
+     * @param string $content
+     * @param array  $receiver
+     * @param array  $documents
+     *
+     * @return int
+     */
+    public function update($id, $suject = null, $content = null, $receiver = null, $documents = null)
+    {
+        $m_mail = $this->getModel()->setId($id);
+
+        if (null !== $suject) {
+            $m_mail->setSuject($suject);
+        }
+        if (null !== $content) {
+            $m_mail->setContent($content);
+        }
+        if (null !== $receiver) {
+            $receiver[] = array('type' => 'from', 'user' => $this->getServiceAuth()->getIdentity()->getId());
+            $this->getServiceMailreceiver()->replace($receiver, $id);
+        }
+        if (null !== $documents) {
+            $this->getServiceMailDoc()->replace($documents, $id);
+        }
+
+        return $this->getMapper()->update($m_mail);
+    }
+
+    /**
+     * Send mail Draft.
+     *
+     * @invokable
+     *
+     * @param int $id
+     *
+     * @return int
+     */
+    public function sendById($id)
+    {
+        //@TODO check from is userid
+        $group_id = $this->getMapper()->select($this->getModel()->setId($id))->current()->getMailGroupId();
+        $receiver = $this->getServiceMailreceiver()->getByMail($id);
+
+        foreach ($receiver as $mr) {
+            $this->getServiceMailUser()->add($id, $mr->getUserId(), $group_id);
+        }
+
+        return $this->getMapper()->update($this->getModel()->setId($id)->setDraft(false));
+    }
+
+    /**
+     * Get list preview.
+     *
+     * @invokable
+     *
+     * @param string $tag
+     * @param array  $filter
+     *
+     * @return array
+     */
+    public function getListPreview($tag = null, $filter = array())
+    {
+        $mapper = $this->getMapper();
+        $res_mail = $mapper->usePaginator($filter)->getListPreview($this->getServiceAuth()->getIdentity()->getId(), $tag);
+
+        foreach ($res_mail as $mess) {
+            $mess->setReceiver($this->getServiceMailreceiver()->getByMail($mess->getId()));
+        }
+
+        return array('count' => $mapper->count(), 'list' => $res_mail);
+    }
+
+    /**
+     * Get List Mail By Group.
+     *
+     * @invokable
+     *
+     * @param int   $group
+     * @param array $filter
+     */
+    public function getListByGroup($group, $filter = array())
+    {
+        $mapper = $this->getMapper();
+        $res_mail = $mapper->usePaginator($filter)->getListByGroup($this->getServiceAuth()->getIdentity()->getId(), $group);
+
+        foreach ($res_mail as $mess) {
+            $mess->setReceiver($this->getServiceMailreceiver()->getByMail($mess->getId()));
+            $mess->setMailDocument($this->getServiceMailDoc()->getByMail($mess->getId()));
+        }
+
+        return array('count' => $mapper->count(), 'list' => $res_mail);
+    }
+
+    /**
+     * Delete Mail.
+     *
+     * @invokable
+     *
+     * @param int $id
+     */
+    public function delete($id)
+    {
+        return $this->getServiceMailUser()->delete($this->getServiceAuth()->getIdentity()->getId(), $id);
+    }
+
+    /**
+     * @return \Application\Service\MailGroup
+     */
+    public function getServiceMailGroup()
+    {
+        return $this->getServiceLocator()->get('app_service_mail_group');
+    }
+
+    /**
+     * @return \Application\Service\MailUser
+     */
+    public function getServiceMailUser()
+    {
+        return $this->getServiceLocator()->get('app_service_mail_user');
+    }
+
+    /**
+     * @return \Application\Service\Mailreceiver
+     */
+    public function getServiceMailreceiver()
+    {
+        return $this->getServiceLocator()->get('app_service_mail_receiver');
+    }
+
+    /**
+     * @return \Application\Service\MailDoc
+     */
+    public function getServiceMailDoc()
+    {
+        return $this->getServiceLocator()->get('app_service_mail_doc');
+    }
+
+    /**
+     * @return \Auth\Service\AuthService
+     */
+    public function getServiceAuth()
+    {
+        return $this->getServiceLocator()->get('auth.service');
+    }
+}
+
