@@ -537,20 +537,18 @@ class Item extends AbstractService
                     if(!$m_item_parent->getIsPublished()) {
                         return true;
                     }
-                    //SI IL Y A UNE SECTION
-                    if(is_numeric($m_item_parent->getParentId())) {
-                        // SI ELLE NEST PAS PUBLIE
+                    //IF THERE IS MORE THAN TWO LEVELS OF ITEMS
+                    /*if(is_numeric($m_item_parent->getParentId())) {
                         $m_item_section = $this->getLite($m_item_parent->getParentId())->current();
                         if(!$m_item_section->getIsPublished()) {
                             return true;
                         }
-                    }
+                    }*/
                 }
 
                 $ar_pages = [];
                 $res_user = $this->getServiceUser()->getLite($this->getServicePageUser()->getListByPage($page_id)[$page_id]);
                 foreach($res_user as $m_user){
-                    syslog(1, "USERS : ".json_encode($m_user));
                     if($m_user->getId() == $identity['id']){
                         continue;
                     }

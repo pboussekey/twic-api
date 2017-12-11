@@ -586,6 +586,11 @@ class User extends AbstractService
         if (! empty($password)) {
             $m_user->setPassword(md5($password));
         }
+        
+        if(null !== $birth_date) {
+            $birth_date = (new \DateTime($birth_date))->format('Y-m-d H:i:s');
+        }  
+        
         if ($address !== null) {
             $address_id = null;
             if ($address === 'null') {
