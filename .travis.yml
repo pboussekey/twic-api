@@ -9,7 +9,7 @@ before_script :
     - mkdir -p build/logs
     - composer install -o
     - cp tests/travis.properties tests/test.properties
-    - PATH=$PATH:/bin
+    - export PATH=$PATH:/bin
     - phing
 
 script:
