@@ -6,10 +6,9 @@ php :
 services:
   - mysql
 before_script :
-    - mkdir -p build/logs
     - composer install -o
+    - composer global require phing/phing
     - cp tests/travis.properties tests/test.properties
-    - export PATH=$PATH:/bin
     - phing
 
 script:
