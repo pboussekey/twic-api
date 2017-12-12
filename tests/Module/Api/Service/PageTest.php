@@ -9,6 +9,7 @@ class PageTest extends AbstractService
     { 
         system('phing -q reset-db deploy-db');
         parent::setUpBeforeClass();
+    
     }
 
     public function testPageAdd()
