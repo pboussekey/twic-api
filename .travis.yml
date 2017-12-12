@@ -9,7 +9,7 @@ before_script :
     - mkdir -p build/logs
     - composer install -o
     - cp tests/travis.properties tests/test.properties
-    - phing
+    - bin/phing
 
 script:
     - bin/phpunit -c ./ --coverage-text --coverage-clover ../build/logs/clover.xml
