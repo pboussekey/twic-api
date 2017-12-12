@@ -3,10 +3,13 @@ language : php
 php :
     - 5.6
     - 7.0
-
+services:
+  - mysql
 before_script :
     - mkdir -p build/logs
     - composer install -o --dev
+    - cp travis.properties test.properties
+    - phing
 
 script:
     - bin/phpunit -c ./ --coverage-text --coverage-clover ../build/logs/clover.xml
