@@ -7,8 +7,7 @@ class MessageTest extends AbstractService
 {
     public static function setUpBeforeClass()
     {
-        system('bin/phing -q reset-db deploy-db');
-
+        system(parent::getBinFolder().'/phing -f '.parent::getTestsFolder().'/build.xml -q reset-db deploy-db');  
         parent::setUpBeforeClass();
     }
 

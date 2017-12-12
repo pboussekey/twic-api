@@ -9,8 +9,7 @@ class GroupTest extends AbstractService
 
     public static function setUpBeforeClass()
     {
-        system('bin/phing -q reset-db deploy-db');
-
+        system('phing -q reset-db deploy-db');
         parent::setUpBeforeClass();
     }
 

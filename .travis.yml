@@ -9,10 +9,11 @@ services:
 before_script :
     - composer install -o
     - cp tests/travis.properties tests/test.properties
-    - bin/phing
+    - export PATH="$PATH:$PWD/bin"
+    - phing
 
 script:
-    - bin/phpunit -c ./ --coverage-text --coverage-clover ../build/logs/clover.xml
+    - phpunit -c ./ --coverage-text --coverage-clover ../build/logs/clover.xml
 
 after_script:
-- php bin/coveralls
+- php coveralls

@@ -25,7 +25,8 @@
 	},
 	"require-dev" : {
 		"friendsofphp/php-cs-fixer" : "*",
-		"phpunit/phpunit" : "*"
+		"phpunit/phpunit" : "*",
+                "php-coveralls/php-coveralls": "*"
 	},
 	"autoload" : {
 		"psr-4" : {
