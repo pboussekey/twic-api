@@ -663,7 +663,7 @@ class Item extends AbstractService
         
         
         if (null !== $post_id) {
-            $this->getServicePost()->update($post_id, null, null, null, null, null, null, null, null, null, null, null, null, null, $id);
+            $this->getServicePost()->_update($post_id, null, null, null, null, null, null, null, null, null, null, null, null, null, $id);
         }
         if (null !== $quiz_id) {
             $this->getServiceQuiz()->update($quiz_id, $id);

@@ -167,14 +167,14 @@ class ItemRateTest extends AbstractService
           'participants' => 'group',
           'parent_id' => $section_id,
         ]);
-
+        $item = $data['result'];
         $this->reset();
         $this->setIdentity(1);
         $data = $this->jsonRpc('item.addUsers', [
-            'id' => $data['result'],
+            'id' => $item,
             'group_name' => 'Group',
-            'user_ids' => [1,2,3,4,5]
-        ]);
+            'user_ids' => [1,2,3,4, 5]
+        ]);       
 
         $this->reset();
         $this->setIdentity(1);
@@ -556,7 +556,26 @@ class ItemRateTest extends AbstractService
 
 
     }
+    
+    /**
+    * @depends testInit
+    */
+    public function testGradeError($id)
+    {
+        $this->setIdentity(5);
+        $data = $this->jsonRpc('item.grade', [
+          'item_id' => 2,
+          'rate' => 66,
+          'user_id' => 5,
+          //'group_id' => null,
+        ]);
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals(count($data['error']) , 3); 
+        $this->assertEquals($data['error']['code'] , 1); 
+        $this->assertEquals(!empty($data['error']['message']) , true); 
 
+    }
     /**
     * @depends testInit
     */
@@ -566,6 +585,25 @@ class ItemRateTest extends AbstractService
       $data = $this->jsonRpc('item.grade', [
         'item_id' => 2,
         'rate' => 66,
+        'user_id' => 5,
+        //'group_id' => null,
+      ]);
+
+      $this->assertEquals(count($data) , 3);
+      $this->assertEquals($data['id'] , 1);
+      $this->assertEquals($data['result'] , true);
+      $this->assertEquals($data['jsonrpc'] , 2.0);
+    }
+    
+    /**
+    * @depends testInit
+    */
+    public function testGrade2($id)
+    {
+      $this->setIdentity(1);
+      $data = $this->jsonRpc('item.grade', [
+        'item_id' => 6,
+        'rate' => 100,
         'user_id' => 5,
         //'group_id' => null,
       ]);
@@ -673,6 +711,64 @@ class ItemRateTest extends AbstractService
 
         return $data['result'];
       }
+      
+      
+     /**
+      * @depends testInit
+      * @depends testAddText
+      */
+      public function testAddSubmission2($id, $library_id)
+      {
+          
+        $this->setIdentity(6);
+        $data = $this->jsonRpc('library.add', [
+          'name' => 'super file',
+          'text' => 'super cool',
+        ]);
+
+        $this->reset();
+        $this->setIdentity(5);
+        $data = $this->jsonRpc('submission.add', [
+          'item_id' => 6,
+          'library_id' => $data['result']['id']
+        ]);
+
+        $this->assertEquals(count($data) , 3);
+        $this->assertEquals($data['id'] , 1);
+        $this->assertEquals($data['result'] , 2);
+        $this->assertEquals($data['jsonrpc'] , 2.0);
+        
+
+        return $data['result'];
+      }
+      
+       /**
+      * @depends testInit
+      * @depends testAddText
+      */
+      public function testAddSubmission3($id, $library_id)
+      {
+          
+        $this->setIdentity(6);
+        $data = $this->jsonRpc('library.add', [
+          'name' => 'super file',
+          'text' => 'super cool',
+        ]);
+
+        $this->reset();
+        $this->setIdentity(4);
+        $data = $this->jsonRpc('submission.add', [
+          'item_id' => 6,
+          'library_id' => $data['result']['id']
+        ]);
+        $this->assertEquals(count($data) , 3);
+        $this->assertEquals($data['id'] , 1);
+        $this->assertEquals($data['result'] , 2);
+        $this->assertEquals($data['jsonrpc'] , 2.0);
+        
+
+        return $data['result'];
+      }
 
       /**
        * @depends testAddSubmission
@@ -696,16 +792,17 @@ class ItemRateTest extends AbstractService
         */
        public function testGetLibrary($submission_id)
        {
-          $this->setIdentity(1);
-          $data = $this->jsonRpc('submission.getListLibrary', [
-            'item_id' => 2
-          ]);
+            $this->setIdentity(1);
+            $data = $this->jsonRpc('submission.getListLibrary', [
+              'item_id' => 2
+            ]);
+            $this->assertEquals(count($data) , 3); 
+            $this->assertEquals($data['id'] , 1); 
+            $this->assertEquals(count($data['result']) , 1); 
+            $this->assertEquals($data['result'][0] , 1); 
+            $this->assertEquals($data['jsonrpc'] , 2.0); 
 
-          $this->assertEquals(count($data) , 3);
-          $this->assertEquals($data['id'] , 1);
-          $this->assertEquals(count($data['result']) , 1);
-          $this->assertEquals($data['result'][0] , 1);
-          $this->assertEquals($data['jsonrpc'] , 2.0);
+
        }
 
        /**
@@ -730,16 +827,18 @@ class ItemRateTest extends AbstractService
         * @depends testAddSubmission
         */
        public function testGetLibraryAfterRemove($submission_id)
-       {
-           $this->setIdentity(1);
-           $data = $this->jsonRpc('submission.getListLibrary', [
-             'item_id' => 2
-           ]);
+        {
+            $this->setIdentity(1);
+            $data = $this->jsonRpc('submission.getListLibrary', [
+              'item_id' => 6
+            ]);
 
-          $this->assertEquals(count($data) , 3);
-          $this->assertEquals($data['id'] , 1);
-          $this->assertEquals(count($data['result']) , 0);
-          $this->assertEquals($data['jsonrpc'] , 2.0);
+            $this->assertEquals(count($data) , 3); 
+            $this->assertEquals($data['id'] , 1); 
+            $this->assertEquals(count($data['result']) , 2); 
+            $this->assertEquals($data['result'][0] , 5); 
+            $this->assertEquals($data['result'][1] , 6); 
+            $this->assertEquals($data['jsonrpc'] , 2.0); 
        }
 
        /**
@@ -1515,7 +1614,7 @@ class ItemRateTest extends AbstractService
          
         $this->assertEquals(count($data) , 3); 
         $this->assertEquals($data['id'] , 1); 
-        $this->assertEquals($data['result'] , 10); 
+        $this->assertEquals($data['result'] , 11); 
         $this->assertEquals($data['jsonrpc'] , 2.0); 
       }
 }

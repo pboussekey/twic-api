@@ -10,13 +10,13 @@
 	"require" : {
 		"php" : ">=5.6",
 		"zendframework/zendframework" : "3.*",
-		"blanchonvincent/simple-page-crawler" : "dev-master",
+		"buse974/simple-page-crawler" : "dev-master",
 		"buse974/dal" : "dev-master",
 		"buse974/address" : "dev-master",
 		"buse974/jrpc" : "dev-master",
 		"buse974/ZOpenTok" : "dev-master",
 		"buse974/sge" : "dev-master",
-		"zendframework/zendservice-google-fcm" : "dev-master",
+		"buse974/zendservice-google-gcm" : "dev-master",
 		"aws/aws-sdk-php" : "^3.19",
 		"firebase/php-jwt" : "^4.0",
 		"buse974/dms" : "dev-master",
@@ -27,14 +27,6 @@
 		"friendsofphp/php-cs-fixer" : "*",
 		"phpunit/phpunit" : "*"
 	},
-	"repositories" : [{
-			"type" : "vcs",
-			"url" : "git@bitbucket.org:thestudnet/simplepagecrawler.git"
-		}, {
-			"type" : "vcs",
-			"url" : "git@bitbucket.org:thestudnet/zendservice_google_fcm.git"
-		}
-	],
 	"autoload" : {
 		"psr-4" : {
 			"Application\\" : "module/Application/src/",

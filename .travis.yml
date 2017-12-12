@@ -6,7 +6,7 @@ php :
 
 before_script :
     - mkdir -p build/logs
-    - composer install
+    - composer install -o
 
 script:
     - bin/phpunit -c ./ --coverage-text --coverage-clover ../build/logs/clover.xml

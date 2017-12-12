@@ -61,22 +61,6 @@ class ItemUser extends AbstractService
     }
 
     /**
-     *
-     * @param int $id
-     * @param int $submission_id
-     *
-     * @return int
-     */
-    public function update($id, $submission_id)
-    {
-        $m_item_user = $this->getModel()
-            ->setId($id)
-            ->setSubmissionId($submission_id);
-        
-        return $this->getMapper()->update($m_item_user);
-    }
-
-    /**
      * GetList Item User or Create
      *
      * @param int $user_id
@@ -94,14 +78,13 @@ class ItemUser extends AbstractService
         
         if ($res_item_user->count() <= 0) {
             if ($user_id === null) {
-                throw new \Exception("Error process: item_user is not présent");
+                throw new \Exception("Error process: there is no item_user");
             }
             $it_id = $this->create($item_id, $user_id, null, $submission_id);
             $res_item_user = $this->getMapper()->select($this->getModel()->setId($it_id));
         }
 
         $m_final_item_user = $res_item_user->current();
-        
         if (null !== $submission_id && null !== $group_id) {
             $res_upt_item_user = $this->getMapper()->select($this->getModel()
                 ->setItemId($item_id)
