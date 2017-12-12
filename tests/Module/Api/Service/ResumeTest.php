@@ -9,7 +9,7 @@ class ResumeTest extends AbstractService
 
     public static function setUpBeforeClass()
     {
-        system('phing -q reset-db deploy-db');
+        system('bin/phing -q reset-db deploy-db');
 
         parent::setUpBeforeClass();
     }

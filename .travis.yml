@@ -1,3 +1,4 @@
+#!/bin/
 language : php
 
 php :
@@ -7,9 +8,8 @@ services:
   - mysql
 before_script :
     - composer install -o
-    - composer global require phing/phing
     - cp tests/travis.properties tests/test.properties
-    - phing
+    - bin/phing
 
 script:
     - bin/phpunit -c ./ --coverage-text --coverage-clover ../build/logs/clover.xml
