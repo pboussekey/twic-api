@@ -8,6 +8,7 @@ services:
   - mysql
   - memcached
 before_script :
+    - echo "extension=memcached.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
     - composer install -o
     - cp tests/travis.properties tests/test.properties
     - export PATH="$PATH:$PWD/bin"
