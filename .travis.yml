@@ -6,6 +6,7 @@ php :
     - 7.0
 services:
   - mysql
+  - memcached
 before_script :
     - composer install -o
     - cp tests/travis.properties tests/test.properties
