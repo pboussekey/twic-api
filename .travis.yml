@@ -13,6 +13,8 @@ before_script :
     - cp tests/travis.properties tests/test.properties
     - export PATH="$PATH:$PWD/bin"
     - phing -f tests/build.xml
+    - mkdir tests/_build
+    - touch tests/_build/input.data
 
 script:
     - phpunit -c ./ --coverage-text --coverage-clover ../build/logs/clover.xml
