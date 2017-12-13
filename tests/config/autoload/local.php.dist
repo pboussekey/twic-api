@@ -70,6 +70,10 @@ return array(
 		'sslverifypeer'  => false,
 		'timeout'        => 10,
 	),
+        'gcm-conf' => [
+            'api_key' => 'azertyuiop',
+            'adapter' => 'http-adapter',
+        ],
 	'caches' => array(
 		'storage_memcached' => array(
 			'adapter' => array(
