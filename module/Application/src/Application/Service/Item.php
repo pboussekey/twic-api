@@ -868,6 +868,7 @@ class Item extends AbstractService
         if(!is_array($id)){
             $id = [$id];
         }
+        $fcm_service = $this->getServiceFcm();
         foreach($id as $i){
             $m_item = $this->getLite($i)->current();
             $ar_user = ($m_item->getParticipants() === 'all') ?
@@ -896,7 +897,7 @@ class Item extends AbstractService
                     ]
                 ],
                 $gcm_notification,
-                $this->getServiceFcm()::PACKAGE_TWIC_MESSENGER
+                $fcm_service::PACKAGE_TWIC_MESSENGER
             );
         }
     }
