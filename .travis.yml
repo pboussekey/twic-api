@@ -12,7 +12,7 @@ before_script :
     - composer install -o
     - cp tests/travis.properties tests/test.properties
     - export PATH="$PATH:$PWD/bin"
-    - phing
+    - phing -f tests/build.xml
 
 script:
     - phpunit -c ./ --coverage-text --coverage-clover ../build/logs/clover.xml

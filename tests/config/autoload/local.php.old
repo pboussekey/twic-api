@@ -25,9 +25,9 @@ return array(
 		'adapters' => array(
 			'db-adapter' => array(
 				'driver' => 'pdo_Mysql',
-				'dsn' => 'mysql:dbname=apilms;host=127.0.0.1',
+				'dsn' => 'mysql:dbname=apilmstest;host=127.0.0.1',
 				'username' =>  'root',
-				'password' =>  '',
+				'password' =>  'root',
 				'driver_options' => array(
 					PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
 					PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \'UTF8\'',
@@ -37,10 +37,10 @@ return array(
 			),
 		)
 	),
-     'node' => [
-	     'addr' => 'http://192.168.1.36:8282',
-	     'authorization' => 'viserlalunecanemefaitpaspeurmemealusurejycroisencoreetencoeur'
-     ],
+	'node' => array(
+            'addr' => 'http://192.168.1.36:8282',
+            'authorization' => 'viserlalunecanemefaitpaspeurmemealusurejycroisencoreetencoeur'
+        ),
     'zopentok-conf' => [
         'api_key' => '45105812',
         'api_secret' => '071024b92d648e39339d0bb891668401a2254bd4',
