@@ -142,6 +142,14 @@ class Page extends AbstractService
         if (null === $owner_id) {
             $owner_id = $user_id;
         }
+        
+        if(null !== $start_date) {
+            $start_date = (new \DateTime($start_date))->format('Y-m-d H:i:s');
+        }       
+        
+        if(null !== $end_date) {
+            $end_date = (new \DateTime($end_date))->format('Y-m-d H:i:s');
+        }
 
         $m_page = $this->getModel()
           ->setTitle($title)

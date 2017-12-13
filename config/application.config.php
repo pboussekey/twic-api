@@ -39,7 +39,7 @@ return [
             'Rbac' => __DIR__.'/../module/Rbac',
             'Box' => __DIR__.'/../module/Box',
             'LinkedIn' => __DIR__.'/../module/LinkedIn',
-            'SimplePageCrawler' => __DIR__.'/../vendor/blanchonvincent/simple-page-crawler',
+            'SimplePageCrawler' => __DIR__.'/../vendor/buse974/simple-page-crawler',
         ],
 
         // An array of paths from which to glob configuration files after
