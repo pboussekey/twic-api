@@ -78,9 +78,9 @@ class Module
                 \ZendService\Google\Gcm\Client::class => function ($container) {
                     $config = $container->get('config');
                     $client = new \ZendService\Google\Gcm\Client();
-                    $client->setApiKey($config['gcm']['api_key'])
-                        //->setSenderId($config['gcm']['sender_id'])
-                        ->setHttpClient(new \Zend\Http\Client(null, $config[$config['gcm']['adapter']]));
+                    $client->setApiKey($config['gcm-conf']['api_key'])
+                        //->setSenderId($config['gcm-conf']['sender_id'])
+                        ->setHttpClient(new \Zend\Http\Client(null, $config[$config['gcm-conf']['adapter']]));
 
                     return $client;
                 },
