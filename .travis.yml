@@ -13,6 +13,7 @@ before_script :
     - echo "[mysqld]" >> $HOME/.my.cnf
     - echo "innodb_flush_log_at_trx_commit=2" >> $HOME/.my.cnf
     - echo "innodb_buffer_pool_size=1G" >> $HOME/.my.cnf
+    - sudo service mysql restart
     - composer install -o
     - cp tests/travis.properties tests/test.properties
     - export PATH="$PATH:$PWD/bin"
