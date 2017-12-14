@@ -6,8 +6,13 @@ php :
 services:
   - mysql
   - memcached
+addons:
+  mariadb: '10.2'
 before_script :
     - echo "extension=memcached.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+    - echo "[mysqld]" >> $HOME/.my.cnf
+    - echo "innodb_flush_log_at_trx_commit=2" >> $HOME/.my.cnf
+    - echo "innodb_buffer_pool_size=1G" >> $HOME/.my.cnf
     - composer install -o
     - cp tests/travis.properties tests/test.properties
     - export PATH="$PATH:$PWD/bin"
