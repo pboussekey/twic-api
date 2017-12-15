@@ -329,6 +329,12 @@ class User extends AbstractService
      */
     public function suspend($id, $suspend, $reason = null)
     {
+        
+        
+        if(!$this->isStudnetAdmin() ) {
+            
+            throw new JrpcException('Unauthorized operation user.suspend', -38003);
+        }
         $m_user = $this->getModel()
             ->setId($id)
             ->setSuspensionDate(1 === $suspend ? (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s') : new IsNull())

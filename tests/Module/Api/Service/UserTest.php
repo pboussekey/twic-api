@@ -75,6 +75,37 @@ class UserTest extends AbstractService
 
         return $page_id;
     }
+    
+       /**
+     * @depends testInit
+     **/
+    public function testCanAddUserError($page_id)
+    {
+        $this->setIdentity(5, 1);
+        $data = $this->jsonRpc(
+            'user.add', [
+            'firstname' => 'Christophe',
+            'gender' => 'm',
+            'origin' => 1,
+            'organization_id' => $page_id,
+            'nationality' => 1,
+            'lastname' => 'Robert',
+            'email' => 'crobert@thestudnet.com',
+            'password' => 'studnet',
+            'position' => 'une position',
+            'interest' => 'un interet',
+            'avatar' => 'un_token']
+        );
+        
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals(count($data['error']) , 3); 
+        $this->assertEquals($data['error']['code'] , -38001); 
+        $this->assertEquals($data['error']['message'] , "duplicate email"); 
+        $this->assertEquals($data['error']['data'] , null); 
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
+
+    }
 
     /**
      * @depends testInit
@@ -91,7 +122,7 @@ class UserTest extends AbstractService
             'nationality' => 1,
             'lastname' => 'Robert',
             'email' => 'crobertr@thestudnet.com',
-            'password' => 'studnet',
+            'password' => 'thestudnet',
             'position' => 'une position',
             'interest' => 'un interet',
             'avatar' => 'un_token']
@@ -101,9 +132,62 @@ class UserTest extends AbstractService
         $this->assertEquals($data['result'], 8);
         $this->assertEquals($data['id'], 1);
         $this->assertEquals($data['jsonrpc'], 2.0);
+        
+        $this->reset();
+        $this->setIdentity(5, 1);
+        $this->jsonRpc(
+            'pageuser.add', [
+            'page_id' => $page_id,
+            'user_id' => $data['result'],
+            'state' => 'member',
+            'role' => 'user'
+            ]
+        );
 
         return $data['result'];
     }
+    
+      /**
+     * @depends testInit
+     **/
+    public function testCanAddExternal($page_id)
+    {
+        $this->setIdentity(5, 1);
+        $data = $this->jsonRpc(
+            'user.add', [
+            'firstname' => 'Christophe',
+            'gender' => 'm',
+            'origin' => 1,
+            'organization_id' => $page_id,
+            'nationality' => 1,
+            'roles' => ['external'],
+            'lastname' => 'Robert',
+            'email' => 'external@thestudnet.com',
+            'password' => 'thestudnet',
+            'position' => 'une position',
+            'interest' => 'un interet',
+            'avatar' => 'un_token']
+        );
+
+        $this->assertEquals(count($data), 3);
+        $this->assertEquals($data['result'], 9);
+        $this->assertEquals($data['id'], 1);
+        $this->assertEquals($data['jsonrpc'], 2.0);
+        
+        $this->reset();
+        $this->setIdentity(5, 1);
+        $this->jsonRpc(
+            'pageuser.add', [
+            'page_id' => $page_id,
+            'user_id' => $data['result'],
+            'state' => 'member',
+            'role' => 'user'
+            ]
+        );
+        return $data['result'];
+    }
+    
+    
 
     /**
      * @depends testCanAddUser
@@ -138,6 +222,247 @@ class UserTest extends AbstractService
 
         return $data['result']['token'];
     }
+    
+    
+     /**
+     * @depends testCanAddUser
+     */
+    public function testSendPwd($id)
+    {
+        $this->mockRbac();
+
+
+        $data = $this->jsonRpc('user.sendPassword', ['id' => $id]);
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals($data['result'] , 0); 
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
+
+
+    }
+    
+       /**
+     * @depends testCanAddUser
+     */
+    public function testAddPreregistration($id)
+    {
+        $this->mockRbac();
+
+
+        $data = $this->jsonRpc('preregistration.add', 
+            ['account_token' => 'token', 'firstname' => 'Christophe', 'lastname' => 'Robert', 'email' => 'crobertr@thestudnet.com', 'organization_id' => 1, 'user_id' => $id]);
+        
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals($data['result'] , "token"); 
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
+
+
+    }
+    
+        /**
+     * @depends testCanAddUser
+     */
+    public function testSignIn($id)
+    {
+        $this->mockRbac();
+
+
+        $data = $this->jsonRpc('user.signIn', 
+            ['account_token' => 'token',  'password' => 'thestudnet']);
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals(count($data['result']) , 16); 
+        $this->assertEquals($data['result']['id'] , 8); 
+        $this->assertEquals(!empty($data['result']['token']) , true); 
+        $this->assertEquals(!empty($data['result']['created_date']) , true); 
+        $this->assertEquals($data['result']['firstname'] , "Christophe"); 
+        $this->assertEquals($data['result']['lastname'] , "Robert"); 
+        $this->assertEquals($data['result']['nickname'] , null); 
+        $this->assertEquals($data['result']['suspension_date'] , null); 
+        $this->assertEquals($data['result']['suspension_reason'] , null); 
+        $this->assertEquals($data['result']['organization_id'] , 1); 
+        $this->assertEquals($data['result']['email'] , "crobertr@thestudnet.com"); 
+        $this->assertEquals($data['result']['avatar'] , "un_token"); 
+        $this->assertEquals($data['result']['expiration_date'] , null); 
+        $this->assertEquals($data['result']['has_linkedin'] , false); 
+        $this->assertEquals(count($data['result']['roles']) , 1); 
+        $this->assertEquals($data['result']['roles'][2] , "user"); 
+        $this->assertEquals(!empty($data['result']['wstoken']) , true); 
+        $this->assertEquals(!empty($data['result']['fbtoken']) , true); 
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
+
+
+
+    }
+    
+     /**
+     * @depends testCanAddExternal
+     */
+    public function testSendPwd2($id)
+    {
+        $this->mockRbac();
+
+
+        $data = $this->jsonRpc('user.sendPassword', ['id' => $id]);
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals($data['result'] , 0); 
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
+
+    }
+    
+       /**
+     * @depends testCanAddExternal
+     */
+    public function testAddPreregistration2($id)
+    {
+        $this->mockRbac();
+
+
+        $data = $this->jsonRpc('preregistration.add', 
+            ['account_token' => 'token2', 'firstname' => 'Christophe', 'lastname' => 'Robert', 'email' => 'external@thestudnet.com', 'organization_id' => 1, 'user_id' => $id]);
+        
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals($data['result'] , "token2"); 
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
+
+
+    }
+    
+     
+        /**
+     * @depends testCanAddExternal
+     */
+    public function testSignIn2($id)
+    {
+        $this->mockRbac();
+
+
+        $data = $this->jsonRpc('user.signIn', 
+            ['account_token' => 'token2',  'password' => 'thestudnet']);
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals(count($data['error']) , 3); 
+        $this->assertEquals($data['error']['code'] , -32000); 
+        $this->assertEquals(!empty($data['error']['message']) , true); 
+
+
+
+    }
+    
+    /**
+     * @depends testCanAddExternal
+     */
+     public function testExternalLogin()
+    {
+        $this->mockRbac();
+
+
+        $data = $this->jsonRpc('user.login', ['user' => 'external@thestudnet.com','password' => 'thestudnet']);
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals(count($data['error']) , 3); 
+        $this->assertEquals($data['error']['code'] , -32000); 
+        $this->assertEquals(!empty($data['error']['message']) , true); 
+
+
+    }
+    
+    
+    public function testWrongLogin()
+    {
+        $this->mockRbac();
+
+
+        $data = $this->jsonRpc('user.login', ['user' => 'unknown@thestudnet.com','password' => 'thestudnet']);
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals(count($data['error']) , 3); 
+        $this->assertEquals($data['error']['code'] , -32033); 
+        $this->assertEquals($data['error']['message'] , "A record with the supplied identity could not be found."); 
+        $this->assertEquals($data['error']['data'] , null); 
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
+    }
+    
+    
+    /**
+     * @depends testCanAddUser
+     */
+    public function testWrongPWD()
+    {
+        $this->mockRbac();
+
+
+        $data = $this->jsonRpc('user.login', ['user' => 'crobert@thestudnet.com','password' => 'wrongpwd']);
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals(count($data['error']) , 3); 
+        $this->assertEquals($data['error']['code'] , -32032); 
+        $this->assertEquals($data['error']['message'] , "A record with the supplied identity could not be found."); 
+        $this->assertEquals($data['error']['data'] , null); 
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
+
+    }
+    
+    
+    /**
+     * @depends testCanAddUser
+     */
+    public function testSuspendError()
+    {
+        $this->mockRbac();
+
+
+        $this->setIdentity(1,2);
+        $data = $this->jsonRpc('user.suspend', ['id' => 8,'suspend' => true]);
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals(count($data['error']) , 3); 
+        $this->assertEquals($data['error']['code'] , -38003); 
+        $this->assertEquals($data['error']['message'] , "Unauthorized operation user.suspend"); 
+        $this->assertEquals($data['error']['data'] , null); 
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
+
+    }
+
+    /**
+     * @depends testCanAddUser
+     */
+    public function testSuspend()
+    {
+        $this->mockRbac();
+
+
+        $this->setIdentity(1,1);
+        $data = $this->jsonRpc('user.suspend', ['id' => 8,'suspend' => 1]);
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals($data['result'] , 1); 
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
+
+    }
+    
+    /**
+     * @depends testCanAddUser
+     */
+    public function testLoginSuspendedUser()
+    {
+        $this->mockRbac();
+
+        $data = $this->jsonRpc('user.login', ['user' => 'crobertr@thestudnet.com','password' => 'thestudnet']);
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals(count($data['error']) , 3); 
+        $this->assertEquals($data['error']['code'] , -32031); 
+        $this->assertEquals($data['error']['message'] , ""); 
+        $this->assertEquals($data['error']['data'] , null); 
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
+
+
+    }
+
 
     /**
      * @depends testCanAddUser
@@ -509,14 +834,15 @@ class UserTest extends AbstractService
             //  'page_id' => 1
             ]
         );
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals(count($data['result']) , 2); 
+        $this->assertEquals(count($data['result']['list']) , 2); 
+        $this->assertEquals($data['result']['list'][0] , 9); 
+        $this->assertEquals($data['result']['list'][1] , 3); 
+        $this->assertEquals($data['result']['count'] , 2); 
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
 
-        $this->assertEquals(count($data), 3);
-        $this->assertEquals($data['id'], 1);
-        $this->assertEquals(count($data['result']), 2);
-        $this->assertEquals(count($data['result']['list']), 1);
-        $this->assertEquals($data['result']['list'][0], 3);
-        $this->assertEquals($data['result']['count'], 1);
-        $this->assertEquals($data['jsonrpc'], 2.0);
     }
 
     public function testCanLanguageGetList()

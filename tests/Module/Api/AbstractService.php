@@ -174,6 +174,7 @@ abstract class AbstractService extends AbstractHttpControllerTestCase
 
     public function setIdentity($id, $role = null)
     {
+      
         
         $serviceManager = $this->getApplicationServiceLocator();
         $serviceManager->setAllowOverride(true);
@@ -234,8 +235,15 @@ abstract class AbstractService extends AbstractHttpControllerTestCase
             );
 
         $authMock = $this->getMockBuilder('\Zend\Authentication\AuthenticationService')
+            ->getMock();
+        
+        $storageMock = $this->getMockBuilder('\Auth\Authentication\Storage\CacheBddStorage')
             ->disableOriginalConstructor()
             ->getMock();
+        
+        $authMock->expects($this->any())
+            ->method('getStorage')
+            ->will($this->returnValue($storageMock));
 
         $authMock->expects($this->any())
             ->method('getIdentity')
