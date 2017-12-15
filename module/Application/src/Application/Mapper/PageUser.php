@@ -47,13 +47,13 @@ class PageUser extends AbstractMapper
             $select->where('page_user.is_pinned IS TRUE');
         }
         else if(false === $is_pinned){
-            $select->where('page_user.is_pinned IS TRUE');
+            $select->where('page_user.is_pinned IS FALSE');
         }
         if (null !== $search) {
-            $select->where(['( CONCAT_WS(" ", user.firstname, user.lastname) LIKE ? ' => ''.$search.'%'])
-                ->where(['CONCAT_WS(" ", user.lastname, user.firstname) LIKE ? ' => ''.$search.'%'], Predicate::OP_OR)
-                ->where(['user.email LIKE ? ' => '%'.$search.'%'], Predicate::OP_OR)
-                ->where(['user.nickname LIKE ? )' => ''.$search.'%'], Predicate::OP_OR);
+            $select->where(['( CONCAT_WS(" ", user.firstname, user.lastname) LIKE ? ' => $search.'%'])
+                ->where(['CONCAT_WS(" ", user.lastname, user.firstname) LIKE ? ' => $search.'%'], Predicate::OP_OR)
+                ->where(['user.email LIKE ? ' => $search.'%'], Predicate::OP_OR)
+                ->where(['user.nickname LIKE ? )' => $search.'%'], Predicate::OP_OR);
         }
         if (null !== $me) {
             $select->join(['pu' => 'page_user'], 'pu.page_id = page.id', [], $select::JOIN_LEFT)
@@ -61,6 +61,7 @@ class PageUser extends AbstractMapper
             ->where(['(pu.role = "admin" OR user.is_active = 1)'])
             ->where(['( page.is_published IS TRUE OR page.type <> "course" OR ( pu.role = "admin" AND pu.user_id = ? ) )' => $me]);
         }
+        syslog(1, $this->printSql($select));
         return $this->selectWith($select);
     }
 }
