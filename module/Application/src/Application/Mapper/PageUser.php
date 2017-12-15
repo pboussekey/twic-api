@@ -8,7 +8,7 @@ use Zend\Db\Sql\Predicate\Expression;
 
 class PageUser extends AbstractMapper
 {
-    public function getList($page_id = null, $user_id = null, $role = null, $state = null, $type = null, $me = null, $sent = null, $is_pinned = null)
+    public function getList($page_id = null, $user_id = null, $role = null, $state = null, $type = null, $me = null, $sent = null, $is_pinned = null, $search = null)
     {
         $select = $this->tableGateway->getSql()->select();
         $select->columns(['page_id','user_id','state','role'])
@@ -44,6 +44,12 @@ class PageUser extends AbstractMapper
         }
         if(null !== $is_pinned){
             $select->where(['page_user.is_pinned' => $is_pinned]);
+        }
+        if (null !== $search) {
+            $select->where(['( CONCAT_WS(" ", user.firstname, user.lastname) LIKE ? ' => ''.$search.'%'])
+                ->where(['CONCAT_WS(" ", user.lastname, user.firstname) LIKE ? ' => ''.$search.'%'], Predicate::OP_OR)
+                ->where(['user.email LIKE ? ' => '%'.$search.'%'], Predicate::OP_OR)
+                ->where(['user.nickname LIKE ? )' => ''.$search.'%'], Predicate::OP_OR);
         }
         if (null !== $me) {
             $select->join(['pu' => 'page_user'], 'pu.page_id = page.id', [], $select::JOIN_LEFT)
