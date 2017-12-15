@@ -23,7 +23,8 @@ class Page extends AbstractService
 {
 
     
-    public function isAdmin($id){
+    public function isAdmin($id)
+    {
         $identity = $this->getServiceUser()->getIdentity();
         $ar_pu = $this->getServicePageUser()->getListByPage($id, ModelPageUser::ROLE_ADMIN);
         return (in_array($identity['id'], $ar_pu[$id]));
@@ -34,8 +35,8 @@ class Page extends AbstractService
      *
      * @invokable
      *
-     * @param  string $libelle
-     * @param  int  $id
+     * @param string $libelle
+     * @param int    $id
      */
     public function getCustom($libelle = null, $id = null)
     {
@@ -81,30 +82,30 @@ class Page extends AbstractService
      * @return int
      */
     public function add(
-      $title,
-      $description,
-      $type,
-      $confidentiality = null,
-      $logo = null,
-      $admission = null,
-      $background = null,
-      $start_date = null,
-      $end_date = null,
-      $location = null,
-      $page_id = null,
-      $users = [],
-      $tags = [],
-      $docs = [],
-      $owner_id = null,
-      $address = null,
-      $short_title = null,
-      $website = null,
-      $phone = null,
-      $libelle = null,
-      $custom = null,
-      $subtype = null,
-      $circle_id = null,
-      $is_published = null
+        $title,
+        $description,
+        $type,
+        $confidentiality = null,
+        $logo = null,
+        $admission = null,
+        $background = null,
+        $start_date = null,
+        $end_date = null,
+        $location = null,
+        $page_id = null,
+        $users = [],
+        $tags = [],
+        $docs = [],
+        $owner_id = null,
+        $address = null,
+        $short_title = null,
+        $website = null,
+        $phone = null,
+        $libelle = null,
+        $custom = null,
+        $subtype = null,
+        $circle_id = null,
+        $is_published = null
     ) {
         
         if(null === $admission) {
@@ -114,12 +115,12 @@ class Page extends AbstractService
         $identity = $this->getServiceUser()->getIdentity();
 
         //Si un non admin esaye de créer une organization
-        if(!$this->getServiceUser()->isStudnetAdmin() && $type === ModelPage::TYPE_ORGANIZATION){
+        if(!$this->getServiceUser()->isStudnetAdmin() && $type === ModelPage::TYPE_ORGANIZATION) {
             
             throw new JrpcException('Unauthorized operation page.add', -38003);
         }
         
-        if(null === $page_id  && $type === ModelPage::TYPE_COURSE && (!$this->getServiceUser()->isStudnetAdmin()  || !$this->isAdmin($page_id))){
+        if(null === $page_id  && $type === ModelPage::TYPE_COURSE && (!$this->getServiceUser()->isStudnetAdmin()  || !$this->isAdmin($page_id))) {
             
             throw new JrpcException('Unauthorized operation page.add', -38003);
         }
@@ -152,27 +153,27 @@ class Page extends AbstractService
         }
 
         $m_page = $this->getModel()
-          ->setTitle($title)
-          ->setLogo($logo)
-          ->setBackground($background)
-          ->setDescription($description)
-          ->setConfidentiality($confidentiality)
-          ->setAdmission($admission)
-          ->setStartDate($start_date)
-          ->setEndDate($end_date)
-          ->setLocation($location)
-          ->setType($type)
-          ->setUserId($user_id)
-          ->setOwnerId($user_id)
-          ->setCustom($custom)
-          ->setLibelle($libelle)
-          ->setWebsite($formattedWebsite)
-          ->setPhone($phone)
-          ->setIsPublished($is_published)
-          ->setSubtype($subtype)
-          ->setConversationId($conversation_id)
-          ->setShortTitle($short_title)
-          ->setCreatedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'));
+            ->setTitle($title)
+            ->setLogo($logo)
+            ->setBackground($background)
+            ->setDescription($description)
+            ->setConfidentiality($confidentiality)
+            ->setAdmission($admission)
+            ->setStartDate($start_date)
+            ->setEndDate($end_date)
+            ->setLocation($location)
+            ->setType($type)
+            ->setUserId($user_id)
+            ->setOwnerId($user_id)
+            ->setCustom($custom)
+            ->setLibelle($libelle)
+            ->setWebsite($formattedWebsite)
+            ->setPhone($phone)
+            ->setIsPublished($is_published)
+            ->setSubtype($subtype)
+            ->setConversationId($conversation_id)
+            ->setShortTitle($short_title)
+            ->setCreatedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'));
 
         if ($address !== null) {
             $address = $this->getServiceAddress()->getAddress($address);
@@ -206,8 +207,8 @@ class Page extends AbstractService
 
         $is_present = false;
         foreach ($users as $ar_u) {
-            if(isset($ar_u['user_email'])){
-               $ar_u['user_id'] = $this->getServiceUser()->add(null, null, $ar_u['user_email'], null, null, null, null, null, null, null, $id);
+            if(isset($ar_u['user_email'])) {
+                $ar_u['user_id'] = $this->getServiceUser()->add(null, null, $ar_u['user_email'], null, null, null, null, null, null, null, $id);
             }
             if ($ar_u['user_id'] === $m_page->getOwnerId()) {
                 $is_present = true;
@@ -272,10 +273,10 @@ class Page extends AbstractService
             $name = lcfirst(implode('', array_map("ucfirst", preg_split("/[\s]+/", preg_replace('/[^a-z0-9\ ]/', '', strtolower(str_replace('-', ' ', $m_page->getTitle())))))));
             $conversation_id = $this->getServiceConversation()->_create(ModelConversation::TYPE_CHANNEL, null, null, $name);
             $this->getMapper()->update(
-          $this->getModel()
-            ->setId($m_page->getId())
-            ->setConversationId($conversation_id)
-        );
+                $this->getModel()
+                    ->setId($m_page->getId())
+                    ->setConversationId($conversation_id)
+            );
 
             $ar_user = $this->getServicePageUser()->getListByPage($m_page->getId())[$m_page->getId()];
             $this->getServiceConversationUser()->add($conversation_id, $ar_user);
@@ -286,7 +287,7 @@ class Page extends AbstractService
      *
      * @invokable
      *
-     * @param int   $id
+     * @param int    $id
      * @param string $tag
      *
      * @return int
@@ -301,7 +302,7 @@ class Page extends AbstractService
      *
      * @invokable
      *
-     * @param int   $id
+     * @param int $id
      * @param int $tag_id
      *
      * @return int
@@ -377,36 +378,35 @@ class Page extends AbstractService
      * @param int    $circle_id
      * @param bool   $is_published
      *
-     *
      * @TODO Seuls admins de la page peuvent l'éditer (ou un studnet admin)
      *
      * @return int
      */
     public function update(
-      $id,
-      $title=null,
-      $logo=null,
-      $background=null,
-      $description=null,
-      $confidentiality=null,
-      $admission=null,
-      $start_date = null,
-      $end_date = null,
-      $location = null,
-      $users = null,
-      $tags = null,
-      $docs = null,
-      $owner_id = null,
-      $page_id = null,
-      $address = null,
-      $short_title = null,
-      $website = null,
-      $phone = null,
-      $libelle = null,
-      $custom = null,
-      $circle_id = null,
-      $is_published = null
-      ) {
+        $id,
+        $title=null,
+        $logo=null,
+        $background=null,
+        $description=null,
+        $confidentiality=null,
+        $admission=null,
+        $start_date = null,
+        $end_date = null,
+        $location = null,
+        $users = null,
+        $tags = null,
+        $docs = null,
+        $owner_id = null,
+        $page_id = null,
+        $address = null,
+        $short_title = null,
+        $website = null,
+        $phone = null,
+        $libelle = null,
+        $custom = null,
+        $circle_id = null,
+        $is_published = null
+    ) {
         if(!$this->getServiceUser()->isStudnetAdmin() &&  !$this->isAdmin($id)) {
             throw new JrpcException('Unauthorized operation page.update', -38003);
         }
@@ -440,7 +440,7 @@ class Page extends AbstractService
             ->setShortTitle($short_title);
 
         if ($address !== null) {
-            if($address === 0){
+            if($address === 0) {
                 $m_page->setAddressId(new IsNull());
             }
             else{
@@ -454,8 +454,8 @@ class Page extends AbstractService
         if (null !== $users) {
             $is_present = false;
             foreach ($users as $ar_u) {
-                if(isset($ar_u['user_email'])){
-                   $ar_u['user_id'] = $this->getServiceUser()->add(null, null, $ar_u['user_email'], null, null, null, null, null, null, null, $id);
+                if(isset($ar_u['user_email'])) {
+                    $ar_u['user_id'] = $this->getServiceUser()->add(null, null, $ar_u['user_email'], null, null, null, null, null, null, null, $id);
                 }
                 if ($ar_u['user_id'] === $m_page->getOwnerId()) {
                     $is_present = true;
@@ -518,16 +518,16 @@ class Page extends AbstractService
                     $owner_id
                 );
             }
-            if(!$tmp_m_page->getIsPublished() && $tmp_m_page->getType() == ModelPage::TYPE_COURSE){
+            if(!$tmp_m_page->getIsPublished() && $tmp_m_page->getType() == ModelPage::TYPE_COURSE) {
                 $ar_pages = [];
                 $res_user = $this->getServiceUser()->getLite($this->getServicePageUser()->getListByPage($id)[$id]);
                 foreach($res_user as $m_user){
-                    if($m_user->getId() == $user_id){
+                    if($m_user->getId() == $user_id) {
                         continue;
                     }
                     $m_organization = false;
-                    if($m_user->getOrganizationId()){
-                        if(!array_key_exists($m_user->getOrganizationId(), $ar_pages)){
+                    if($m_user->getOrganizationId()) {
+                        if(!array_key_exists($m_user->getOrganizationId(), $ar_pages)) {
                             $ar_pages[$m_user->getOrganizationId()] = $this->getLite($m_user->getOrganizationId());
                         }
                         $m_organization = $ar_pages[$m_user->getOrganizationId()];
@@ -538,12 +538,14 @@ class Page extends AbstractService
                         $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
                         $m_organization->getLibelle() : null;
                         
-                        $url = sprintf("https://%s%s/page/course/%s/timeline",($prefix ? $prefix.'.':''),  $this->container->get('config')['app-conf']['uiurl'],$tmp_m_page->getId());
-                        $this->getServiceMail()->sendTpl('tpl_coursepublished', $m_user->getEmail(), [
+                        $url = sprintf("https://%s%s/page/course/%s/timeline", ($prefix ? $prefix.'.':''),  $this->container->get('config')['app-conf']['uiurl'], $tmp_m_page->getId());
+                        $this->getServiceMail()->sendTpl(
+                            'tpl_coursepublished', $m_user->getEmail(), [
                             'pagename' => $tmp_m_page->getTitle(),
                             'firstname' => $m_user->getFirstName(),
                             'pageurl' => $url
-                        ]);
+                            ]
+                        );
                         
                         $gcm_notification = new GcmNotification();
                         $gcm_notification->setTitle($tmp_m_page->getTitle())
@@ -553,7 +555,7 @@ class Page extends AbstractService
                             ->setTag("PAGECOMMENT".$t_page_id)
                             ->setBody("You have just been added to the course " . $tmp_m_page->getTitle());
                         
-                        $this->getServiceFcm()->send($m_user->getId(),null,$gcm_notification);
+                        $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification);
                     }
                     catch (\Exception $e) {
                         syslog(1, 'Model name does not exist Page publish <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode());
@@ -589,7 +591,7 @@ class Page extends AbstractService
             $id = [$id];
         }
         $m_page = $this->getModel()->setId($id)
-          ->setDeletedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'));
+            ->setDeletedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'));
         if ($this->getMapper()->update($m_page)) {
             foreach ($id as $i) {
                 $this->getServicePost()->hardDelete('PP'.$i);
@@ -673,13 +675,13 @@ class Page extends AbstractService
     }
     
       /**
-     * Get list suscribed users
-     *
-     * @invokable
-     *
-     * @param  int $id
-     * @return array
-     */
+       * Get list suscribed users
+       *
+       * @invokable
+       *
+       * @param  int $id
+       * @return array
+       */
     public function getListSuscribersId($id, $filter)
     {
         return $this->getServiceSubscription()->getListUserId('PP'.$id, $filter);;
@@ -702,12 +704,12 @@ class Page extends AbstractService
     }
 
     /**
-    * Get Page grades
-    *
-    * @invokable
-    *
-    * @param  int $id
-    */
+     * Get Page grades
+     *
+     * @invokable
+     *
+     * @param int $id
+     */
     public function getGrades($id)
     {
         if (!is_array($id)) {
@@ -729,13 +731,13 @@ class Page extends AbstractService
 
 
     /**
-    * Get Page grades
-    *
-    * @invokable
-    *
-    * @param  int $id
-    * @param array $filter
-    */
+     * Get Page grades
+     *
+     * @invokable
+     *
+     * @param int   $id
+     * @param array $filter
+     */
     public function getUsersGrades($id, $filter)
     {
         $res_grades = $this->getMapper()->usePaginator($filter)->getUsersAvg($id);
@@ -752,16 +754,16 @@ class Page extends AbstractService
     }
     
      /**
-    * Get user grades per pages
-    *
-    * @invokable
-    *
-    * @param  int $id
-    * @param  int $user_id
-    */
+      * Get user grades per pages
+      *
+      * @invokable
+      *
+      * @param int $id
+      * @param int $user_id
+      */
     public function getUserGrades($id, $user_id)
     {
-        if(!is_array($user_id)){
+        if(!is_array($user_id)) {
             $user_id = [$user_id];
         }
         $var_grades = [];
@@ -791,19 +793,19 @@ class Page extends AbstractService
      * @return \Dal\Db\ResultSet\ResultSet
      */
     public function getListId(
-      $parent_id = null,
-      $type = null,
-      $start_date = null,
-      $end_date = null,
-      $member_id = null,
-      $filter = null,
-      $strict_dates = false,
-      $search = null,
-      $tags = null,
-      $children_id = null,
-      $is_member_admin = null, // get only les meber admin true/false
-      $exclude = null
-      ) {
+        $parent_id = null,
+        $type = null,
+        $start_date = null,
+        $end_date = null,
+        $member_id = null,
+        $filter = null,
+        $strict_dates = false,
+        $search = null,
+        $tags = null,
+        $children_id = null,
+        $is_member_admin = null, // get only les meber admin true/false
+        $exclude = null
+    ) {
         $this->addChannel();
         if (empty($tags)) {
             $tags = null;
@@ -830,8 +832,8 @@ class Page extends AbstractService
      *
      * @invokable
      *
-     * @param int    $parent_id
-     * @param int    $children_id
+     * @param int $parent_id
+     * @param int $children_id
      *
      * @throws \Exception
      * @return \Dal\Db\ResultSet\ResultSet
@@ -891,33 +893,33 @@ class Page extends AbstractService
     }
 
     /**
-    * Get owner string by Page Model
-    *
-    * @param \Application\Model\Page $m_page
-    */
+     * Get owner string by Page Model
+     *
+     * @param \Application\Model\Page $m_page
+     */
     private function getOwner(\Application\Model\Page $m_page)
     {
         $owner = [];
         $res_page = $this->getServicePageRelation()->getOwner($m_page->getId());
         switch (true) {
-            case $res_page->count() > 0:
-                $ar_page = $this->getLite($res_page->current()->getParentId())->toArray();
-                $owner = [
-                    'id' => $ar_page['id'],
-                    'text' => $ar_page['title'],
-                    'img' => $ar_page['logo'],
-                    'type' => $ar_page['type'],
-                ];
-                break;
-            case is_numeric($m_page->getOwnerId()):
-                $ar_user = $m_page->getUser()->toArray();
-                $owner = [
-                    'id' => $ar_user['id'],
-                    'text' => $ar_user['firstname'] . ' ' . $ar_user['lastname'],
-                    'img' => $ar_user['avatar'],
-                    'type' => 'user',
-                ];
-                break;
+        case $res_page->count() > 0:
+            $ar_page = $this->getLite($res_page->current()->getParentId())->toArray();
+            $owner = [
+                'id' => $ar_page['id'],
+                'text' => $ar_page['title'],
+                'img' => $ar_page['logo'],
+                'type' => $ar_page['type'],
+            ];
+            break;
+        case is_numeric($m_page->getOwnerId()):
+            $ar_user = $m_page->getUser()->toArray();
+            $owner = [
+                'id' => $ar_user['id'],
+                'text' => $ar_user['firstname'] . ' ' . $ar_user['lastname'],
+                'img' => $ar_user['avatar'],
+                'type' => 'user',
+            ];
+            break;
 
         }
 
@@ -926,24 +928,25 @@ class Page extends AbstractService
 
     
      /**
-     * Get page counts.
-     *
-     * @invokable
-     *
-     * @param string  $start_date
-     * @param string  $end_date
-     * @param string  $interval_date
-     * @param array|string  $type
-     * @param int     $organization_id
-     *
-     * @return array
-     */
-    public function getCount( $start_date = null, $end_date = null, $interval_date = 'D', $type = null, $organization_id  = null){
+      * Get page counts.
+      *
+      * @invokable
+      *
+      * @param string       $start_date
+      * @param string       $end_date
+      * @param string       $interval_date
+      * @param array|string $type
+      * @param int          $organization_id
+      *
+      * @return array
+      */
+    public function getCount( $start_date = null, $end_date = null, $interval_date = 'D', $type = null, $organization_id  = null)
+    {
         
         $interval = $this->getServiceActivity()->interval($interval_date);
         $identity = $this->getServiceUser()->getIdentity();
         
-        return $this->getMapper()->getCount($identity['id'],$interval, $start_date, $end_date, $organization_id, $type);
+        return $this->getMapper()->getCount($identity['id'], $interval, $start_date, $end_date, $organization_id, $type);
     }
 
 
@@ -1068,7 +1071,6 @@ class Page extends AbstractService
      * Get Service Subscription
      *
      * @return \Application\Service\Subscription   
-
      */
     private function getServiceSubscription()
     {

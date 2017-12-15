@@ -21,7 +21,8 @@ use JRpc\Json\Server\Exception\JrpcException;
 class Post extends AbstractService
 {
     
-    public function isMine($id){
+    public function isMine($id)
+    {
         $m_post = $this->getLite($id);
         $identity = $this->getServiceUser()->getIdentity();
         return $m_post->getUserId() === $identity['id'];
@@ -54,25 +55,25 @@ class Post extends AbstractService
      * @return \Application\Model\Post
      */
     public function add(
-      $content = null,
-      $picture = null,
-      $name_picture = null,
-      $link = null,
-      $link_title = null,
-      $link_desc = null,
-      $parent_id = null,
-      $t_page_id = null,
-      $t_user_id = null,
-      $page_id = null,
-      $lat =null,
-      $lng = null,
-      $docs = null,
-      $data = null,
-      $event = null,
-      $uid = null,
-      $sub = null,
-      $type = null,
-      $item_id = null
+        $content = null,
+        $picture = null,
+        $name_picture = null,
+        $link = null,
+        $link_title = null,
+        $link_desc = null,
+        $parent_id = null,
+        $t_page_id = null,
+        $t_user_id = null,
+        $page_id = null,
+        $lat =null,
+        $lng = null,
+        $docs = null,
+        $data = null,
+        $event = null,
+        $uid = null,
+        $sub = null,
+        $type = null,
+        $item_id = null
     ) {
         $user_id = $this->getServiceUser()->getIdentity()['id'];
         $origin_id = null;
@@ -204,20 +205,20 @@ class Post extends AbstractService
             $data
         );
         
-        if($parent_id == null){
-            if($t_page_id != null){
+        if($parent_id == null) {
+            if($t_page_id != null) {
                 $m_page = $this->getServicePage()->getLite($t_page_id);
                 if($m_page->getType() == ModelPage::TYPE_COURSE && $type === 'post' && $m_page->getIsPublished()) {
                     $ar_pages = [];
                     $res_user = $this->getServiceUser()->getLite($this->getServiceSubscription()->getListUserId('PP'.$t_page_id));
                     if($res_user !== null) {
                         foreach($res_user as $m_user){
-                            if($m_user->getId() == $user_id){
+                            if($m_user->getId() == $user_id) {
                                 continue;
                             }
                             $m_organization = false;
-                            if($m_user->getOrganizationId()){
-                                if(!array_key_exists($m_user->getOrganizationId(), $ar_pages)){
+                            if($m_user->getOrganizationId()) {
+                                if(!array_key_exists($m_user->getOrganizationId(), $ar_pages)) {
                                     $ar_pages[$m_user->getOrganizationId()] = $this->getServicePage()->getLite($m_user->getOrganizationId());
                                 }
                                 $m_organization = $ar_pages[$m_user->getOrganizationId()];
@@ -227,12 +228,14 @@ class Post extends AbstractService
                                 $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
                                 $m_organization->getLibelle() : null;
                                
-                                $url = sprintf("https://%s%s/page/course/%s/timeline", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl'],$m_page->getId());
-                                $this->getServiceMail()->sendTpl('tpl_coursepost', $m_user->getEmail(), [
+                                $url = sprintf("https://%s%s/page/course/%s/timeline", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl'], $m_page->getId());
+                                $this->getServiceMail()->sendTpl(
+                                    'tpl_coursepost', $m_user->getEmail(), [
                                     'pagename' => $m_page->getTitle(),
                                     'pageurl' => $url,
                                     'firstname' => $m_user->getFirstName()
-                                ]);
+                                    ]
+                                );
                                 
                                 $gcm_notification = new GcmNotification();
                                 $gcm_notification->setTitle($m_page->getTitle())
@@ -242,7 +245,7 @@ class Post extends AbstractService
                                     ->setTag("PAGEPOST".$t_page_id)
                                     ->setBody("Someone posted on the course ". $m_page->getTitle());
                                 
-                                $this->getServiceFcm()->send($m_user->getId(),null,$gcm_notification);
+                                $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification);
                             }
                             catch (\Exception $e) {
                                 syslog(1, 'Model name does not exist Post<MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode());
@@ -254,12 +257,12 @@ class Post extends AbstractService
                     $res_user = $this->getServiceUser()->getLite($this->getServiceSubscription()->getListUserId('PP'.$t_page_id));
                     if($res_user !== null) {
                         foreach($res_user as $m_user){
-                            if($m_user->getId() == $user_id){
+                            if($m_user->getId() == $user_id) {
                                 continue;
                             }
                             $m_organization = false;
-                            if($m_user->getOrganizationId()){
-                                if(!array_key_exists($m_user->getOrganizationId(), $ar_pages)){
+                            if($m_user->getOrganizationId()) {
+                                if(!array_key_exists($m_user->getOrganizationId(), $ar_pages)) {
                                     $ar_pages[$m_user->getOrganizationId()] = $this->getServicePage()->getLite($m_user->getOrganizationId());
                                 }
                                 $m_organization = $ar_pages[$m_user->getOrganizationId()];
@@ -267,22 +270,24 @@ class Post extends AbstractService
                             try {
                                 $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
                                 $m_organization->getLibelle() : null;
-                                $url = sprintf("https://%s%s/page/organization/%s/timeline",($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl'],$m_page->getId());
-                                $this->getServiceMail()->sendTpl('tpl_organizationpost', $m_user->getEmail(), [
+                                $url = sprintf("https://%s%s/page/organization/%s/timeline", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl'], $m_page->getId());
+                                $this->getServiceMail()->sendTpl(
+                                    'tpl_organizationpost', $m_user->getEmail(), [
                                     'pagename' => $m_page->getTitle(),
                                     'pageurl' => $url,
                                     'firstname' => $m_user->getFirstName()
-                                ]);
+                                    ]
+                                );
                                 
                                 $gcm_notification = new GcmNotification();
                                 $gcm_notification->setTitle($m_page->getTitle())
-                                ->setSound("default")
-                                ->setColor("#00A38B")
-                                ->setIcon("icon")
-                                ->setTag("PAGEPOST".$t_page_id)
-                                ->setBody("Someone posted in ". $m_page->getTitle());
+                                    ->setSound("default")
+                                    ->setColor("#00A38B")
+                                    ->setIcon("icon")
+                                    ->setTag("PAGEPOST".$t_page_id)
+                                    ->setBody("Someone posted in ". $m_page->getTitle());
                                 
-                                $this->getServiceFcm()->send($m_user->getId(),null,$gcm_notification);
+                                $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification);
                             }
                             catch (\Exception $e) {
                                 syslog(1, 'Model name does not exist Post<MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode());
@@ -293,23 +298,25 @@ class Post extends AbstractService
             }
         } else {
             $m_post = $this->getLite($parent_id);
-            if($user_id != $m_post->getUserId()){
+            if($user_id != $m_post->getUserId()) {
                 $m_user = $this->getServiceUser()->getLite($m_post->getUserId());
                 $m_me = $this->getServiceUser()->getLite($user_id);
                 $m_page = false;
-                if($m_user->getOrganizationId()){
+                if($m_user->getOrganizationId()) {
                     $m_page =  $this->getServicePage()->getLite($m_user->getOrganizationId());
                 }
                 try{
                     
                     $prefix = ($m_page !== false && is_string($m_page->getLibelle()) && !empty($m_page->getLibelle())) ?
                     $m_page->getLibelle() : null;
-                    $url = sprintf("https://%s%s/",($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl']);
-                    $this->getServiceMail()->sendTpl('tpl_postcomment', $m_user->getEmail(), [
+                    $url = sprintf("https://%s%s/", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl']);
+                    $this->getServiceMail()->sendTpl(
+                        'tpl_postcomment', $m_user->getEmail(), [
                         'url' => $url,
                         'firstname' => $m_user->getFirstname(),
                         'someone' => $m_me->getFirstname()
-                    ]);
+                        ]
+                    );
                     
                     $gcm_notification = new GcmNotification();
                     $gcm_notification->setTitle($m_page->getTitle())
@@ -319,7 +326,7 @@ class Post extends AbstractService
                         ->setTag("PAGECOMMENT".$t_page_id)
                         ->setBody("Someone commented on your post");
                     
-                    $this->getServiceFcm()->send($m_user->getId(),null,$gcm_notification);
+                    $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification);
                 }
                 catch (\Exception $e) {
                     syslog(1, 'Model name does not exist post comment <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode());
@@ -336,20 +343,20 @@ class Post extends AbstractService
      *
      * @invokable
      *
-     * @param int    $id
-     * @param string $content
-     * @param string $link
-     * @param string $picture
-     * @param string $name_picture
-     * @param string $link_title
-     * @param string $link_desc
-     * @param int    $lat
-     * @param int    $lng
-     * @param array $docs
-     * @param string $data
-     * @param string $event
-     * @param int    $uid
-     * @param array  $sub
+     * @param int     $id
+     * @param string  $content
+     * @param string  $link
+     * @param string  $picture
+     * @param string  $name_picture
+     * @param string  $link_title
+     * @param string  $link_desc
+     * @param int     $lat
+     * @param int     $lng
+     * @param array   $docs
+     * @param string  $data
+     * @param string  $event
+     * @param int     $uid
+     * @param array   $sub
      * @param $item_id
      *
      * @return \Application\Model\Post
@@ -380,21 +387,23 @@ class Post extends AbstractService
         }
       
 
-        return $this->_update( $id,
-        $content,
-        $link,
-        $picture,
-        $name_picture,
-        $link_title,
-        $link_desc ,
-        $lat,
-        $lng,
-        $docs,
-        $data,
-        $event,
-        $uid,
-        $sub,
-        $item_id);
+        return $this->_update(
+            $id,
+            $content,
+            $link,
+            $picture,
+            $name_picture,
+            $link_title,
+            $link_desc,
+            $lat,
+            $lng,
+            $docs,
+            $data,
+            $event,
+            $uid,
+            $sub,
+            $item_id
+        );
     }
     
     public function _update(
@@ -549,7 +558,7 @@ class Post extends AbstractService
             $this->getMapper()->usePaginator($filter) :
             $this->getMapper();
 
-       $res_posts = $mapper->getListId($identity['id'], $page_id, $user_id, $parent_id, $is_item, (in_array(ModelRole::ROLE_ADMIN_STR, $identity['roles'])));
+        $res_posts = $mapper->getListId($identity['id'], $page_id, $user_id, $parent_id, $is_item, (in_array(ModelRole::ROLE_ADMIN_STR, $identity['roles'])));
 
         return (null !== $filter) ?
             ['count' => $mapper->count(), 'list' => $res_posts] :
@@ -561,7 +570,7 @@ class Post extends AbstractService
      *
      * @invokable
      *
-     * @param int   $id
+     * @param int $id
      */
     public function hide($id)
     {
@@ -579,23 +588,25 @@ class Post extends AbstractService
     {
         $m_post = $this->getLite($id);
         $user_id = $this->getServiceUser()->getIdentity()['id'];
-        if($user_id != $m_post->getUserId()){
+        if($user_id != $m_post->getUserId()) {
             $m_user = $this->getServiceUser()->getLite($m_post->getUserId());
             $m_me = $this->getServiceUser()->getLite($user_id);
             $m_page = false;
-            if($m_user->getOrganizationId()){
+            if($m_user->getOrganizationId()) {
                 $m_page =  $this->getServicePage()->getLite($m_user->getOrganizationId());
             }
             try{
                 $prefix = ($m_page !== false && is_string($m_page->getLibelle()) && !empty($m_page->getLibelle())) ?
                 $m_page->getLibelle() : null;
                 
-                $url = sprintf("https://%s%s/",($prefix ? $prefix.'.':''),  $this->container->get('config')['app-conf']['uiurl']);
-                $this->getServiceMail()->sendTpl('tpl_postlike', $m_user->getEmail(), [
+                $url = sprintf("https://%s%s/", ($prefix ? $prefix.'.':''),  $this->container->get('config')['app-conf']['uiurl']);
+                $this->getServiceMail()->sendTpl(
+                    'tpl_postlike', $m_user->getEmail(), [
                     'url' => $url,
                     'firstname' => $m_user->getFirstname(),
                     'someone' => $m_me->getFirstname(),
-                ]);
+                    ]
+                );
                 
                 $gcm_notification = new GcmNotification();
                 $gcm_notification->setTitle($m_page->getTitle())
@@ -605,7 +616,7 @@ class Post extends AbstractService
                     ->setTag("PAGECOMMENT".$t_page_id)
                     ->setBody("Someone liked your post");
                 
-                $this->getServiceFcm()->send($m_user->getId(),null,$gcm_notification);
+                $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification);
             }
             catch (\Exception $e) {
                 syslog(1, 'Model name does not exist <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode());
@@ -773,11 +784,11 @@ class Post extends AbstractService
     /**
      * updateSys
      *
-     * @param string $uid
-     * @param string $content
-     * @param string $data
-     * @param string $event
-     * @param array  $sub
+     * @param  string $uid
+     * @param  string $content
+     * @param  string $data
+     * @param  string $event
+     * @param  array  $sub
      * @return int
      */
     public function updateSys($uid, $content, $data, $event, $sub = null)
@@ -823,24 +834,25 @@ class Post extends AbstractService
     }
     
      /**
-     * Get page counts.
-     *
-     * @invokable
-     *
-     * @param string  $start_date
-     * @param string  $end_date
-     * @param string  $interval_date
-     * @param string  $type
-     * @param int     $organization_id
-     *
-     * @return array
-     */
-    public function getCount( $start_date = null, $end_date = null, $interval_date = 'D', $parent = null, $organization_id  = null){
+      * Get page counts.
+      *
+      * @invokable
+      *
+      * @param string $start_date
+      * @param string $end_date
+      * @param string $interval_date
+      * @param string $type
+      * @param int    $organization_id
+      *
+      * @return array
+      */
+    public function getCount( $start_date = null, $end_date = null, $interval_date = 'D', $parent = null, $organization_id  = null)
+    {
         
         $interval = $this->getServiceActivity()->interval($interval_date);
         $identity = $this->getServiceUser()->getIdentity();
         
-        return $this->getMapper()->getCount($identity['id'],$interval, $start_date, $end_date, $organization_id, $parent);
+        return $this->getMapper()->getCount($identity['id'], $interval, $start_date, $end_date, $organization_id, $parent);
     }
 
     /**

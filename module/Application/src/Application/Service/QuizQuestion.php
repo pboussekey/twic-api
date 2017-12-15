@@ -10,8 +10,8 @@ class QuizQuestion extends AbstractService
     /**
      * Add Quiz Question
      *
-     * @param  string $quiz_id
-     * @param  array $questions
+     * @param string $quiz_id
+     * @param array  $questions
      *
      * @return int
      */

@@ -8,18 +8,18 @@ use Zend\Db\Sql\Predicate\IsNull;
 class MessageUser extends AbstractService
 {
 
-  /**
-   * Send message.
-   *
-   * @param int      $message_id
-   * @param int      $conversation_id
-   * @param string   $message_text
-   * @param string   $message_token
-   *
-   * @throws \Exception
-   *
-   * @return int
-   */
+    /**
+     * Send message.
+     *
+     * @param int    $message_id
+     * @param int    $conversation_id
+     * @param string $message_text
+     * @param string $message_token
+     *
+     * @throws \Exception
+     *
+     * @return int
+     */
     public function send($message_id, $conversation_id, $message_text, $message_token)
     {
         $me = $this->getServiceUser()->getIdentity()['id'];
@@ -30,12 +30,12 @@ class MessageUser extends AbstractService
         $date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
         foreach ($to as $user) {
             $m_message_user = $this->getModel()
-              ->setMessageId($message_id)
-              ->setConversationId($conversation_id)
-              ->setFromId($me)
-              ->setUserId($user)
-              ->setType((($user == $me) ? (($for_me) ? 'RS' : 'S') : 'R'))
-              ->setCreatedDate($date);
+                ->setMessageId($message_id)
+                ->setConversationId($conversation_id)
+                ->setFromId($me)
+                ->setUserId($user)
+                ->setType((($user == $me) ? (($for_me) ? 'RS' : 'S') : 'R'))
+                ->setCreatedDate($date);
 
             if ($me == $user && !$for_me) {
                 $m_message_user->setReadDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'));

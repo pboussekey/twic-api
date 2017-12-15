@@ -71,39 +71,43 @@ class User extends AbstractMapper
     }
 
     public function getList(
-      $user_id,
-      $is_admin,
-      $post_id = null,
-      $search = null,
-      $page_id = null,
-      $order = null,
-      array $exclude = null,
-      $contact_state = null,
-      $unsent = null,
-      $role = null,
-      $conversation_id = null,
-      $page_type = null,
-      $email = null
+        $user_id,
+        $is_admin,
+        $post_id = null,
+        $search = null,
+        $page_id = null,
+        $order = null,
+        array $exclude = null,
+        $contact_state = null,
+        $unsent = null,
+        $role = null,
+        $conversation_id = null,
+        $page_type = null,
+        $email = null
     ) {
         $select = $this->tableGateway->getSql()->select();
         if ($is_admin) {
-            $select->columns([
-              'user$id' => new Expression('user.id'),
-              'firstname', 'lastname', 'email', 'nickname', 'ambassador', 'email_sent',
-              'user$birth_date' => new Expression('DATE_FORMAT(user.birth_date, "%Y-%m-%dT%TZ")'),
-              'position', 'interest', 'avatar', 'suspension_date', 'suspension_reason',
-              'user$contact_state' => $this->getSelectContactState($user_id),
-              'user$contacts_count' => $this->getSelectContactCount()
-            ]);
+            $select->columns(
+                [
+                'user$id' => new Expression('user.id'),
+                'firstname', 'lastname', 'email', 'nickname', 'ambassador', 'email_sent',
+                'user$birth_date' => new Expression('DATE_FORMAT(user.birth_date, "%Y-%m-%dT%TZ")'),
+                'position', 'interest', 'avatar', 'suspension_date', 'suspension_reason',
+                'user$contact_state' => $this->getSelectContactState($user_id),
+                'user$contacts_count' => $this->getSelectContactCount()
+                ]
+            );
         } else {
-            $select->columns([
-              'user$id' => new Expression('user.id'),
-              'firstname', 'lastname', 'email', 'nickname','ambassador',
-              'user$birth_date' => new Expression('DATE_FORMAT(user.birth_date, "%Y-%m-%dT%TZ")'),
-              'position', 'interest', 'avatar',
-              'user$contact_state' => $this->getSelectContactState($user_id),
-              'user$contacts_count' => $this->getSelectContactCount()
-            ]);
+            $select->columns(
+                [
+                'user$id' => new Expression('user.id'),
+                'firstname', 'lastname', 'email', 'nickname','ambassador',
+                'user$birth_date' => new Expression('DATE_FORMAT(user.birth_date, "%Y-%m-%dT%TZ")'),
+                'position', 'interest', 'avatar',
+                'user$contact_state' => $this->getSelectContactState($user_id),
+                'user$contacts_count' => $this->getSelectContactCount()
+                ]
+            );
 
             $select->join(['co' => 'circle_organization'], 'co.organization_id=user.organization_id', []);
             $select->join('circle_organization', 'circle_organization.circle_id=co.circle_id', []);
@@ -123,8 +127,8 @@ class User extends AbstractMapper
                 $select->order(new Expression('RAND(?)', $order['seed']));
                 break;
             default:
-              $select->order(['user.id' => 'DESC']);
-          }
+                $select->order(['user.id' => 'DESC']);
+            }
         } else {
             $select->order(['user.id' => 'DESC']);
         }
@@ -134,12 +138,12 @@ class User extends AbstractMapper
         }
         if (!empty($post_id)) {
             $select->join('post_like', 'post_like.user_id=user.id', [])
-            ->where(['post_like.post_id' => $post_id])
-            ->where(['post_like.is_like IS TRUE']);
+                ->where(['post_like.post_id' => $post_id])
+                ->where(['post_like.is_like IS TRUE']);
         }
         if (!empty($conversation_id)) {
             $select->join('conversation_user', 'conversation_user.user_id=user.id', [])
-            ->where(['conversation_user.conversation_id' => $conversation_id]);
+                ->where(['conversation_user.conversation_id' => $conversation_id]);
         }
         if (null !== $search) {
             $select->where(['( CONCAT_WS(" ", user.firstname, user.lastname) LIKE ? ' => ''.$search.'%'])
@@ -158,7 +162,7 @@ class User extends AbstractMapper
         }
         if (!empty($role) || !empty($page_type) || !empty($page_id)) {
             $select->join(['pu' => 'page_user'], 'pu.user_id=user.id', [])
-             ->join(['p' => 'page'], 'pu.page_id=p.id', []);
+                ->join(['p' => 'page'], 'pu.page_id=p.id', []);
         }
         
         if (!empty($page_id)) {
@@ -171,17 +175,17 @@ class User extends AbstractMapper
             }*/
             $select->where(['pu.role' => $role]);
         }
-        if(!empty($page_type)){
-           $select->where(['p.type' => $page_type]);
+        if(!empty($page_type)) {
+            $select->where(['p.type' => $page_type]);
         }
         
         if ($unsent === true) {
             $select->where(['user.email_sent IS FALSE']);
         }
-        if(!empty($email)){
-           $select->where(['user.email' => $email]);
+        if(!empty($email)) {
+            $select->where(['user.email' => $email]);
         }
-        else if($unsent !== true){
+        else if($unsent !== true) {
             $select->where(['user.is_active' => 1]);
         }
         return $this->selectWith($select);
@@ -218,13 +222,14 @@ class User extends AbstractMapper
     }
     
       /**
-     * Check if an account token is valid
-     * @param  string $token
-     * 
-     *
-     * @return \Zend\Db\Sql\Select
-     */
-    public function checkAccountToken($token){
+       * Check if an account token is valid
+       *
+       * @param string $token
+       *
+       * @return \Zend\Db\Sql\Select
+       */
+    public function checkAccountToken($token)
+    {
         $select = $this->tableGateway->getSql()->select();
         $select->columns(['is_active'])
             ->join('preregistration', 'preregistration.user_id = user.id', [])

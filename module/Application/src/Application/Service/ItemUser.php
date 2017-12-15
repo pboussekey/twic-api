@@ -13,7 +13,6 @@ class ItemUser extends AbstractService
      * @param int $item_id
      * @param int $user_id
      * @param int $submission_id
-     *
      */
     public function getList($item_id, $user_id = null, $submission_id = null)
     {
@@ -48,16 +47,17 @@ class ItemUser extends AbstractService
      * @param int $item_id
      *
      * @return \Application\Model\ItemUser
-     *
      */
     public function getLite($id = null, $user_id = null, $submission_id = null, $group_id = null, $item_id = null)
     {
-        return $this->getMapper()->select($this->getModel()
-            ->setItemId($item_id)
-            ->setId($id)
-            ->setSubmissionId($submission_id)
-            ->setUserId($user_id)
-            ->setGroupId($group_id));
+        return $this->getMapper()->select(
+            $this->getModel()
+                ->setItemId($item_id)
+                ->setId($id)
+                ->setSubmissionId($submission_id)
+                ->setUserId($user_id)
+                ->setGroupId($group_id)
+        );
     }
 
     /**
@@ -71,10 +71,12 @@ class ItemUser extends AbstractService
      */
     public function getOrCreate($item_id, $user_id = null, $submission_id = null, $group_id = null)
     {
-        $res_item_user = $this->getMapper()->select($this->getModel()
-            ->setUserId($user_id)
-            ->setItemId($item_id)
-            ->setGroupId($group_id));
+        $res_item_user = $this->getMapper()->select(
+            $this->getModel()
+                ->setUserId($user_id)
+                ->setItemId($item_id)
+                ->setGroupId($group_id)
+        );
         
         if ($res_item_user->count() <= 0) {
             if ($user_id === null) {
@@ -86,21 +88,27 @@ class ItemUser extends AbstractService
 
         $m_final_item_user = $res_item_user->current();
         if (null !== $submission_id && null !== $group_id) {
-            $res_upt_item_user = $this->getMapper()->select($this->getModel()
-                ->setItemId($item_id)
-                ->setGroupId($group_id));
+            $res_upt_item_user = $this->getMapper()->select(
+                $this->getModel()
+                    ->setItemId($item_id)
+                    ->setGroupId($group_id)
+            );
             
             foreach ($res_upt_item_user as $m_item_user) {
                 if (null !== $submission_id && $m_item_user->getSubmissionId() !== $submission_id) {
-                    $this->getMapper()->update($this->getModel()
-                        ->setId($m_item_user->getId())
-                        ->setSubmissionId($submission_id));
+                    $this->getMapper()->update(
+                        $this->getModel()
+                            ->setId($m_item_user->getId())
+                            ->setSubmissionId($submission_id)
+                    );
                 }
             }
         } elseif(null !== $submission_id && $m_final_item_user->getSubmissionId() !== $submission_id) {
-            $this->getMapper()->update($this->getModel()
-                ->setId($m_final_item_user->getId())
-                ->setSubmissionId($submission_id));
+            $this->getMapper()->update(
+                $this->getModel()
+                    ->setId($m_final_item_user->getId())
+                    ->setSubmissionId($submission_id)
+            );
         }
         
         return $m_final_item_user;
@@ -118,11 +126,13 @@ class ItemUser extends AbstractService
      */
     public function create($item_id, $user_id, $group_id = null, $submission_id = null)
     {
-        $this->getMapper()->insert($this->getModel()
-            ->setUserId($user_id)
-            ->setItemId($item_id)
-            ->setSubmissionId($submission_id)
-            ->setGroupId($group_id));
+        $this->getMapper()->insert(
+            $this->getModel()
+                ->setUserId($user_id)
+                ->setItemId($item_id)
+                ->setSubmissionId($submission_id)
+                ->setGroupId($group_id)
+        );
         
         return (int) $this->getMapper()->getLastInsertValue();
     }
@@ -130,7 +140,7 @@ class ItemUser extends AbstractService
     /**
      * Add User In Item
      *
-     * @param int $item_id
+     * @param int       $item_id
      * @param int|array $user_id
      */
     public function addUsers($item_id, $user_id, $group_id = null)
@@ -141,24 +151,30 @@ class ItemUser extends AbstractService
             ];
         }
         
-        $res_item_user = $this->getMapper()->select($this->getModel()
-            ->setUserId($user_id)
-            ->setItemId($item_id));
+        $res_item_user = $this->getMapper()->select(
+            $this->getModel()
+                ->setUserId($user_id)
+                ->setItemId($item_id)
+        );
         foreach ($res_item_user as $m_item_user) {
             //@TODO update submission_id
-            $this->getMapper()->update($this->getModel()
-                ->setGroupId($group_id)
-                ->setDeletedDate(new IsNull('deleted_date')), [
+            $this->getMapper()->update(
+                $this->getModel()
+                    ->setGroupId($group_id)
+                    ->setDeletedDate(new IsNull('deleted_date')), [
                 'id' => $m_item_user->getId()
-            ]);
+                    ]
+            );
             unset($user_id[array_search($m_item_user->getUserId(), $user_id)]);
         }
         
         foreach ($user_id as $user) {
-            $this->getMapper()->insert($this->getModel()
-                ->setUserId($user)
-                ->setGroupId($group_id)
-                ->setItemId($item_id));
+            $this->getMapper()->insert(
+                $this->getModel()
+                    ->setUserId($user)
+                    ->setGroupId($group_id)
+                    ->setItemId($item_id)
+            );
         }
         
         return true;
@@ -167,7 +183,7 @@ class ItemUser extends AbstractService
     /**
      * Delete User In Item
      *
-     * @param int $item_id
+     * @param int       $item_id
      * @param int|array $user_id
      */
     public function deleteUsers($item_id, $user_id)
@@ -180,10 +196,12 @@ class ItemUser extends AbstractService
         
         $m_item_user = $this->getModel()->setDeletedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'));
         foreach ($user_id as $user) {
-            $this->getMapper()->update($m_item_user, [
+            $this->getMapper()->update(
+                $m_item_user, [
                 'user_id' => $user,
                 'item_id' => $item_id
-            ]);
+                ]
+            );
         }
         
         return true;
@@ -213,19 +231,27 @@ class ItemUser extends AbstractService
                 ];
             }
             foreach ($user_id as $user) {
-                $res_item_user = $this->getMapper()->select($this->getModel()
-                    ->setUserId($user)
-                    ->setItemId($item_id));
-                if ($res_item_user->count() > 0) {
-                    $this->getMapper()->update($this->getModel()
-                        ->setId($res_item_user->current()
-                        ->getId())
-                        ->setRate(($rate === - 1 ? new IsNull('grade') : $rate)));
-                } else {
-                    $this->getMapper()->insert($this->getModel()
+                $res_item_user = $this->getMapper()->select(
+                    $this->getModel()
                         ->setUserId($user)
                         ->setItemId($item_id)
-                        ->setRate(($rate === - 1 ? new IsNull('grade') : $rate)));
+                );
+                if ($res_item_user->count() > 0) {
+                    $this->getMapper()->update(
+                        $this->getModel()
+                            ->setId(
+                                $res_item_user->current()
+                                    ->getId()
+                            )
+                            ->setRate(($rate === - 1 ? new IsNull('grade') : $rate))
+                    );
+                } else {
+                    $this->getMapper()->insert(
+                        $this->getModel()
+                            ->setUserId($user)
+                            ->setItemId($item_id)
+                            ->setRate(($rate === - 1 ? new IsNull('grade') : $rate))
+                    );
                 }
             }
         }
@@ -237,10 +263,12 @@ class ItemUser extends AbstractService
                 ];
             }
             foreach ($group_id as $group) {
-                $this->getMapper()->update($this->getModel()
-                    ->setRate($rate), [
+                $this->getMapper()->update(
+                    $this->getModel()
+                        ->setRate($rate), [
                     'group_id' => $group
-                ]);
+                        ]
+                );
             }
         }
         

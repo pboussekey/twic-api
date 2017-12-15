@@ -66,7 +66,7 @@ class PostDoc extends AbstractService
     }
 
     /**
-     *Get List Post Doc
+     * Get List Post Doc
      *
      * @param  int $post_id
      * @return \Dal\Db\ResultSet\ResultSet
@@ -77,7 +77,7 @@ class PostDoc extends AbstractService
     }
 
     /**
-     *Get  Post Doc
+     * Get  Post Doc
      *
      * @param  int $id
      * @return \Dal\Db\ResultSet\ResultSet

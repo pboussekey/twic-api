@@ -18,8 +18,9 @@ class QuizUser extends AbstractService
                 if ($m_quiz_answer->getIsCorrect() == 1 || $type === 'text') {
                     $is_true = false;
                     foreach ($ar_quiz_users as $ar_quiz_user) {
-                        if ($ar_quiz_user['quiz_question_id'] === $m_quiz_answer->getQuizQuestionId() &&
-            ($ar_quiz_user['quiz_answer_id'] === $m_quiz_answer->getId() || ($type === 'text' && trim($ar_quiz_user['text']) == trim($m_quiz_answer->getText())))) {
+                        if ($ar_quiz_user['quiz_question_id'] === $m_quiz_answer->getQuizQuestionId() 
+                            && ($ar_quiz_user['quiz_answer_id'] === $m_quiz_answer->getId() || ($type === 'text' && trim($ar_quiz_user['text']) == trim($m_quiz_answer->getText())))
+                        ) {
                             $is_true = true;
                             break;
                         }
@@ -49,11 +50,11 @@ class QuizUser extends AbstractService
         $quiz_id = $this->getServiceQuizQuestion()->getLite($quiz_question_id)->current()->getQuizId();
         $identity = $this->getServiceUser()->getIdentity();
         $m_quiz_user = $this->getModel()
-      ->setQuizId($quiz_id)
-      ->setQuizQuestionId($quiz_question_id)
-      ->setUserId($identity['id'])
-      ->setQuizAnswerId($quiz_answer_id)
-      ->setText($text);
+            ->setQuizId($quiz_id)
+            ->setQuizQuestionId($quiz_question_id)
+            ->setUserId($identity['id'])
+            ->setQuizAnswerId($quiz_answer_id)
+            ->setText($text);
 
         if (!$this->getMapper()->insert($m_quiz_user)) {
             throw new \Exception("Error Processing Request", 1);
@@ -67,8 +68,8 @@ class QuizUser extends AbstractService
     {
         $identity = $this->getServiceUser()->getIdentity();
         $m_quiz_user = $this->getModel()
-      ->setQuizAnswerId($quiz_answer_id)
-      ->setText($text);
+            ->setQuizAnswerId($quiz_answer_id)
+            ->setText($text);
 
         //$this->calc($quiz_id, $identity['id']);
         return $this->getMapper()->update($m_quiz_user, ['id' => $id, 'user_id' => $identity['id']]);

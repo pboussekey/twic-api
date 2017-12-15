@@ -20,15 +20,15 @@ class ConversationUser extends AbstractMapper
 
         $select_sub = $this->tableGateway->getSql()->select();
         $select_sub->columns(array('conversation_id'))
-          ->group(array('conversation_id'))
-          ->having($having);
+            ->group(array('conversation_id'))
+            ->having($having);
 
         $select = $this->tableGateway->getSql()->select();
         $select->columns(array('conversation_id'))
-          ->where(array('conversation_user.user_id' => $users))
-          ->where(array('conversation_user.conversation_id IN ? ' => $select_sub))
-          ->group(array('conversation_user.conversation_id'))
-          ->having($having);
+            ->where(array('conversation_user.user_id' => $users))
+            ->where(array('conversation_user.conversation_id IN ? ' => $select_sub))
+            ->group(array('conversation_user.conversation_id'))
+            ->having($having);
 
         if (null !== $type) {
             $select->join('conversation', 'conversation.id = conversation_user.conversation_id')->where(array('conversation.type' => $type));

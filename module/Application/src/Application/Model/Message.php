@@ -67,10 +67,10 @@ class Message extends BaseMessage
     }
     
       /**
-     * Get count
-     *
-     * @return mixed
-     */
+       * Get count
+       *
+       * @return mixed
+       */
     public function getCount()
     {
         return $this->count;

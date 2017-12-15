@@ -23,16 +23,16 @@ class Library extends AbstractMapper
     {
         $select = $this->tableGateway->getSql()->select();
         $select->columns(['id','name','link','token','type','created_date','deleted_date','updated_date','folder_id','owner_id','box_id', 'text'])
-          ->where(['library.deleted_date IS NULL'])
-          ->order(['library.id' => 'DESC'])
-          ->quantifier('DISTINCT');
+            ->where(['library.deleted_date IS NULL'])
+            ->order(['library.id' => 'DESC'])
+            ->quantifier('DISTINCT');
 
         if (null !== $user_id && null === $page_id) {
             $select->where(['library.owner_id' => $user_id]);
         }
         if (null !== $page_id) {
             $select->join('page_doc', 'page_doc.library_id=library.id', [])
-            ->where(['page_doc.page_id' => $page_id]);
+                ->where(['page_doc.page_id' => $page_id]);
             if (null !== $user_id && $is_admin === false) {
                 $select->join('page_user', 'page_user.page_id=page_doc.page_id', [])->where(['page_user.user_id' => $user_id]);
             }

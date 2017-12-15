@@ -30,7 +30,7 @@ class Subscription extends AbstractService
      * Get List User Id
      *
      * @param  string $libelle
-     * @param array $filter 
+     * @param  array  $filter 
      * @param  string $search
      * @return array
      */
@@ -44,7 +44,7 @@ class Subscription extends AbstractService
             if (strpos($l, 'M') === 0) {
                 $u[] = (int)substr($l, 1);
             } else {
-                if(null != $filter){
+                if(null != $filter) {
                     $res_subscription = $this->getMapper()->usePaginator($filter)->select($this->getModel()->setLibelle($l));
                 }
                 else{

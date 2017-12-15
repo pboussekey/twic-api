@@ -42,20 +42,20 @@ class FsS3Storage extends AbstractStorage
         $model = null;
         switch (true) {
         case isset($this->cache_tpl[$name]):
-          $model = $this->cache_tpl[$name];
-          break;
+            $model = $this->cache_tpl[$name];
+            break;
 
         case ($this->cache && $this->cache->hasItem('tpl_mail_'.$name)):
-          $model =  $this->cache->getItem('tpl_mail_'.$name);
-          $this->cache_tpl[$name] = $model;
-          break;
+            $model =  $this->cache->getItem('tpl_mail_'.$name);
+            $this->cache_tpl[$name] = $model;
+            break;
 
         default:
-          $model = unserialize(file_get_contents($this->path.$name.'.obj'));
-          $this->cache->setItem('tpl_mail_'.$name, $model);
-          $this->cache_tpl[$name] = $model;
-          break;
-      }
+            $model = unserialize(file_get_contents($this->path.$name.'.obj'));
+            $this->cache->setItem('tpl_mail_'.$name, $model);
+            $this->cache_tpl[$name] = $model;
+            break;
+        }
 
         return $model;
     }
@@ -97,10 +97,10 @@ class FsS3Storage extends AbstractStorage
     }
 
     /**
-    * Set Cache
-    *
-    * @param \Zend\Cache\Storage\StorageInterface
-    **/
+     * Set Cache
+     *
+     * @param \Zend\Cache\Storage\StorageInterface
+     **/
     public function setCache($cache)
     {
         $this->cache = $cache;

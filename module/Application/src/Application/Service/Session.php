@@ -27,10 +27,10 @@ class Session extends AbstractService
     /**
      * Update session fcm
      * 
-     * @param  string $token
-     * @param  string $uuid
-     * @param  string $registration_id
-     * @param  string $package
+     * @param string $token
+     * @param string $uuid
+     * @param string $registration_id
+     * @param string $package
      * 
      * @return int
      */

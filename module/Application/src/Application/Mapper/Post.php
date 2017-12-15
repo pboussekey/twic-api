@@ -39,19 +39,21 @@ class Post extends AbstractMapper
         }
 
         $select->join('item', 'post.item_id = item.id', [], $select::JOIN_LEFT)
-          ->where(['( item.id IS NULL OR (item.is_published=true AND
+            ->where(
+                ['( item.id IS NULL OR (item.is_published=true AND
           (`item`.`is_available`=1 OR (`item`.`is_available`=3 AND  (
           ( `item`.`start_date` IS NULL AND `item`.`end_date` IS NULL ) OR
           ( `item`.`start_date` < UTC_TIMESTAMP() AND `item`.`end_date` IS NULL ) OR
           ( `item`.`start_date` IS NULL AND `item`.`end_date` > UTC_TIMESTAMP() ) OR
-          ( UTC_TIMESTAMP() BETWEEN `item`.`start_date` AND `item`.`end_date` ))))) )']);
+          ( UTC_TIMESTAMP() BETWEEN `item`.`start_date` AND `item`.`end_date` ))))) )']
+            );
 
         if (true === $is_item) {
             $select->where(['item.id IS NOT NULL']);
         }
         if (null !== $parent_id) {
             $select->where(['post.parent_id' => $parent_id]);
-        } else if($is_admin !== true){
+        } else if($is_admin !== true) {
             $select->join('subscription', 'subscription.libelle=post_subscription.libelle', [], $select::JOIN_LEFT)
                 ->where(['(subscription.user_id = ? ' => $me_id])
                 ->where(['  post_subscription.libelle = ? ) ' => 'M'.$me_id], Predicate::OP_OR)
@@ -87,7 +89,8 @@ class Post extends AbstractMapper
         $is_liked = new Select('post_like');
         $is_liked->columns(['is_liked' => new Expression('COUNT(true)')])->where(['post_like.post_id=`post$id` AND post_like.is_like IS TRUE AND post_like.user_id=?' => $me_id]);
 
-        $select->columns([
+        $select->columns(
+            [
             'post$id' => new Expression('post.id'),
             'content',
             'link',
@@ -108,7 +111,8 @@ class Post extends AbstractMapper
             'post$nbr_comments' => $nbr_comments,
             'post$is_liked' => $is_liked,
             'post$nbr_likes' => $nbr_likes,
-        ]);
+            ]
+        );
         $select->where(['post.id' => $id])
             ->join('page', 'page.id = post.t_page_id', [], $select::JOIN_LEFT)
             ->where(['post.deleted_date IS NULL'])
@@ -125,35 +129,33 @@ class Post extends AbstractMapper
     
     
     
-     public function getCount($me, $interval, $start_date = null, $end_date = null, $organization_id = null, $parent = null){
+    public function getCount($me, $interval, $start_date = null, $end_date = null, $organization_id = null, $parent = null)
+    {
         $select = $this->tableGateway->getSql()->select();
         $select->columns([ 'post$created_date' => new Expression('SUBSTRING(post.created_date,1,'.$interval.')'), 'post$count' => new Expression('COUNT(DISTINCT post.id)'), 'post$parent_id' => new Expression('IF(post.parent_id IS NOT NULL,1,0)')])
             ->where('post.deleted_date IS NULL')
             ->where('post.uid IS NULL')
             ->group([new Expression('SUBSTRING(post.created_date,1,'.$interval.')'),  new Expression('IF(post.parent_id IS NOT NULL,1,0)') ]);
 
-        if (null != $start_date)
-        {
+        if (null != $start_date) {
             $select->where(['post.created_date >= ? ' => $start_date]);
         }
 
-        if (null != $end_date)
-        {
+        if (null != $end_date) {
             $select->where(['post.created_date <= ? ' => $end_date]);
         }
         
-        if (null != $organization_id)
-        {
+        if (null != $organization_id) {
             $select->join('user', 'post.user_id = user.id', [])
                 ->join('page_user', 'user.id = page_user.user_id', [])
                 ->where(['page_user.page_id' => $organization_id]);
         }
 
         
-        if(0 === $parent){
+        if(0 === $parent) {
             $select->where('post.parent_id IS NULL');
         }
-        else if(1 === $parent){
+        else if(1 === $parent) {
             $select->where('post.parent_id IS NOT NULL');
         }
         return $this->selectWith($select);

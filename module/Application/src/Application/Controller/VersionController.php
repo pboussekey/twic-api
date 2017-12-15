@@ -18,17 +18,21 @@ class VersionController extends AbstractActionController
 {
     public function indexAction()
     {
-        return (new ViewModel([
+        return (new ViewModel(
+            [
             'version' => $this->conf()->getVersion(),
             'buildcommit' => $this->conf()->getBuildCommit(),
-        ]))->setTerminal(true);
+            ]
+        ))->setTerminal(true);
     }
     
     public function confAction()
     {
-        return new JsonModel([
+        return new JsonModel(
+            [
             'allconf' => $this->conf()->getAll()
-        ]);
+            ]
+        );
     }
     
     public function infoAction()

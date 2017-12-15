@@ -23,7 +23,7 @@ class Conf extends AbstractPlugin
     /**
      * Constructor
      *
-     * @param array      $options
+     * @param array $options
      */
     public function __construct($options)
     {

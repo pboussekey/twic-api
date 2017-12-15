@@ -35,21 +35,21 @@ class User extends AbstractService
         $result = $auth->authenticate();
         if (! $result->isValid()) {
             switch ($result->getCode()) {
-                case - 3:
-                    $code = - 32030;
-                    break;
-                case - 5:
-                    $code = - 32031;
-                    break;
-                case - 6:
-                    $code = - 32032;
-                    break;
-                case - 7:
-                    $code = - 32033;
-                    break;
-                default:
-                    $code = - 32000;
-                    break;
+            case - 3:
+                $code = - 32030;
+                break;
+            case - 5:
+                $code = - 32031;
+                break;
+            case - 6:
+                $code = - 32032;
+                break;
+            case - 7:
+                $code = - 32033;
+                break;
+            default:
+                $code = - 32000;
+                break;
             }
             
             throw new JrpcException($result->getMessages()[0], $code);
@@ -71,8 +71,8 @@ class User extends AbstractService
      *
      * @invokable
      *
-     * @param string $user
-     * @param string $password
+     * @param  string $user
+     * @param  string $password
      * @throws JrpcException
      * @return array
      */
@@ -85,21 +85,21 @@ class User extends AbstractService
         $result = $auth->authenticate();
         if (! $result->isValid()) {
             switch ($result->getCode()) {
-                case - 3:
-                    $code = - 32030;
-                    break;
-                case - 5:
-                    $code = - 32031;
-                    break;
-                case - 6:
-                    $code = - 32032;
-                    break;
-                case - 7:
-                    $code = - 32033;
-                    break;
-                default:
-                    $code = - 32000;
-                    break;
+            case - 3:
+                $code = - 32030;
+                break;
+            case - 5:
+                $code = - 32031;
+                break;
+            case - 6:
+                $code = - 32032;
+                break;
+            case - 7:
+                $code = - 32033;
+                break;
+            default:
+                $code = - 32000;
+                break;
             }
             
             throw new JrpcException($result->getMessages()[0], $code);
@@ -123,8 +123,8 @@ class User extends AbstractService
      *
      * @invokable
      *
-     * @param int $user
-     * @param int $password
+     * @param  int $user
+     * @param  int $password
      * @throws JrpcException
      * @return array
      */
@@ -147,11 +147,11 @@ class User extends AbstractService
      *
      * @invokable
      *
-     * @param string $email
-     * @param string $firstname
-     * @param string $lastname
-     * @param string $uid
-     * @param string $role
+     * @param  string $email
+     * @param  string $firstname
+     * @param  string $lastname
+     * @param  string $uid
+     * @param  string $role
      * @return int
      */
     public function create($email, $firstname, $lastname, $uid, $role = null)
@@ -244,7 +244,7 @@ class User extends AbstractService
     /**
      * Get/Create Identity External in cache.
      *
-     * @param bool $init
+     * @param  bool $init
      * @return array
      */
     public function _getCacheIdentityExternal($init = false)
@@ -296,8 +296,10 @@ class User extends AbstractService
     {
         $auth = $this->getServiceAuth();
         
-        return $auth->getStorage()->getListSession($auth->getIdentity()
-            ->getId());
+        return $auth->getStorage()->getListSession(
+            $auth->getIdentity()
+                ->getId()
+        );
     }
 
     /**
@@ -319,8 +321,8 @@ class User extends AbstractService
      *
      * @invokable
      *
-     * @param int $id
-     * @param bool $suspend
+     * @param int    $id
+     * @param bool   $suspend
      * @param string $reason
      *
      * @return bool
@@ -354,15 +356,15 @@ class User extends AbstractService
      * @param string $password
      * @param string $birth_date
      * @param string $position
-     * @param int $organization_id
+     * @param int    $organization_id
      * @param string $interest
      * @param string $avatar
-     * @param array $roles
+     * @param array  $roles
      * @param string $timezone
      * @param string $background
      * @param string $nickname
      * @param string $ambassador
-     * @param array $address
+     * @param array  $address
      *
      * @return int
      */
@@ -377,7 +379,7 @@ class User extends AbstractService
                 throw new JrpcException('uid email', - 38002);
             }
         }
-        if(!$this->isStudnetAdmin() && (null === $organization_id || !$this->getServicePage()->isAdmin($organization_id))){
+        if(!$this->isStudnetAdmin() && (null === $organization_id || !$this->getServicePage()->isAdmin($organization_id))) {
             
             throw new JrpcException('Unauthorized operation user.add', -38003);
         }
@@ -426,8 +428,10 @@ class User extends AbstractService
             ];
         }
         foreach ($roles as $r) {
-            $this->getServiceUserRole()->add($this->getServiceRole()
-                ->getIdByName($r), $id);
+            $this->getServiceUserRole()->add(
+                $this->getServiceRole()
+                    ->getIdByName($r), $id
+            );
         }
         
         $this->getServiceSubscription()->add('SU' . $id, $id);
@@ -441,7 +445,7 @@ class User extends AbstractService
      * @invokable
      *
      * @param array $data
-     * @param int $page_id
+     * @param int   $page_id
      *
      * @return array
      */
@@ -452,24 +456,24 @@ class User extends AbstractService
             try {
                 $id = $this->add(
                     $u['firstname'], /*firstname*/
-                  $u['lastname'], /*lastname*/
-                  $u['email'], /*email*/
-                  null, /*gender*/
-                  null, /*origin*/
-                  null, /*$nationality*/
-                  array_key_exists('uid', $u) ? $u['uid'] : null, /*$sis*/
-                  null, /*password*/
-                  null, /*birth_date*/
-                  null, /*position*/
-                  $page_id, /*organization_id*/
-                  null, /*interest*/
-                  null, /*avatar*/
-                  null, /*roles*/
-                  null, /*timezone*/
-                  null, /*background*/
-                  array_key_exists('nickname', $u) ? $u['nickname'] : null, /*$nickname*/
-                  null, /*ambassador*/
-                  null /*address*/
+                    $u['lastname'], /*lastname*/
+                    $u['email'], /*email*/
+                    null, /*gender*/
+                    null, /*origin*/
+                    null, /*$nationality*/
+                    array_key_exists('uid', $u) ? $u['uid'] : null, /*$sis*/
+                    null, /*password*/
+                    null, /*birth_date*/
+                    null, /*position*/
+                    $page_id, /*organization_id*/
+                    null, /*interest*/
+                    null, /*avatar*/
+                    null, /*roles*/
+                    null, /*timezone*/
+                    null, /*background*/
+                    array_key_exists('nickname', $u) ? $u['nickname'] : null, /*$nickname*/
+                    null, /*ambassador*/
+                    null /*address*/
                 );
                 
                 $this->getServicePageUser()->add($page_id, $id, ModelPageUser::ROLE_USER, ModelPageUser::STATE_MEMBER);
@@ -490,12 +494,12 @@ class User extends AbstractService
      *
      * @invokable
      *
-     * @param array $course
-     * @param array $program
-     * @param array $school
-     * @param array $exclude_course
-     * @param array $exclude_program
-     * @param array $exclude_user
+     * @param  array $course
+     * @param  array $program
+     * @param  array $school
+     * @param  array $exclude_course
+     * @param  array $exclude_program
+     * @param  array $exclude_user
      * @return \Dal\Db\ResultSet\ResultSet
      */
     public function getListAttendees($course = null, $program = null, $school = null, $page = null, $exclude_course = null, $exclude_program = null, $exclude_page = null, $exclude_user = null, $roles = null)
@@ -521,7 +525,7 @@ class User extends AbstractService
      *
      * @invokable
      *
-     * @param int $id
+     * @param int    $id
      * @param string $gender
      * @param string $origin
      * @param string $nationality
@@ -531,18 +535,18 @@ class User extends AbstractService
      * @param string $email
      * @param string $birth_date
      * @param string $position
-     * @param int $organization_id
+     * @param int    $organization_id
      * @param string $interest
      * @param string $avatar
-     * @param array $roles
+     * @param array  $roles
      * @param string $resetpassword
-     * @param bool $has_email_notifier
+     * @param bool   $has_email_notifier
      * @param string $timezone
      * @param string $background
      * @param string $nickname
-     * @param bool $ambassador
+     * @param bool   $ambassador
      * @param string $password
-     * @param array $address
+     * @param array  $address
      *
      * @return int
      */
@@ -552,7 +556,7 @@ class User extends AbstractService
             throw new JrpcException('duplicate email', - 38001);
         }
         
-        if(!$this->isStudnetAdmin() && $id !==  $this->getIdentity()['id']){
+        if(!$this->isStudnetAdmin() && $id !==  $this->getIdentity()['id']) {
             
             throw new JrpcException('Unauthorized operation user.update', -38003);
         }
@@ -574,10 +578,11 @@ class User extends AbstractService
          * }
          */
         
-        return $this->_update($id, $gender, $origin, $nationality, $firstname, $lastname, $sis, $email, $birth_date, $position , $organization_id, $interest, $avatar, $roles, $resetpassword, $has_email_notifier, $timezone, $background, $nickname, $suspend, $suspension_reason, $ambassador, $password, $address);
+        return $this->_update($id, $gender, $origin, $nationality, $firstname, $lastname, $sis, $email, $birth_date, $position, $organization_id, $interest, $avatar, $roles, $resetpassword, $has_email_notifier, $timezone, $background, $nickname, $suspend, $suspension_reason, $ambassador, $password, $address);
     }
     
-    public function _update($id = null, $gender = null, $origin = null, $nationality = null, $firstname = null, $lastname = null, $sis = null, $email = null, $birth_date = null, $position = null, $organization_id = null, $interest = null, $avatar = null, $roles = null, $resetpassword = null, $has_email_notifier = null, $timezone = null, $background = null, $nickname = null, $suspend = null, $suspension_reason = null, $ambassador = null, $password = null, $address = null){
+    public function _update($id = null, $gender = null, $origin = null, $nationality = null, $firstname = null, $lastname = null, $sis = null, $email = null, $birth_date = null, $position = null, $organization_id = null, $interest = null, $avatar = null, $roles = null, $resetpassword = null, $has_email_notifier = null, $timezone = null, $background = null, $nickname = null, $suspend = null, $suspension_reason = null, $ambassador = null, $password = null, $address = null)
+    {
          $m_user = $this->getModel();
         
         if ($id === null) {
@@ -640,8 +645,10 @@ class User extends AbstractService
             }
             $this->getServiceUserRole()->deleteByUser($id);
             foreach ($roles as $r) {
-                $this->getServiceUserRole()->add($this->getServiceRole()
-                    ->getIdByName($r), $id);
+                $this->getServiceUserRole()->add(
+                    $this->getServiceRole()
+                        ->getIdByName($r), $id
+                );
             }
         }
         
@@ -655,9 +662,11 @@ class User extends AbstractService
         }
         // on supprime son cache identity pour qu'a ca prochaine cannection il el recré.
         $this->deleteCachedIdentityOfUser($id);
-        $this->getServiceEvent()->sendData($id, 'user.update', [
+        $this->getServiceEvent()->sendData(
+            $id, 'user.update', [
             'PU' . $id
-        ]);
+            ]
+        );
         
         return $ret;
     }
@@ -666,7 +675,7 @@ class User extends AbstractService
      * Get number of email.
      *
      * @param string $email
-     * @param int $user_id
+     * @param int    $user_id
      *
      * @return int
      */
@@ -681,7 +690,7 @@ class User extends AbstractService
      * Get number of sis.
      *
      * @param string $sis
-     * @param int $user_id
+     * @param int    $user_id
      *
      * @return int
      */
@@ -705,28 +714,32 @@ class User extends AbstractService
             throw new \Exception("email is empty");
         }
         
-        $m_user = $this->getMapper()->select($this->getModel()
-            ->setEmail($email)
-            ->setSuspensionDate(new IsNull())
-            ->setDeletedDate(new IsNull())->setIsActive(1))->current();
+        $m_user = $this->getMapper()->select(
+            $this->getModel()
+                ->setEmail($email)
+                ->setSuspensionDate(new IsNull())
+                ->setDeletedDate(new IsNull())->setIsActive(1)
+        )->current();
         
         if ($m_user !== false) {
-            $uniqid = uniqid($m_user->getId() . "_" , true);
+            $uniqid = uniqid($m_user->getId() . "_", true);
             $m_page = $this->getServicePage()->getLite($m_user->getOrganizationId());
             $this->getServicePreregistration()->add($uniqid, null, null, null, $m_user->getOrganizationId(), $m_user->getId());
             
             $prefix = ($m_page !== false && is_string($m_page->getLibelle()) && !empty($m_page->getLibelle())) ?
             $m_page->getLibelle() : null;
 
-            $url = sprintf("https://%s%s/newpassword/%s",($prefix ? $prefix.'.':''),  $this->container->get('config')['app-conf']['uiurl'],$uniqid);
+            $url = sprintf("https://%s%s/newpassword/%s", ($prefix ? $prefix.'.':''),  $this->container->get('config')['app-conf']['uiurl'], $uniqid);
             try {
-                $this->getServiceMail()->sendTpl('tpl_forgotpasswd', $m_user->getEmail(), [
+                $this->getServiceMail()->sendTpl(
+                    'tpl_forgotpasswd', $m_user->getEmail(), [
                     'email' => $m_user->getEmail(),
                     'accessurl' => $url,
                     'uniqid' => $uniqid,
                     'lastname' => $m_user->getLastname() instanceof IsNull ? "" : $m_user->getLastname() ,
                     'firstname' => $m_user->getFirstname() instanceof IsNull ? "" : $m_user->getFirstname()
-            ]);
+                    ]
+                );
             } catch (\Exception $e) {
                 syslog(1, 'Model name does not exist <> uniqid is : ' . $uniqid . ' <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode() . ' <URL> ' . $url . ' <Email> ' . $m_user->getEmail());
             }
@@ -743,7 +756,7 @@ class User extends AbstractService
      * @invokable
      *
      * @param array|int $id
-     * @param int $page_id
+     * @param int       $page_id
      */
     public function sendPassword($id = null, $page_id = null)
     {
@@ -768,7 +781,7 @@ class User extends AbstractService
                 continue;
             }
             
-            $uniqid = uniqid($uid . "_" , true);
+            $uniqid = uniqid($uid . "_", true);
             $m_user = $res_user->current();
             $m_page = $this->getServicePage()->getLite($m_user->getOrganizationId());
             $this->getServicePreregistration()->add($uniqid, null, null, null, $m_user->getOrganizationId(), $m_user->getId());
@@ -776,15 +789,17 @@ class User extends AbstractService
             $prefix = ($m_page !== false && is_string($m_page->getLibelle()) && !empty($m_page->getLibelle())) ?
             $m_page->getLibelle() : null;
             
-            $url = sprintf("https://%s%s/signin/%s",($prefix ? $prefix.'.':''),  $this->container->get('config')['app-conf']['uiurl'],$uniqid);
-             try {
-                $this->getServiceMail()->sendTpl('tpl_sendpasswd', $m_user->getEmail(), [
+            $url = sprintf("https://%s%s/signin/%s", ($prefix ? $prefix.'.':''),  $this->container->get('config')['app-conf']['uiurl'], $uniqid);
+            try {
+                $this->getServiceMail()->sendTpl(
+                    'tpl_sendpasswd', $m_user->getEmail(), [
                     'uniqid' => $uniqid,
                     'email' => $m_user->getEmail(),
                     'accessurl' => $url,
                     'lastname' => $m_user->getLastname() instanceof IsNull ? "" : $m_user->getLastname(),
                     'firstname' => $m_user->getFirstname() instanceof IsNull ? "" : $m_user->getFirstname()
-                ]);
+                    ]
+                );
                 $this->getMapper()->update($this->getModel()->setEmailSent(true), ['id' => $uid]);
                 $nb++;
             } catch (\Exception $e) {
@@ -807,24 +822,28 @@ class User extends AbstractService
      */
     public function updatePassword($oldpassword, $password)
     {
-        return $this->getMapper()->update($this->getModel()
-            ->setPassword(md5($password)), array(
+        return $this->getMapper()->update(
+            $this->getModel()
+                ->setPassword(md5($password)), array(
             'id' => $this->getServiceAuth()
                 ->getIdentity()
                 ->getId(),
             'password' => md5($oldpassword)
-        ));
+            )
+        );
     }
 
     public function _updatePassword($email, $password)
     {
-        return $this->getMapper()->update($this->getModel()
-            ->setPassword(md5($password)), array(
+        return $this->getMapper()->update(
+            $this->getModel()
+                ->setPassword(md5($password)), array(
             'id' => $this->getServiceAuth()
                 ->getIdentity()
                 ->getId(),
             'email' => md5($email)
-        ));
+            )
+        );
     }
 
     /**
@@ -834,18 +853,19 @@ class User extends AbstractService
      */
     public function getLite($id)
     {
-        $res_user = $this->getMapper()->select($this->getModel()
-            ->setId($id));
+        $res_user = $this->getMapper()->select(
+            $this->getModel()
+                ->setId($id)
+        );
         return (is_array($id)) ? $res_user : $res_user->current();
     }
     
     /**
-     *
      * Check if an account token is valid
      * 
      * @invokable
-     * @param string $token
-     * @return \Dal\Db\ResultSet\ResultSet|\Application\Model\User
+     * @param     string $token
+     * @return    \Dal\Db\ResultSet\ResultSet|\Application\Model\User
      */
     public function checkAccountToken($token)
     {
@@ -859,7 +879,7 @@ class User extends AbstractService
      *
      * @invokable
      *
-     * @param int|array $id
+     * @param  int|array $id
      * @return array
      */
     public function get($id = null)
@@ -903,14 +923,14 @@ class User extends AbstractService
      * @invokable
      *
      * @param string $search
-     * @param array $exclude
-     * @param array $filter
-     * @param int $contact_state
-     * @param int $page_id
-     * @param int $post_id
-     * @param array $order
+     * @param array  $exclude
+     * @param array  $filter
+     * @param int    $contact_state
+     * @param int    $page_id
+     * @param int    $post_id
+     * @param array  $order
      * @param string $role
-     * @param int $conversation_id
+     * @param int    $conversation_id
      * @param string $page_type
      *
      * @return array
@@ -926,7 +946,7 @@ class User extends AbstractService
         
         $is_admin = (in_array(ModelRole::ROLE_ADMIN_STR, $identity['roles']));
         $mapper = $this->getMapper();
-        $res_user = $mapper->usePaginator($filter)->getList($identity['id'], $is_admin, $post_id, $search, $page_id, $order, $exclude, $contact_state, $unsent, $role, $conversation_id, $page_type );
+        $res_user = $mapper->usePaginator($filter)->getList($identity['id'], $is_admin, $post_id, $search, $page_id, $order, $exclude, $contact_state, $unsent, $role, $conversation_id, $page_type);
         
         $users = [];
         foreach ($res_user as $m_user) {
@@ -951,11 +971,11 @@ class User extends AbstractService
     public function getListIdByEmail($email)
     {
         
-        if(!is_array($email)){
+        if(!is_array($email)) {
             $email = [$email];
         }
         
-        if(count($email) === 0){
+        if(count($email) === 0) {
             return null;
         }
         $identity = $this->getIdentity();
@@ -963,14 +983,14 @@ class User extends AbstractService
         
         $is_admin = (in_array(ModelRole::ROLE_ADMIN_STR, $identity['roles']));
         $mapper = $this->getMapper();
-        $res_user = $mapper->getList($identity['id'], $is_admin, null, null, null, null, null, null, null, null, null, null, $email );
+        $res_user = $mapper->getList($identity['id'], $is_admin, null, null, null, null, null, null, null, null, null, null, $email);
         
         $users = [];
         foreach ($res_user as $m_user) {
             $users[trim($m_user->getEmail())] = $m_user->getId();
         }
         foreach($email as $e){
-            if(!isset($users[$e])){
+            if(!isset($users[$e])) {
                 $users[$e] = null;
             }
         }
@@ -1035,21 +1055,22 @@ class User extends AbstractService
     /**
      * Add School relation
      *
-     *
      * @invokable
      *
-     * @param int $organization_id
-     * @param int $user_id
-     * @param bool $default
+     * @param  int  $organization_id
+     * @param  int  $user_id
+     * @param  bool $default
      * @return NULL|int
      */
     public function addOrganization($organization_id, $user_id, $default = false)
     {
         $ret = null;
         if ($default === true) {
-            $ret = $this->getMapper()->update($this->getModel()
-                ->setId($user_id)
-                ->setOrganizationId($organization_id));
+            $ret = $this->getMapper()->update(
+                $this->getModel()
+                    ->setId($user_id)
+                    ->setOrganizationId($organization_id)
+            );
         }
         
         return $ret;
@@ -1057,10 +1078,12 @@ class User extends AbstractService
 
     public function removeOrganizationId($organization_id)
     {
-        return $this->getMapper()->update($this->getModel()
-            ->setOrganizationId(new IsNull('organization_id')), [
+        return $this->getMapper()->update(
+            $this->getModel()
+                ->setOrganizationId(new IsNull('organization_id')), [
             'organization_id' => $organization_id
-        ]);
+                ]
+        );
     }
 
     /**
@@ -1079,13 +1102,15 @@ class User extends AbstractService
         }
         
         if (is_numeric($m_registration->getUserId())) {
-            $this->getMapper()->update($this->getModel()
-                ->setFirstname($firstname)
-                ->setLastname($lastname)
-                ->setIsActive(1)
-                ->setPassword(md5($password)), [
+            $this->getMapper()->update(
+                $this->getModel()
+                    ->setFirstname($firstname)
+                    ->setLastname($lastname)
+                    ->setIsActive(1)
+                    ->setPassword(md5($password)), [
                 'id' => $m_registration->getUserId()
-            ]);
+                    ]
+            );
             $user_id = $m_registration->getUserId();
         } else {
             $user_id = $this->add($m_registration->getFirstname(), $m_registration->getLastname(), $m_registration->getEmail(), null, null, null, null, $password, null, null, (is_numeric($m_registration->getOrganizationId()) ? $m_registration->getOrganizationId() : null));
@@ -1093,7 +1118,7 @@ class User extends AbstractService
         
         $m_user = $this->getLite($user_id);
         $login = $this->login($m_user->getEmail(), $password);
-        if(is_numeric( $m_user->getOrganizationId() )){
+        if(is_numeric($m_user->getOrganizationId())) {
             $this->getServicePageUser()->update($m_user->getOrganizationId(), $user_id, ModelPageUser::ROLE_USER, ModelPageUser::STATE_MEMBER);
         }
         $this->getServicePreregistration()->delete($account_token, $m_user->getId());
@@ -1109,10 +1134,14 @@ class User extends AbstractService
      */
     public function linkedinSignIn($code, $account_token = null)
     {
-        syslog(1, json_encode([
-            'code' => $code,
-            'account_token' => $account_token,
-        ]));
+        syslog(
+            1, json_encode(
+                [
+                'code' => $code,
+                'account_token' => $account_token,
+                ]
+            )
+        );
         
         $identity = $this->getIdentity();
         $linkedin = $this->getServiceLinkedIn();
@@ -1120,7 +1149,7 @@ class User extends AbstractService
         $m_people = $linkedin->people();
         $linkedin_id = $m_people->getId();
         $login = false;
-        if ( empty($linkedin_id) || ! is_string($linkedin_id)) {
+        if (empty($linkedin_id) || ! is_string($linkedin_id)) {
             throw new \Exception('Error LinkedIn Id');
         }
         $res_user = $this->getMapper()->select($this->getModel()->setIsActive(1)->setLinkedinId($linkedin_id));
@@ -1141,21 +1170,26 @@ class User extends AbstractService
                 $user_id = $m_registration->getUserId();
                 if (is_numeric($user_id)) {
                     
-                    syslog(1, json_encode([
-                        'code' => $code,
-                        'account_token' => $account_token,
-                        'user_id' => $user_id,
-                        'type' => 'send ou lost password'
-                    ]));
+                    syslog(
+                        1, json_encode(
+                            [
+                            'code' => $code,
+                            'account_token' => $account_token,
+                            'user_id' => $user_id,
+                            'type' => 'send ou lost password'
+                            ]
+                        )
+                    );
                     $m_user = $this->getModel()->setId($user_id);
-                    if($this->getMapper()->update($m_user->setIsActive(1)) > 0){
-                        if($m_user->getAvatar() === null && 
-                            !empty($m_people->getPictureUrls()) && array_key_exists('values', $m_people->getPictureUrls()) && 
-                            count($m_people->getPictureUrls()['values']) > 0){
+                    if($this->getMapper()->update($m_user->setIsActive(1)) > 0) {
+                        if($m_user->getAvatar() === null  
+                            && !empty($m_people->getPictureUrls()) && array_key_exists('values', $m_people->getPictureUrls())  
+                            && count($m_people->getPictureUrls()['values']) > 0
+                        ) {
                             $url = $m_people->getPictureUrls()['values']['0'];
                             $avatar = $this->getServiceLibrary()->upload($url, $firstname.' '.$lastname);
                         }
-                        if($m_registration->getOrganizationId() !== null){
+                        if($m_registration->getOrganizationId() !== null) {
                             
                             $this->getServicePageUser()->update($m_registration->getOrganizationId(), $user_id, ModelPageUser::ROLE_USER, ModelPageUser::STATE_MEMBER);
                         }
@@ -1168,32 +1202,40 @@ class User extends AbstractService
                     $user_id = $this->add($firstname, $lastname, $m_registration->getEmail(), null, null, null, null, null, null, null, (is_numeric($m_registration->getOrganizationId()) ? $m_registration->getOrganizationId() : null), $avatar);
                     $this->getMapper()->update($this->getModel()->setLinkedinId($linkedin_id), ['id' => $user_id]);
                     
-                    syslog(1, json_encode([
-                        'code' => $code,
-                        'account_token' => $account_token,
-                        'user_id' => $user_id,
-                        'type' => 'create compte'
-                    ]));
+                    syslog(
+                        1, json_encode(
+                            [
+                            'code' => $code,
+                            'account_token' => $account_token,
+                            'user_id' => $user_id,
+                            'type' => 'create compte'
+                            ]
+                        )
+                    );
                 }
                 
                 $m_user = $this->getLite($user_id);
                 
                 $login = $this->loginLinkedIn($linkedin_id);
                 $this->getServicePreregistration()->delete($account_token, $m_user->getId());
-            } else if(is_numeric($identity['id'])){
+            } else if(is_numeric($identity['id'])) {
                 
-                syslog(1, json_encode([
-                    'code' => $code,
-                    'account_token' => $account_token,
-                    'user_id' => $identity['id'],
-                    'type' => 'deja connecté'
-                ]));
+                syslog(
+                    1, json_encode(
+                        [
+                        'code' => $code,
+                        'account_token' => $account_token,
+                        'user_id' => $identity['id'],
+                        'type' => 'deja connecté'
+                        ]
+                    )
+                );
                 $m_user = $this->getModel()->setLinkedinId($linkedin_id);
-                if($identity['avatar'] === null && $m_people->getPictureUrls() !== null){
+                if($identity['avatar'] === null && $m_people->getPictureUrls() !== null) {
                     $url = $m_people->getPictureUrls()['values']['0'];
                     $m_user->setAvatar($this->getServiceLibrary()->upload($url, $identity['firstname'].' '.$identity['lastname']));
                 }
-                $this->getMapper()->update($m_user , ['id' => $identity['id']]);
+                $this->getMapper()->update($m_user, ['id' => $identity['id']]);
                 $identity['has_linkedin'] = true;
                 
                 $login = $identity;

@@ -30,18 +30,18 @@ class PageDoc extends AbstractService
         $this->getMapper()->insert($m_page_doc);
         
         $m_page = $this->getServicePage()->getLite($page_id);
-        if($m_page->getType() == ModelPage::TYPE_COURSE){
+        if($m_page->getType() == ModelPage::TYPE_COURSE) {
             $identity = $this->getServiceUser()->getIdentity();
             $ar_pages = [];
             $res_user = $this->getServiceUser()->getLite($this->getServicePageUser()->getListByPage($page_id)[$page_id]);
             if($res_user !== null) {
                 foreach($res_user as $m_user){
-                    if($m_user->getId() == $identity['id']){
+                    if($m_user->getId() == $identity['id']) {
                         continue;
                     }
                     $m_organization = false;
-                    if(!$m_user->getOrganizationId() instanceof IsNull){
-                        if(!array_key_exists($m_user->getOrganizationId(), $ar_pages)){
+                    if(!$m_user->getOrganizationId() instanceof IsNull) {
+                        if(!array_key_exists($m_user->getOrganizationId(), $ar_pages)) {
                             $ar_pages[$m_user->getOrganizationId()] = $this->getServicePage()->getLite($m_user->getOrganizationId());
                         }
                         $m_organization = $ar_pages[$m_user->getOrganizationId()];
@@ -50,15 +50,19 @@ class PageDoc extends AbstractService
                     try{
                         $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ? 
                             $m_organization->getLibelle() : null;
-                        $url = sprintf("https://%s%s/page/course/%s/resources",
+                        $url = sprintf(
+                            "https://%s%s/page/course/%s/resources",
                             ($prefix ? $prefix.'.':''),
                             $this->container->get('config')['app-conf']['uiurl'],
-                            $m_page->getId());
-                        $this->getServiceMail()->sendTpl('tpl_coursedoc', $m_user->getEmail(), [
+                            $m_page->getId()
+                        );
+                        $this->getServiceMail()->sendTpl(
+                            'tpl_coursedoc', $m_user->getEmail(), [
                             'pagename' => $m_page->getTitle(),
                             'firstname' => $m_user->getFirstName(),
                             'pageurl' => $url
-                        ]);
+                            ]
+                        );
                         
                         $gcm_notification = new GcmNotification();
                         $gcm_notification->setTitle($m_page->getTitle())
@@ -68,7 +72,7 @@ class PageDoc extends AbstractService
                             ->setTag("PAGEDOV".$page_id)
                             ->setBody("A new material has been added to the course ". $m_page->getTitle());
                         
-                            $this->getServiceFcm()->send($m_user->getId(),null,$gcm_notification);
+                            $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification);
                     }
                     catch (\Exception $e) {
                         syslog(1, 'Model name does not exist PageDoc <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode());

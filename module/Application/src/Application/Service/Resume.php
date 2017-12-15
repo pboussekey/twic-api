@@ -46,7 +46,7 @@ class Resume extends AbstractService
         $logo = null,
         $title = null,
         $subtitle = null,
-    $description = null,
+        $description = null,
         $type = null,
         $publisher = null,
         $url = null,
@@ -154,8 +154,8 @@ class Resume extends AbstractService
     public function delete($id)
     {
         $m_education  = $this->getModel()
-          ->setId($id)
-          ->setUserId($this->getServiceUser()->getIdentity()['id']);
+            ->setId($id)
+            ->setUserId($this->getServiceUser()->getIdentity()['id']);
 
         return $this->getMapper()->delete($m_education);
     }

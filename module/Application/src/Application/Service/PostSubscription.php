@@ -73,12 +73,12 @@ class PostSubscription extends AbstractService
     }
 
     /**
-    * Add Tag in Post
-    *
-    * @param array  $ar
-    * @param int    $id
-    * @param string $date
-    **/
+     * Add Tag in Post
+     *
+     * @param array  $ar
+     * @param int    $id
+     * @param string $date
+     **/
     public function addHashtag($ar, $id, $date)
     {
         $user_id = $this->getServiceUser()->getIdentity()['id'];

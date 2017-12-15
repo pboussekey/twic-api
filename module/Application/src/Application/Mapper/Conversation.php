@@ -89,7 +89,7 @@ class Conversation extends AbstractMapper
         if (null !== $search) {
             $searchselect = $this->tableGateway->getSql()->select();
             $searchselect->columns(['id'])
-            ->join('conversation_user', 'conversation.id=conversation_user.conversation_id', [])
+                ->join('conversation_user', 'conversation.id=conversation_user.conversation_id', [])
                 ->join('user', 'user.id=conversation_user.user_id', [], $select::JOIN_LEFT)
                 ->where(['(conversation.name LIKE ? ' => ''.$search.'%'])
                 ->where(['CONCAT_WS(" ", user.firstname, user.lastname) LIKE ? ' => ''.$search.'%'], Predicate::OP_OR)
@@ -107,9 +107,9 @@ class Conversation extends AbstractMapper
         // ONLY ONE CONTACT OR NOT
         if (true === $contact || false === $contact) {
             $select->join(['cu' => 'conversation_user'], 'conversation.id=cu.conversation_id', [])
-        ->join('contact', new Expression('contact.contact_id=cu.user_id AND contact.user_id = ?', [$user_id]), ['is_contact' => new Expression('IF(contact.deleted_date IS NULL AND contact.accepted_date IS NOT NULL, TRUE, FALSE)')], $select::JOIN_LEFT)
-        ->where(['cu.user_id <> ?' => $user_id])
-        ->group(['conversation.id']);
+                ->join('contact', new Expression('contact.contact_id=cu.user_id AND contact.user_id = ?', [$user_id]), ['is_contact' => new Expression('IF(contact.deleted_date IS NULL AND contact.accepted_date IS NOT NULL, TRUE, FALSE)')], $select::JOIN_LEFT)
+                ->where(['cu.user_id <> ?' => $user_id])
+                ->group(['conversation.id']);
             if ($contact) {
                 $select->having('COUNT(true) = 1 AND is_contact IS TRUE');
             } else {

@@ -15,8 +15,8 @@ class Tag extends AbstractMapper
     {
         $select = $this->tableGateway->getSql()->select();
         $select->columns(['id', 'name', 'weight'])
-          ->join('page_tag', 'page_tag.tag_id=tag.id', [])
-          ->where(['page_tag.page_id' => $page_id]);
+            ->join('page_tag', 'page_tag.tag_id=tag.id', [])
+            ->where(['page_tag.page_id' => $page_id]);
 
         return $this->selectWith($select);
     }

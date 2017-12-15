@@ -56,11 +56,11 @@ class Message extends AbstractService
         $library_id = (is_array($library)) ? $this->getServiceLibrary()->_add($library)->getId() : null;
 
         $m_message = $this->getModel()
-          ->setText($text)
-          ->setLibraryId($library_id)
-          ->setUserId($user_id)
-          ->setConversationId($conversation_id)
-          ->setCreatedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'));
+            ->setText($text)
+            ->setLibraryId($library_id)
+            ->setUserId($user_id)
+            ->setConversationId($conversation_id)
+            ->setCreatedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'));
 
         if ($this->getMapper()->insert($m_message) <= 0) {
             throw new \Exception('error insert message');
@@ -88,12 +88,12 @@ class Message extends AbstractService
 
         //////////////////////// NODEJS //////////////////////////////:
         $this->sendMessage(
-          [
-          'conversation_id' => (int)$conversation_id,
-          'id' => (int)$id,
-          'users' => $to,
-          'type' => $type,
-          ]
+            [
+            'conversation_id' => (int)$conversation_id,
+            'id' => (int)$id,
+            'users' => $to,
+            'type' => $type,
+            ]
         );
 
         //////////////////// USER //////////////////////////////////
@@ -122,11 +122,11 @@ class Message extends AbstractService
                 $tmp_ar_name = $ar_name;
                 unset($tmp_ar_name[$user]);
                 $gcm_notification->setTitle(implode(", ", $tmp_ar_name))
-                ->setSound("default")
-                ->setColor("#00A38B")
-                ->setIcon("icon")
-                ->setTag("CONV".$conversation_id)
-                ->setBody(((count($to) > 2)? explode(' ', $ar_name[$user_id])[0] . ": ":"").(empty($text)?"shared a file.":$text));
+                    ->setSound("default")
+                    ->setColor("#00A38B")
+                    ->setIcon("icon")
+                    ->setTag("CONV".$conversation_id)
+                    ->setBody(((count($to) > 2)? explode(' ', $ar_name[$user_id])[0] . ": ":"").(empty($text)?"shared a file.":$text));
                 
                 
                 $this->getServiceFcm()->send(
@@ -141,22 +141,22 @@ class Message extends AbstractService
                         ],
                     ]],
                     $gcm_notification
-                    );
+                );
             }
         }
         
-      return [
+        return [
         'message_id' => $id,
         'conversation_id' => $conversation_id,
         'to' => $to,
-      ];
+        ];
     }
 
     /**
-    * Send Message Node message.publish
-    *
-    * @param string $data
-    */
+     * Send Message Node message.publish
+     *
+     * @param string $data
+     */
     public function sendMessage($data)
     {
         $authorization = $this->container->get('config')['node']['authorization'];
@@ -201,14 +201,13 @@ class Message extends AbstractService
         return [
         'list' => $res_message,
         'count' => $mapper->count()
-      ];
+        ];
     }
 
     /**
      * Get By user Message
      *
-     *
-     * @param int   $id
+     * @param int $id
      */
     public function get($id)
     {
@@ -221,24 +220,25 @@ class Message extends AbstractService
 
     
      /**
-     * Get page counts.
-     *
-     * @invokable
-     *
-     * @param string  $start_date
-     * @param string  $end_date
-     * @param string  $interval_date
-     * @param array|string  $type
-     * @param int     $organization_id
-     *
-     * @return array
-     */
-    public function getCount( $start_date = null, $end_date = null, $interval_date = 'D', $type = null, $organization_id  = null){
+      * Get page counts.
+      *
+      * @invokable
+      *
+      * @param string       $start_date
+      * @param string       $end_date
+      * @param string       $interval_date
+      * @param array|string $type
+      * @param int          $organization_id
+      *
+      * @return array
+      */
+    public function getCount( $start_date = null, $end_date = null, $interval_date = 'D', $type = null, $organization_id  = null)
+    {
         
         $interval = $this->getServiceActivity()->interval($interval_date);
         $identity = $this->getServiceUser()->getIdentity();
         
-        return $this->getMapper()->getCount($identity['id'],$interval, $start_date, $end_date, $organization_id, $type);
+        return $this->getMapper()->getCount($identity['id'], $interval, $start_date, $end_date, $organization_id, $type);
     }
     
     /**

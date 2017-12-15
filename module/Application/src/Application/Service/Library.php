@@ -112,12 +112,12 @@ class Library extends AbstractService
      *
      * @invokable
      *
-     * @param  array   $filter
-     * @param  int     $folder_id
-     * @param  bool    $global
-     * @param  string  $folder_name
-     * @param  int     $user_id
-     * @param  int     $page_id
+     * @param array  $filter
+     * @param int    $folder_id
+     * @param bool   $global
+     * @param string $folder_name
+     * @param int    $user_id
+     * @param int    $page_id
      *
      * @return array
      */
@@ -321,7 +321,7 @@ class Library extends AbstractService
         $Client = new \Zend\Http\Client();
         $Client->setUri(str_replace('/data/', '/save/', $this->container->get('config')['app-conf']['urldms']));
         $Client->setMethod('POST');
-        $Client->setFileUpload($name, "data" , file_get_contents($url) );
+        $Client->setFileUpload($name, "data", file_get_contents($url));
         $r = $Client->send();
         return json_decode($r->getBody(), 1)['data'];
         

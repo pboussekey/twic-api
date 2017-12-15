@@ -12,7 +12,7 @@ class Language extends AbstractService
      * @invokable
      *
      * @param string $search
-     * @param array $filter
+     * @param array  $filter
      *
      * @return \Dal\Db\ResultSet\ResultSet
      */

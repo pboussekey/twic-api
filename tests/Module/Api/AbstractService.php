@@ -24,10 +24,12 @@ abstract class AbstractService extends AbstractHttpControllerTestCase
         $this->setApplicationConfig(include __DIR__ . '/../../config/application.config.php');
         $serviceLocator = $this->getApplicationServiceLocator();
         $serviceLocator->setAllowOverride(true);
-        $serviceLocator->setFactory('json_server_mock',
+        $serviceLocator->setFactory(
+            'json_server_mock',
             function ($container, $requestedName, $options) {
                 return new Server($container, $container->get('config')['json-rpc-server']);
-            });
+            }
+        );
         $serviceLocator->setAlias('json_server', 'json_server_mock');
     }
 
@@ -191,7 +193,7 @@ abstract class AbstractService extends AbstractHttpControllerTestCase
         )->current();
         $user = ['id' => $id,
                 'roles' => [],
-                'token' => $session ? str_replace('sess_','',$session->getToken()) : ($id . '-token'),
+                'token' => $session ? str_replace('sess_', '', $session->getToken()) : ($id . '-token'),
                 'firstname' => 'toto',
                 'avatar' => 'avatar',
                 'lastname' => 'tata',
@@ -202,12 +204,12 @@ abstract class AbstractService extends AbstractHttpControllerTestCase
             }
             foreach ($role as $rr) {
                 switch ($rr) {
-                    case ModelRole::ROLE_ADMIN_ID:
-                        $user['roles'][ModelRole::ROLE_ADMIN_ID] = ModelRole::ROLE_ADMIN_STR;
-                        break;
-                    case ModelRole::ROLE_USER_ID:
-                        $user['roles'][ModelRole::ROLE_USER_ID] = ModelRole::ROLE_USER_STR;
-                        break;
+                case ModelRole::ROLE_ADMIN_ID:
+                    $user['roles'][ModelRole::ROLE_ADMIN_ID] = ModelRole::ROLE_ADMIN_STR;
+                    break;
+                case ModelRole::ROLE_USER_ID:
+                    $user['roles'][ModelRole::ROLE_USER_ID] = ModelRole::ROLE_USER_STR;
+                    break;
                 }
             }
             
@@ -227,7 +229,8 @@ abstract class AbstractService extends AbstractHttpControllerTestCase
         
         $identityMock->expects($this->any())
             ->method('toArray')
-            ->will($this->returnValue($user)
+            ->will(
+                $this->returnValue($user)
             );
 
         $authMock = $this->getMockBuilder('\Zend\Authentication\AuthenticationService')

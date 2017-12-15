@@ -18,8 +18,10 @@ class Preregistration extends AbstractService
     public function get($account_token)
     {
         return $this->getMapper()
-            ->select($this->getModel()
-            ->setAccountToken($account_token))
+            ->select(
+                $this->getModel()
+                    ->setAccountToken($account_token)
+            )
             ->current();
     }
 
@@ -32,8 +34,8 @@ class Preregistration extends AbstractService
      * @param string $firstname
      * @param string $lastname
      * @param string $email
-     * @param int $organization_id
-     * @param int $user_id
+     * @param int    $organization_id
+     * @param int    $user_id
      *
      * @return int
      */
@@ -58,18 +60,22 @@ class Preregistration extends AbstractService
      * @invokable
      *
      * @param string $account_token
-     * @param int $user_id
+     * @param int    $user_id
      */
     public function delete($account_token = null, $user_id = null)
     {
         $nb = 0;
         if (null !== $account_token) {
-            $nb += $this->getMapper()->delete($this->getModel()
-                ->setAccountToken($account_token));
+            $nb += $this->getMapper()->delete(
+                $this->getModel()
+                    ->setAccountToken($account_token)
+            );
         }
         if (is_numeric($user_id)) {
-            $nb += $this->getMapper()->delete($this->getModel()
-                ->setUserId($user_id));
+            $nb += $this->getMapper()->delete(
+                $this->getModel()
+                    ->setUserId($user_id)
+            );
         }
         
         return $nb;

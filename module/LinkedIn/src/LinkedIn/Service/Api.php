@@ -22,13 +22,15 @@ class Api extends AbstractApi
             $this->http_client->getRequest()->getHeaders()->addHeaderLine('Content-Type', 'application/x-www-form-urlencoded');
             $this->setMethode(Request::METHOD_POST);
             $this->setPath('/oauth/v2/accessToken');
-            $this->setPost([
-            'grant_type' => 'authorization_code',
-            'code' => $code,
-            'redirect_uri' => $this->redirect_uri,
-            'client_id' => $this->client_id,
-            'client_secret' => $this->client_secret,
-        ]);
+            $this->setPost(
+                [
+                'grant_type' => 'authorization_code',
+                'code' => $code,
+                'redirect_uri' => $this->redirect_uri,
+                'client_id' => $this->client_id,
+                'client_secret' => $this->client_secret,
+                ]
+            );
             $accessToken = new AccessToken($this->getBody($this->send()));
             $this->access_token = $accessToken->getAccessToken();
         } else {

@@ -21,24 +21,23 @@ class Item extends AbstractService
      *
      * @invokable
      *
-     * @param int $page_id
+     * @param int    $page_id
      * @param string $title
-     * @param int $points
+     * @param int    $points
      * @param string $description
      * @param string $type
-     * @param bool $is_available
-     * @param bool $is_published
-     * @param int $order_id
+     * @param bool   $is_available
+     * @param bool   $is_published
+     * @param int    $order_id
      * @param string $start_date
      * @param string $end_date
-     * @param int $parent_id
-     * @param int $library_id
-     * @param int $post_id
+     * @param int    $parent_id
+     * @param int    $library_id
+     * @param int    $post_id
      * @param string $text
-     * @param array $participants
-     * @param int $quiz_id
-     * @param bool $is_grade_published
-     *
+     * @param array  $participants
+     * @param int    $quiz_id
+     * @param bool   $is_grade_published
      */
     public function add($page_id, $title, $points = null, $description = null, $type = null, $is_available = null, $is_published = null, $order_id = null, $start_date = null, $end_date = null, $parent_id = null, $library_id = null, $post_id = null, $text = null, $participants = null, $quiz_id = null, $is_grade_published = null)
     {
@@ -75,8 +74,8 @@ class Item extends AbstractService
             ->setCreatedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'))
             ->setUserId($user_id);
 
-        if($type === ModelItem::TYPE_LIVE_CLASS){
-           $m_item->setConversationId($this->getServiceConversation()->_create(ModelConversation::TYPE_LIVECLASS, null, true));
+        if($type === ModelItem::TYPE_LIVE_CLASS) {
+            $m_item->setConversationId($this->getServiceConversation()->_create(ModelConversation::TYPE_LIVECLASS, null, true));
         }
 
         $this->getMapper()->insert($m_item);
@@ -108,14 +107,18 @@ class Item extends AbstractService
     {
         
         if (null !== $parent_id) {
-            $this->getMapper()->update($this->getModel()
-                ->setParentId($parent_id)
-                ->setId($id));
+            $this->getMapper()->update(
+                $this->getModel()
+                    ->setParentId($parent_id)
+                    ->setId($id)
+            );
         }
 
         $m_base_order = $this->getMapper()
-            ->select($this->getModel()
-            ->setId($id))
+            ->select(
+                $this->getModel()
+                    ->setId($id)
+            )
             ->current();
 
         if (!$this->getServiceUser()->isStudnetAdmin() && !$this->getServicePage()->isAdmin($m_base_order->getPageId())) {
@@ -130,33 +133,41 @@ class Item extends AbstractService
             }
 
             // on atribut l'ordre
-            $this->getMapper()->update($this->getModel()
-                ->setId($id)
-                ->setOrder($order));
+            $this->getMapper()->update(
+                $this->getModel()
+                    ->setId($id)
+                    ->setOrder($order)
+            );
         } elseif (is_numeric($order_id)) {
             // on verirfie si il existe une ordre superieur
 
             if ($order_id !== 0) {
                 $m_order = $this->getMapper()
-                    ->select($this->getModel()
-                    ->setId($order_id))
+                    ->select(
+                        $this->getModel()
+                            ->setId($order_id)
+                    )
                     ->current();
                 $order = ($m_order->getOrder() + 1);
             } else {
                 $order = 1;
             }
 
-            $res_order_sup = $this->getMapper()->select($this->getModel()
-                ->setOrder($order));
+            $res_order_sup = $this->getMapper()->select(
+                $this->getModel()
+                    ->setOrder($order)
+            );
             if ($res_order_sup->count() > 0) {
                 // si oui on decaler
                 $this->getMapper()->uptOrder($m_base_order->getPageId(), $order, $m_base_order->getParentId());
             }
 
             // on atribut l'ordre
-            $this->getMapper()->update($this->getModel()
-                ->setId($id)
-                ->setOrder($order));
+            $this->getMapper()->update(
+                $this->getModel()
+                    ->setId($id)
+                    ->setOrder($order)
+            );
         }
     }
 
@@ -191,10 +202,10 @@ class Item extends AbstractService
      *
      * @invokable
      *
-     * @param int $id
+     * @param int       $id
      * @param int|array $user_ids
-     * @param int $group_id
-     * @param string $group_name
+     * @param int       $group_id
+     * @param string    $group_name
      */
     public function addUsers($id, $user_ids, $group_id = null, $group_name = null)
     {
@@ -211,7 +222,7 @@ class Item extends AbstractService
      *
      * @invokable
      *
-     * @param int $id
+     * @param int       $id
      * @param int|array $user_ids
      */
     public function deleteUsers($id, $user_ids)
@@ -224,8 +235,8 @@ class Item extends AbstractService
      *
      * @invokable
      *
-     * @param int $page_id
-     * @param int $parent_id
+     * @param int  $page_id
+     * @param int  $parent_id
      * @param bool $is_publish // true - que les item publié
      */
     public function getListId($page_id = null, $parent_id = null, $is_publish = null)
@@ -267,7 +278,7 @@ class Item extends AbstractService
      *
      * @invokable
      *
-     * @param int $page_id
+     * @param int   $page_id
      * @param array $filter
      */
     public function getListAssignmentId($page_id = null, $filter = null)
@@ -363,8 +374,10 @@ class Item extends AbstractService
         $ar = [];
         foreach ($id as $i) {
             $paticipants = $this->getMapper()
-                ->select($this->getModel()
-                ->setId($i))
+                ->select(
+                    $this->getModel()
+                        ->setId($i)
+                )
                 ->current()
                 ->getParticipants();
             $page_id = $this->getLite($i)
@@ -374,8 +387,29 @@ class Item extends AbstractService
             $is_admin = (in_array($identity['id'], $ar_pu[$page_id]));
             $res_item = $this->getMapper()->getListSubmission($i, ! $is_admin ? $identity['id'] : null);
             switch ($paticipants) {
-                case 'all':
-                    foreach ($res_item as $m_item) {
+            case 'all':
+                foreach ($res_item as $m_item) {
+                    $ar_item = $m_item->toArray();
+                    $tmpar = [
+                        'group_id' => null,
+                        'rate' => ($m_item->getIsGradePublished() == true || $is_admin) ? $ar_item['item_user']['rate'] : null,
+                        'users' => [
+                            $ar_item['page_user']['user_id']
+                        ],
+                        'submit_date' => $ar_item['item_user']['submission']['submit_date'],
+                        'post_id' => $ar_item['item_user']['submission']['post_id'],
+                        'item_id' => $i
+                    ];
+                    if (! $is_admin) {
+                        $ar[$i] = $tmpar;
+                    } else {
+                        $ar[$i][] = $tmpar;
+                    }
+                }
+                break;
+            case 'user':
+                foreach ($res_item as $m_item) {
+                    if (is_numeric($m_item->getItemUser()->getId())) {
                         $ar_item = $m_item->toArray();
                         $tmpar = [
                             'group_id' => null,
@@ -393,60 +427,39 @@ class Item extends AbstractService
                             $ar[$i][] = $tmpar;
                         }
                     }
-                    break;
-                case 'user':
-                    foreach ($res_item as $m_item) {
-                        if (is_numeric($m_item->getItemUser()->getId())) {
-                            $ar_item = $m_item->toArray();
-                            $tmpar = [
-                                'group_id' => null,
+                }
+                break;
+            case 'group':
+                $groups = [];
+                foreach ($res_item as $m_item) {
+                    if (is_numeric($m_item->getItemUser()->getId())) {
+                        $ar_item = $m_item->toArray();
+                        $groupId = $ar_item['item_user']['group_id'];
+                        if (isset($groups[$groupId])) {
+                            $groups[$groupId]['users'][] = $ar_item['page_user']['user_id'];
+                        } else {
+                            $groups[$groupId] = [
+                                'group_id' => $ar_item['item_user']['group_id'],
+                                'group_name' => $ar_item['item_user']['group']['name'],
                                 'rate' => ($m_item->getIsGradePublished() == true || $is_admin) ? $ar_item['item_user']['rate'] : null,
-                                'users' => [
-                                    $ar_item['page_user']['user_id']
-                                ],
+                                'users' => [$ar_item['page_user']['user_id']],
                                 'submit_date' => $ar_item['item_user']['submission']['submit_date'],
                                 'post_id' => $ar_item['item_user']['submission']['post_id'],
                                 'item_id' => $i
                             ];
                             if (! $is_admin) {
-                                $ar[$i] = $tmpar;
+                                $groups[$groupId]['users'] = $this->getServiceItemUser()->getListUserId($ar_item['item_user']['group_id']);
+                                $ar[$i] = &$groups[$groupId];
                             } else {
-                                $ar[$i][] = $tmpar;
+                                $ar[$i][] = &$groups[$groupId];
                             }
                         }
                     }
-                    break;
-                case 'group':
-                    $groups = [];
-                    foreach ($res_item as $m_item) {
-                        if (is_numeric($m_item->getItemUser()->getId())) {
-                            $ar_item = $m_item->toArray();
-                            $groupId = $ar_item['item_user']['group_id'];
-                            if (isset($groups[$groupId])) {
-                                $groups[$groupId]['users'][] = $ar_item['page_user']['user_id'];
-                            } else {
-                                $groups[$groupId] = [
-                                    'group_id' => $ar_item['item_user']['group_id'],
-                                    'group_name' => $ar_item['item_user']['group']['name'],
-                                    'rate' => ($m_item->getIsGradePublished() == true || $is_admin) ? $ar_item['item_user']['rate'] : null,
-                                    'users' => [$ar_item['page_user']['user_id']],
-                                    'submit_date' => $ar_item['item_user']['submission']['submit_date'],
-                                    'post_id' => $ar_item['item_user']['submission']['post_id'],
-                                    'item_id' => $i
-                                ];
-                                if (! $is_admin) {
-                                    $groups[$groupId]['users'] = $this->getServiceItemUser()->getListUserId($ar_item['item_user']['group_id']);
-                                    $ar[$i] = &$groups[$groupId];
-                                } else {
-                                    $ar[$i][] = &$groups[$groupId];
-                                }
-                            }
-                        }
-                    }
+                }
 
-                    break;
-                default:
-                    break;
+                break;
+            default:
+                break;
             }
         }
 
@@ -458,7 +471,7 @@ class Item extends AbstractService
      *
      * @invokable
      *
-     * @param int|array $id
+     * @param  int|array $id
      * @return \Application\Model\Item
      */
     public function get($id)
@@ -466,9 +479,11 @@ class Item extends AbstractService
         $identity = $this->getServiceUser()->getIdentity();
         $res_item = $this->getMapper()->get($id, $identity['id']);
 
-        return (is_array($id)) ? $res_item->toArray([
+        return (is_array($id)) ? $res_item->toArray(
+            [
             'id'
-        ]) : $res_item->current();
+            ]
+        ) : $res_item->current();
     }
 
     /**
@@ -476,8 +491,8 @@ class Item extends AbstractService
      *
      * @invokable
      *
-     * @param int $item_id
-     * @param int $rate
+     * @param int       $item_id
+     * @param int       $rate
      * @param int|array $user_id
      * @param int|array $group_id
      */
@@ -489,11 +504,11 @@ class Item extends AbstractService
     /**
      * Publish Item
      *
-     * @param int $id
-     * @param string $publish
-     * @param string $all
-     * @param int $parent_id
-     * @param bool $notify
+     * @param  int    $id
+     * @param  string $publish
+     * @param  string $all
+     * @param  int    $parent_id
+     * @param  bool   $notify
      * @throws \Exception
      *
      * @return boolean
@@ -509,10 +524,12 @@ class Item extends AbstractService
             ->getPageId();
         $identity = $this->getServiceUser()->getIdentity();
 
-        $this->getMapper()->update($this->getModel()
-            ->setId($id)
-            ->setParentId($parent_id)
-            ->setIsPublished($publish));
+        $this->getMapper()->update(
+            $this->getModel()
+                ->setId($id)
+                ->setParentId($parent_id)
+                ->setIsPublished($publish)
+        );
 
         /*if (true === $all) {
             if (null !== $id) {
@@ -549,12 +566,12 @@ class Item extends AbstractService
                 $ar_pages = [];
                 $res_user = $this->getServiceUser()->getLite($this->getServicePageUser()->getListByPage($page_id)[$page_id]);
                 foreach($res_user as $m_user){
-                    if($m_user->getId() == $identity['id']){
+                    if($m_user->getId() == $identity['id']) {
                         continue;
                     }
                     $m_organization = false;
                     if(!$m_user->getOrganizationId() instanceof IsNull) {
-                        if(!isset($ar_pages[$m_user->getOrganizationId()])){
+                        if(!isset($ar_pages[$m_user->getOrganizationId()])) {
                             $ar_pages[$m_user->getOrganizationId()] = $this->getServicePage()->getLite($m_user->getOrganizationId());
                         }
                         $m_organization = $ar_pages[$m_user->getOrganizationId()];
@@ -563,13 +580,15 @@ class Item extends AbstractService
 
                         $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
                         $m_organization->getLibelle() : null;
-                        $url = sprintf("https://%s%s/page/course/%s/content",($prefix ? $prefix.'.':''),$this->container->get('config')['app-conf']['uiurl'],$m_page->getId());
-                        $this->getServiceMail()->sendTpl('tpl_itempublished', $m_user->getEmail(), [
+                        $url = sprintf("https://%s%s/page/course/%s/content", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl'], $m_page->getId());
+                        $this->getServiceMail()->sendTpl(
+                            'tpl_itempublished', $m_user->getEmail(), [
                             'itemtype' => ModelItem::type_relation[$m_item->getType()],
                             'itemtitle' => $m_item->getTitle(),
                             'firstname' => $m_user->getFirstName(),
                             'pageurl' => $url,
-                        ]);
+                            ]
+                        );
 
 
                       
@@ -588,7 +607,7 @@ class Item extends AbstractService
                             ->setTag("PAGECOMMENT".$t_page_id)
                             ->setBody("A new " . ModelItem::type_relation[$m_item->getType()] . " has been added to the course " . $m_page->getTitle());
 
-                        $this->getServiceFcm()->send($m_user->getId(),null,$gcm_notification);
+                        $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification);
                     }
                     catch (\Exception $e) {
                         syslog(1, 'Error sending FCM notification');
@@ -612,9 +631,11 @@ class Item extends AbstractService
      */
     public function getLite($id = null, $conversation_id = null)
     {
-        return $this->getMapper()->select($this->getModel()
-            ->setId($id)
-            ->setConversationId($conversation_id));
+        return $this->getMapper()->select(
+            $this->getModel()
+                ->setId($id)
+                ->setConversationId($conversation_id)
+        );
     }
 
     /**
@@ -622,23 +643,23 @@ class Item extends AbstractService
      *
      * @invokable
      *
-     * @param int $id
-     * @param string $title
-     * @param int $points
-     * @param string $description
-     * @param bool $is_available
-     * @param bool $is_published
-     * @param bool $order
-     * @param string $start_date
-     * @param string $end_date
-     * @param int $parent_id
-     * @param int $library_id
-     * @param int $post_id,
-     * @param string $text
-     * @param array $participants,
-     * @param int $quiz_id,
-     * @param int $is_grade_published
-     * @param string $notify
+     * @param  int    $id
+     * @param  string $title
+     * @param  int    $points
+     * @param  string $description
+     * @param  bool   $is_available
+     * @param  bool   $is_published
+     * @param  bool   $order
+     * @param  string $start_date
+     * @param  string $end_date
+     * @param  int    $parent_id
+     * @param  int    $library_id
+     * @param  int    $post_id,
+     * @param  string $text
+     * @param  array  $participants,
+     * @param  int    $quiz_id,
+     * @param  int    $is_grade_published
+     * @param  string $notify
      * @throws \Exception
      *
      * @return int
@@ -673,19 +694,19 @@ class Item extends AbstractService
             $this->publish($id, $is_published, null, null, $notify);
 
 
-        } else if($notify === true && $m_item->getIsPublished()){
+        } else if($notify === true && $m_item->getIsPublished()) {
             $m_page = $this->getServicePage()->getLite($m_item->getPageId());
             if($m_page->getIsPublished() == true) {
                 $ar_pages = [];
                 $m_item = $this->getLite($id)->current();
                 $res_user = $this->getServiceUser()->getLite($this->getServicePageUser()->getListByPage($m_item->getPageId())[$m_item->getPageId()]);
                 foreach($res_user as $m_user){
-                    if($m_user->getId() == $identity['id']){
+                    if($m_user->getId() == $identity['id']) {
                         continue;
                     }
                     $m_organization = false;
                     if(!$m_user->getOrganizationId() instanceof IsNull) {
-                        if(!isset($ar_pages[$m_user->getOrganizationId()])){
+                        if(!isset($ar_pages[$m_user->getOrganizationId()])) {
                             $ar_pages[$m_user->getOrganizationId()] = $this->getServicePage()->getLite($m_user->getOrganizationId());
                         }
                         $m_organization = $ar_pages[$m_user->getOrganizationId()];
@@ -697,14 +718,16 @@ class Item extends AbstractService
 
                         $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
                         $m_organization->getLibelle() : null;
-                        $url = sprintf("https://%s%s/page/course/%s/content",($prefix ? $prefix.'.':''),$this->container->get('config')['app-conf']['uiurl'],$m_page->getId());
-                        $this->getServiceMail()->sendTpl('tpl_itemupdate', $m_user->getEmail(), [
+                        $url = sprintf("https://%s%s/page/course/%s/content", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl'], $m_page->getId());
+                        $this->getServiceMail()->sendTpl(
+                            'tpl_itemupdate', $m_user->getEmail(), [
                             'itemtype' => ModelItem::type_relation[$m_item->getType()],
                             'itemtitle' => $final_title,
                             'firstname' => $m_user->getFirstName(),
                             'pagename' => $m_page->getTitle(),
                             'pageurl' => $url,
-                        ]);
+                            ]
+                        );
 
                     }
                     catch (\Exception $e) {
@@ -721,7 +744,7 @@ class Item extends AbstractService
                             ->setTag("ITEM".$m_item->getId())
                             ->setBody("The " . ModelItem::type_relation[$m_item->getType()] ." " . $final_title . " of course " . $m_page->getTitle(). " hes been update");
 
-                        $this->getServiceFcm()->send($m_user->getId(),null,$gcm_notification);
+                        $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification);
                     }
                     catch (\Exception $e) {
                         syslog(1, 'Error when sending GCM notification');
@@ -748,10 +771,11 @@ class Item extends AbstractService
             ->setUpdatedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'))
             ->setParentId($parent_id);
 
-        if($m_item->getType() === ModelItem::TYPE_LIVE_CLASS ){
+        if($m_item->getType() === ModelItem::TYPE_LIVE_CLASS ) {
             if((is_string($start_date) || is_string($m_item->getStartDate()))
-                    && ($is_published === 1 || ($is_published === null && $m_item->getIsPublished()))){
-                $this->register($id,is_string($start_date) ? $start_date : $m_item->getStartDate());
+                && ($is_published === 1 || ($is_published === null && $m_item->getIsPublished()))
+            ) {
+                $this->register($id, is_string($start_date) ? $start_date : $m_item->getStartDate());
             }
             else{
                 $this->unregister($id);
@@ -766,7 +790,6 @@ class Item extends AbstractService
      * @invokable
      *
      * @param int $id
-     *
      */
     public function delete($id)
     {
@@ -777,20 +800,22 @@ class Item extends AbstractService
             throw new JrpcException('Unauthorized operation item.delete', -38003);
         }
 
-        if($m_item->getType() === ModelItem::TYPE_LIVE_CLASS){
+        if($m_item->getType() === ModelItem::TYPE_LIVE_CLASS) {
             $this->unregister($id);
         }
 
-        return $this->getMapper()->delete($this->getModel()
-            ->setId($id));
+        return $this->getMapper()->delete(
+            $this->getModel()
+                ->setId($id)
+        );
     }
 
 
     /**
-    * Send Message Node item.register
-    *
-    * @param int $id
-    */
+     * Send Message Node item.register
+     *
+     * @param int $id
+     */
     public function register($id, $date)
     {
         $authorization = $this->container->get('config')['node']['authorization'];
@@ -820,10 +845,10 @@ class Item extends AbstractService
     }
 
       /**
-    * Send Message Node item.register
-    *
-    * @param int $id
-    */
+       * Send Message Node item.register
+       *
+       * @param int $id
+       */
     public function unregister($id)
     {
         $authorization = $this->container->get('config')['node']['authorization'];
@@ -858,14 +883,15 @@ class Item extends AbstractService
      *
      * @invokable
      *
-     * @param int $id
+     * @param  int $id
      * @throws \Exception
      *
      * @return int
      */
-    public function starting($id) {
+    public function starting($id) 
+    {
         
-        if(!is_array($id)){
+        if(!is_array($id)) {
             $id = [$id];
         }
         $fcm_service = $this->getServiceFcm();
@@ -876,7 +902,7 @@ class Item extends AbstractService
                     $this->getServiceItemUser()->getListUserId(null, $m_item->getId());
 
             $gcm_notification = new GcmNotification();
-            $gcm_notification->setTitle( $m_item->getTitle() )
+            $gcm_notification->setTitle($m_item->getTitle())
                 ->setSound("default")
                 ->setColor("#00A38B")
                 ->setIcon("icon")

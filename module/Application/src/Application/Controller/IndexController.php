@@ -49,21 +49,21 @@ class IndexController extends AbstractActionController
     }
 
       /**
-     * Check Status
-     *
-     * @return \Zend\View\Model\JsonModel
-     */
+       * Check Status
+       *
+       * @return \Zend\View\Model\JsonModel
+       */
     public function notifyAction()
     {
         $authorization = $this->conf()->getAll()['node']['authorization'];
         $request = $this->getRequest();
         
-        if($request->getHeaders()->get('x-auth-token') !== false && $authorization === $request->getHeader('x-auth-token')->getFieldValue()){
+        if($request->getHeaders()->get('x-auth-token') !== false && $authorization === $request->getHeader('x-auth-token')->getFieldValue()) {
             $notifs = json_decode($this->getRequest()->getContent(), true);
             foreach($notifs as $notif){
                 switch($notif['type']){
-                    case self::ITEM_STARTING :
-                        $ret = $this->item()->starting($notif['data']['id']);
+                case self::ITEM_STARTING :
+                    $ret = $this->item()->starting($notif['data']['id']);
                     break;
                 }
             }

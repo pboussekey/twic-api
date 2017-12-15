@@ -14,7 +14,7 @@ class Page extends AbstractMapper
      * Execute Request Get Custom
      *
      * @param  string $libelle
-     * @param  int $id
+     * @param  int    $id
      * @return \Dal\Db\ResultSet\ResultSet
      */
     public function getCustom($libelle, $id)
@@ -51,46 +51,46 @@ class Page extends AbstractMapper
     {
         $select = $this->tableGateway->getSql()->select();
         $select->columns(['id', 'title'])
-          ->where(['page.conversation_id IS NULL'])
-          ->where(['type <> ? ' => 'organization']);
+            ->where(['page.conversation_id IS NULL'])
+            ->where(['type <> ? ' => 'organization']);
 
         return $this->selectWith($select);
     }
 
     public function getListId(
-      $me,
-      $parent_id = null,
-      $type = null,
-      $start_date = null,
-      $end_date = null,
-      $member_id = null,
-      $strict_dates = false,
-      $is_admin = false,
-      $search = null,
-      $tags = null,
-      $children_id = null,
-      $is_member_admin = null,
-      $relation_type = null,
-      $exclude = null
+        $me,
+        $parent_id = null,
+        $type = null,
+        $start_date = null,
+        $end_date = null,
+        $member_id = null,
+        $strict_dates = false,
+        $is_admin = false,
+        $search = null,
+        $tags = null,
+        $children_id = null,
+        $is_member_admin = null,
+        $relation_type = null,
+        $exclude = null
     ) {
         $select = $this->tableGateway->getSql()->select();
         $select->columns(['id', 'title'])
-          ->where(['page.deleted_date IS NULL'])
-          ->quantifier('DISTINCT');
+            ->where(['page.deleted_date IS NULL'])
+            ->quantifier('DISTINCT');
 
         if ($exclude) {
             $select->where->notIn('page.id', $exclude);
         }
         if (!empty($parent_id)) {
             $select->join('page_relation', 'page_relation.page_id = page.id', ['parent_id'])
-            ->where(['page_relation.parent_id' => $parent_id]);
+                ->where(['page_relation.parent_id' => $parent_id]);
             if (!empty($relation_type)) {
                 $select->where(['page_relation.type' => $relation_type]);
             }
         }
         if (!empty($children_id)) {
             $select->join('page_relation', 'page_relation.parent_id = page.id', ['page_id'])
-            ->where(['page_relation.page_id' => $children_id]);
+                ->where(['page_relation.page_id' => $children_id]);
             if (!empty($relation_type)) {
                 $select->where(['page_relation.type' => $relation_type]);
             }
@@ -100,8 +100,8 @@ class Page extends AbstractMapper
         }
         if (null !== $member_id) {
             $select->join(['member' => 'page_user'], 'member.page_id = page.id', [])
-              ->where(['member.user_id' => $member_id])
-              ->where(['member.state' => 'member']);
+                ->where(['member.user_id' => $member_id])
+                ->where(['member.state' => 'member']);
             if ($is_member_admin === true) {
                 $select->where(['member.role' => 'admin']);
             }
@@ -110,12 +110,12 @@ class Page extends AbstractMapper
         if (null !== $search) {
             $tags = explode(' ', $search);
             $select->join('page_tag', 'page_tag.page_id = page.id', [], $select::JOIN_LEFT)
-            ->join('tag', 'page_tag.tag_id = tag.id', [], $select::JOIN_LEFT)
-            ->where(['( page.title LIKE ? ' => '%' . $search . '%'])
-            ->where(['tag.name'   => $tags], Predicate::OP_OR)
-            ->where(['1)'])
-            ->having(['( COUNT(DISTINCT tag.id) = ? OR COUNT(DISTINCT tag.id) = 0 ' => count($tags)])
-            ->having([' page.title LIKE ? ) ' => '%' . $search . '%'], Predicate::OP_OR);
+                ->join('tag', 'page_tag.tag_id = tag.id', [], $select::JOIN_LEFT)
+                ->where(['( page.title LIKE ? ' => '%' . $search . '%'])
+                ->where(['tag.name'   => $tags], Predicate::OP_OR)
+                ->where(['1)'])
+                ->having(['( COUNT(DISTINCT tag.id) = ? OR COUNT(DISTINCT tag.id) = 0 ' => count($tags)])
+                ->having([' page.title LIKE ? ) ' => '%' . $search . '%'], Predicate::OP_OR);
         }
         if (!empty($tags)) {
             /*  $select->join('page_tag', 'page_tag.page_id = page.id')
@@ -143,11 +143,11 @@ class Page extends AbstractMapper
                 ->where([" page_user.user_id = ? )" => $me], Predicate::OP_OR);
 
             $select->join(['pu' => 'page_user'], new Expression("pu.page_id = page.id AND pu.role = 'admin'"), [])
-              ->join(['pu_u' => 'user'], 'pu.user_id=pu_u.id', [])
-              ->join(['co' => 'circle_organization'], 'co.organization_id=pu_u.organization_id', [])
-              ->join('circle_organization', 'circle_organization.circle_id=co.circle_id', [])
-              ->join(['circle_organization_user' => 'user'], 'circle_organization_user.organization_id=circle_organization.organization_id', [])
-              ->where(['circle_organization_user.id' => $me]);
+                ->join(['pu_u' => 'user'], 'pu.user_id=pu_u.id', [])
+                ->join(['co' => 'circle_organization'], 'co.organization_id=pu_u.organization_id', [])
+                ->join('circle_organization', 'circle_organization.circle_id=co.circle_id', [])
+                ->join(['circle_organization_user' => 'user'], 'circle_organization_user.organization_id=circle_organization.organization_id', [])
+                ->where(['circle_organization_user.id' => $me]);
 
             // retourne que les couses publié ou tous le reste
             $select->where(['( page.is_published IS TRUE OR page.type <> "course" OR ( page_user.role = "admin" AND page_user.user_id = ? ) )' => $me]);
@@ -180,16 +180,18 @@ class Page extends AbstractMapper
                 'page$start_date' => new Expression('DATE_FORMAT(page.start_date, "%Y-%m-%dT%TZ")'),
                 'page$end_date' => new Expression('DATE_FORMAT(page.end_date, "%Y-%m-%dT%TZ")')
             ]
-        )->join(['state' => $this->getPageStatus($me)], 'state.page_id = page.id', [
-          'page$state' => 'state',
-          'page$role' => 'role'
-        ], $select::JOIN_LEFT)
-         ->join(['p_user' => 'user'], 'p_user.id = page.owner_id', ['id', 'firstname', 'lastname', 'avatar', 'ambassador'], $select::JOIN_LEFT)
-         ->join(['page_address' => 'address'], 'page.address_id = page_address.id', ['page_address!id' => 'id','street_no','street_type','street_name','floor','door','apartment','building','longitude','latitude','timezone'], $select::JOIN_LEFT)
-         ->join(['page_address_division' => 'division'], 'page_address_division.id=page_address.division_id', ['page_address_division!id' => 'id','name'], $select::JOIN_LEFT)
-         ->join(['page_address_city' => 'city'], 'page_address_city.id=page_address.city_id', ['school_address_city!id' => 'id','name'], $select::JOIN_LEFT)
-         ->join(['page_address_country' => 'country'], 'page_address_country.id=page_address.country_id', ['page_address_country!id' => 'id','short_name','name'], $select::JOIN_LEFT)
-         ->where(['page.deleted_date IS NULL']);
+        )->join(
+            ['state' => $this->getPageStatus($me)], 'state.page_id = page.id', [
+            'page$state' => 'state',
+            'page$role' => 'role'
+            ], $select::JOIN_LEFT
+        )
+            ->join(['p_user' => 'user'], 'p_user.id = page.owner_id', ['id', 'firstname', 'lastname', 'avatar', 'ambassador'], $select::JOIN_LEFT)
+            ->join(['page_address' => 'address'], 'page.address_id = page_address.id', ['page_address!id' => 'id','street_no','street_type','street_name','floor','door','apartment','building','longitude','latitude','timezone'], $select::JOIN_LEFT)
+            ->join(['page_address_division' => 'division'], 'page_address_division.id=page_address.division_id', ['page_address_division!id' => 'id','name'], $select::JOIN_LEFT)
+            ->join(['page_address_city' => 'city'], 'page_address_city.id=page_address.city_id', ['school_address_city!id' => 'id','name'], $select::JOIN_LEFT)
+            ->join(['page_address_country' => 'country'], 'page_address_country.id=page_address.country_id', ['page_address_country!id' => 'id','short_name','name'], $select::JOIN_LEFT)
+            ->where(['page.deleted_date IS NULL']);
 
         if (null !== $id) {
             $select->where(['page.id' => $id]);
@@ -217,30 +219,30 @@ class Page extends AbstractMapper
     {
         $select = $this->tableGateway->getSql()->select();
         $select->columns(['id'])
-          ->join('item', 'page.id=item.page_id', [])
-          ->where(['item.id' => $item_id]);
+            ->join('item', 'page.id=item.page_id', [])
+            ->where(['item.id' => $item_id]);
 
         return $this->selectWith($select);
     }
 
 
     /**
-    * Execute Request Get
-    *
-    * @param  int $id
-    */
+     * Execute Request Get
+     *
+     * @param int $id
+     */
     public function getGradesSelect($id)
     {
         $select = $this->tableGateway->getSql()->select();
         $select->columns(['average' => new Expression('ROUND(SUM(item_user.rate) / SUM(item.points) * 100)')])
-                ->join('item', 'page.id = item.page_id', ['page_id'])
-                ->join('item_user', 'item.id = item_user.item_id', ['user_id'])
-                ->join('user', 'item_user.user_id = user.id', [])
-                ->where(['item.is_grade_published' => 1])
-                ->where('item_user.rate IS NOT NULL')
-                ->where(['user.organization_id' => $id])
-                ->group(['item.page_id', 'item_user.user_id'])
-                ->order([new Expression('ROUND(SUM(item_user.rate) / SUM(item.points) * 100) DESC')]);
+            ->join('item', 'page.id = item.page_id', ['page_id'])
+            ->join('item_user', 'item.id = item_user.item_id', ['user_id'])
+            ->join('user', 'item_user.user_id = user.id', [])
+            ->where(['item.is_grade_published' => 1])
+            ->where('item_user.rate IS NOT NULL')
+            ->where(['user.organization_id' => $id])
+            ->group(['item.page_id', 'item_user.user_id'])
+            ->order([new Expression('ROUND(SUM(item_user.rate) / SUM(item.points) * 100) DESC')]);
         return $select;
     }
 
@@ -254,10 +256,10 @@ class Page extends AbstractMapper
     }
 
     /**
-    * Execute Request Get organization median
-    *
-    * @param  int $id
-    */
+     * Execute Request Get organization median
+     *
+     * @param int $id
+     */
     public function getMedian($id)
     {
         $grades_select =  $this->getGradesSelect($id);
@@ -269,10 +271,10 @@ class Page extends AbstractMapper
 
         $select = $this->tableGateway->getSql()->select();
         $select->columns(['id', 'page$median' => new Expression('AVG(t1.average)')])
-               ->join(['t1' => $sub_select], new Expression('1'), [])
-                ->where(['page.id' => $id])
-                ->where(new Expression('(row_number = FLOOR((@rownum+1)/2)'))
-                ->where(new Expression('row_number = FLOOR((@rownum+2)/2))'), Predicate::OP_OR);
+            ->join(['t1' => $sub_select], new Expression('1'), [])
+            ->where(['page.id' => $id])
+            ->where(new Expression('(row_number = FLOOR((@rownum+1)/2)'))
+            ->where(new Expression('row_number = FLOOR((@rownum+2)/2))'), Predicate::OP_OR);
 
         return $this->selectWith($select);
     }
@@ -280,7 +282,7 @@ class Page extends AbstractMapper
     /**
      * Execute Request Get organization average
      *
-     * @param  int $id
+     * @param int $id
      */
     public function getAverage($id)
     {
@@ -292,8 +294,8 @@ class Page extends AbstractMapper
 
         $select = $this->tableGateway->getSql()->select();
         $select->columns(['id', 'page$average' => new Expression('ROUND(AVG(average))')])
-                ->join(['t1' => $sub_select], new Expression('1'), [])
-                ->where(['page.id' => $id]);
+            ->join(['t1' => $sub_select], new Expression('1'), [])
+            ->where(['page.id' => $id]);
 
         return $this->selectWith($select);
     }
@@ -301,7 +303,7 @@ class Page extends AbstractMapper
     /**
      * Execute Request Get users avgs for an organization
      *
-     * @param  int $id
+     * @param int $id
      */
     public function getUsersAvg($id)
     {
@@ -312,18 +314,18 @@ class Page extends AbstractMapper
             ->group('item_user$user_id');
         $select = $this->tableGateway->getSql()->select();
         $select->columns(['id', 'page$average' => 't1.average'])
-                ->join(['t1' => $sub_select], new Expression('1'), ['page$user_id' => 'user_id'])
-                ->join(['r' => new Expression('(SELECT @rownum:=0)')], new Expression('1'), ['row_number' => new Expression('@rownum:=@rownum+1')])
-                ->where(['page.id' => $id]);
+            ->join(['t1' => $sub_select], new Expression('1'), ['page$user_id' => 'user_id'])
+            ->join(['r' => new Expression('(SELECT @rownum:=0)')], new Expression('1'), ['row_number' => new Expression('@rownum:=@rownum+1')])
+            ->where(['page.id' => $id]);
         return $this->selectWith($select);
     }
     
      /**
-     * Execute Request Get users avgs for an organization
-     *
-     * @param  int $id
-     * @param  int $user_id
-     */
+      * Execute Request Get users avgs for an organization
+      *
+      * @param int $id
+      * @param int $user_id
+      */
     public function getUserGrades($id, $user_id)
     {
         $grades_select =  $this->getGradesSelect($id);
@@ -333,9 +335,9 @@ class Page extends AbstractMapper
             ->where(['item_user$user_id ' => $user_id ]);
         $select = $this->tableGateway->getSql()->select();
         $select->columns([ 'page$id' => 't1.page_id', 'page$average' => 't1.average'])
-                ->join(['t1' => $sub_select], new Expression('1'), [])
-                ->join(['r' => new Expression('(SELECT @rownum:=0)')], new Expression('1'), ['row_number' => new Expression('@rownum:=@rownum+1')])
-                ->where(['page.id' => $id]);
+            ->join(['t1' => $sub_select], new Expression('1'), [])
+            ->join(['r' => new Expression('(SELECT @rownum:=0)')], new Expression('1'), ['row_number' => new Expression('@rownum:=@rownum+1')])
+            ->where(['page.id' => $id]);
         
         return $this->selectWith($select);
     }
@@ -343,7 +345,7 @@ class Page extends AbstractMapper
     /**
      * Execute Request Get users percentiles for an organization
      *
-     * @param  int $id
+     * @param int $id
      */
     public function getUsersPrc($id)
     {
@@ -355,42 +357,39 @@ class Page extends AbstractMapper
             ->order('average DESC');
         $sub_select2 = new Select();
         $sub_select2->from(['avg' => $sub_select])
-             ->columns(['average', 'user_id'])
+            ->columns(['average', 'user_id'])
             ->join(['r' => new Expression('(SELECT @rownum:=0)')], new Expression('1'), ['row_number' => new Expression('MIN(@rownum:=@rownum+1)')])
-             ->group('avg.average');
+            ->group('avg.average');
 
         $select = $this->tableGateway->getSql()->select();
         $select->columns(['id', 'page$percentile' => new Expression('FLOOR(COALESCE((MIN(t1.row_number)-1)*100/(MIN(t1.row_number) + @rownum-MAX(t1.row_number)),0))')])
-                ->join(['t1' => $sub_select2], new Expression('1'), ['page$user_id' => 'user_id', 'page$average' => 'average'])
-                ->where(['page.id' => $id])
-                ->group('t1.average');
+            ->join(['t1' => $sub_select2], new Expression('1'), ['page$user_id' => 'user_id', 'page$average' => 'average'])
+            ->where(['page.id' => $id])
+            ->group('t1.average');
 
         return $this->selectWith($select);
     }
     
-    public function getCount($me, $interval, $start_date = null, $end_date = null, $organization_id = null, $type = null){
+    public function getCount($me, $interval, $start_date = null, $end_date = null, $organization_id = null, $type = null)
+    {
         $select = $this->tableGateway->getSql()->select();
         $select->columns([ 'page$created_date' => new Expression('SUBSTRING(page.created_date,1,'.$interval.')'), 'page$count' => new Expression('COUNT(DISTINCT page.id)'), 'type'])
             ->where('page.deleted_date IS NULL')
             ->group([new Expression('SUBSTRING(created_date,1,'.$interval.')'), 'page.type']);
 
-        if (null != $start_date)
-        {
+        if (null != $start_date) {
             $select->where(['page.created_date >= ? ' => $start_date]);
         }
 
-        if (null != $end_date)
-        {
+        if (null != $end_date) {
             $select->where(['page.created_date <= ? ' => $end_date]);
         }
 
-        if (null != $type)
-        {
+        if (null != $type) {
             $select->where(['page.type' => $type]);
         }
         
-        if (null != $organization_id)
-        {
+        if (null != $organization_id) {
             $select->join('user', 'page.user_id = user.id', [])
                 ->join('page_user', 'user.id = page_user.user_id', [])
                 ->where(['page_user.page_id' => $organization_id]);

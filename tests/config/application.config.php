@@ -1,7 +1,7 @@
 <?php
 
 $return = array_replace_recursive(
-    include __DIR__ . '/../../config/application.config.php',
+    require __DIR__ . '/../../config/application.config.php',
     array('module_listener_options' =>
         array('config_cache_enabled' => false,
               'config_cache_key' => 'cache-configuration',

@@ -47,7 +47,7 @@ class Module implements ConfigProviderInterface
                     $authconf = $container->get('Config')['auth-conf'];
                     $storage = new CacheBddStorage(
                         $container->get($authconf['storage']['options']['bdd_adpater']),
-                    $container->get($authconf['storage']['options']['adpater'])
+                        $container->get($authconf['storage']['options']['adpater'])
                     );
                     $storage->setRequest($container->get('Request'));
                 

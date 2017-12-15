@@ -28,29 +28,26 @@ class Message extends AbstractMapper
     
     
     
-    public function getCount($me, $interval, $start_date = null, $end_date = null, $organization_id = null, $type = null){
+    public function getCount($me, $interval, $start_date = null, $end_date = null, $organization_id = null, $type = null)
+    {
         $select = $this->tableGateway->getSql()->select();
         $select->columns([ 'message$created_date' => new Expression('SUBSTRING(message.created_date,1,'.$interval.')'), 'message$count' => new Expression('COUNT(DISTINCT message.id)')])
-                ->join('conversation', 'message.conversation_id = conversation.id', ['message$type' => 'type'])
+            ->join('conversation', 'message.conversation_id = conversation.id', ['message$type' => 'type'])
             ->group([new Expression('SUBSTRING(message.created_date,1,'.$interval.')'), 'conversation.type']);
 
-        if (null != $start_date)
-        {
+        if (null != $start_date) {
             $select->where(['message.created_date >= ? ' => $start_date]);
         }
 
-        if (null != $end_date)
-        {
+        if (null != $end_date) {
             $select->where(['message.created_date <= ? ' => $end_date]);
         }
 
-        if (null != $type)
-        {
+        if (null != $type) {
             $select->where(['conversation.type' => $type]);
         }
         
-        if (null != $organization_id)
-        {
+        if (null != $organization_id) {
             $select->join('user', 'message.user_id = user.id', [])
                 ->join('page_user', 'user.id = page_user.user_id', [])
                 ->where(['page_user.page_id' => $organization_id]);

@@ -10,8 +10,8 @@ class PageRelation extends AbstractService
     /**
      * Add relation type
      *
-     * @param int $page_id
-     * @param int $parent_id
+     * @param int    $page_id
+     * @param int    $parent_id
      * @param string $type
      *
      * @return int
@@ -29,16 +29,18 @@ class PageRelation extends AbstractService
     /**
      * GetList relation By Type
      *
-     * @param int $page_id
+     * @param int    $page_id
      * @param string $type
      *
      * @return \Dal\Db\ResultSet\ResultSet
      */
     public function getList($page_id, $type = null)
     {
-        return $this->getMapper()->select($this->getModel()
-            ->setPageId($page_id)
-            ->setType($type));
+        return $this->getMapper()->select(
+            $this->getModel()
+                ->setPageId($page_id)
+                ->setType($type)
+        );
     }
 
     /**

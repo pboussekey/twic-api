@@ -74,9 +74,9 @@ class Event extends AbstractService
     /**
      * create notif
      *
-     * @param  mixed  $data
-     * @param  string $type
-     * @param  array  $libelle
+     * @param mixed  $data
+     * @param string $type
+     * @param array  $libelle
      *
      * @return bool
      */
@@ -85,10 +85,10 @@ class Event extends AbstractService
         $users = $this->getServiceSubscription()->getListUserId($libelle);
         if (count($users) > 0) {
             $this->sendRequest(
-            array_values($users),
-            ['data' => $data,'event' => $type],
-            self::TARGET_TYPE_USER
-          );
+                array_values($users),
+                ['data' => $data,'event' => $type],
+                self::TARGET_TYPE_USER
+            );
         }
 
         return true;

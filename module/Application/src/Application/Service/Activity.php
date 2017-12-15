@@ -102,11 +102,11 @@ class Activity extends AbstractService
      *
      * @invokable
      *
-     * @param int     $user_id
-     * @param array   $filter
-     * @param string  $search
-     * @param string  $start_date
-     * @param string  $end_date
+     * @param int    $user_id
+     * @param array  $filter
+     * @param string $search
+     * @param string $start_date
+     * @param string $end_date
      *
      * @return array
      */
@@ -123,11 +123,11 @@ class Activity extends AbstractService
      *
      * @invokable
      *
-     * @param int     $organization_id
-     * @param int     $user_id
-     * @param string  $start_date
-     * @param string  $interval_date
-     * @param string  $end_date
+     * @param int    $organization_id
+     * @param int    $user_id
+     * @param string $start_date
+     * @param string $interval_date
+     * @param string $end_date
      *
      * @return array
      */
@@ -140,24 +140,21 @@ class Activity extends AbstractService
         $interval = $this->interval($interval_date);
         foreach ($res_activity as $m_activity)
         {
-            if(!array_key_exists($m_activity->getUserId(), $arrayUser))
-            {
+            if(!array_key_exists($m_activity->getUserId(), $arrayUser)) {
                 $arrayUser[$m_activity->getUserId()] = 
                     ['start_date' => $m_activity->getDate(), 'end_date' => $m_activity->getDate()];
             }
             else 
             {
                 $difference = (strtotime($m_activity->getDate()) - strtotime($arrayUser[$m_activity->getUserId()]['end_date']));
-                if ($difference < 600 && strcmp(substr($m_activity->getDate(), 0, $interval), substr($arrayUser[$m_activity->getUserId()]['end_date'], 0, $interval)) == 0)
-                {
-                  $arrayUser[$m_activity->getUserId()]['end_date'] = $m_activity->getDate();
+                if ($difference < 600 && strcmp(substr($m_activity->getDate(), 0, $interval), substr($arrayUser[$m_activity->getUserId()]['end_date'], 0, $interval)) == 0) {
+                    $arrayUser[$m_activity->getUserId()]['end_date'] = $m_activity->getDate();
                 }
                 else
                 {
                     $actual_day = substr($arrayUser[$m_activity->getUserId()]['end_date'], 0, $interval);
-                    if (!array_key_exists($actual_day, $connections))
-                    {
-                       $connections[$actual_day] = [];
+                    if (!array_key_exists($actual_day, $connections)) {
+                        $connections[$actual_day] = [];
                     }
                     $connections[$actual_day][] = strtotime($arrayUser[$m_activity->getUserId()]['end_date']) - strtotime($arrayUser[$m_activity->getUserId()]['start_date']);
 
@@ -170,9 +167,8 @@ class Activity extends AbstractService
         foreach ($arrayUser as $m_arrayUser)
         {
             $actual_day = substr($m_arrayUser['end_date'], 0, $interval);
-            if (!array_key_exists($actual_day, $connections))
-            {
-              $connections[$actual_day] = [];
+            if (!array_key_exists($actual_day, $connections)) {
+                $connections[$actual_day] = [];
             }
             $connections[$actual_day][] = strtotime($m_arrayUser['end_date']) - strtotime($m_arrayUser['start_date']);
         }
@@ -189,15 +185,15 @@ class Activity extends AbstractService
     {
         $ret = false;
         switch ($interval) {
-            case 'D':
-                $ret = 10;
-                break;
-            case 'M':
-                $ret = 7;
-                break;
-            case 'Y':
-                $ret = 4;
-                break;
+        case 'D':
+            $ret = 10;
+            break;
+        case 'M':
+            $ret = 7;
+            break;
+        case 'Y':
+            $ret = 4;
+            break;
         }
 
         return $ret;
@@ -209,7 +205,6 @@ class Activity extends AbstractService
      * @param string $start_date
      * @param string $end_date
      * @param string $object_name
-     *
      */
     public function getPages($start_date, $end_date, $object_name = null)
     {

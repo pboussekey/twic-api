@@ -121,36 +121,37 @@ class PostLike extends AbstractService
     public function getUserLike(\Application\Model\PostLike $m_post_like)
     {
         switch (true) {
-          case (is_numeric($m_post_like->getPostId())):
-              $u = 'P'.$m_post_like->getPostId();
-              break;
-          default:
-              $u ='U'.$m_post_like->getUserId();
-              break;
+        case (is_numeric($m_post_like->getPostId())):
+            $u = 'P'.$m_post_like->getPostId();
+            break;
+        default:
+            $u ='U'.$m_post_like->getUserId();
+            break;
         }
 
         return $u;
     }
     
      /**
-     * Get page counts.
-     *
-     * @invokable
-     *
-     * @param string  $start_date
-     * @param string  $end_date
-     * @param string  $interval_date
-     * @param string  $type
-     * @param int     $organization_id
-     *
-     * @return array
-     */
-    public function getCount( $start_date = null, $end_date = null, $interval_date = 'D', $type = null, $organization_id  = null){
+      * Get page counts.
+      *
+      * @invokable
+      *
+      * @param string $start_date
+      * @param string $end_date
+      * @param string $interval_date
+      * @param string $type
+      * @param int    $organization_id
+      *
+      * @return array
+      */
+    public function getCount( $start_date = null, $end_date = null, $interval_date = 'D', $type = null, $organization_id  = null)
+    {
         
         $interval = $this->getServiceActivity()->interval($interval_date);
         $identity = $this->getServiceUser()->getIdentity();
         
-        return $this->getMapper()->getCount($identity['id'],$interval, $start_date, $end_date, $organization_id, $type);
+        return $this->getMapper()->getCount($identity['id'], $interval, $start_date, $end_date, $organization_id, $type);
     }
 
     /**

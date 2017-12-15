@@ -39,6 +39,7 @@ trait TraitStorage
     
     /**
      * {@inheritDoc}
+     *
      * @see \Auth\Authentication\Storage\StorageInterface::setToken()
      */
     public function setToken($token)

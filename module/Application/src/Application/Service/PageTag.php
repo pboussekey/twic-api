@@ -72,8 +72,8 @@ class PageTag extends AbstractService
     public function remove($page_id, $tag_id)
     {
         return $this->getMapper()->delete(
-        $this->getModel()->setPageId($page_id)->setTagId($tag_id)
-      );
+            $this->getModel()->setPageId($page_id)->setTagId($tag_id)
+        );
     }
 
     /**

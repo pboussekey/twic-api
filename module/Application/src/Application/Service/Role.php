@@ -30,7 +30,8 @@ class Role extends AbstractService
         if ($this->getMapper()->insert(
             $this->getModel()
                 ->setName($name)
-        ) <= 0) {
+        ) <= 0
+        ) {
             throw new \Exception('error insert');
         }
 

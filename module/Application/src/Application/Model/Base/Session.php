@@ -6,85 +6,85 @@ use Dal\Model\AbstractModel;
 
 class Session extends AbstractModel
 {
- 	protected $token;
-	protected $data;
-	protected $uid;
-	protected $registration_id;
-	protected $uuid;
-	protected $package;
+    protected $token;
+    protected $data;
+    protected $uid;
+    protected $registration_id;
+    protected $uuid;
+    protected $package;
 
-	protected $prefix = 'session';
+    protected $prefix = 'session';
 
-	public function getToken()
-	{
-		return $this->token;
-	}
+    public function getToken()
+    {
+        return $this->token;
+    }
 
-	public function setToken($token)
-	{
-		$this->token = $token;
+    public function setToken($token)
+    {
+        $this->token = $token;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	public function getData()
-	{
-		return $this->data;
-	}
+    public function getData()
+    {
+        return $this->data;
+    }
 
-	public function setData($data)
-	{
-		$this->data = $data;
+    public function setData($data)
+    {
+        $this->data = $data;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	public function getUid()
-	{
-		return $this->uid;
-	}
+    public function getUid()
+    {
+        return $this->uid;
+    }
 
-	public function setUid($uid)
-	{
-		$this->uid = $uid;
+    public function setUid($uid)
+    {
+        $this->uid = $uid;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	public function getRegistrationId()
-	{
-		return $this->registration_id;
-	}
+    public function getRegistrationId()
+    {
+        return $this->registration_id;
+    }
 
-	public function setRegistrationId($registration_id)
-	{
-		$this->registration_id = $registration_id;
+    public function setRegistrationId($registration_id)
+    {
+        $this->registration_id = $registration_id;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	public function getUuid()
-	{
-		return $this->uuid;
-	}
+    public function getUuid()
+    {
+        return $this->uuid;
+    }
 
-	public function setUuid($uuid)
-	{
-		$this->uuid = $uuid;
+    public function setUuid($uuid)
+    {
+        $this->uuid = $uuid;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	public function getPackage()
-	{
-		return $this->package;
-	}
+    public function getPackage()
+    {
+        return $this->package;
+    }
 
-	public function setPackage($package)
-	{
-		$this->package = $package;
+    public function setPackage($package)
+    {
+        $this->package = $package;
 
-		return $this;
-	}
+        return $this;
+    }
 
 }

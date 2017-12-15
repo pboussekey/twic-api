@@ -108,7 +108,7 @@ class Contact extends AbstractService
 
                 ], $gcm_notification
             );
-*/
+        */
         $l = 'C'.(($user > $user_id) ? $user_id.'_'.$user : $user.'_'.$user_id);
         $this->getServicePost()->addSys(
             $l,
@@ -310,7 +310,7 @@ class Contact extends AbstractService
           $ret : [
           'list' => $ret,
           'count' => $mapper->count()
-        ];
+          ];
     }
 
     /**
@@ -362,43 +362,45 @@ class Contact extends AbstractService
     }
     
      /**
-     * Get page counts.
-     *
-     * @invokable
-     *
-     * @param string  $start_date
-     * @param string  $end_date
-     * @param string  $interval_date
-     * @param int     $organization_id
-     *
-     * @return array
-     */
-    public function getRequestsCount( $start_date = null, $end_date = null, $interval_date = 'D',  $organization_id  = null){
+      * Get page counts.
+      *
+      * @invokable
+      *
+      * @param string $start_date
+      * @param string $end_date
+      * @param string $interval_date
+      * @param int    $organization_id
+      *
+      * @return array
+      */
+    public function getRequestsCount( $start_date = null, $end_date = null, $interval_date = 'D',  $organization_id  = null)
+    {
         
         $interval = $this->getServiceActivity()->interval($interval_date);
         $identity = $this->getServiceUser()->getIdentity();
         
-        return $this->getMapper()->getRequestsCount($identity['id'],$interval, $start_date, $end_date, $organization_id);
+        return $this->getMapper()->getRequestsCount($identity['id'], $interval, $start_date, $end_date, $organization_id);
     }
     
      /**
-     * Get page counts.
-     *
-     * @invokable
-     *
-     * @param string  $start_date
-     * @param string  $end_date
-     * @param string  $interval_date
-     * @param int     $organization_id
-     *
-     * @return array
-     */
-    public function getAcceptedCount( $start_date = null, $end_date = null, $interval_date = 'D',  $organization_id  = null){
+      * Get page counts.
+      *
+      * @invokable
+      *
+      * @param string $start_date
+      * @param string $end_date
+      * @param string $interval_date
+      * @param int    $organization_id
+      *
+      * @return array
+      */
+    public function getAcceptedCount( $start_date = null, $end_date = null, $interval_date = 'D',  $organization_id  = null)
+    {
         
         $interval = $this->getServiceActivity()->interval($interval_date);
         $identity = $this->getServiceUser()->getIdentity();
         
-        return $this->getMapper()->getAcceptedCount($identity['id'],$interval, $start_date, $end_date, $organization_id);
+        return $this->getMapper()->getAcceptedCount($identity['id'], $interval, $start_date, $end_date, $organization_id);
     }
 
     /**

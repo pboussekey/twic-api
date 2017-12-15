@@ -79,7 +79,7 @@ class Group extends AbstractService
      * Get Or Create GRoup
      *
      * @param string $group_name
-     * @param int $item_id
+     * @param int    $item_id
      *
      * @return \Application\Model\Group
      */

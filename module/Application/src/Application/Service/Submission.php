@@ -10,12 +10,12 @@ class Submission extends AbstractService
 {
 
     private static $id = 0;
-  /**
-  * Get or Create Submision
-  *
-  * @param int $item_id
-  * @param int $user_id
-  */
+    /**
+     * Get or Create Submision
+     *
+     * @param int $item_id
+     * @param int $user_id
+     */
     public function getOrCreate($item_id, $user_id = null, $group_id = null)
     {
         $me = $this->getServiceUser()->getIdentity()['id'];
@@ -53,8 +53,8 @@ class Submission extends AbstractService
                 }
             }
             if(null === $submission_id) {
-               $this->getMapper()->insert($this->getModel()->setItemId($item_id));
-               $submission_id  = (int) $this->getMapper()->getLastInsertValue();
+                $this->getMapper()->insert($this->getModel()->setItemId($item_id));
+                $submission_id  = (int) $this->getMapper()->getLastInsertValue();
             }
             
             $this->getServiceItemUser()->getOrCreate($item_id, $user_id, $submission_id, $group_id);
@@ -74,27 +74,26 @@ class Submission extends AbstractService
     }
 
     /**
-    * Get Post_id submission
-    *
-    * @invokable
-    *
-    * @param int $item_id
-    * @param int $user_id
-    *
-    **/
+     * Get Post_id submission
+     *
+     * @invokable
+     *
+     * @param int $item_id
+     * @param int $user_id
+     **/
     public function getPostId($item_id, $user_id = null)
     {
         return $this->getOrCreate($item_id, $user_id)->getPostId();
     }
 
     /**
-    * Add Submision
-    *
-    * @invokable
-    *
-    * @param int $item_id
-    * @param int $library_id
-    */
+     * Add Submision
+     *
+     * @invokable
+     *
+     * @param int $item_id
+     * @param int $library_id
+     */
     public function add($item_id, $library_id)
     {
         $m_item = $this->getServiceItem()->getLite($item_id)->current();
@@ -114,10 +113,12 @@ class Submission extends AbstractService
 
         if($m_item->getParticipants() == 'group') {
             $users_id = $this->getServiceItemUser()->getListUserId($m_item_user->getGroupId());
-            $this->sendSubmissionChanged([
+            $this->sendSubmissionChanged(
+                [
                 'item_id' => (int)$item_id,
                 'users' => $users_id,
-           ]);
+                ]
+            );
         }
         
         return $submission_id;
@@ -134,9 +135,9 @@ class Submission extends AbstractService
         $rep = false;
         $request = new Request();
         $request->setMethod('submission.changed')
-        ->setParams($data)
-        ->setId(++ self::$id)
-        ->setVersion('2.0');
+            ->setParams($data)
+            ->setId(++ self::$id)
+            ->setVersion('2.0');
         
         $client = new Client();
         $client->setOptions($this->container->get('config')['http-adapter']);
@@ -158,13 +159,13 @@ class Submission extends AbstractService
     }
 
     /**
-    * REMOVE Submision
-    *
-    * @invokable
-    *
-    * @param int $library_id
-    * @param int $id
-    */
+     * REMOVE Submision
+     *
+     * @invokable
+     *
+     * @param int $library_id
+     * @param int $id
+     */
     public function remove($library_id, $id = null)
     {
         if (null === $id) {
@@ -188,10 +189,12 @@ class Submission extends AbstractService
         if(is_numeric($m_item_user->getGroupId())) {
             $users_id = $this->getServiceItemUser()->getListUserId($m_item_user->getGroupId());
             if(count($users_id) > 1) {
-                $this->sendSubmissionChanged([
+                $this->sendSubmissionChanged(
+                    [
                     'item_id' => (int)$m_item_user->getItemId(),
                     'users' => $users_id,
-                ]);
+                    ]
+                );
             }
         }
 
@@ -199,12 +202,12 @@ class Submission extends AbstractService
     }
 
     /**
-    * Submit Submision
-    *
-    * @invokable
-    *
-    * @param int $id
-    */
+     * Submit Submision
+     *
+     * @invokable
+     *
+     * @param int $id
+     */
     public function submit($id = null, $item_id = null)
     {
         $identity = $this->getServiceUser()->getIdentity();
@@ -221,14 +224,14 @@ class Submission extends AbstractService
     }
 
     /**
-    * Get Library Submision
-    *
-    * @invokable
-    *
-    * @param int $item_id
-    * @param int $user_id
-    * @param int $group_id
-    */
+     * Get Library Submision
+     *
+     * @invokable
+     *
+     * @param int $item_id
+     * @param int $user_id
+     * @param int $group_id
+     */
     public function getListLibrary($item_id, $user_id = null, $group_id = null)
     {
         $ar = [];

@@ -18,7 +18,7 @@ use Zend\Db\Sql\Predicate\IsNull;
 /**
  * Class PageUser
  *
- *  @TODO Check vérification sécuriter des user page + parmas par default role use + exposer méthode spécifique pour l'acceptation
+ * @TODO Check vérification sécuriter des user page + parmas par default role use + exposer méthode spécifique pour l'acceptation
  */
 class PageUser extends AbstractService
 {
@@ -33,7 +33,7 @@ class PageUser extends AbstractService
      * @param  string    $role
      * @param  string    $state
      * @param  string    $email
-     * @param  int    $is_pinned
+     * @param  int       $is_pinned
      * @return int
      */
     public function add($page_id, $user_id, $role, $state, $email = null, $is_pinned = 0)
@@ -42,7 +42,7 @@ class PageUser extends AbstractService
             $user_id = [$user_id];
         }
         
-        if(null !== $email){
+        if(null !== $email) {
             if (!is_array($email)) {
                 $email = [$email];
             }
@@ -92,7 +92,7 @@ class PageUser extends AbstractService
                     ->setSound("default")
                     ->setColor("#00A38B")
                     ->setBody('Sent you a connection request');*/
-            /*    $this->getServiceFcm()->send(
+                /*    $this->getServiceFcm()->send(
                     $uid, [
                     'data' => [
                         'type' => 'userpage',
@@ -104,7 +104,7 @@ class PageUser extends AbstractService
                   ] //, $gcm_notification
                 );
 
-*/
+                */
                 // member only group
             } elseif ($state === ModelPageUser::STATE_MEMBER) {
                 $identity = $this->getServiceUser()->getIdentity();
@@ -132,7 +132,7 @@ class PageUser extends AbstractService
                         'user' => $uid,
                         'page' => $page_id,
                         'type' => $m_page->getType(),
-                      ],
+                        ],
                         'member',
                         ['M'.$uid]/*sub*/,
                         null/*parent*/,
@@ -176,12 +176,12 @@ class PageUser extends AbstractService
             $ar_pages = [];
             $ar_user = $this->getServiceUser()->getLite($user_id);
             foreach($ar_user as $m_user){
-                if($m_user->getId() == $identity['id']){
+                if($m_user->getId() == $identity['id']) {
                     continue;
                 }
                 $m_organization = false;
-                if(!$m_user->getOrganizationId() instanceof IsNull){
-                    if(!array_key_exists($m_user->getOrganizationId(), $ar_pages)){
+                if(!$m_user->getOrganizationId() instanceof IsNull) {
+                    if(!array_key_exists($m_user->getOrganizationId(), $ar_pages)) {
                         $ar_pages[$m_user->getOrganizationId()] = $this->getServicePage()->getLite($m_user->getOrganizationId());
                     }
                     $m_organization = $ar_pages[$m_user->getOrganizationId()];
@@ -191,12 +191,14 @@ class PageUser extends AbstractService
                     
                     $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
                     $m_organization->getLibelle() : null;
-                    $url = sprintf("https://%s%s/page/course/%s/timeline",($prefix ? $prefix.'.':''),$this->container->get('config')['app-conf']['uiurl'],$m_page->getId());
-                    $this->getServiceMail()->sendTpl('tpl_coursepublished', $m_user->getEmail(), [
+                    $url = sprintf("https://%s%s/page/course/%s/timeline", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl'], $m_page->getId());
+                    $this->getServiceMail()->sendTpl(
+                        'tpl_coursepublished', $m_user->getEmail(), [
                         'pagename' => $m_page->getTitle(),
                         'firstname' => $m_user->getFirstName(),
                         'pageurl' => $url,
-                    ]);
+                        ]
+                    );
                     
                     $gcm_notification = new GcmNotification();
                     $gcm_notification->setTitle($m_page->getTitle())
@@ -206,7 +208,7 @@ class PageUser extends AbstractService
                         ->setTag("PAGECOMMENT".$t_page_id)
                         ->setBody("You have just been added to the course " . $m_page->getTitle());
                     
-                    $this->getServiceFcm()->send($m_user->getId(),null,$gcm_notification);
+                    $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification);
                 }
                 catch (\Exception $e) {
                     syslog(1, 'Model name does not exist <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode());
@@ -238,7 +240,7 @@ class PageUser extends AbstractService
         // si on doit l'abonner
         if (ModelPageUser::STATE_MEMBER === $state) {
 
-        // ON MET LES USER DANS LA CONVERSATION SI ELLE EXISTE
+            // ON MET LES USER DANS LA CONVERSATION SI ELLE EXISTE
             $m_page = $this->getServicePage()->getLite($page_id);
             if (is_numeric($m_page->getConversationId())) {
                 $this->getServiceConversationUser()->add($m_page->getConversationId(), $user_id);
@@ -254,21 +256,21 @@ class PageUser extends AbstractService
                 }
                 if ($m_page->getConfidentiality() == ModelPage::CONFIDENTIALITY_PUBLIC) {
                     $this->getServicePost()->addSys(
-                    'PPM'.$page_id.'_'.$user_id,
-                    '',
-                    [
-                    'state' => 'member',
-                    'user' => $user_id,
-                    'page' => $page_id,
-                    'type' => $m_page->getType(),
-                    ],
-                    'member',
-                    ['M'.$user_id],/*sub ['M'.$user_id, 'PU'.$user_id] */
-                    null/*parent*/,
-                    null/*page*/,
-                    $user_id/*user*/,
-                    'page'
-                );
+                        'PPM'.$page_id.'_'.$user_id,
+                        '',
+                        [
+                        'state' => 'member',
+                        'user' => $user_id,
+                        'page' => $page_id,
+                        'type' => $m_page->getType(),
+                        ],
+                        'member',
+                        ['M'.$user_id], /*sub ['M'.$user_id, 'PU'.$user_id] */
+                        null/*parent*/,
+                        null/*page*/,
+                        $user_id/*user*/,
+                        'page'
+                    );
                 }
             }
         }
@@ -295,13 +297,13 @@ class PageUser extends AbstractService
         }
 
         $m_page_user = $this->getModel();
-        if(null !== $role){
+        if(null !== $role) {
             $m_page_user->setRole($role);
         }
-        if(null !== $state){
+        if(null !== $state) {
             $m_page_user->setState($state);
         }
-        if(null !== $is_pinned){
+        if(null !== $is_pinned) {
             $m_page_user->setIsPinned($is_pinned);
         }
 
@@ -377,10 +379,10 @@ class PageUser extends AbstractService
      * @invokable
      *
      * @param int|array $page_id
-     * @param string $role
-     * @param string $state
-     * @param int $is_pinned
-     * @param string $search
+     * @param string    $role
+     * @param string    $state
+     * @param int       $is_pinned
+     * @param string    $search
      */
     public function getListByPage($page_id, $role = null, $state = null, $sent = null, $is_pinned = null, $search = null)
     {
@@ -410,9 +412,9 @@ class PageUser extends AbstractService
      * @invokable
      *
      * @param int|array $user_id
-     * @param string $role
-     * @param string $state
-     * @param string $type
+     * @param string    $role
+     * @param string    $state
+     * @param string    $type
      */
     public function getListByUser($user_id, $role = null, $state = null, $type = null)
     {

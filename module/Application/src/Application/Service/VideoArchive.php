@@ -175,10 +175,10 @@ class VideoArchive extends AbstractService
     }
     
        /**
-     * Get Service ConversationUser.
-     *
-     * @return \Application\Service\ConversationUser
-     */
+        * Get Service ConversationUser.
+        *
+        * @return \Application\Service\ConversationUser
+        */
     private function getServiceConversationUser()
     {
         return $this->container->get('app_service_conversation_user');

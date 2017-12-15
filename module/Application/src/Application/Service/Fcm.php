@@ -43,7 +43,7 @@ class Fcm extends AbstractService
      *
      * @param \Application\Service\Session   $session
      * @param \ZendService\Google\Gcm\Client $fcm_client
-     * @param string                        $token
+     * @param string                         $token
      */
     public function __construct($session, $fcm_client, $token)
     {
@@ -97,8 +97,8 @@ class Fcm extends AbstractService
 
                 // LOG FUKING FCM ERROR ... HELPING FUTURE DEBUG...
                 foreach ( $response->getResults() as $token => $result ){
-                    if( !empty($result['error']) ){
-                        syslog(1, "FCM ERROR::".$result['error'].'#TOKEN::'.$token );
+                    if(!empty($result['error']) ) {
+                        syslog(1, "FCM ERROR::".$result['error'].'#TOKEN::'.$token);
                     }
                 }
                 return $response;

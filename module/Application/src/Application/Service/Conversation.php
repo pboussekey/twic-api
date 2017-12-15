@@ -16,7 +16,7 @@ class Conversation extends AbstractService
      *
      * @invokable
      *
-     * @param array     $users
+     * @param array $users
      *
      * @throws \Exception
      *
@@ -30,9 +30,9 @@ class Conversation extends AbstractService
     public function _create($type = ModelConversation::TYPE_CHAT, $users = null, $has_video = null, $name = null)
     {
         $m_conversation = $this->getModel()
-          ->setCreatedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'))
-          ->setName($name)
-          ->setType($type);
+            ->setCreatedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'))
+            ->setName($name)
+            ->setType($type);
 
         if ($this->getMapper()->insert($m_conversation) <= 0) {
             throw new \Exception('Error create conversation');// @codeCoverageIgnore
@@ -53,8 +53,8 @@ class Conversation extends AbstractService
     public function update($id, $name)
     {
         $m_conversation = $this->getModel()
-        ->setId($id)
-        ->setName($name);
+            ->setId($id)
+            ->setName($name);
 
         return $this->getMapper()->update($m_conversation);
     }
@@ -97,7 +97,8 @@ class Conversation extends AbstractService
             }
             //TYPE 2 => CHAT   ::: TYPE 1 => CHANNEL
             if ($m_conversation->getType() === ModelConversation::TYPE_CHAT) {
-                $m_conversation->setOptions([
+                $m_conversation->setOptions(
+                    [
                       "record" => false,
                       "nb_user_autorecord" => 0,
                       "rules" => [
@@ -112,9 +113,11 @@ class Conversation extends AbstractService
                           "forceUnpublish"        => false,
                           "kick"                  => false 
                       ]
-                ]);               
+                    ]
+                );               
             } elseif ($m_conversation->getType() === ModelConversation::TYPE_LIVECLASS) {
-                $m_conversation->setOptions([
+                $m_conversation->setOptions(
+                    [
                     "record" => false,
                     "nb_user_autorecord" => 2,
                     "rules" => [
@@ -130,7 +133,8 @@ class Conversation extends AbstractService
                         "forceUnpublish"          => [["roles" => ["admin"]]],
                         "kick"                    => [["roles" => ["admin"]]],
                     ]
-                ]);
+                    ]
+                );
             }
         }
 
@@ -147,10 +151,10 @@ class Conversation extends AbstractService
      *
      * @invokable
      *
-     * @param bool $contact
-     * @param bool $noread
-     * @param int $type
-     * @param array $filter
+     * @param bool   $contact
+     * @param bool   $noread
+     * @param int    $type
+     * @param array  $filter
      * @param string $search
      */
     public function getList($contact = null, $noread = null, $type = null, $filter = null, $search = null)
@@ -233,7 +237,7 @@ class Conversation extends AbstractService
             'token' => $this->getServiceZOpenTok()->createToken($token, '{"id":' . $user_id . '}', ($is_admin ? OpenTokRole::MODERATOR: OpenTokRole::PUBLISHER)),
             'session' => $token,
             'role' => $is_admin ? 'admin':'user'
-      ];
+        ];
     }
 
     /**
@@ -255,10 +259,10 @@ class Conversation extends AbstractService
     }
 
     /**
-    * Get Conversation
-    *
-    * @return \Application\Model\Conversation
-    */
+     * Get Conversation
+     *
+     * @return \Application\Model\Conversation
+     */
     public function getLite($id)
     {
         $res_conversation = $this->getMapper()->select($this->getModel()->setId($id));
@@ -281,13 +285,13 @@ class Conversation extends AbstractService
     }
     
      /**
-     * Check If is in conversation.
-     *
-     * @param int $conversation_id
-     * @param int $user_id
-     *
-     * @return bool
-     */
+      * Check If is in conversation.
+      *
+      * @param int $conversation_id
+      * @param int $user_id
+      *
+      * @return bool
+      */
     public function isInConversation($conversation_id, $user_id)
     {
         $m_conversation = $this->get($conversation_id);

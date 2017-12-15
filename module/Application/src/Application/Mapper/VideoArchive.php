@@ -15,9 +15,9 @@ class VideoArchive extends AbstractMapper
     {
         $select = $this->tableGateway->getSql()->select();
         $select->columns(array('id', 'archive_token', 'archive_link', 'archive_status', 'archive_duration', 'conversation_id', 'created_date'))
-          ->where(['video_archive.conversation_id' => $conversation_id])
-          ->order('video_archive.created_date DESC')
-          ->limit(1);
+            ->where(['video_archive.conversation_id' => $conversation_id])
+            ->order('video_archive.created_date DESC')
+            ->limit(1);
 
         return $this->selectWith($select);
     }

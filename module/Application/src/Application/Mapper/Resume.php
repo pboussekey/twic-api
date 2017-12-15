@@ -10,7 +10,7 @@ class Resume extends AbstractMapper
     {
         $select = $this->tableGateway->getSql()->select();
         $select->columns(['id', 'user_id'])
-        ->where(['user_id' => $user_id]);
+            ->where(['user_id' => $user_id]);
 
         return $this->selectWith($select);
     }

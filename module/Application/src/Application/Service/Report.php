@@ -24,17 +24,17 @@ class Report extends AbstractService
         $identity = $this->getServiceUser()->getIdentity();
 
         $m_report = $this->getModel()
-          ->setReporterId($identity['id'])
-          ->setUserId($user_id)
-          ->setPostId($post_id)
-          ->setPageId($page_id);
+            ->setReporterId($identity['id'])
+            ->setUserId($user_id)
+            ->setPostId($post_id)
+            ->setPageId($page_id);
 
         if ($this->getMapper()->select($m_report)->count() > 0) {
             throw new \Exception('Duplicate report');
         }
         $m_report->setReason($reason)
-          ->setDescription($description)
-          ->setCreatedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'));
+            ->setDescription($description)
+            ->setCreatedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'));
 
         if ($this->getMapper()->insert($m_report) <= 0) {
             throw new \Exception('Error during report');

@@ -11,13 +11,13 @@ class Item extends AbstractMapper
     {
         $select = $this->tableGateway->getSql()->select();
         $select->columns(['id', 'parent_id', 'page_id'])
-          ->join('page_user', 'page_user.page_id=item.page_id', [])
-          ->join('item_user', new \Zend\Db\Sql\Predicate\Expression('item_user.item_id=item.id AND item_user.deleted_date IS NULL'), [], $select::JOIN_LEFT)
-          ->where(['page_user.user_id' => $me])
-          ->where(['item.page_id' => $page_id])
-          ->order('item.page_id ASC')
-          ->order('item.order ASC')
-          ->quantifier('DISTINCT');
+            ->join('page_user', 'page_user.page_id=item.page_id', [])
+            ->join('item_user', new \Zend\Db\Sql\Predicate\Expression('item_user.item_id=item.id AND item_user.deleted_date IS NULL'), [], $select::JOIN_LEFT)
+            ->where(['page_user.user_id' => $me])
+            ->where(['item.page_id' => $page_id])
+            ->order('item.page_id ASC')
+            ->order('item.order ASC')
+            ->quantifier('DISTINCT');
 
         if (null !== $parent_id) {
             $select->where(['item.parent_id' => $parent_id]);
@@ -66,19 +66,21 @@ class Item extends AbstractMapper
     public function getListAssignmentId($me, $page_id = null, $filter = null, $is_admin_page = null)
     {
         $select = $this->tableGateway->getSql()->select();
-        $select->columns([
-          'id',
-          'parent_id',
-          'page_id'])
-          ->join('page_user', 'page_user.page_id=item.page_id', [])
-          ->join('item_user', new \Zend\Db\Sql\Predicate\Expression('item_user.item_id=item.id AND item_user.deleted_date IS NULL'), [], $select::JOIN_LEFT)
-          ->where(['page_user.user_id' => $me])
-          ->where(['page_user.state' => 'member'])
-          ->where(["( `item`.`type` IN ('A', 'QUIZ', 'DISC', 'GA') OR  `item`.`points` IS NOT NULL )"])
-          ->where(['item.is_published IS TRUE'])
-          ->order('item.page_id ASC')
-          ->order('item.order ASC')
-          ->quantifier('DISTINCT');
+        $select->columns(
+            [
+            'id',
+            'parent_id',
+            'page_id']
+        )
+            ->join('page_user', 'page_user.page_id=item.page_id', [])
+            ->join('item_user', new \Zend\Db\Sql\Predicate\Expression('item_user.item_id=item.id AND item_user.deleted_date IS NULL'), [], $select::JOIN_LEFT)
+            ->where(['page_user.user_id' => $me])
+            ->where(['page_user.state' => 'member'])
+            ->where(["( `item`.`type` IN ('A', 'QUIZ', 'DISC', 'GA') OR  `item`.`points` IS NOT NULL )"])
+            ->where(['item.is_published IS TRUE'])
+            ->order('item.page_id ASC')
+            ->order('item.order ASC')
+            ->quantifier('DISTINCT');
 
         if (null !== $page_id) {
             $select->where(['item.page_id' => $page_id]);
@@ -106,35 +108,37 @@ class Item extends AbstractMapper
     public function get($id, $me)
     {
         $select = $this->tableGateway->getSql()->select();
-        $select->columns([
-        'id',
-        'title',
-        'points',
-        'description',
-        'type',
-        'is_available',
-        'is_published',
-        'order',
-        'item$start_date' => new Expression('DATE_FORMAT(item.start_date, "%Y-%m-%dT%TZ")'),
-        'item$end_date' => new Expression('DATE_FORMAT(item.end_date, "%Y-%m-%dT%TZ")'),
-        'item$updated_date' => new Expression('DATE_FORMAT(item.updated_date, "%Y-%m-%dT%TZ")'),
-        'item$created_date' => new Expression('DATE_FORMAT(item.created_date, "%Y-%m-%dT%TZ")'),
-        'parent_id',
-        'page_id',
-        'user_id',
-        'participants',
-        'conversation_id',
-        'is_grade_published',
-        'item$library_id' => new Expression("IF(`page_user`.`role`='admin' OR `item`.`is_grade_published`=true OR (`item`.`is_available`=1 OR (`item`.`is_available` = 3 AND (( `item`.`start_date` IS NULL AND `item`.`end_date` IS NULL )OR( `item`.`start_date` < UTC_TIMESTAMP() AND `item`.`end_date` IS NULL )OR( `item`.`start_date` IS NULL AND `item`.`end_date` > UTC_TIMESTAMP()) OR (UTC_TIMESTAMP() BETWEEN `item`.`start_date` AND `item`.`end_date` )))), `item`.`library_id`, NULL)"),
-        'item$post_id' =>    new Expression("IF(`page_user`.`role`='admin' OR `item`.`is_grade_published`=true OR (`item`.`is_available`=1 OR (`item`.`is_available` = 3 AND (( `item`.`start_date` IS NULL AND `item`.`end_date` IS NULL )OR( `item`.`start_date` < UTC_TIMESTAMP() AND `item`.`end_date` IS NULL )OR( `item`.`start_date` IS NULL AND `item`.`end_date` > UTC_TIMESTAMP()) OR (UTC_TIMESTAMP() BETWEEN `item`.`start_date` AND `item`.`end_date` )))), `post`.`id`, NULL)"),
-        'item$quiz_id' =>    new Expression("IF(`page_user`.`role`='admin' OR `item`.`is_grade_published`=true OR (`item`.`is_available`=1 OR (`item`.`is_available` = 3 AND (( `item`.`start_date` IS NULL AND `item`.`end_date` IS NULL )OR( `item`.`start_date` < UTC_TIMESTAMP() AND `item`.`end_date` IS NULL )OR( `item`.`start_date` IS NULL AND `item`.`end_date` > UTC_TIMESTAMP()) OR (UTC_TIMESTAMP() BETWEEN `item`.`start_date` AND `item`.`end_date` )))), `quiz`.`id`, NULL)"),
-        'item$text' =>       new Expression("IF(`page_user`.`role`='admin' OR `item`.`is_grade_published`=true OR (`item`.`is_available`=1 OR (`item`.`is_available` = 3 AND (( `item`.`start_date` IS NULL AND `item`.`end_date` IS NULL )OR( `item`.`start_date` < UTC_TIMESTAMP() AND `item`.`end_date` IS NULL )OR( `item`.`start_date` IS NULL AND `item`.`end_date` > UTC_TIMESTAMP()) OR (UTC_TIMESTAMP() BETWEEN `item`.`start_date` AND `item`.`end_date` )))), `item`.`text`, NULL)")
-      ])
-      ->join('page_user', 'page_user.page_id=item.page_id', [])
-      ->join('post', 'item.id=post.item_id', [], $select::JOIN_LEFT)
-      ->join('quiz', 'item.id=quiz.item_id', [], $select::JOIN_LEFT)
-      ->where(['page_user.user_id' => $me])
-      ->where(['item.id' => $id]);
+        $select->columns(
+            [
+            'id',
+            'title',
+            'points',
+            'description',
+            'type',
+            'is_available',
+            'is_published',
+            'order',
+            'item$start_date' => new Expression('DATE_FORMAT(item.start_date, "%Y-%m-%dT%TZ")'),
+            'item$end_date' => new Expression('DATE_FORMAT(item.end_date, "%Y-%m-%dT%TZ")'),
+            'item$updated_date' => new Expression('DATE_FORMAT(item.updated_date, "%Y-%m-%dT%TZ")'),
+            'item$created_date' => new Expression('DATE_FORMAT(item.created_date, "%Y-%m-%dT%TZ")'),
+            'parent_id',
+            'page_id',
+            'user_id',
+            'participants',
+            'conversation_id',
+            'is_grade_published',
+            'item$library_id' => new Expression("IF(`page_user`.`role`='admin' OR `item`.`is_grade_published`=true OR (`item`.`is_available`=1 OR (`item`.`is_available` = 3 AND (( `item`.`start_date` IS NULL AND `item`.`end_date` IS NULL )OR( `item`.`start_date` < UTC_TIMESTAMP() AND `item`.`end_date` IS NULL )OR( `item`.`start_date` IS NULL AND `item`.`end_date` > UTC_TIMESTAMP()) OR (UTC_TIMESTAMP() BETWEEN `item`.`start_date` AND `item`.`end_date` )))), `item`.`library_id`, NULL)"),
+            'item$post_id' =>    new Expression("IF(`page_user`.`role`='admin' OR `item`.`is_grade_published`=true OR (`item`.`is_available`=1 OR (`item`.`is_available` = 3 AND (( `item`.`start_date` IS NULL AND `item`.`end_date` IS NULL )OR( `item`.`start_date` < UTC_TIMESTAMP() AND `item`.`end_date` IS NULL )OR( `item`.`start_date` IS NULL AND `item`.`end_date` > UTC_TIMESTAMP()) OR (UTC_TIMESTAMP() BETWEEN `item`.`start_date` AND `item`.`end_date` )))), `post`.`id`, NULL)"),
+            'item$quiz_id' =>    new Expression("IF(`page_user`.`role`='admin' OR `item`.`is_grade_published`=true OR (`item`.`is_available`=1 OR (`item`.`is_available` = 3 AND (( `item`.`start_date` IS NULL AND `item`.`end_date` IS NULL )OR( `item`.`start_date` < UTC_TIMESTAMP() AND `item`.`end_date` IS NULL )OR( `item`.`start_date` IS NULL AND `item`.`end_date` > UTC_TIMESTAMP()) OR (UTC_TIMESTAMP() BETWEEN `item`.`start_date` AND `item`.`end_date` )))), `quiz`.`id`, NULL)"),
+            'item$text' =>       new Expression("IF(`page_user`.`role`='admin' OR `item`.`is_grade_published`=true OR (`item`.`is_available`=1 OR (`item`.`is_available` = 3 AND (( `item`.`start_date` IS NULL AND `item`.`end_date` IS NULL )OR( `item`.`start_date` < UTC_TIMESTAMP() AND `item`.`end_date` IS NULL )OR( `item`.`start_date` IS NULL AND `item`.`end_date` > UTC_TIMESTAMP()) OR (UTC_TIMESTAMP() BETWEEN `item`.`start_date` AND `item`.`end_date` )))), `item`.`text`, NULL)")
+            ]
+        )
+            ->join('page_user', 'page_user.page_id=item.page_id', [])
+            ->join('post', 'item.id=post.item_id', [], $select::JOIN_LEFT)
+            ->join('quiz', 'item.id=quiz.item_id', [], $select::JOIN_LEFT)
+            ->where(['page_user.user_id' => $me])
+            ->where(['item.id' => $id]);
 
         return $this->selectWith($select);
     }
@@ -142,16 +146,18 @@ class Item extends AbstractMapper
     public function getInfo($id)
     {
         $select = $this->tableGateway->getSql()->select();
-        $select->columns([
-      'item$nb_total' => new Expression("IF(item.participants = 'ALL', COUNT(true), IF(item.participants = 'USER', COUNT(item_user.id), COUNT(DISTINCT item_user.group_id)))"),
-      'item$nb_grade' => new Expression("IF(item.participants = 'GROUP', COUNT(DISTINCT item_user.group_id , IF(item_user.rate IS NULL, NULL, true))  , COUNT(item_user.rate))"),
-      'item$nb_submission' => new Expression("IF(item.participants = 'GROUP', COUNT(DISTINCT item_user.group_id , IF(submission.submit_date IS NULL, NULL, true)) , COUNT(submission.submit_date))")
-    ])
-      ->join('page_user', 'page_user.page_id=item.page_id', [])
-      ->join('item_user', 'item.id=item_user.item_id AND page_user.user_id=item_user.user_id', [], $select::JOIN_LEFT)
-      ->join('submission', 'submission.id=item_user.submission_id', [], $select::JOIN_LEFT)
-      ->where(['page_user.role'=> 'user'])
-      ->where(['item.id' => $id]);
+        $select->columns(
+            [
+            'item$nb_total' => new Expression("IF(item.participants = 'ALL', COUNT(true), IF(item.participants = 'USER', COUNT(item_user.id), COUNT(DISTINCT item_user.group_id)))"),
+            'item$nb_grade' => new Expression("IF(item.participants = 'GROUP', COUNT(DISTINCT item_user.group_id , IF(item_user.rate IS NULL, NULL, true))  , COUNT(item_user.rate))"),
+            'item$nb_submission' => new Expression("IF(item.participants = 'GROUP', COUNT(DISTINCT item_user.group_id , IF(submission.submit_date IS NULL, NULL, true)) , COUNT(submission.submit_date))")
+            ]
+        )
+            ->join('page_user', 'page_user.page_id=item.page_id', [])
+            ->join('item_user', 'item.id=item_user.item_id AND page_user.user_id=item_user.user_id', [], $select::JOIN_LEFT)
+            ->join('submission', 'submission.id=item_user.submission_id', [], $select::JOIN_LEFT)
+            ->where(['page_user.role'=> 'user'])
+            ->where(['item.id' => $id]);
 
         return $this->selectWith($select);
     }
@@ -160,18 +166,20 @@ class Item extends AbstractMapper
     {
         $select = $this->tableGateway->getSql()->select();
         $select->columns(['id', 'is_grade_published'])
-          ->join('page_user', 'page_user.page_id=item.page_id', ['user_id'])
-          ->join('item_user', 'item.id=item_user.item_id AND page_user.user_id=item_user.user_id', ['id', 'group_id', 'rate'], $select::JOIN_LEFT)
-          ->join('group', 'group.id=item_user.group_id', ['id', 'name'], $select::JOIN_LEFT)
-          ->join('submission', 'submission.id=item_user.submission_id', ['id', 'post_id',
-          'submission$submit_date' => new Expression('DATE_FORMAT(submission.submit_date, "%Y-%m-%dT%TZ")'),
-        ], $select::JOIN_LEFT)
-          ->where(['page_user.role'=> 'user'])
-          ->where(['item.id' => $id]);
+            ->join('page_user', 'page_user.page_id=item.page_id', ['user_id'])
+            ->join('item_user', 'item.id=item_user.item_id AND page_user.user_id=item_user.user_id', ['id', 'group_id', 'rate'], $select::JOIN_LEFT)
+            ->join('group', 'group.id=item_user.group_id', ['id', 'name'], $select::JOIN_LEFT)
+            ->join(
+                'submission', 'submission.id=item_user.submission_id', ['id', 'post_id',
+                'submission$submit_date' => new Expression('DATE_FORMAT(submission.submit_date, "%Y-%m-%dT%TZ")'),
+                ], $select::JOIN_LEFT
+            )
+            ->where(['page_user.role'=> 'user'])
+            ->where(['item.id' => $id]);
     
-            if (null !== $user_id) {
-                $select->where(['page_user.user_id' => $user_id]);
-            }
+        if (null !== $user_id) {
+            $select->where(['page_user.user_id' => $user_id]);
+        }
     
             return $this->selectWith($select);
     }

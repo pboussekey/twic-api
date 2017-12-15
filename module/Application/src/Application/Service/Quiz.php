@@ -7,28 +7,28 @@ use Dal\Service\AbstractService;
 class Quiz extends AbstractService
 {
 
-  /**
-   * Create Quiz
-   *
-   * @invokable
-   *
-   * @param  string $name
-   * @param  string $item_id
-   * @param  string $attempt_count
-   * @param  string $time_limit
-   * @param  array  $questions
-   *
-   * @return int
-   */
+    /**
+     * Create Quiz
+     *
+     * @invokable
+     *
+     * @param string $name
+     * @param string $item_id
+     * @param string $attempt_count
+     * @param string $time_limit
+     * @param array  $questions
+     *
+     * @return int
+     */
     public function add($name = null, $item_id = null, $attempt_count = null, $time_limit = null, $questions = null)
     {
         $identity = $this->getServiceUser()->getIdentity();
         $m_quiz = $this->getModel()
-      ->setName($name)
-      ->setItemId($item_id)
-      ->setUserId($identity['id'])
-      ->setAttemptCount($attempt_count)
-      ->setTimeLimit($time_limit);
+            ->setName($name)
+            ->setItemId($item_id)
+            ->setUserId($identity['id'])
+            ->setAttemptCount($attempt_count)
+            ->setTimeLimit($time_limit);
 
         if (!$this->getMapper()->insert($m_quiz)) {
             throw new \Exception("Error Processing Request", 1);
@@ -48,8 +48,8 @@ class Quiz extends AbstractService
      *
      * @invokable
      *
-     * @param  array $questions
-     * @param  string $id
+     * @param array  $questions
+     * @param string $id
      */
     public function addQuestions($questions, $id = null)
     {
@@ -61,8 +61,8 @@ class Quiz extends AbstractService
      *
      * @invokable
      *
-     * @param  array $answers
-     * @param  string $quiz_question_id
+     * @param array  $answers
+     * @param string $quiz_question_id
      */
     public function addAnswers($answers, $quiz_question_id = null)
     {
@@ -98,7 +98,7 @@ class Quiz extends AbstractService
      *
      * @invokable
      *
-     * @param  string $quiz_question_id
+     * @param string $quiz_question_id
      */
     public function removeQuestions($quiz_question_id)
     {
@@ -110,7 +110,7 @@ class Quiz extends AbstractService
      *
      * @invokable
      *
-     * @param  int $quiz_answer_id
+     * @param int $quiz_answer_id
      */
     public function removeAnswers($quiz_answer_id)
     {
@@ -135,9 +135,9 @@ class Quiz extends AbstractService
      *
      * @invokable
      *
-     * @param  int $quiz_question_id
-     * @param  int $quiz_answer_id
-     * @param  string $text
+     * @param int    $quiz_question_id
+     * @param int    $quiz_answer_id
+     * @param string $text
      */
     public function addUserAnswer($quiz_question_id, $quiz_answer_id = null, $text = null)
     {
@@ -149,9 +149,9 @@ class Quiz extends AbstractService
      *
      * @invokable
      *
-     * @param  int $id
-     * @param  int $quiz_answer_id
-     * @param  string $text
+     * @param int    $id
+     * @param int    $quiz_answer_id
+     * @param string $text
      */
     public function updateUserAnswer($id, $quiz_answer_id = null, $text = null)
     {
@@ -163,7 +163,7 @@ class Quiz extends AbstractService
      *
      * @invokable
      *
-     * @param  int $id
+     * @param int $id
      */
     public function removeUserAnswer($id)
     {
@@ -175,7 +175,7 @@ class Quiz extends AbstractService
      *
      * @invokable
      *
-     * @param  string $id
+     * @param string $id
      *
      * @return int
      */
@@ -197,11 +197,12 @@ class Quiz extends AbstractService
     }
 
     /**
-    * Get Lite Model Quiz
-    * @param int $id
-    *
-    * @return \Application\Model\Quiz
-    **/
+     * Get Lite Model Quiz
+     *
+     * @param int $id
+     *
+     * @return \Application\Model\Quiz
+     **/
     public function getLite($id)
     {
         return $this->getMapper()->select($this->getModel()->setId($id))->current();
@@ -210,11 +211,11 @@ class Quiz extends AbstractService
     public function update($id, $item_id = null, $name = null, $attempt_count = null, $time_limit = null)
     {
         $m_quiz = $this->getModel()
-      ->setId($id)
-      ->setItemId($item_id)
-      ->setName($name)
-      ->setAttemptCount($attempt_count)
-      ->setTimeLimit($time_limit);
+            ->setId($id)
+            ->setItemId($item_id)
+            ->setName($name)
+            ->setAttemptCount($attempt_count)
+            ->setTimeLimit($time_limit);
 
         return $this->getMapper()->update($m_quiz);
     }

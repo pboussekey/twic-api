@@ -47,7 +47,7 @@ return [
                          'controller' => 'Application\Controller\Index',
                          'action' => 'statusChange',
                      ],
-                 ],
+                     ],
              ],
             'notify' => [
                  'type' => Literal::class,
@@ -57,7 +57,7 @@ return [
                          'controller' => 'Application\Controller\Index',
                          'action' => 'notify',
                      ],
-                 ],
+                     ],
              ],
             'version' => [
                 'type' => Literal::class,

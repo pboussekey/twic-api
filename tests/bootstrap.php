@@ -26,7 +26,8 @@ class bootstrap
         $vendorPath = static::findParentPath('vendor');
         $loader = include $vendorPath.'/autoload.php';
         
-        Zend\Loader\AutoloaderFactory::factory(array(
+        Zend\Loader\AutoloaderFactory::factory(
+            array(
             'Zend\Loader\StandardAutoloader' => array(
                 'autoregister_zf' => true,
                 'namespaces' => array(
@@ -34,7 +35,8 @@ class bootstrap
                     'JsonRpcTest' => __DIR__ . '/JsonRpcClient',
                     'JrpcMock' => __DIR__ . '/JrpcMock')
             )
-        ));
+            )
+        );
     }
 
     protected static function findParentPath($path)

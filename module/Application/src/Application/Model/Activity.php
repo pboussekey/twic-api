@@ -7,12 +7,12 @@ use Application\Model\Base\Activity as BaseActivity;
 class Activity extends BaseActivity
 {
     protected $linkedin_id;
-	protected $object_name;
-	protected $count;
-	protected $min_date;
-	protected $max_date;
+    protected $object_name;
+    protected $count;
+    protected $min_date;
+    protected $max_date;
 
-	public function setObjectName($object_name)
+    public function setObjectName($object_name)
     {
         $this->object_name = $object_name;
 
@@ -24,7 +24,7 @@ class Activity extends BaseActivity
         return $this->object_name;
     }
 
-  	public function setCount($count)
+    public function setCount($count)
     {
         $this->count = $count;
 
@@ -36,7 +36,7 @@ class Activity extends BaseActivity
         return $this->count;
     }
     
-     public function getLinkedinId()
+    public function getLinkedinId()
     {
         return $this->linkedin_id;
     }
@@ -60,7 +60,7 @@ class Activity extends BaseActivity
         return $this->min_date;
     }
 
-	public function setMaxDate($max_date)
+    public function setMaxDate($max_date)
     {
         $this->max_date = $max_date;
 
