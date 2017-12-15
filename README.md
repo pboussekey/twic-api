@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/THE-STUDNET/twic-api.svg?branch=master)](https://travis-ci.org/THE-STUDNET/twic-api) [![Coverage Status](https://coveralls.io/repos/github/THE-STUDNET/twic-api/badge.svg?branch=master)](https://coveralls.io/github/THE-STUDNET/twic-api?branch=master)
+
 ZendSkeletonApplication
 =======================
 
