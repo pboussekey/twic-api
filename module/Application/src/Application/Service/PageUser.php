@@ -33,9 +33,10 @@ class PageUser extends AbstractService
      * @param  string    $role
      * @param  string    $state
      * @param  string    $email
+     * @param  int    $is_pinned
      * @return int
      */
-    public function add($page_id, $user_id, $role, $state, $email = null)
+    public function add($page_id, $user_id, $role, $state, $email = null, $is_pinned = 0)
     {
         if (!is_array($user_id)) {
             $user_id = [$user_id];
@@ -54,7 +55,8 @@ class PageUser extends AbstractService
         $m_page_user = $this->getModel()
             ->setPageId($page_id)
             ->setRole($role)
-            ->setState($state);
+            ->setState($state)
+            ->setIsPinned($is_pinned);
         $ret = 0;
 
         $m_page = $this->getServicePage()->getLite($page_id);
@@ -230,7 +232,7 @@ class PageUser extends AbstractService
      * @param  string $state
      * @return int
      */
-    public function update($page_id, $user_id, $role, $state)
+    public function update($page_id, $user_id, $role, $state, $is_pinned = null)
     {
         $m_page_user = $this->getMapper()->select($this->getModel()->setPageId($page_id)->setUserId($user_id))->current();
         // si on doit l'abonner
@@ -295,6 +297,9 @@ class PageUser extends AbstractService
         $m_page_user = $this->getModel()
           ->setRole($role)
           ->setState($state);
+        if(null !== $is_pinned){
+            $m_page_user->setIsPinned($is_pinned);
+        }
 
         return $this->getMapper()->update($m_page_user, ['page_id' => $page_id, 'user_id' => $user_id]);
     }
@@ -371,7 +376,7 @@ class PageUser extends AbstractService
      * @param string $role
      * @param string $state
      */
-    public function getListByPage($page_id, $role = null, $state = null, $sent = null)
+    public function getListByPage($page_id, $role = null, $state = null, $sent = null, $is_pinned = null)
     {
         
         $identity = $this->getServiceUser()->getIdentity();
@@ -385,7 +390,7 @@ class PageUser extends AbstractService
         }
         
         $is_admin = null === $identity || (in_array(ModelRole::ROLE_ADMIN_STR, $identity['roles']));
-        $res_page_user = $this->getMapper()->getList($page_id, null, $role, $state, null, $is_admin ? null : $identity['id'], $sent);
+        $res_page_user = $this->getMapper()->getList($page_id, null, $role, $state, null, $is_admin ? null : $identity['id'], $sent, $is_pinned);
         foreach ($res_page_user as $m_page_user) {
             $ret[$m_page_user->getPageId()][] = $m_page_user->getUserId();
         }
