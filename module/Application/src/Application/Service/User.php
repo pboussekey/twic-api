@@ -1033,16 +1033,6 @@ class User extends AbstractService
     }
 
     /**
-     *
-     * @param string $uuid
-     * @param string $token
-     */
-    public function unregisterGcm($token = null, $uuid = null)
-    {
-        $this->getServiceGcmGroup()->delete($uuid, $token);
-    }
-
-    /**
      * Add School relation
      *
      *
@@ -1351,16 +1341,6 @@ class User extends AbstractService
     private function getServiceAddress()
     {
         return $this->container->get('addr_service_address');
-    }
-
-    /**
-     * Get Service GcmGroup
-     *
-     * @return \Application\Service\GcmGroup
-     */
-    private function getServiceGcmGroup()
-    {
-        return $this->container->get('app_service_gcm_group');
     }
 
     /**

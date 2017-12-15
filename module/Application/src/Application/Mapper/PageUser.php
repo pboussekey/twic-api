@@ -5,6 +5,7 @@ namespace Application\Mapper;
 use Dal\Mapper\AbstractMapper;
 use Application\Model\PageUser as ModelPageUser;
 use Zend\Db\Sql\Predicate\Expression;
+use Zend\Db\Sql\Predicate\Predicate;
 
 class PageUser extends AbstractMapper
 {
