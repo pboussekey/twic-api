@@ -1,0 +1,2 @@
+ALTER TABLE `page_user` 
+ADD COLUMN `is_pinned` TINYINT(1) NOT NULL DEFAULT '0';
