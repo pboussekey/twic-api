@@ -232,7 +232,7 @@ class PageUser extends AbstractService
      * @param  string $state
      * @return int
      */
-    public function update($page_id, $user_id, $role, $state, $is_pinned = null)
+    public function update($page_id, $user_id, $role = null, $state = null, $is_pinned = null)
     {
         $m_page_user = $this->getMapper()->select($this->getModel()->setPageId($page_id)->setUserId($user_id))->current();
         // si on doit l'abonner
@@ -294,9 +294,13 @@ class PageUser extends AbstractService
             }
         }
 
-        $m_page_user = $this->getModel()
-          ->setRole($role)
-          ->setState($state);
+        $m_page_user = $this->getModel();
+        if(null !== $role){
+            $m_page_user->setRole($role);
+        }
+        if(null !== $state){
+            $m_page_user->setState($state);
+        }
         if(null !== $is_pinned){
             $m_page_user->setIsPinned($is_pinned);
         }
