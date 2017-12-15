@@ -43,8 +43,11 @@ class PageUser extends AbstractMapper
         if(null !== $sent){
             $select->where(['user.email_sent' => $sent]);
         }
-        if(null !== $is_pinned){
-            $select->where(['page_user.is_pinned' => $is_pinned]);
+        if(true === $is_pinned){
+            $select->where('page_user.is_pinned IS TRUE');
+        }
+        else if(false === $is_pinned){
+            $select->where('page_user.is_pinned IS TRUE');
         }
         if (null !== $search) {
             $select->where(['( CONCAT_WS(" ", user.firstname, user.lastname) LIKE ? ' => ''.$search.'%'])
