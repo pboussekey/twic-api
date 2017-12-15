@@ -62,7 +62,7 @@ return [
         'cache' => 'storage_memcached',
         'log' => 'log-system',
         'environment' => 'dev', /* dev|prod */
-        'persistence' => false,
+        'persistence' => true,
         'services' => [
             'app_service_user',
             'app_service_role',
