@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-model xlink:href="/usr/share/pear-data/phing/etc/phing-grammar.rng"
+	            schematypens="http://relaxng.org/ns/structure/1.0" ?>
+
+<project default="database">
+    <target name="database">
+        <echo msg="Deploying database..." />
+        <tstamp/>
+        <property name="build.dbdeploy.deployfile" value="${project.basedir}/deploy-db-${DSTAMP}${TSTAMP}.sql" />
+        <property name="build.dbdeploy.undofile" value="${project.basedir}/undo-db-${DSTAMP}${TSTAMP}.sql" />
+        <property name="db.passwordParam" value="-p${db.password}" override="yes" />
+		<if>
+            <equals arg1="${db.passwordParam}" arg2="-p" />
+	    	<then>
+            	<property name="db.passwordParam" value="" override="yes" />
+            </then>
+        </if>
+
+        <echo message="Database undo file ${build.dbdeploy.undofile}" />
+        <dbdeploy
+            url="mysql:host=${db.host};dbname=${db.database}"
+            userid="${db.user}"
+            password="${db.password}"
+            dir="${project.basedir}/data/db/"
+            outputfile="${build.dbdeploy.deployfile}"
+            undooutputfile="${build.dbdeploy.undofile}" />
+
+    	<echo message="mysql --default-character-set=utf8 -h${db.host} -u${db.user} ${db.passwordParam} ${db.database} &lt; ${build.dbdeploy.deployfile}" />
+        	<exec
+            	command="mysql --default-character-set=utf8 -h${db.host} -u${db.user} ${db.passwordParam} ${db.database} &lt; ${build.dbdeploy.deployfile}"
+            	dir="${project.basedir}"
+            	checkreturn="true" />
+            <delete>
+                <fileset dir="${project.basedir}">
+            	    <include name="deploy-db-*" />
+            	    <include name="undo-db-*" />
+            	</fileset>
+            </delete>
+    </target>
+
+    <target name="database-reset">
+        <echo msg="Drop database..." />
+	    <property name="db.passwordParam" value="-p${db.password}" override="yes" />
+        <if>
+            <equals arg1="${db.passwordParam}" arg2="-p" />
+            <then>
+                <property name="db.passwordParam" value="" override="yes" />
+            </then>
+        </if>
+    	<exec
+    	    command="echo 'DROP DATABASE IF EXISTS ${db.database}' | mysql -h ${db.host} -u'${db.user}' ${db.passwordParam}"
+    	    dir="${project.basedir}"
+    	    checkreturn="true" />
+    	<exec
+    	    command="echo 'CREATE DATABASE ${db.database}' | mysql -h ${db.host} -u'${db.user}' ${db.passwordParam}"
+    	    dir="${project.basedir}"
+    	    checkreturn="true" />
+        <exec
+            command="echo 'DROP TABLE IF EXISTS ${db.database}.changelog' | mysql -h ${db.host} -u'${db.user}' ${db.passwordParam}"
+            dir="${project.basedir}"
+            checkreturn="true" />
+
+        <echo msg="Initialising database..." />
+        <exec
+            command="mysql --default-character-set=utf8 -h${db.host} -u${db.user} ${db.passwordParam} ${db.database} &lt; ${project.basedir}/Zdeploy/build/database.sql"
+            dir="${project.basedir}"
+            checkreturn="true" />
+    </target>
+</project>

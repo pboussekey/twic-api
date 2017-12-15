@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project default="configuration">
+    <target name="configuration">
+        <echo msg="Building configuration..." />
+        	<delete dir="${tmp.basedir}" includeemptydirs="true" quiet="true" />
+		<mkdir dir="${tmp.basedir}" />
+		
+
+    	<if>
+	    <equals arg1="${app.eb}" arg2="true" />
+	    	<then>
+	    		<copy todir="${tmp.basedir}" overwrite="true" >
+	    		        	<fileset dir="${project.basedir}">
+	    		            	<include name="**" />
+	    		                <exclude name="**/*Test*"/>
+	    		                <exclude name="**/*.bak/"/>
+	    		                <exclude name="**/*.bak"/>
+	    		                <exclude name="data/cache/*"/>
+	    		        		<exclude name="data/doc/"/>
+	    		        		<exclude name="public/doc/"/>
+	    		        		<exclude name="output/"/>
+	    		        		<exclude name="upload/"/>
+	    		                <exclude name="upload/*/"/>
+	    		        		<exclude name="module/Application/language/"/>
+	    		                <exclude name="**/*docker*"/>
+	    		                <exclude name="**/*Dockerfile*"/>
+	    		                <exclude name="**/*.dist"/>
+	    		                <exclude name="**/*.build"/>
+	    		                <exclude name="tests/**"/>
+	    		                <exclude name="utils/**"/>
+	    		                <exclude name="phpunit.xml"/>
+	    		                <exclude name="composer.lock"/>
+	    		                <exclude name="build/**"/>
+	    		                <exclude name="deploy-db-*"/>
+	    		                <exclude name="undo-db-*"/>
+	    		                <exclude name="vendor/**"/>
+	    		                <exclude name="/config/autoload/**"/>
+	    		                <exclude name="**/*.md"/>
+	    		                <exclude name="**/*.mwb"/>
+	    		        		<include name=".e*/**" />
+	    		        		
+	    		        		
+	    		        	</fileset>
+	    		        </copy>
+	         </then>
+    		 <else>
+    		 	<copy todir="${tmp.basedir}" overwrite="true" >
+    		    	<fileset dir="${project.basedir}">
+    		            	<include name="**" />
+    		                <exclude name="**/*Test*"/>
+    		                <exclude name="**/*.bak/"/>
+    		                <exclude name="**/*.bak"/>
+    		                <exclude name="data/cache/*"/>
+    		        		<exclude name="data/"/>
+    		        		<exclude name="public/doc/"/>
+    		        		<exclude name="output/"/>
+    		        		<exclude name="upload/"/>
+    		                <exclude name="upload/*/"/>
+    		        		<exclude name="module/Application/language/"/>
+    		                <exclude name="**/*docker*"/>
+    		                <exclude name="**/*Dockerfile*"/>
+    		                <exclude name="**/*.dist"/>
+    		                <exclude name="**/*.build"/>
+    		                <exclude name="tests/**"/>
+    		                <exclude name="utils/**"/>
+    		                <exclude name="phpunit.xml"/>
+    		                <exclude name="composer.lock"/>
+    		                <exclude name="build/**"/>
+    		                <exclude name="data/db/**"/>
+    		                <exclude name="Zdeploy/**"/>
+    		                <exclude name="build.xml"/>
+    		                <exclude name="deploy-db-*"/>
+    		                <exclude name="undo-db-*"/>
+    		                <exclude name="vendor/**"/>
+    		                <exclude name="/config/autoload/**"/>
+    		                <exclude name="**/*.md"/>
+    		                <exclude name="**/*.mwb"/>
+    		        		<include name=".e*/**" />
+    		        </fileset>
+    		    </copy>
+    		 </else>
+    	</if>
+    	
+    	
+			
+    	<if>
+    	    <equals arg1="${app.eb}" arg2="true" />
+    	    	<then>
+    	            <echo msg="conf elastic beantalk" />
+    	    		<move file="${tmp.basedir}/composer.json" tofile="${tmp.basedir}/ebextensions/eb/composer.json" overwrite="true"/>
+    	    		<move file="${tmp.basedir}/ebextensions" tofile="${tmp.basedir}/.ebextensions" includeemptydirs="true" />
+    	    		<move file="${tmp.basedir}/elasticbeanstalk" tofile="${tmp.basedir}/.elasticbeanstalk" includeemptydirs="true" />
+    	         </then>
+    	</if>
+    	
+        <if>
+    		<equals arg1="${app.composer}" arg2="true" />
+    		<then>
+            <echo msg="Composer install" />
+            	<composer command="update" composer="/usr/bin/composer.phar">
+    				<arg value="--optimize-autoloader" />
+            		<arg value="--classmap-authoritative" />
+    	   			<arg value="--working-dir=${tmp.basedir}" />
+    	   		    <arg value="--no-dev" />
+            		<arg value="-q" />
+              </composer>
+          </then>
+    	</if>
+
+        <echo msg="copy config" />
+    	<copy todir="${tmp.basedir}/config/autoload/" overwrite="true">
+	        <filelist dir="${project.basedir}/config/autoload/" files="local.php.build" />
+	        <mapper type="regexp" from="^(.*).build$" to="\1"/>
+	        <filterchain>
+	            <expandproperties />
+	        </filterchain>
+    	</copy>
+
+
+	    <delete includeemptydirs="true">
+	    	<fileset dir="${tmp.basedir}/">
+	        	<!--include name="composer.*" / -->
+	        	<include name=".*" />
+	        	<include name=".*/**" />
+	        	<include name="bin/**" />
+	    		<exclude name=".e*/**" />
+	        </fileset>
+	    </delete>
+    	
+    	<if>
+		    <equals arg1="${app.eb}" arg2="true" />
+	    	<then>
+	    		<echo msg="---------------------------------" />
+	    		<echo msg="Api build success in ${tmp.basedir}" />
+	            <echo msg="Executer la commande -> eb deploy" />
+	    		<echo msg="---------------------------------" />
+	        </then>
+    	</if>
+    </target>
+
+    <target name="create-targz">
+		<tar
+  			destfile="${tmp.basedir}/${git.rev}.tar.gz" compression="gzip">
+  			<fileset dir="${tmp.basedir}/">
+   				<include name="*" />
+  			</fileset>
+ 		</tar>
+		<!--delete
+  			dir="${tmp.basedir}/${git.rev}/"
+  			includeemptydirs="true"
+  			verbose="false"
+  			failonerror="true" / -->
+    </target>
+
+	
+	
+	
+</project>
