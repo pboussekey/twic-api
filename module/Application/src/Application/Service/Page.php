@@ -344,7 +344,6 @@ class Page extends AbstractService
      * @param string $logo
      * @param string $background
      * @param string $description
-     * @param int    $confidentiality
      * @param string $admission
      * @param string $start_date
      * @param string $end_date
