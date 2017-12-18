@@ -19,6 +19,7 @@ return array(
         'private_key' => "${firebase.private_key}",
         'urldms' => '${dms.url}',
 	'uiurl' => '${ui.url}',
+        'secret_key' => '${node.key}'
     ],
     'gcm' => [
         'api_key' => '${firebase.key}',
@@ -111,4 +112,13 @@ return array(
   'dms-conf' => [
     'storage' => ${dms.storage},
   ],
+    'box-conf' => [
+       'apikey' => '${box.apikey}',
+       'url' => '${box.url}',
+       'adapter' => 'http-adapter',
+   ],
+   'gcm-conf' => [
+       'api_key' => '${firebase.key}',
+       'adapter' => 'http-adapter',
+   ],
 );
