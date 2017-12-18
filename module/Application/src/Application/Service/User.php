@@ -116,51 +116,6 @@ class User extends AbstractService
         return $identity;
     }
 
-    // //////////////// EXTERNAL METHOD ///////////////////
-    
-    /**
-     * Log In User.
-     *
-     * @invokable
-     *
-     * @param  int $user
-     * @param  int $password
-     * @throws JrpcException
-     * @return array
-     */
-    public function auth($user, $password)
-    {
-        $auth = $this->getServiceAuth();
-        $auth->getAdapter()->setIdentity($user);
-        $auth->getAdapter()->setCredential($password);
-        
-        $result = $auth->authenticate();
-        if (! $result->isValid()) {
-            throw new JrpcException($result->getMessages()[0], $result->getCode()['code']);
-        }
-        
-        return $this->getIdentity(true, true);
-    }
-
-    /**
-     * Add User
-     *
-     * @invokable
-     *
-     * @param  string $email
-     * @param  string $firstname
-     * @param  string $lastname
-     * @param  string $uid
-     * @param  string $role
-     * @return int
-     */
-    public function create($email, $firstname, $lastname, $uid, $role = null)
-    {
-        $id = $this->add($firstname, $lastname, $email, null, null, null, $uid, null, null, null, null, null, null, $role);
-        
-        return $this->get($id);
-    }
-
     // //////////////// EXTERNAL METHODE ///////////////////
     
     /**
@@ -286,23 +241,6 @@ class User extends AbstractService
     }
 
     /**
-     * Get List Session Active.
-     *
-     * @invokable
-     *
-     * @return array
-     */
-    public function getListSession()
-    {
-        $auth = $this->getServiceAuth();
-        
-        return $auth->getStorage()->getListSession(
-            $auth->getIdentity()
-                ->getId()
-        );
-    }
-
-    /**
      * Log out.
      *
      * @invokable
@@ -418,7 +356,7 @@ class User extends AbstractService
             ->setCreatedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'));
         
         if ($this->getMapper()->insert($m_user) <= 0) {
-            throw new \Exception('error insert');
+            throw new \Exception('error insert'); // @codeCoverageIgnore
         }
         
         $id = (int) $this->getMapper()->getLastInsertValue();
@@ -444,88 +382,7 @@ class User extends AbstractService
         
         return $id;
     }
-
-    /**
-     * Import user data.
-     *
-     * @invokable
-     *
-     * @param array $data
-     * @param int   $page_id
-     *
-     * @return array
-     */
-    public function import($data, $page_id = null)
-    {
-        $error = [];
-        foreach ($data as $u) {
-            try {
-                $id = $this->add(
-                    $u['firstname'], /*firstname*/
-                    $u['lastname'], /*lastname*/
-                    $u['email'], /*email*/
-                    null, /*gender*/
-                    null, /*origin*/
-                    null, /*$nationality*/
-                    array_key_exists('uid', $u) ? $u['uid'] : null, /*$sis*/
-                    null, /*password*/
-                    null, /*birth_date*/
-                    null, /*position*/
-                    $page_id, /*organization_id*/
-                    null, /*interest*/
-                    null, /*avatar*/
-                    null, /*roles*/
-                    null, /*timezone*/
-                    null, /*background*/
-                    array_key_exists('nickname', $u) ? $u['nickname'] : null, /*$nickname*/
-                    null, /*ambassador*/
-                    null /*address*/
-                );
-                
-                $this->getServicePageUser()->add($page_id, $id, ModelPageUser::ROLE_USER, ModelPageUser::STATE_MEMBER);
-            } catch (JrpcException $e) {
-                $error[] = [
-                    'field' => $u,
-                    'code' => $e->getCode(),
-                    'message' => $e->getMessage()
-                ];
-            }
-        }
-        
-        return $error;
-    }
-
-    /**
-     * Get List user For Attendees
-     *
-     * @invokable
-     *
-     * @param  array $course
-     * @param  array $program
-     * @param  array $school
-     * @param  array $exclude_course
-     * @param  array $exclude_program
-     * @param  array $exclude_user
-     * @return \Dal\Db\ResultSet\ResultSet
-     */
-    public function getListAttendees($course = null, $program = null, $school = null, $page = null, $exclude_course = null, $exclude_program = null, $exclude_page = null, $exclude_user = null, $roles = null)
-    {
-        $identity = $this->getIdentity();
-        $is_sadmin_admin = (in_array(ModelRole::ROLE_SADMIN_STR, $identity['roles']) || in_array(ModelRole::ROLE_ADMIN_STR, $identity['roles']));
-        
-        $res_user = $this->getMapper()->getListAttendees($identity['id'], $is_sadmin_admin, $course, $program, $school, $page, $exclude_course, $exclude_program, $exclude_user, $exclude_page, $roles);
-        foreach ($res_user as $m_user) {
-            $roles = [];
-            foreach ($this->getServiceRole()->getRoleByUser($m_user->getId()) as $role) {
-                $roles[] = $role->getName();
-            }
-            
-            $m_user->setRoles($roles);
-        }
-        
-        return $res_user;
-    }
-
+   
     /**
      * Update User
      *
@@ -561,11 +418,16 @@ class User extends AbstractService
         if ($this->getNbrEmailUnique($email, $id) > 0) {
             throw new JrpcException('duplicate email', - 38001);
         }
-        
-        if(!$this->isStudnetAdmin() && $id !==  $this->getIdentity()['id']) {
+        if(!$this->isStudnetAdmin()){
+            if(null !== $id && $id !==  $this->getIdentity()['id']) {
+                throw new JrpcException('Unauthorized operation user.update', -38003);
+            }
             
-            throw new JrpcException('Unauthorized operation user.update', -38003);
+            if(null !== $roles){
+                $roles = null;
+            }
         }
+        
         
          /*
          * if (null !== $avatar && $id === $this->getIdentity()['id']) {
@@ -839,19 +701,6 @@ class User extends AbstractService
         );
     }
 
-    public function _updatePassword($email, $password)
-    {
-        return $this->getMapper()->update(
-            $this->getModel()
-                ->setPassword(md5($password)), array(
-            'id' => $this->getServiceAuth()
-                ->getIdentity()
-                ->getId(),
-            'email' => md5($email)
-            )
-        );
-    }
-
     /**
      *
      * @param int $id
@@ -1005,20 +854,6 @@ class User extends AbstractService
     }
 
     /**
-     * Get List Lite.
-     *
-     * @invokable
-     *
-     * @param int $id
-     *
-     * @return \Dal\Db\ResultSet\ResultSet
-     */
-    public function getListLite($id)
-    {
-        return $this->getMapper()->getListLite($id);
-    }
-
-    /**
      * Delete User.
      *
      * @invokable
@@ -1036,6 +871,9 @@ class User extends AbstractService
             );
         }
         
+        if(!$this->isStudnetAdmin()) {
+            throw new JrpcException('Unauthorized operation user.delete', -38003);
+        }
         foreach ($id as $i) {
             $m_user = $this->getModel();
             $m_user->setId($i)->setDeletedDate((new DateTime('now', new DateTimeZone('UTC')))->format('Y-m-d H:i:s'))->setIsActive(0)->setLinkedinId(new IsNull());

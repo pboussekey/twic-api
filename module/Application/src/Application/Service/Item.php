@@ -324,7 +324,6 @@ class Item extends AbstractService
         $ret = $this->getMapper()
             ->usePaginator($filter)
             ->getListTimeline($identity['id']);
-        syslog(1, json_encode($filter));
         return $ret;
     }
 
