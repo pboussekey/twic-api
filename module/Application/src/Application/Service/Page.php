@@ -131,6 +131,9 @@ class Page extends AbstractService
         if (null === $confidentiality) {
             $confidentiality = ModelPage::CONFIDENTIALITY_PRIVATE;
         }
+        if(!is_array($address)){
+            $address = null;
+        }
 
         $conversation_id = null;
         if ($type !== ModelPage::TYPE_ORGANIZATION) {
