@@ -1,1 +1,1 @@
-{"method":"user.import","id":1,"params":{"data":[{"firstname":"Christopher","lastname":"Robert","nickname":"mnickname","email":"crobertr@thestudnet.com","uid":"uid","role":"user"}],"page_id":"1"}}
+{"method":"user.delete","id":1,"params":{"id":8}}

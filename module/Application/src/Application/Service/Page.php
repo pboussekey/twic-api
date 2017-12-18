@@ -209,19 +209,17 @@ class Page extends AbstractService
         }
 
         $is_present = false;
-        foreach ($users as $ar_u) {
+        foreach ($users as &$ar_u) {
             if(isset($ar_u['user_email'])) {
                 $ar_u['user_id'] = $this->getServiceUser()->add(null, null, $ar_u['user_email'], null, null, null, null, null, null, null, $id);
+                 
             }
             if ($ar_u['user_id'] === $m_page->getOwnerId()) {
                 $is_present = true;
                 $ar_u['role'] = ModelPageUser::ROLE_ADMIN;
                 $ar_u['state'] = ModelPageUser::STATE_MEMBER;
-
-                break;
             }
         }
-
         if (! $is_present) {
             $users[] = [
               'user_id' => $m_page->getOwnerId(),
@@ -269,22 +267,6 @@ class Page extends AbstractService
         return $id;
     }
 
-    public function addChannel()
-    {
-        $res_page = $this->getMapper()->getListNoChannel();
-        foreach ($res_page as $m_page) {
-            $name = lcfirst(implode('', array_map("ucfirst", preg_split("/[\s]+/", preg_replace('/[^a-z0-9\ ]/', '', strtolower(str_replace('-', ' ', $m_page->getTitle())))))));
-            $conversation_id = $this->getServiceConversation()->_create(ModelConversation::TYPE_CHANNEL, null, null, $name);
-            $this->getMapper()->update(
-                $this->getModel()
-                    ->setId($m_page->getId())
-                    ->setConversationId($conversation_id)
-            );
-
-            $ar_user = $this->getServicePageUser()->getListByPage($m_page->getId())[$m_page->getId()];
-            $this->getServiceConversationUser()->add($conversation_id, $ar_user);
-        }
-    }
     /**
      * Add Tags
      *
@@ -381,7 +363,6 @@ class Page extends AbstractService
      * @param int    $circle_id
      * @param bool   $is_published
      *
-     * @TODO Seuls admins de la page peuvent l'éditer (ou un studnet admin)
      *
      * @return int
      */
@@ -391,7 +372,6 @@ class Page extends AbstractService
         $logo=null,
         $background=null,
         $description=null,
-        $confidentiality=null,
         $admission=null,
         $start_date = null,
         $end_date = null,
@@ -428,7 +408,6 @@ class Page extends AbstractService
             ->setLogo($logo)
             ->setBackground($background)
             ->setDescription($description)
-            ->setConfidentiality($confidentiality)
             ->setAdmission($admission)
             ->setStartDate($start_date)
             ->setEndDate($end_date)
@@ -456,7 +435,7 @@ class Page extends AbstractService
 
         if (null !== $users) {
             $is_present = false;
-            foreach ($users as $ar_u) {
+            foreach ($users as &$ar_u) {
                 if(isset($ar_u['user_email'])) {
                     $ar_u['user_id'] = $this->getServiceUser()->add(null, null, $ar_u['user_email'], null, null, null, null, null, null, null, $id);
                 }
@@ -484,32 +463,6 @@ class Page extends AbstractService
         }
 
         $tmp_m_page = $this->getMapper()->select($this->getModel()->setId($id))->current();
-        if ($confidentiality !== null) {
-            if ($tmp_m_page->getConfidentiality() !== $confidentiality) {
-                if ($confidentiality == ModelPage::CONFIDENTIALITY_PRIVATE) {
-                    $this->getServicePost()->hardDelete('PP'.$id);
-                } elseif ($confidentiality == ModelPage::CONFIDENTIALITY_PUBLIC) {
-                    $this->getServicePost()->addSys(
-                        'PP'.$id,
-                        '',
-                        [
-                        'state' => 'create',
-                        'user' => $tmp_m_page->getOwnerId(),
-                        'parent' => $tmp_m_page->getPageId(),
-                        'page' => $id,
-                        'type' => $tmp_m_page->getType(),
-                        ],
-                        'create',
-                        null/*sub*/,
-                        null/*parent*/,
-                        $tmp_m_page->getPageId()/*page*/,
-                        $tmp_m_page->getOwnerId()/*user*/,
-                        'page'
-                    );
-                }
-            }
-        }
-
         if ($is_published === true) {
             $res_post = $this->getServicePost()->getListId(null, null, $id, null, true);
             foreach ($res_post as $m_post) {
@@ -635,7 +588,6 @@ class Page extends AbstractService
      */
     public function get($id = null, $parent_id = null, $type = null)
     {
-        $this->addChannel();
         if (null === $id && null === $parent_id) {
             throw new \Exception('Error: params is null');
         }
@@ -702,7 +654,6 @@ class Page extends AbstractService
      */
     public function getIdByItem($item_id)
     {
-        $this->addChannel();
         return $this->getMapper()->getIdByItem($item_id)->current()->getId();
     }
 
@@ -809,7 +760,6 @@ class Page extends AbstractService
         $is_member_admin = null, // get only les meber admin true/false
         $exclude = null
     ) {
-        $this->addChannel();
         if (empty($tags)) {
             $tags = null;
         }

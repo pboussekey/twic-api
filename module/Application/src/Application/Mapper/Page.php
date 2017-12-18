@@ -47,16 +47,6 @@ class Page extends AbstractMapper
         return $select;
     }
 
-    public function getListNoChannel()
-    {
-        $select = $this->tableGateway->getSql()->select();
-        $select->columns(['id', 'title'])
-            ->where(['page.conversation_id IS NULL'])
-            ->where(['type <> ? ' => 'organization']);
-
-        return $this->selectWith($select);
-    }
-
     public function getListId(
         $me,
         $parent_id = null,
