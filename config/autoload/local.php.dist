@@ -1,0 +1,119 @@
+<?php
+/**
+ * Local Configuration Override
+ *
+ * This configuration override file is for overriding environment-specific and
+ * security-sensitive configuration information. Copy this file without the
+ * .dist extension at the end and populate values as needed.
+ *
+ * @NOTE: This file is ignored from Git by default with the .gitignore included
+ * in ZendSkeletonApplication. This is a good practice, as it prevents sensitive
+ * credentials from accidentally being committed into version control.
+ */
+
+return array(
+    'app-conf' => [
+        'secret_key_fb' => '****',
+        'secret_key_fb_debug' => ****,
+        'account_email' => '*******',
+        'private_key' => "s88GA4bgR8b\n4UWtlPRzW7StIK+drRBAZp1Klcjs74tfCLjRWXpdjSQDsLEwiOUbP3hRcCenKq1M\n/8kUmSMvR7KyYB0v4YsEKOFGoapI5pZ32E+wq5xacQKBgQD/eMVjwrgFTFErpXsO\nTU0vruT1NfrjYY4zlRVEhsfc3l4cn0rT88c2sZsfq/p/DDsbkNH2nhD4Ka6VHw9M\nDRnxN8yAvo1Oh6ua9UmpaIU1iyJ1c2j7Yd1wk2qYvPQoSSMfBPAOODiU39jQ71jw\nXBqNXlBIJqDjO+Evi+EJij5cpQKBgQDVNsvOxLAfViHBC9F7XE/NMZO/3dnseF1Z\nc1CpQDZ1NiKS+H0GpUv6mfdpGccdTyUNmqhqqbVu4uda3TL+F9xt8sses5eRz6rb\n2uwLeQmXcBRk254G61TJiOO2QSm3pt6NOhLUSg13wAdcUlQcz+To0xMxogOy/H1+\nixI/I7tCCwKBgBZPGpWinGVCC9iO49cU4wel8zKCmz0d+MgCXdAVIQDlnjxLoMIv\niJb7HXu/jeloTQUUOXGazgqNwUQeaTyP7FMHN2GKwlY4PMEUaHFVwkQxuTmecW16\nV1cMWIOsBHo8IMgFq1zihfZiMdHVBORAdsUflk0mqmgNg5WeVnF51AZNAoGAEy2t\noXixuu/dc2bjvevsxbFK7/w9qPaetvgXblH3VA29iGjPnjRqJC2LQqnt7iX7WEDs\nG0QOrN2+H7874f01d7JaMPXIkXYTkVkc2F9XzIZpXzUd/tNWOhaVHQS5guqApEVw\nAiZzFa1xPA2vwTO2DHdIB7PiD0yE4UgTKRjGtEcCgYEAxjpp3fCVcF6sG6+NzmOv\nNkgjDUfyS40+PZkFvLDxZEiddsSw/XDSNyQ1dLATtUwAG1qJBwbM18wwvs+lXYGI\nD6BL4P098m08RAV7DIoX5G+c4J1UefljboWNe7OoHf2V1hhvi/4s2ipKo1kNGvzK\n00+OExvDDmQwVWDTUP5alno=\n-----END PRIVATE KEY-----\n",
+        'urldms' => '****',
+        'uiurl' => ******,
+     ],
+     'gcm' => [
+        'api_key' => '*************',
+        'adapter' => 'http-adapter',
+     ],
+     'linkedin-conf' => [
+        'redirect_uri' => '********',
+		'client_id' => '********',
+		'client_secret' => '********',
+     ],
+	 'db' => array(
+		'adapters' => array(
+			'db-adapter' => array(
+				'driver' => '****',
+				'dsn' => 'mysql:dbname=****;host=****',
+				'username' =>  '****',
+				'password' =>  '****',
+				'driver_options' => array(
+					PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
+					PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \'UTF8\'',
+					PDO::ATTR_PERSISTENT => true,
+					PDO::ATTR_EMULATE_PREPARES => false
+				),
+			),
+		),
+	),
+    'node' => array(
+        'addr' => '****',
+        'authorization' => '*****' 
+    ),
+    'zopentok-conf' => [
+        'api_key'     =>  '****',
+        'api_secret'  =>  '****',
+    ],
+	'log' => array(
+		'log-system' => array(
+			'writers' => array(
+		 		array(
+		 			'name' => 'syslog',
+		 			'options' => array(
+		 				'application' => 'thestudnet',
+		 				'formatter' => array(
+		 					'name' => 'simple',
+		 					'options' => array(
+		 						'format' => '%timestamp% (%priority%): %message%, %stack%, %stacktrace%',
+		 					),
+		 				),
+		 			),
+		 		),
+		 	),
+		),
+	),
+	'http-adapter' => [
+		'adapter' => 'Zend\Http\Client\Adapter\Socket',
+		'maxredirects' => 30,
+		'sslverifypeer' => false,
+		'timeout' => 100,
+		'ssltransport' => 'tls',
+	],
+	'caches' => array(
+		'storage_memcached' => array(
+			'adapter' => array(
+				'name' => 'memcached',
+				'options' => array(
+					'servers' => array(
+						array('host' => '****' , 'port' => '****', 'weight' => 66),
+						array('host' => '****' , 'port' => '****', 'weight' => 33)
+					),
+					'lib_options' => array(
+						array('option' => Memcached::OPT_LIBKETAMA_COMPATIBLE, 'value' => true),
+						array('option' => Memcached::OPT_SERIALIZER, 'value' => Memcached::SERIALIZER_IGBINARY),
+						array('option' => Memcached::OPT_DISTRIBUTION, 'value' => Memcached::DISTRIBUTION_CONSISTENT),
+					),
+				),
+			),
+			'plugins' => array(
+				'exception_handler' => array('throw_exceptions' => true),
+			),
+		),
+	),
+	'mail-conf' => [
+     'cache' => 'storage_memcached',
+     'storage' => [
+         'active' => false,
+     ],
+     'transport' => [
+         'active' => true,
+         'type' => 'sendmail',
+         'options' => [],
+     ],
+     'template' => [
+         'storage' => [
+             'name' => 'fs',
+             'path' => __DIR__.'/../../../tpl/',
+         ],
+     ],
+     ],
+);

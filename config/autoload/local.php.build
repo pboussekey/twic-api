@@ -1,0 +1,114 @@
+<?php
+/**
+ * Local Configuration Override
+ *
+ * This configuration override file is for overriding environment-specific and
+ * security-sensitive configuration information. Copy this file without the
+ * .dist extension at the end and populate values as needed.
+ *
+ * @NOTE: This file is ignored from Git by default with the .gitignore included
+ * in ZendSkeletonApplication. This is a good practice, as it prevents sensitive
+ * credentials from accidentally being committed into version control.
+ */
+
+return array(
+    'app-conf' => [
+        'secret_key_fb' => '${firebase.key}',
+        'secret_key_fb_debug' => ${firebase.debug},
+        'account_email' => '${firebase.account_email}',
+        'private_key' => "${firebase.private_key}",
+        'urldms' => '${dms.url}',
+	'uiurl' => '${ui.url}',
+    ],
+    'gcm' => [
+        'api_key' => '${firebase.key}',
+        'adapter' => 'http-adapter',
+    ],
+    'linkedin-conf' => [
+        'redirect_uri' => '${linkedin.redirect_uri}',
+	'client_id' => '${linkedin.client_id}',
+	'client_secret' => '${linkedin.client_secret}',
+    ],
+    'db' => array(
+    	'adapters' => array(
+    	  'db-adapter' => array(
+        		'driver' => '${db.driver}',
+        		'dsn' => 'mysql:dbname=${db.database};host=${db.host};charset=utf8mb4',
+        		'username' =>  '${db.user}',
+        		'password' =>  '${db.password}',
+        		'driver_options' => array(
+        		    PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
+        		    PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \'utf8mb4\'',
+        		    PDO::ATTR_PERSISTENT => true,
+        		    PDO::ATTR_EMULATE_PREPARES => false
+        	),
+    	  ),
+      ),
+    ),
+    'node' => array(
+      'addr' => '${node.addr}',
+      'authorization' => '${node.authorization}' 
+    ),
+    'zopentok-conf' => [
+        'api_key'     =>  '${opentok.apikey}',
+        'api_secret'  =>  '${opentok.apisecret}',
+    ],
+	'log' => array(
+		'log-system' => array(
+			'writers' => array(
+		 		array(
+		 			'name' => 'syslog',
+		 			'options' => array(
+		 				'application' => 'thestudnet',
+		 				'formatter' => array(
+		 					'name' => 'simple',
+		 					'options' => array(
+		 						'format' => '%timestamp% (%priority%): %message%, %extra%',
+		 					),
+		 				),
+		 			),
+		 		),
+		 	),
+		),
+	),
+	'http-adapter' => [
+		'adapter' => 'Zend\Http\Client\Adapter\Socket',
+		'maxredirects' => 30,
+		'sslverifypeer' => false,
+		'timeout' => 100,
+		'ssltransport' => 'tls',
+	    ],
+	'caches' => array(
+		'storage_memcached' => array(
+			'adapter' => array(
+				'name' => 'memcached',
+				'options' => array(
+					'servers' => array(
+						array('host' => '${memcached.host}' , 'port' => '${memcached.port}', 'weight' => 100),
+					),
+					'lib_options' => array(
+						array('option' => Memcached::OPT_LIBKETAMA_COMPATIBLE, 'value' => true),
+						array('option' => Memcached::OPT_SERIALIZER, 'value' => Memcached::SERIALIZER_IGBINARY),
+						array('option' => Memcached::OPT_DISTRIBUTION, 'value' => Memcached::DISTRIBUTION_CONSISTENT),
+					),
+				),
+			),
+			'plugins' => array(
+				'exception_handler' => array('throw_exceptions' => true),
+			),
+		),
+	),
+	'mail-conf' => [
+    'cache' => 'storage_memcached',
+    'storage' => [
+        'active' => false,
+     ],
+     'transport' => ${mail.transport},
+     'template' => [
+        'storage' => ${mail.template.storage},
+     ],
+  ],
+  'dms-conf' => [
+    'storage' => ${dms.storage},
+  ],
+);
