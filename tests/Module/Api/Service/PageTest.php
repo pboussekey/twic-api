@@ -1060,7 +1060,7 @@ class PageTest extends AbstractService
         $this->assertEquals(count($data['result'][0]) , 3); 
         $this->assertEquals($data['result'][0]['count'] , 1); 
         $this->assertEquals($data['result'][0]['type'] , "course"); 
-        $this->assertEquals($data['result'][0]['created_date'] , "2017-12-19"); 
+        $this->assertEquals(!empty($data['result'][0]['created_date']) , true); 
         $this->assertEquals($data['jsonrpc'] , 2.0); 
 
     }
