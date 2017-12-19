@@ -104,7 +104,7 @@ class ItemRateTest extends AbstractService
             'title' => 'Media',
             'description' => 'Media',
             'type' => 'MEDIA',
-            'points' => 6,
+            'points' => 100,
             'is_available' => 1,
             'is_published' => true,
             'parent_id' => $section_id,
@@ -119,7 +119,7 @@ class ItemRateTest extends AbstractService
             'title' => 'Assignment',
             'description' => 'une description d\'Assignment',
             'type' => 'A',
-            'points' => 7,
+            'points' => 100,
             'start_date' => '2015-10-10T06:00:00Z',
             'participants' => 'all',
             'is_available' => 1,
@@ -136,7 +136,7 @@ class ItemRateTest extends AbstractService
             'title' => 'Assignment',
             'description' => 'une description d\'Assignment',
             'type' => 'A',
-            'points' => 7,
+            'points' => 100,
             'start_date' => '2015-10-12T07:00:00Z',
             'participants' => 'user',
             'is_available' => 1,
@@ -153,7 +153,7 @@ class ItemRateTest extends AbstractService
             'title' => 'Assignment',
             'description' => 'une description d\'Assignment',
             'type' => 'A',
-            'points' => 7,
+            'points' => 100,
             'start_date' => '2015-10-12T08:00:00Z',
             'participants' => 'user',
             'is_available' => 1,
@@ -179,7 +179,7 @@ class ItemRateTest extends AbstractService
             'title' => 'Assignment',
             'description' => 'une description d\'Assignment',
             'type' => 'A',
-            'points' => 7,
+            'points' => 100,
             'start_date' => '2015-10-16T09:00:00Z',
             'end_date' => '2015-10-16T11:00:00Z',
             'is_available' => 1,
@@ -221,7 +221,7 @@ class ItemRateTest extends AbstractService
             'title' => 'Assignment',
             'description' => 'une description d\'Assignment 2',
             'type' => 'A',
-            'points' => 7,
+            'points' => 100,
             'is_available' => 1,
             'is_published' => false,
             'parent_id' => $section_id,
@@ -633,7 +633,7 @@ class ItemRateTest extends AbstractService
             'item.grade', [
             'item_id' => 6,
             'rate' => 100,
-            'user_id' => 5,
+            'group_id' => 1,
             //'group_id' => null,
             ]
         );
@@ -696,6 +696,34 @@ class ItemRateTest extends AbstractService
     
     public function testgetUsersGrade()
     {
+        
+        $this->setIdentity(1);
+        $data = $this->jsonRpc(
+            'item.update', [
+            'id' => 2,
+             'is_grade_published' => true
+            //'group_id' => null,
+            ]
+        );
+        $this->reset();
+        $this->setIdentity(1);
+        $data = $this->jsonRpc(
+            'item.update', [
+            'id' => 5,
+             'is_grade_published' => true
+            //'group_id' => null,
+            ]
+        );
+        $this->reset();
+        $this->setIdentity(1);
+        $data = $this->jsonRpc(
+            'item.update', [
+            'id' => 6,
+             'is_grade_published' => true
+            //'group_id' => null,
+            ]
+        );
+        $this->reset();
         $this->setIdentity(1);
         $data = $this->jsonRpc(
             'page.getUsersGrades', [
@@ -704,11 +732,38 @@ class ItemRateTest extends AbstractService
             ]
         );
         
-        $this->printCreateTest($data);
-        $this->assertEquals(count($data), 3);
-        $this->assertEquals($data['id'], 1);
-        $this->assertEquals($data['result'], true);
-        $this->assertEquals($data['jsonrpc'], 2.0);
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals(count($data['result']) , 2); 
+        $this->assertEquals(count($data['result']['list']) , 5); 
+        $this->assertEquals(count($data['result']['list'][0]) , 4); 
+        $this->assertEquals($data['result']['list'][0]['average'] , 100); 
+        $this->assertEquals($data['result']['list'][0]['percentile'] , 0); 
+        $this->assertEquals($data['result']['list'][0]['id'] , 1); 
+        $this->assertEquals($data['result']['list'][0]['user_id'] , 1); 
+        $this->assertEquals(count($data['result']['list'][1]) , 4); 
+        $this->assertEquals($data['result']['list'][1]['average'] , 100); 
+        $this->assertEquals($data['result']['list'][1]['percentile'] , 0); 
+        $this->assertEquals($data['result']['list'][1]['id'] , 1); 
+        $this->assertEquals($data['result']['list'][1]['user_id'] , 2); 
+        $this->assertEquals(count($data['result']['list'][2]) , 4); 
+        $this->assertEquals($data['result']['list'][2]['average'] , 100); 
+        $this->assertEquals($data['result']['list'][2]['percentile'] , 0); 
+        $this->assertEquals($data['result']['list'][2]['id'] , 1); 
+        $this->assertEquals($data['result']['list'][2]['user_id'] , 3); 
+        $this->assertEquals(count($data['result']['list'][3]) , 4); 
+        $this->assertEquals($data['result']['list'][3]['average'] , 100); 
+        $this->assertEquals($data['result']['list'][3]['percentile'] , 0); 
+        $this->assertEquals($data['result']['list'][3]['id'] , 1); 
+        $this->assertEquals($data['result']['list'][3]['user_id'] , 4); 
+        $this->assertEquals(count($data['result']['list'][4]) , 4); 
+        $this->assertEquals($data['result']['list'][4]['average'] , 83); 
+        $this->assertEquals($data['result']['list'][4]['percentile'] , 80); 
+        $this->assertEquals($data['result']['list'][4]['id'] , 1); 
+        $this->assertEquals($data['result']['list'][4]['user_id'] , 5); 
+        $this->assertEquals($data['result']['count'] , 2); 
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
+
     }
     
     public function testgetUserGrades()
@@ -721,11 +776,38 @@ class ItemRateTest extends AbstractService
             ]
         );
         
-        $this->printCreateTest($data);
-        $this->assertEquals(count($data), 3);
-        $this->assertEquals($data['id'], 1);
-        $this->assertEquals($data['result'], true);
-        $this->assertEquals($data['jsonrpc'], 2.0);
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals(count($data['result']) , 2); 
+        $this->assertEquals(count($data['result']['list']) , 5); 
+        $this->assertEquals(count($data['result']['list'][0]) , 4); 
+        $this->assertEquals($data['result']['list'][0]['average'] , 100); 
+        $this->assertEquals($data['result']['list'][0]['percentile'] , 0); 
+        $this->assertEquals($data['result']['list'][0]['id'] , 1); 
+        $this->assertEquals($data['result']['list'][0]['user_id'] , 1); 
+        $this->assertEquals(count($data['result']['list'][1]) , 4); 
+        $this->assertEquals($data['result']['list'][1]['average'] , 100); 
+        $this->assertEquals($data['result']['list'][1]['percentile'] , 0); 
+        $this->assertEquals($data['result']['list'][1]['id'] , 1); 
+        $this->assertEquals($data['result']['list'][1]['user_id'] , 2); 
+        $this->assertEquals(count($data['result']['list'][2]) , 4); 
+        $this->assertEquals($data['result']['list'][2]['average'] , 100); 
+        $this->assertEquals($data['result']['list'][2]['percentile'] , 0); 
+        $this->assertEquals($data['result']['list'][2]['id'] , 1); 
+        $this->assertEquals($data['result']['list'][2]['user_id'] , 3); 
+        $this->assertEquals(count($data['result']['list'][3]) , 4); 
+        $this->assertEquals($data['result']['list'][3]['average'] , 100); 
+        $this->assertEquals($data['result']['list'][3]['percentile'] , 0); 
+        $this->assertEquals($data['result']['list'][3]['id'] , 1); 
+        $this->assertEquals($data['result']['list'][3]['user_id'] , 4); 
+        $this->assertEquals(count($data['result']['list'][4]) , 4); 
+        $this->assertEquals($data['result']['list'][4]['average'] , 83); 
+        $this->assertEquals($data['result']['list'][4]['percentile'] , 80); 
+        $this->assertEquals($data['result']['list'][4]['id'] , 1); 
+        $this->assertEquals($data['result']['list'][4]['user_id'] , 5); 
+        $this->assertEquals($data['result']['count'] , 2); 
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
+
     }
 
     /**
@@ -970,7 +1052,7 @@ class ItemRateTest extends AbstractService
             'title' => 'Assignment',
             'description' => 'un super quiz',
             'type' => 'QUIZ',
-            'points' => 7,
+            'points' => 100,
             'is_available' => 1,
             'is_published' => false,
             'parent_id' => $section_id,
@@ -1718,7 +1800,7 @@ class ItemRateTest extends AbstractService
         $this->assertEquals($data['result'][9]['parent_id'], 1);
         $this->assertEquals($data['result'][9]['page_id'], 2);
         $this->assertEquals($data['result'][9]['user_id'], 1);
-        $this->assertEquals($data['result'][9]['points'], 7);
+        $this->assertEquals($data['result'][9]['points'], 100);
         $this->assertEquals($data['result'][9]['text'], null);
         $this->assertEquals($data['result'][9]['library_id'], null);
         $this->assertEquals($data['result'][9]['participants'], "all");

@@ -1,1 +1,1 @@
-{"method":"page.getCount","id":1,"params":{"start_date":"2015-01-01","end_date":"2099-0-1","interval_date":"D","type":"course","organization_id":1}}
+{"method":"submission.getPostId","id":1,"params":{"item_id":9}}
