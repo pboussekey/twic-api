@@ -1,1 +1,1 @@
-{"method":"user.linkedinSignIn","id":1,"params":{"account_token":"newtoken","code":"code"}}
+{"method":"library.getSession","id":1,"params":{"id":1}}

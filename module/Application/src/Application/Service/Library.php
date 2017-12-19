@@ -81,7 +81,7 @@ class Library extends AbstractService
             ->setCreatedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'));
 
         if ($this->getMapper()->insert($m_library) < 0) {
-            throw new \Exception('Error insert file');
+            throw new \Exception('Error insert file');// @codeCoverageIgnore
         }
 
         $id = (int)$this->getMapper()->getLastInsertValue();
