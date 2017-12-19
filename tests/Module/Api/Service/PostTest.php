@@ -46,6 +46,46 @@ class PostTest extends AbstractService
 
     public function testPostAdd()
     {
+        
+        $this->setIdentity(1, 1);
+        $data = $this->jsonRpc(
+            'page.add', [
+            'title' => 'super title',
+            'logo' => 'logo',
+            'background' => 'background',
+            'description' => 'description',
+            'confidentiality' => 1,
+            'type' => 'organization',
+            'admission' => 'free',
+            'start_date' => '2015-00-00 00:00:00',
+            'end_date' => '2016-00-00 00:00:00',
+            'location' => 'location',
+            'page_id' => 1,
+            'users' => [
+                ['user_id' => 1,'role' => 'user', 'state' => 'member'],
+                ['user_id' => 2,'role' => 'admin', 'state' => 'member'],
+                ['user_id' => 3,'role' => 'admin', 'state' => 'member'],
+                ['user_email' => 'contact@paul-boussekey.com','role' => 'user', 'state' => 'pending']
+            ],
+            'tags' => [
+                'toto', 'tata', 'tutu'
+            ],
+            'docs' => [
+                ['name' => 'name', 'link' => 'link', 'type' => 'type']
+            ],
+            'address' => [
+              "street_no"   => "11",
+              "street_name" => "Allée des Chênes",
+              "city"        => ["name" => "Villefontaine", "libelle" => "VILLEFONTAINE"],
+              "division"    => ["name" => "Auvergne-Rhône-Alpes"],
+              "country"     => ["short_name" => "France"],
+              "latitude"    => 45.601569,
+              "longitude"   => 5.178744499999993,
+            ],
+            ]
+        );
+        
+        $this->reset();
         $this->setIdentity(1);
         $data = $this->jsonRpc(
             'post.add', [
@@ -55,7 +95,7 @@ class PostTest extends AbstractService
             'name_picture' => 'name_picture',
             'link_title' => 'link_title',
             'link_desc' => 'link_desc',
-            //'t_page_id' => 1,
+            't_page_id' => 1,
             //'t_user_id' => 1,
             'docs' => [
                 ['name' => 'name', 'link' => 'link', 'type' => 'type'],
@@ -66,7 +106,7 @@ class PostTest extends AbstractService
 
         $this->assertEquals(count($data), 3);
         $this->assertEquals($data['id'], 1);
-        $this->assertEquals($data['result'], 1);
+        $this->assertEquals($data['result'], 3);
         $this->assertEquals($data['jsonrpc'], 2.0);
 
         return $data['result'];
@@ -119,6 +159,7 @@ class PostTest extends AbstractService
         $this->assertEquals($data['id'], 1);
         $this->assertEquals($data['result'], 1);
         $this->assertEquals($data['jsonrpc'], 2.0);
+        
     }
 
     /**
@@ -132,65 +173,62 @@ class PostTest extends AbstractService
             'id' => $id
             ]
         );
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals(count($data['result']) , 22); 
+        $this->assertEquals(count($data['result']['subscription']) , 5); 
+        $this->assertEquals(!empty($data['result']['subscription']['last_date']) , true); 
+        $this->assertEquals($data['result']['subscription']['action'] , "update"); 
+        $this->assertEquals($data['result']['subscription']['sub_post_id'] , null); 
+        $this->assertEquals($data['result']['subscription']['user_id'] , 1); 
+        $this->assertEquals($data['result']['subscription']['data'] , null); 
+        $this->assertEquals(count($data['result']['docs']) , 2); 
+        $this->assertEquals(count($data['result']['docs'][0]) , 11); 
+        $this->assertEquals($data['result']['docs'][0]['id'] , 7); 
+        $this->assertEquals($data['result']['docs'][0]['name'] , "nameUpt"); 
+        $this->assertEquals($data['result']['docs'][0]['link'] , "linkUpt"); 
+        $this->assertEquals($data['result']['docs'][0]['token'] , null); 
+        $this->assertEquals($data['result']['docs'][0]['type'] , "typeUpt"); 
+        $this->assertEquals(!empty($data['result']['docs'][0]['created_date']) , true); 
+        $this->assertEquals($data['result']['docs'][0]['deleted_date'] , null); 
+        $this->assertEquals($data['result']['docs'][0]['updated_date'] , null); 
+        $this->assertEquals($data['result']['docs'][0]['folder_id'] , null); 
+        $this->assertEquals($data['result']['docs'][0]['owner_id'] , 1); 
+        $this->assertEquals($data['result']['docs'][0]['box_id'] , null); 
+        $this->assertEquals(count($data['result']['docs'][1]) , 11); 
+        $this->assertEquals($data['result']['docs'][1]['id'] , 8); 
+        $this->assertEquals($data['result']['docs'][1]['name'] , "name2Upt"); 
+        $this->assertEquals($data['result']['docs'][1]['link'] , "link2Upt"); 
+        $this->assertEquals($data['result']['docs'][1]['token'] , null); 
+        $this->assertEquals($data['result']['docs'][1]['type'] , "type2Upt"); 
+        $this->assertEquals(!empty($data['result']['docs'][1]['created_date']) , true); 
+        $this->assertEquals($data['result']['docs'][1]['deleted_date'] , null); 
+        $this->assertEquals($data['result']['docs'][1]['updated_date'] , null); 
+        $this->assertEquals($data['result']['docs'][1]['folder_id'] , null); 
+        $this->assertEquals($data['result']['docs'][1]['owner_id'] , 1); 
+        $this->assertEquals($data['result']['docs'][1]['box_id'] , null); 
+        $this->assertEquals($data['result']['nbr_comments'] , 0); 
+        $this->assertEquals($data['result']['nbr_likes'] , 0); 
+        $this->assertEquals($data['result']['is_liked'] , 0); 
+        $this->assertEquals($data['result']['id'] , 3); 
+        $this->assertEquals($data['result']['content'] , "content  #toto @['U',1]"); 
+        $this->assertEquals($data['result']['user_id'] , 1); 
+        $this->assertEquals($data['result']['page_id'] , null); 
+        $this->assertEquals($data['result']['link'] , "linkUpt"); 
+        $this->assertEquals($data['result']['picture'] , "pictureUpt"); 
+        $this->assertEquals($data['result']['name_picture'] , "name_pictureUpt"); 
+        $this->assertEquals($data['result']['link_title'] , "link_titleUpt"); 
+        $this->assertEquals($data['result']['link_desc'] , "link_descUpt"); 
+        $this->assertEquals(!empty($data['result']['created_date']) , true); 
+        $this->assertEquals(!empty($data['result']['updated_date']) , true); 
+        $this->assertEquals($data['result']['parent_id'] , null); 
+        $this->assertEquals($data['result']['t_page_id'] , 1); 
+        $this->assertEquals($data['result']['t_user_id'] , null); 
+        $this->assertEquals($data['result']['type'] , "post"); 
+        $this->assertEquals($data['result']['data'] , null); 
+        $this->assertEquals($data['result']['item_id'] , null); 
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
 
-        $this->assertEquals(count($data), 3);
-        $this->assertEquals($data['id'], 1);
-        $this->assertEquals(count($data['result']), 22);
-        $this->assertEquals(count($data['result']['subscription']), 5);
-        $this->assertEquals(!empty($data['result']['subscription']['last_date']), true);
-        $this->assertEquals($data['result']['subscription']['action'], "create");
-        $this->assertEquals($data['result']['subscription']['sub_post_id'], null);
-        $this->assertEquals($data['result']['subscription']['user_id'], 1);
-        $this->assertEquals(count($data['result']['subscription']['data']), 3);
-        $this->assertEquals($data['result']['subscription']['data']['id'], 1);
-        $this->assertEquals($data['result']['subscription']['data']['parent_id'], null);
-        $this->assertEquals($data['result']['subscription']['data']['origin_id'], null);
-        $this->assertEquals(count($data['result']['docs']), 2);
-        $this->assertEquals(count($data['result']['docs'][0]), 11);
-        $this->assertEquals($data['result']['docs'][0]['id'], 6);
-        $this->assertEquals($data['result']['docs'][0]['name'], "nameUpt");
-        $this->assertEquals($data['result']['docs'][0]['link'], "linkUpt");
-        $this->assertEquals($data['result']['docs'][0]['token'], null);
-        $this->assertEquals($data['result']['docs'][0]['type'], "typeUpt");
-        $this->assertEquals(!empty($data['result']['docs'][0]['created_date']), true);
-        $this->assertEquals($data['result']['docs'][0]['deleted_date'], null);
-        $this->assertEquals($data['result']['docs'][0]['updated_date'], null);
-        $this->assertEquals($data['result']['docs'][0]['folder_id'], null);
-        $this->assertEquals($data['result']['docs'][0]['owner_id'], 1);
-        $this->assertEquals($data['result']['docs'][0]['box_id'], null);
-        $this->assertEquals(count($data['result']['docs'][1]), 11);
-        $this->assertEquals($data['result']['docs'][1]['id'], 7);
-        $this->assertEquals($data['result']['docs'][1]['name'], "name2Upt");
-        $this->assertEquals($data['result']['docs'][1]['link'], "link2Upt");
-        $this->assertEquals($data['result']['docs'][1]['token'], null);
-        $this->assertEquals($data['result']['docs'][1]['type'], "type2Upt");
-        $this->assertEquals(!empty($data['result']['docs'][1]['created_date']), true);
-        $this->assertEquals($data['result']['docs'][1]['deleted_date'], null);
-        $this->assertEquals($data['result']['docs'][1]['updated_date'], null);
-        $this->assertEquals($data['result']['docs'][1]['folder_id'], null);
-        $this->assertEquals($data['result']['docs'][1]['owner_id'], 1);
-        $this->assertEquals($data['result']['docs'][1]['box_id'], null);
-        $this->assertEquals($data['result']['nbr_comments'], 0);
-        $this->assertEquals($data['result']['nbr_likes'], 0);
-        $this->assertEquals($data['result']['is_liked'], 0);
-        $this->assertEquals($data['result']['id'], 1);
-        $this->assertEquals($data['result']['content'], "content  #toto @['U',1]");
-        $this->assertEquals($data['result']['user_id'], 1);
-        $this->assertEquals($data['result']['page_id'], null);
-        $this->assertEquals($data['result']['item_id'], null);
-        $this->assertEquals($data['result']['link'], "linkUpt");
-        $this->assertEquals($data['result']['picture'], "pictureUpt");
-        $this->assertEquals($data['result']['name_picture'], "name_pictureUpt");
-        $this->assertEquals($data['result']['link_title'], "link_titleUpt");
-        $this->assertEquals($data['result']['link_desc'], "link_descUpt");
-        $this->assertEquals(!empty($data['result']['created_date']), true);
-        $this->assertEquals(!empty($data['result']['updated_date']), true);
-        $this->assertEquals($data['result']['parent_id'], null);
-        $this->assertEquals($data['result']['t_page_id'], null);
-        $this->assertEquals($data['result']['t_user_id'], 1);
-        $this->assertEquals($data['result']['type'], "post");
-        $this->assertEquals($data['result']['data'], null);
-        $this->assertEquals($data['jsonrpc'], 2.0);
     }
 
     public function testPostGetListId()
@@ -203,7 +241,7 @@ class PostTest extends AbstractService
         $this->assertEquals(count($data['result']), 1);
         $this->assertEquals(count($data['result'][0]), 2);
         $this->assertEquals(!empty($data['result'][0]['last_date']), true);
-        $this->assertEquals($data['result'][0]['id'], 1);
+        $this->assertEquals($data['result'][0]['id'], 3);
         $this->assertEquals($data['jsonrpc'], 2.0);
     }
 

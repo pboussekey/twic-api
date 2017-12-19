@@ -607,16 +607,17 @@ class Post extends AbstractService
                     'someone' => $m_me->getFirstname(),
                     ]
                 );
-                
-                $gcm_notification = new GcmNotification();
-                $gcm_notification->setTitle($m_page->getTitle())
-                    ->setSound("default")
-                    ->setColor("#00A38B")
-                    ->setIcon("icon")
-                    ->setTag("PAGECOMMENT".$t_page_id)
-                    ->setBody("Someone liked your post");
-                
-                $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification);
+                if($m_page !== false){
+                    $gcm_notification = new GcmNotification();
+                    $gcm_notification->setTitle($m_page->getTitle())
+                        ->setSound("default")
+                        ->setColor("#00A38B")
+                        ->setIcon("icon")
+                        ->setTag("PAGECOMMENT".$m_page->getId())
+                        ->setBody("Someone liked your post");
+
+                    $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification);
+                }
             }
             catch (\Exception $e) {
                 syslog(1, 'Model name does not exist <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode());
