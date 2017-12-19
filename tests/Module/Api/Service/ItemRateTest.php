@@ -672,6 +672,8 @@ class ItemRateTest extends AbstractService
         $this->assertEquals($data['result'][5]['nb_submission'], 0);
         $this->assertEquals($data['jsonrpc'], 2.0);
     }
+    
+    
 
     /**
      * @depends testInit
@@ -689,6 +691,40 @@ class ItemRateTest extends AbstractService
         $this->assertEquals(count($data), 3);
         $this->assertEquals($data['id'], 1);
         $this->assertEquals($data['result'], 1);
+        $this->assertEquals($data['jsonrpc'], 2.0);
+    }
+    
+    public function testgetUsersGrade()
+    {
+        $this->setIdentity(1);
+        $data = $this->jsonRpc(
+            'page.getUsersGrades', [
+            'id' => 1
+            //'group_id' => null,
+            ]
+        );
+        
+        $this->printCreateTest($data);
+        $this->assertEquals(count($data), 3);
+        $this->assertEquals($data['id'], 1);
+        $this->assertEquals($data['result'], true);
+        $this->assertEquals($data['jsonrpc'], 2.0);
+    }
+    
+    public function testgetUserGrades()
+    {
+        $this->setIdentity(1);
+        $data = $this->jsonRpc(
+            'page.getUsersGrades', [
+            'id' => 1,
+            'user_id' => 5
+            ]
+        );
+        
+        $this->printCreateTest($data);
+        $this->assertEquals(count($data), 3);
+        $this->assertEquals($data['id'], 1);
+        $this->assertEquals($data['result'], true);
         $this->assertEquals($data['jsonrpc'], 2.0);
     }
 

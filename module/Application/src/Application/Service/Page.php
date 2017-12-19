@@ -691,7 +691,7 @@ class Page extends AbstractService
      * @param int   $id
      * @param array $filter
      */
-    public function getUsersGrades($id, $filter)
+    public function getUsersGrades($id, $filter = null)
     {
         $res_grades = $this->getMapper()->usePaginator($filter)->getUsersAvg($id);
         $res_prcs = $this->getMapper()->getUsersPrc($id);
