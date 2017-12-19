@@ -203,7 +203,6 @@ class User extends AbstractService
      * @invokable
      *
      * @param bool $init
-     * @param bool $external
      *
      * @return array
      */
