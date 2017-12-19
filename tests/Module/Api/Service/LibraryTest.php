@@ -3,7 +3,7 @@ namespace ModuleTest\Api\Service;
 
 use ModuleTest\Api\AbstractService;
 
-class UserTest extends AbstractService
+class LibraryTest extends AbstractService
 {
     public static $session;
 
