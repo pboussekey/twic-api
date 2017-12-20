@@ -26,6 +26,27 @@ class Event extends AbstractService
     const TARGET_TYPE_GLOBAL = 'global';
     const TARGET_TYPE_SCHOOL = 'school';
 
+    public function getNodeClient(){
+
+        $authorization = $this->container->get('config')['node']['authorization'];
+        $client = new Client();
+        $client->setOptions($this->container->get('config')['http-adapter']);
+        $client->setHeaders([ 'Authorization' => $authorization]);
+
+        return new \Zend\Json\Server\Client($this->container->get('config')['node']['addr'], $client);
+    }
+
+
+    public function nodeRequest($method, $params = null){
+
+        $request = new Request();
+        $request->setMethod($method)
+            ->setParams($params)
+            ->setId(++ self::$id)
+            ->setVersion('2.0');
+
+        return $this->getNodeClient()->doRequest($request);
+    }
     /**
      * create event
      *
@@ -107,24 +128,16 @@ class Event extends AbstractService
      */
     public function sendRequest($users, $notification, $target)
     {
-        $authorization = $this->container->get('config')['node']['authorization'];
         $rep = false;
-        $request = new Request();
-        $request->setMethod('notification.publish')
-            ->setParams(['notification' => $notification,'users' => $users,'type' => $target])
-            ->setId(++ self::$id)
-            ->setVersion('2.0');
-
-        $client = new \Zend\Json\Server\Client($this->container->get('config')['node']['addr'], $this->getClient());
-        $client->getHttpClient()->setHeaders([ 'Authorization' => $authorization]);
 
         try {
-            $rep = $client->doRequest($request);
+            $data = ['notification' => $notification,'users' => $users,'type' => $target];
+            $rep = $this->nodeRequest('notification.publish', $data);
             if ($rep->isError()) {// @codeCoverageIgnore
                 throw new \Exception('Error jrpc nodeJs: ' . $rep->getError()->getMessage(), $rep->getError()->getCode());// @codeCoverageIgnore
             }
         } catch (\Exception $e) {
-            syslog(1, 'Request: ' . $request->toJson());
+            syslog(1, 'Request notification.publish : ' . json_encode($data));
             syslog(1, $e->getMessage());
         }
 

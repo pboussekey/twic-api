@@ -1,1 +1,1 @@
-{"method":"post.reactivate","id":1,"params":{"id":"3"}}
+{"method":"library.getSession","id":1,"params":{"id":1}}
