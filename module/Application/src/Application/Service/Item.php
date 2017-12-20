@@ -817,26 +817,20 @@ class Item extends AbstractService
      */
     public function register($id, $date)
     {
-        $authorization = $this->container->get('config')['node']['authorization'];
         $rep = false;
-        $request = new Request();
-        $request->setMethod('notification.register')
-            ->setParams(['date' => $date, 'uid' => 'item.starting.'.$id, 'data' => [ 'type' => 'item.starting', 'data' => ['id' => $id]]])
-            ->setId(++ self::$id)
-            ->setVersion('2.0');
-
-        $client = new Client();
-        $client->setOptions($this->container->get('config')['http-adapter']);
-        $client->setHeaders([ 'Authorization' => $authorization]);
-
-        $client = new \Zend\Json\Server\Client($this->container->get('config')['node']['addr'], $client);
         try {
-            $rep = $client->doRequest($request);
+            $data =   [ 
+                'date' => $date, 
+                'uid' => 'item.starting.'.$id, 
+                'data' => [ 'type' => 'item.starting', 
+                            'data' => ['id' => $id]]
+            ];
+            $rep = $this->getServiceEvent()->nodeRequest('notification.register', $data);
             if ($rep->isError()) {
                 throw new \Exception('Error jrpc nodeJs: ' . $rep->getError()->getMessage(), $rep->getError()->getCode());
             }
         } catch (\Exception $e) {
-            syslog(1, 'Request: ' . $request->toJson());
+            syslog(1, 'Request notification.register : ' . json_encode($data));
             syslog(1, $e->getMessage());
         }
 
@@ -850,26 +844,15 @@ class Item extends AbstractService
        */
     public function unregister($id)
     {
-        $authorization = $this->container->get('config')['node']['authorization'];
         $rep = false;
-        $request = new Request();
-        $request->setMethod('notification.unregister')
-            ->setParams(['uid' => 'item.starting.'.$id])
-            ->setId(++ self::$id)
-            ->setVersion('2.0');
-
-        $client = new Client();
-        $client->setOptions($this->container->get('config')['http-adapter']);
-        $client->setHeaders([ 'Authorization' => $authorization]);
-
-        $client = new \Zend\Json\Server\Client($this->container->get('config')['node']['addr'], $client);
-        try {
-            $rep = $client->doRequest($request);
+        try {  
+            $data =  ['uid' => 'item.starting.'.$id];
+            $rep = $this->getServiceEvent()->nodeRequest('notification.unregister', $data);
             if ($rep->isError()) {
                 throw new \Exception('Error jrpc nodeJs: ' . $rep->getError()->getMessage(), $rep->getError()->getCode());
             }
         } catch (\Exception $e) {
-            syslog(1, 'Request: ' . $request->toJson());
+            syslog(1, 'Request notification.unregister : ' . json_encode($data));
             syslog(1, $e->getMessage());
         }
 
@@ -955,6 +938,16 @@ class Item extends AbstractService
     private function getServicePage()
     {
         return $this->container->get('app_service_page');
+    }
+    
+    /**
+     * Get Service Event
+     *
+     * @return \Application\Service\Event
+     */
+    private function getServiceEvent()
+    {
+        return $this->container->get('app_service_event');
     }
 
     /**

@@ -159,25 +159,14 @@ class Message extends AbstractService
      */
     public function sendMessage($data)
     {
-        $authorization = $this->container->get('config')['node']['authorization'];
         $rep = false;
-        $request = new Request();
-        $request->setMethod('message.publish')
-            ->setParams($data)
-            ->setId(++ self::$id)
-            ->setVersion('2.0');
-
-        $client = new Client();
-        $client->setOptions($this->container->get('config')['http-adapter']);
-        $client->setHeaders([ 'Authorization' => $authorization]);
-        $client = new \Zend\Json\Server\Client($this->container->get('config')['node']['addr'], $client);
         try {
-            $rep = $client->doRequest($request);
+            $rep = $this->getServiceEvent()->nodeRequest('message.publish', $data);
             if ($rep->isError()) {
                 throw new \Exception('Error jrpc nodeJs: ' . $rep->getError()->getMessage(), $rep->getError()->getCode());
             }
         } catch (\Exception $e) {
-            syslog(1, 'Request: ' . $request->toJson());
+            syslog(1, 'Request message.publish : ' . json_encode($data));
             syslog(1, $e->getMessage());
         }
 
@@ -292,16 +281,6 @@ class Message extends AbstractService
     }
     
     /**
-     * Get Service Page
-     *
-     * @return \Application\Service\Page
-     */
-    private function getServicePage()
-    {
-        return $this->container->get('app_service_page');
-    }
-    
-    /**
      * Get Service ItemUser
      *
      * @return \Application\Service\ItemUser
@@ -350,4 +329,14 @@ class Message extends AbstractService
     {
         return $this->container->get('app_service_activity');
     } 
+    
+    /**
+     * Get Service Event
+     *
+     * @return \Application\Service\Event
+     */
+    private function getServiceEvent()
+    {
+        return $this->container->get('app_service_event');
+    }
 }

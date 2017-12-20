@@ -131,7 +131,7 @@ class VideoArchive extends AbstractService
                     'link' => $json['link']
                     ],
                     'create',
-                    $miid/*sub*/,
+                    [$miid]/*sub*/,
                     null/*parent*/,
                     null/*page*/,
                     null/*user*/,

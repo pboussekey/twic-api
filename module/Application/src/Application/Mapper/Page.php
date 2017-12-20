@@ -47,16 +47,6 @@ class Page extends AbstractMapper
         return $select;
     }
 
-    public function getListNoChannel()
-    {
-        $select = $this->tableGateway->getSql()->select();
-        $select->columns(['id', 'title'])
-            ->where(['page.conversation_id IS NULL'])
-            ->where(['type <> ? ' => 'organization']);
-
-        return $this->selectWith($select);
-    }
-
     public function getListId(
         $me,
         $parent_id = null,
@@ -243,6 +233,7 @@ class Page extends AbstractMapper
             ->where(['user.organization_id' => $id])
             ->group(['item.page_id', 'item_user.user_id'])
             ->order([new Expression('ROUND(SUM(item_user.rate) / SUM(item.points) * 100) DESC')]);
+        
         return $select;
     }
 
@@ -313,10 +304,11 @@ class Page extends AbstractMapper
             ->from(['g' => $grades_select])
             ->group('item_user$user_id');
         $select = $this->tableGateway->getSql()->select();
-        $select->columns(['id', 'page$average' => 't1.average'])
+        $select->columns(['id', 'page$average' => new Expression('t1.average')])
             ->join(['t1' => $sub_select], new Expression('1'), ['page$user_id' => 'user_id'])
             ->join(['r' => new Expression('(SELECT @rownum:=0)')], new Expression('1'), ['row_number' => new Expression('@rownum:=@rownum+1')])
             ->where(['page.id' => $id]);
+        
         return $this->selectWith($select);
     }
     

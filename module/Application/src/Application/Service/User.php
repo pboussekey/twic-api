@@ -196,48 +196,19 @@ class User extends AbstractService
         return $this->getCache()->removeItem('identity_' . $id);
     }
 
-    /**
-     * Get/Create Identity External in cache.
-     *
-     * @param  bool $init
-     * @return array
-     */
-    public function _getCacheIdentityExternal($init = false)
-    {
-        $user = [];
-        $identity = $this->getServiceAuth()->getIdentity();
-        if ($identity === null) {
-            return;
-        }
-        $id = $identity->getId();
-        
-        if ($init === false && $this->getCache()->hasItem('identity_' . $id)) {
-            $user = $this->getCache()->getItem('identity_' . $id);
-        } else {
-            $user = $identity->toArray();
-            $user['roles'] = [];
-            foreach ($this->getServiceRole()->getRoleByUser() as $role) {
-                $user['roles'][$role->getId()] = $role->getName();
-            }
-            $this->getCache()->setItem('identity_' . $id, $user);
-        }
-        
-        return $user;
-    }
-
+  
     /**
      * Get Identity.
      *
      * @invokable
      *
      * @param bool $init
-     * @param bool $external
      *
      * @return array
      */
-    public function getIdentity($init = false, $external = false)
+    public function getIdentity($init = false)
     {
-        return ($external) ? $this->_getCacheIdentityExternal($init) : $this->_getCacheIdentity($init);
+        return $this->_getCacheIdentity($init);
     }
 
     /**
@@ -328,6 +299,11 @@ class User extends AbstractService
             throw new JrpcException('Unauthorized operation user.add', -38003);
         }
         
+        return $this->_add($firstname, $lastname, $email, $gender, $origin, $nationality, $sis, $password, $birth_date, $position, $organization_id, $interest, $avatar, $roles, $timezone, $background, $nickname, $ambassador, $address);
+    }
+    
+    public function _add($firstname, $lastname, $email, $gender = null, $origin = null, $nationality = null, $sis = null, $password = null, $birth_date = null, $position = null, $organization_id = null, $interest = null, $avatar = null, $roles = null, $timezone = null, $background = null, $nickname = null, $ambassador = null, $address = null)
+    {
         $m_user = $this->getModel();
         
         if ($address !== null) {
@@ -957,7 +933,7 @@ class User extends AbstractService
             );
             $user_id = $m_registration->getUserId();
         } else {
-            $user_id = $this->add($m_registration->getFirstname(), $m_registration->getLastname(), $m_registration->getEmail(), null, null, null, null, $password, null, null, (is_numeric($m_registration->getOrganizationId()) ? $m_registration->getOrganizationId() : null));
+            $user_id = $this->_add($m_registration->getFirstname(), $m_registration->getLastname(), $m_registration->getEmail(), null, null, null, null, $password, null, null, (is_numeric($m_registration->getOrganizationId()) ? $m_registration->getOrganizationId() : null));
         }
         
         $m_user = $this->getLite($user_id);
@@ -996,7 +972,7 @@ class User extends AbstractService
         if (empty($linkedin_id) || ! is_string($linkedin_id)) {
             throw new \Exception('Error LinkedIn Id');
         }
-        $res_user = $this->getMapper()->select($this->getModel()->setIsActive(1)->setLinkedinId($linkedin_id));
+        $res_user = $this->getMapper()->select($this->getModel()->setDeletedDate(new IsNull())->setIsActive(1)->setLinkedinId($linkedin_id));
         
         if ($res_user->count() > 0) { // utilisateur existe on renvoie une session
             $m_user = $res_user->current();
@@ -1043,7 +1019,7 @@ class User extends AbstractService
                     $this->getMapper()->update($m_user->setLinkedinId($linkedin_id));
                     $user_id = $m_registration->getUserId();
                 } else {
-                    $user_id = $this->add($firstname, $lastname, $m_registration->getEmail(), null, null, null, null, null, null, null, (is_numeric($m_registration->getOrganizationId()) ? $m_registration->getOrganizationId() : null), $avatar);
+                    $user_id = $this->_add($firstname, $lastname, $m_registration->getEmail(), null, null, null, null, null, null, null, (is_numeric($m_registration->getOrganizationId()) ? $m_registration->getOrganizationId() : null), $avatar);
                     $this->getMapper()->update($this->getModel()->setLinkedinId($linkedin_id), ['id' => $user_id]);
                     
                     syslog(
@@ -1070,7 +1046,7 @@ class User extends AbstractService
                         'code' => $code,
                         'account_token' => $account_token,
                         'user_id' => $identity['id'],
-                        'type' => 'deja connecté'
+                        'type' => 'Already connected'
                         ]
                     )
                 );
@@ -1125,16 +1101,6 @@ class User extends AbstractService
     private function getServiceLinkedIn()
     {
         return $this->container->get('linkedin.service');
-    }
-
-    /**
-     * Get Service Post
-     *
-     * @return \Application\Service\Post
-     */
-    private function getServicePost()
-    {
-        return $this->container->get('app_service_post');
     }
 
     /**

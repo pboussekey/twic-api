@@ -130,7 +130,7 @@ class Post extends AbstractService
         }
 
         if ($this->getMapper()->insert($m_post) <= 0) {
-            throw new \Exception('error add post');
+            throw new \Exception('error add post');// @codeCoverageIgnore
         }
         $id = $this->getMapper()->getLastInsertValue();
 
@@ -607,16 +607,17 @@ class Post extends AbstractService
                     'someone' => $m_me->getFirstname(),
                     ]
                 );
-                
-                $gcm_notification = new GcmNotification();
-                $gcm_notification->setTitle($m_page->getTitle())
-                    ->setSound("default")
-                    ->setColor("#00A38B")
-                    ->setIcon("icon")
-                    ->setTag("PAGECOMMENT".$t_page_id)
-                    ->setBody("Someone liked your post");
-                
-                $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification);
+                if($m_page !== false){
+                    $gcm_notification = new GcmNotification();
+                    $gcm_notification->setTitle($m_page->getTitle())
+                        ->setSound("default")
+                        ->setColor("#00A38B")
+                        ->setIcon("icon")
+                        ->setTag("PAGECOMMENT".$m_page->getId())
+                        ->setBody("Someone liked your post");
+
+                    $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification);
+                }
             }
             catch (\Exception $e) {
                 syslog(1, 'Model name does not exist <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode());
@@ -752,9 +753,6 @@ class Post extends AbstractService
      */
     public function addSys($uid, $content, $data, $event, $sub = null, $parent_id = null, $t_page_id = null, $t_user_id = null, $type = null)
     {
-        if ($sub !== null && !is_array($sub)) {
-            $sub = [$sub];
-        }
         $res_post = $this->getMapper()->select($this->getModel()->setUid($uid));
 
         return ($res_post->count() > 0) ?
@@ -793,11 +791,7 @@ class Post extends AbstractService
      */
     public function updateSys($uid, $content, $data, $event, $sub = null)
     {
-        if ($sub !== null && !is_array($sub)) {
-            $sub = [$sub];
-        }
-
-        return $this->_update(null, $content, null, null, null, null, null, null, null, null, $data, $event, $uid, $sub);
+       return $this->_update(null, $content, null, null, null, null, null, null, null, null, $data, $event, $uid, $sub);
     }
 
     /**
@@ -943,16 +937,6 @@ class Post extends AbstractService
     private function getServiceSubscription()
     {
         return $this->container->get('app_service_subscription');
-    }
-    
-    /**
-     * Get Service Page User
-     *
-     * @return \Application\Service\PageUser
-     */
-    private function getServicePageUser()
-    {
-        return $this->container->get('app_service_page_user');
     }
     
     /**

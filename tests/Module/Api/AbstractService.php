@@ -2,11 +2,14 @@
 
 namespace ModuleTest\Api;
 
+use Application\Model\Role as ModelRole;
+use DateTime;
+use DateTimeZone;
+use JrpcMock\Json\Server\Server;
+use LinkedIn\Model\People;
 use Zend\Json\Json;
 use Zend\Test\PHPUnit\Controller\AbstractHttpControllerTestCase;
-use Zend\Http\PhpEnvironment\Request;
-use Application\Model\Role as ModelRole;
-use JrpcMock\Json\Server\Server;
+use function GuzzleHttp\json_encode;
 
 abstract class AbstractService extends AbstractHttpControllerTestCase
 {
@@ -103,8 +106,8 @@ abstract class AbstractService extends AbstractHttpControllerTestCase
     // /////////////////////////////////////////////////////////////////////////////
     public function validateDate($date, $format = 'Y-m-d H:i:s')
     {
-        $d1 = \DateTime::createFromFormat('Y-m-d\TH:i:s\Z', $date, new \DateTimeZone('UTC'));
-        $d2 = \DateTime::createFromFormat('Y-m-d H:i:s', $date, new \DateTimeZone('UTC'));
+        $d1 = DateTime::createFromFormat('Y-m-d\TH:i:s\Z', $date, new DateTimeZone('UTC'));
+        $d2 = DateTime::createFromFormat('Y-m-d H:i:s', $date, new DateTimeZone('UTC'));
 
         $d = ($d1 != false) ? $d1 : (($d2 != false) ? $d2 : false);
 
@@ -226,6 +229,9 @@ abstract class AbstractService extends AbstractHttpControllerTestCase
             ->method('getIdentity')
             ->will($this->returnValue($user));
 
+        
+   
+        
         $serviceManager->get('app_service_user')->getCache()->setItem('identity_'.$id, $user);
         
         $identityMock->expects($this->any())
@@ -258,8 +264,7 @@ abstract class AbstractService extends AbstractHttpControllerTestCase
             ->will($this->returnValue(true));
         
         
-       
-
+       $this->mockMail();
         $serviceManager->setService('auth.service', $authMock);
         $serviceManager->setService('rbac.service', $rbacMock);
     }
@@ -277,5 +282,72 @@ abstract class AbstractService extends AbstractHttpControllerTestCase
         $serviceManager = $this->getApplicationServiceLocator();
         $serviceManager->setAllowOverride(true);
         $serviceManager->setService('rbac.service', $rbacMock);
+    }
+    
+    public function mockLinkedin(){
+        
+        $serviceManager = $this->getApplicationServiceLocator();
+        $serviceManager->setAllowOverride(true);
+        
+        $linkedinMock = $this->getMockBuilder('\LinkedIn\Service')
+            ->setMethods(['init','people'])
+            ->getMock();
+        
+        $linkedinMock->expects($this->any())
+            ->method('init')
+            ->will(
+                $this->returnArgument(1)
+            );
+        
+        
+        $m_people = new People();
+        $m_people->setId('ID')
+                ->setFirstname('Paul')
+                ->setLastname('BOUSSEKEY')
+                ->setPictureUrls(['values' => ['https://avatar.url']]);
+        $linkedinMock->expects($this->any())
+            ->method('people')
+            ->will($this->returnValue($m_people));
+        $serviceManager->setService('linkedin.service', $linkedinMock);
+    }
+    
+    public function mockLibrary(){
+        
+        $serviceManager = $this->getApplicationServiceLocator();
+        $serviceManager->setAllowOverride(true);
+        
+        $libraryMock = $this->getMockBuilder('\Application\Service\Library')
+            ->setMethods(['upload'])
+            ->getMock();
+        
+        $libraryMock->expects($this->any())
+            ->method('upload')
+            ->will(
+                $this->returnValue('token')
+            );
+        
+        
+      
+        $serviceManager->setService('app_service_library', $libraryMock);
+    }
+    
+    public function mockMail(){
+        
+        $serviceManager = $this->getApplicationServiceLocator();
+        $serviceManager->setAllowOverride(true);
+        
+        $mailMock = $this->getMockBuilder('\Mail\Service\Mail')
+            ->setMethods(['sendTpl'])
+            ->getMock();
+        
+        $mailMock->expects($this->any())
+            ->method('sendTpl')
+            ->will(
+                $this->returnValue('1')
+            );
+        
+        
+      
+        $serviceManager->setService('mail.service', $mailMock);
     }
 }

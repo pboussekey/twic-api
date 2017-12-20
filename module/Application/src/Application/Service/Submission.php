@@ -131,26 +131,14 @@ class Submission extends AbstractService
      */
     public function sendSubmissionChanged($data)
     {
-        $authorization = $this->container->get('config')['node']['authorization'];
         $rep = false;
-        $request = new Request();
-        $request->setMethod('submission.changed')
-            ->setParams($data)
-            ->setId(++ self::$id)
-            ->setVersion('2.0');
-        
-        $client = new Client();
-        $client->setOptions($this->container->get('config')['http-adapter']);
-        $client->setHeaders([ 'Authorization' => $authorization]);
-        
-        $client = new \Zend\Json\Server\Client($this->container->get('config')['node']['addr'], $client);
         try {
-            $rep = $client->doRequest($request);
+            $rep = $this->getServiceEvent()->nodeRequest('submission.changed', $data);
             if ($rep->isError()) {
                 throw new \Exception('Error jrpc nodeJs: ' . $rep->getError()->getMessage(), $rep->getError()->getCode());
             }
         } catch (\Exception $e) {
-            syslog(1, 'Request: ' . $request->toJson());
+            syslog(1, 'Request submission.changed: ' . json_encode($data));
             syslog(1, $e->getMessage());
         }
         syslog(1, json_encode($rep));
@@ -323,5 +311,15 @@ class Submission extends AbstractService
     private function getServicePost()
     {
         return $this->container->get('app_service_post');
+    }
+
+    /**
+     * Get Service Event
+     *
+     * @return \Application\Service\Event
+     */
+    private function getServiceEvent()
+    {
+        return $this->container->get('app_service_event');
     }
 }
