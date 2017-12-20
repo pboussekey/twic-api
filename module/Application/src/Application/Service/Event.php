@@ -25,9 +25,9 @@ class Event extends AbstractService
     const TARGET_TYPE_USER = 'user';
     const TARGET_TYPE_GLOBAL = 'global';
     const TARGET_TYPE_SCHOOL = 'school';
-    
+
     public function getNodeClient(){
-        
+
         $authorization = $this->container->get('config')['node']['authorization'];
         $client = new Client();
         $client->setOptions($this->container->get('config')['http-adapter']);
@@ -35,16 +35,16 @@ class Event extends AbstractService
 
         return new \Zend\Json\Server\Client($this->container->get('config')['node']['addr'], $client);
     }
-    
-    
+
+
     public function nodeRequest($method, $params = null){
-        
+
         $request = new Request();
         $request->setMethod($method)
             ->setParams($params)
             ->setId(++ self::$id)
             ->setVersion('2.0');
-        
+
         return $this->getNodeClient()->doRequest($request);
     }
     /**
@@ -157,7 +157,7 @@ class Event extends AbstractService
         return $client;
     }
 
- 
+
     // /////////////// EVENT //////////////////////
 
     /**
