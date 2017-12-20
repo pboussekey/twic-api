@@ -48,7 +48,9 @@ class Message extends BaseMessage
         $this->setFrom($tpl_model->getFrom(), $tpl_model->getFromName());
         $this->setBody($mimemessage);
         $this->setEncoding('UTF-8');
-        $this->getHeaders()->get('content-type')->setType(Mime::MULTIPART_ALTERNATIVE);
+        if($this->body->isMultiPart()){
+            $this->getHeaders()->get('content-type')->setType(Mime::MULTIPART_ALTERNATIVE);
+        }
 
         $this->has_template = true;
 

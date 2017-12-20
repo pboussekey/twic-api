@@ -1,1 +1,1 @@
-{"method":"post.reactivate","id":1,"params":{"id":"7"}}
+{"method":"mail.addTpl","id":1,"params":{"name":"tpl_test","from":"test@thestudnet.com","from_name":"test","subject":"test","text":"test","content":"test","files":[{"name":"filename","type":"text","is_encoding":1,"encoding":"encoding","content":"content"}]}}
