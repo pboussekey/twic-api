@@ -111,7 +111,8 @@ class ActivityTest extends AbstractService
         $data = $this->jsonRpc(
             'activity.getList', array(
             'start_date' => '2015-04-01T00:00:00Z',
-            'end_date' => '2015-05-01T00:00:00Z'
+            'end_date' => '2015-05-01T00:00:00Z',
+            'organization_id' => 1
             )
         );
         $this->assertEquals(count($data), 3);

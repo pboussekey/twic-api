@@ -32,23 +32,12 @@ class User extends AbstractService
         $auth = $this->getServiceAuth();
         $auth->getAdapter()->setLinkedinId($linkedin_id);
         
+        $code = - 32000;
         $result = $auth->authenticate();
         if (! $result->isValid()) {
             switch ($result->getCode()) {
-            case - 3:
-                $code = - 32030;
-                break;
             case - 5:
                 $code = - 32031;
-                break;
-            case - 6:
-                $code = - 32032;
-                break;
-            case - 7:
-                $code = - 32033;
-                break;
-            default:
-                $code = - 32000;
                 break;
             }
             
@@ -82,12 +71,10 @@ class User extends AbstractService
         $auth->getAdapter()->setIdentity(trim($user));
         $auth->getAdapter()->setCredential(trim($password));
         
+        $code = - 32000;
         $result = $auth->authenticate();
         if (! $result->isValid()) {
             switch ($result->getCode()) {
-            case - 3:
-                $code = - 32030;
-                break;
             case - 5:
                 $code = - 32031;
                 break;
@@ -96,9 +83,6 @@ class User extends AbstractService
                 break;
             case - 7:
                 $code = - 32033;
-                break;
-            default:
-                $code = - 32000;
                 break;
             }
             
@@ -238,8 +222,6 @@ class User extends AbstractService
      */
     public function suspend($id, $suspend, $reason = null)
     {
-        
-        
         if(!$this->isStudnetAdmin() ) {
             
             throw new JrpcException('Unauthorized operation user.suspend', -38003);
