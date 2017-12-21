@@ -13,7 +13,6 @@ class Item extends AbstractMapper
         $select->columns(['id', 'parent_id', 'page_id'])
             ->join('page_user', 'page_user.page_id=item.page_id', [])
             ->join('item_user', new \Zend\Db\Sql\Predicate\Expression('item_user.item_id=item.id AND item_user.deleted_date IS NULL'), [], $select::JOIN_LEFT)
-            ->where(['page_user.user_id' => $me])
             ->where(['item.page_id' => $page_id])
             ->order('item.page_id ASC')
             ->order('item.order ASC')
@@ -27,7 +26,8 @@ class Item extends AbstractMapper
 
         if ($is_admin_page !== true) {
             $select->where(['item.is_published IS TRUE']);
-            $select->where(["( item.participants = 'all' || item_user.user_id = ? )" => $me]);
+	    $select->where(["( item.participants = 'all' || item_user.user_id = ? )" => $me]);
+	    $select->where(['page_user.user_id' => $me]);
         }elseif ($is_admin_page === true && $is_publish === true) {
             $select->where(['item.is_published IS TRUE']);
         }
