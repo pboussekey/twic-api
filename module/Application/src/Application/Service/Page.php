@@ -636,9 +636,9 @@ class Page extends AbstractService
        * @param  int $id
        * @return array
        */
-    public function getListSuscribersId($id, $filter)
+    public function getListSuscribersId($id, $filter = null)
     {
-        return $this->getServiceSubscription()->getListUserId('PP'.$id, $filter);;
+        return $this->getServiceSubscription()->getListUserId('PP'.$id, $filter);
     }
 
     
@@ -987,16 +987,6 @@ class Page extends AbstractService
     private function getServiceConversation()
     {
         return $this->container->get('app_service_conversation');
-    }
-
-    /**
-     * Get Service Conversation User
-     *
-     * @return \Application\Service\ConversationUser
-     */
-    private function getServiceConversationUser()
-    {
-        return $this->container->get('app_service_conversation_user');
     }
 
     /**

@@ -326,7 +326,7 @@ class Page extends AbstractMapper
             ->from(['g' => $grades_select])
             ->where(['item_user$user_id ' => $user_id ]);
         $select = $this->tableGateway->getSql()->select();
-        $select->columns([ 'page$id' => 't1.page_id', 'page$average' => 't1.average'])
+        $select->columns([ 'page$id' => new Expression('t1.page_id'), 'page$average' => new Expression('t1.average')])
             ->join(['t1' => $sub_select], new Expression('1'), [])
             ->join(['r' => new Expression('(SELECT @rownum:=0)')], new Expression('1'), ['row_number' => new Expression('@rownum:=@rownum+1')])
             ->where(['page.id' => $id]);
