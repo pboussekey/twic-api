@@ -1120,22 +1120,7 @@ class PageTest extends AbstractService
 
         $this->assertEquals(count($data), 3);
         $this->assertEquals($data['id'], 1);
-        $this->assertEquals($data['result'], true);
-        $this->assertEquals($data['jsonrpc'], 2.0);
-    }
-    
-    
-    /**
-     * @depends testPageAdd
-     */
-    public function testPageDelete2($id)
-    {
-        $this->setIdentity(1);
-        $data = $this->jsonRpc('page.delete', ['id' => $id]);
-
-        $this->assertEquals(count($data), 3);
-        $this->assertEquals($data['id'], 1);
-        $this->assertEquals($data['result'], false);
+        $this->assertEquals($data['result'], 1);
         $this->assertEquals($data['jsonrpc'], 2.0);
     }
     
