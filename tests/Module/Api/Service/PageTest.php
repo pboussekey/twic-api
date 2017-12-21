@@ -666,6 +666,29 @@ class PageTest extends AbstractService
      */
     public function testPageUpdate3($page_id)
     {
+     
+        $this->setIdentity(1);
+        $data = $this->jsonRpc(
+            'page.update', [
+            'id' => $page_id,
+            'is_published' => true
+            
+            ]
+        );
+    
+        $this->assertEquals(count($data), 3);
+        $this->assertEquals($data['id'], 1);
+        $this->assertEquals($data['result'], 1);
+        $this->assertEquals($data['jsonrpc'], 2.0);
+    }
+    
+    
+     /**
+     * @depends testPageAdd3
+     * @depends testPageAddParent
+     */
+    public function testPageUpdate4($page_id)
+    {
         $this->setIdentity(1,1);
         $this->jsonRpc(
             'post.add', [
@@ -679,7 +702,6 @@ class PageTest extends AbstractService
         $data = $this->jsonRpc(
             'page.update', [
             'id' => $page_id,
-            'is_published' => true,    
             'address' => 0,
              'users' => [
                 ['user_id' => 1,'role' => 'admin', 'state' => 'member'],

@@ -431,14 +431,14 @@ class Page extends AbstractService
                 }
             }
         }
-
+        $tmp_m_page = $this->getLite($id);
         if (null !== $users) {
             $is_present = false;
             foreach ($users as &$ar_u) {
                 if(isset($ar_u['user_email'])) {
                     $ar_u['user_id'] = $this->getServiceUser()->add(null, null, $ar_u['user_email'], null, null, null, null, null, null, null, $id);
                 }
-                if ($ar_u['user_id'] === $m_page->getOwnerId()) {
+                if ($ar_u['user_id'] === $tmp_m_page->getOwnerId()) {
                     $is_present = true;
                     $ar_u['role'] = ModelPageUser::ROLE_ADMIN;
                     $ar_u['state'] = ModelPageUser::STATE_MEMBER;
@@ -461,7 +461,6 @@ class Page extends AbstractService
             $this->getServicePageDoc()->replace($id, $docs);
         }
 
-        $tmp_m_page = $this->getMapper()->select($this->getModel()->setId($id))->current();
         if ($is_published === true) {
             $res_post = $this->getServicePost()->getListId(null, null, $id, null, true);
             foreach ($res_post as $m_post) {
