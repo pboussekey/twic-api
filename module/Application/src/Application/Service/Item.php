@@ -383,7 +383,7 @@ class Item extends AbstractService
                 ->current()
                 ->getPageId();
             $ar_pu = $this->getServicePageUser()->getListByPage($page_id, 'admin');
-            $is_admin = (in_array($identity['id'], $ar_pu[$page_id]));
+            $is_admin = (in_array($identity['id'], $ar_pu[$page_id])  || (in_array(ModelRole::ROLE_ADMIN_STR, $identity['roles'])));
             $res_item = $this->getMapper()->getListSubmission($i, ! $is_admin ? $identity['id'] : null);
             switch ($paticipants) {
             case 'all':
