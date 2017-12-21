@@ -38,19 +38,22 @@ abstract class AbstractApi
         $this->http_client->getRequest()->getHeaders()->addHeaderLine('Authorization', sprintf('Bearer %s', $this->access_token));
     }
     
-    public function setMethode($methode)
+    public function setMethod($method)
     {
-        $this->http_client->setMethod($methode);
+        $this->http_client->setMethod($method);
+        return $this;
     }
 
     public function setPath($path)
     {
         $this->http_client->getUri()->setPath($this->path.$path);
+        return $this;
     }
 
     public function setParams($params)
     {
         $this->http_client->getRequest()->setContent(json_encode($params));
+        return $this;
     }
 
     public function setPost($post)
@@ -58,6 +61,7 @@ abstract class AbstractApi
         foreach ($post as $k => $v) {
             $this->http_client->getRequest()->getPost()->set($k, $v);
         }
+        return $this;
     }
     
     public function send()
@@ -80,6 +84,8 @@ abstract class AbstractApi
     public function printRequest()
     {
         echo $this->http_client->getRequest()->toString();
+        
+        return  $this->http_client->getRequest()->toString();
     }
     
     private function handleException(Response $resp)

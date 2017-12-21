@@ -283,7 +283,7 @@ abstract class AbstractService extends AbstractHttpControllerTestCase
         $serviceManager->setAllowOverride(true);
         $serviceManager->setService('rbac.service', $rbacMock);
     }
-    
+        
     public function mockLinkedin(){
         
         $serviceManager = $this->getApplicationServiceLocator();
