@@ -75,6 +75,7 @@ class Post extends AbstractMapper
             $select->where(['post.t_page_id' => $page_id]);
         }
 
+        echo $this->printSql($select);
         return $this->selectWith($select);
     }
 

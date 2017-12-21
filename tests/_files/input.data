@@ -1,1 +1,1 @@
-{"method":"page.reactivate","id":1,"params":{"id":1}}
+{"method":"item.delete","id":1,"params":{"id":5}}

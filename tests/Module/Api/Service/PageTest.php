@@ -610,6 +610,7 @@ class PageTest extends AbstractService
                 ['user_id' => 1,'role' => 'user', 'state' => 'member'],
                 ['user_id' => 2,'role' => 'admin', 'state' => 'member'],
                 ['user_id' => 8,'role' => 'user', 'state' => 'pending'],
+                ['user_email' => 'newaccount@test.com','role' => 'user', 'state' => 'pending']
             ],
             'tags' => [
                 'toto', 'tata', 'tutu', 'toutou'
@@ -659,39 +660,20 @@ class PageTest extends AbstractService
         $this->assertEquals($data['jsonrpc'], 2.0);
     }
     
+   
+    
+    
      /**
      * @depends testPageAdd3
      * @depends testPageAddParent
      */
     public function testPageUpdate3($page_id)
     {
-     
-        $this->setIdentity(1);
-        $data = $this->jsonRpc(
-            'page.update', [
-            'id' => $page_id,
-            'is_published' => true
-            
-            ]
-        );
-    
-        $this->assertEquals(count($data), 3);
-        $this->assertEquals($data['id'], 1);
-        $this->assertEquals($data['result'], 1);
-        $this->assertEquals($data['jsonrpc'], 2.0);
-    }
-    
-    
-     /**
-     * @depends testPageAdd3
-     * @depends testPageAddParent
-     */
-    public function testPageUpdate4($page_id)
-    {
         $this->setIdentity(1,1);
         $this->jsonRpc(
             'post.add', [
-            'page_id' => $page_id  
+            't_page_id' => $page_id,
+            'item_id' => 1
             
             ]
         );
@@ -947,7 +929,7 @@ class PageTest extends AbstractService
 
         $this->assertEquals(count($data), 3);
         $this->assertEquals($data['id'], 1);
-        $this->assertEquals($data['result'], 1);
+        $this->assertEquals($data['result'], 2);
         $this->assertEquals($data['jsonrpc'], 2.0);
     }
 
@@ -1059,11 +1041,12 @@ class PageTest extends AbstractService
         $this->assertEquals(count($data) , 3); 
         $this->assertEquals($data['id'] , 1); 
         $this->assertEquals(count($data['result']) , 1); 
-        $this->assertEquals(count($data['result'][1]) , 4); 
+        $this->assertEquals(count($data['result'][1]) , 5); 
         $this->assertEquals($data['result'][1][0] , 1); 
         $this->assertEquals($data['result'][1][1] , 2); 
         $this->assertEquals($data['result'][1][2] , 4); 
         $this->assertEquals($data['result'][1][3] , 8); 
+        $this->assertEquals($data['result'][1][4] , 9); 
         $this->assertEquals($data['jsonrpc'] , 2.0); 
 
     }

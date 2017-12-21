@@ -443,7 +443,6 @@ class Page extends AbstractService
                     $ar_u['role'] = ModelPageUser::ROLE_ADMIN;
                     $ar_u['state'] = ModelPageUser::STATE_MEMBER;
 
-                    break;
                 }
             }
             $this->getServicePageUser()->replace($id, $users);
