@@ -609,7 +609,7 @@ class PageTest extends AbstractService
             'users' => [
                 ['user_id' => 1,'role' => 'user', 'state' => 'member'],
                 ['user_id' => 2,'role' => 'admin', 'state' => 'member'],
-                ['user_email' => 'user@thestudnet.com','role' => 'user', 'state' => 'pending'],
+                ['user_id' => 8,'role' => 'user', 'state' => 'pending'],
             ],
             'tags' => [
                 'toto', 'tata', 'tutu', 'toutou'
@@ -631,7 +631,6 @@ class PageTest extends AbstractService
             'custom' => '{obj}',
             ]
         );
-    
         $this->assertEquals(count($data), 3);
         $this->assertEquals($data['id'], 1);
         $this->assertEquals($data['result'], 1);
@@ -702,6 +701,7 @@ class PageTest extends AbstractService
         $data = $this->jsonRpc(
             'page.update', [
             'id' => $page_id,
+            'title' => 'updated title',
             'address' => 0,
              'users' => [
                 ['user_id' => 1,'role' => 'admin', 'state' => 'member'],
@@ -1056,15 +1056,16 @@ class PageTest extends AbstractService
             ]
         );
 
-        $this->assertEquals(count($data), 3);
-        $this->assertEquals($data['id'], 1);
-        $this->assertEquals(count($data['result']), 1);
-        $this->assertEquals(count($data['result'][1]), 4);
-        $this->assertEquals($data['result'][1][0], 1);
-        $this->assertEquals($data['result'][1][1], 2);
-        $this->assertEquals($data['result'][1][2], 4);
-        $this->assertEquals($data['result'][1][3], 9);
-        $this->assertEquals($data['jsonrpc'], 2.0);
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals(count($data['result']) , 1); 
+        $this->assertEquals(count($data['result'][1]) , 4); 
+        $this->assertEquals($data['result'][1][0] , 1); 
+        $this->assertEquals($data['result'][1][1] , 2); 
+        $this->assertEquals($data['result'][1][2] , 4); 
+        $this->assertEquals($data['result'][1][3] , 8); 
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
+
     }
     
     
