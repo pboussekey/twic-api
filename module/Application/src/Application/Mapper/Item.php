@@ -105,7 +105,7 @@ class Item extends AbstractMapper
         return $this->selectWith($select);
     }
 
-    public function get($id, $me)
+    public function get($id, $me, $is_admin = false)
     {
         $select = $this->tableGateway->getSql()->select();
         $select->columns(
@@ -136,10 +136,12 @@ class Item extends AbstractMapper
         )
             ->join('page_user', 'page_user.page_id=item.page_id', [])
             ->join('post', 'item.id=post.item_id', [], $select::JOIN_LEFT)
-            ->join('quiz', 'item.id=quiz.item_id', [], $select::JOIN_LEFT)
-            ->where(['page_user.user_id' => $me])
+	    ->join('quiz', 'item.id=quiz.item_id', [], $select::JOIN_LEFT)
             ->where(['item.id' => $id]);
 
+	if(!$is_admin) {
+	    $select->where(['page_user.user_id' => $me]);
+	}
         return $this->selectWith($select);
     }
 

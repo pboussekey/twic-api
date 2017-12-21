@@ -475,8 +475,9 @@ class Item extends AbstractService
      */
     public function get($id)
     {
-        $identity = $this->getServiceUser()->getIdentity();
-        $res_item = $this->getMapper()->get($id, $identity['id']);
+	$identity = $this->getServiceUser()->getIdentity();
+        $is_admin = (in_array(ModelRole::ROLE_ADMIN_STR, $identity['roles']));
+        $res_item = $this->getMapper()->get($id, $identity['id'], $is_admin);
 
         return (is_array($id)) ? $res_item->toArray(
             [
