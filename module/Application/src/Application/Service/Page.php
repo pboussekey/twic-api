@@ -547,7 +547,7 @@ class Page extends AbstractService
         }
         $m_page = $this->getModel()->setId($id)
             ->setDeletedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'));
-        if ($this->getMapper()->update($m_page)) {
+        if ($this->getMapper()->update($m_page) > 0) {
             foreach ($id as $i) {
                 $this->getServicePost()->hardDelete('PP'.$i);
                 $m_tmp_page = $this->getLite($i);

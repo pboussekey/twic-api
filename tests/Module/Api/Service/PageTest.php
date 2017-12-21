@@ -1120,7 +1120,7 @@ class PageTest extends AbstractService
 
         $this->assertEquals(count($data), 3);
         $this->assertEquals($data['id'], 1);
-        $this->assertEquals($data['result'], 1);
+        $this->assertEquals($data['result'], true);
         $this->assertEquals($data['jsonrpc'], 2.0);
     }
     
@@ -1135,7 +1135,7 @@ class PageTest extends AbstractService
 
         $this->assertEquals(count($data), 3);
         $this->assertEquals($data['id'], 1);
-        $this->assertEquals($data['result'], 0);
+        $this->assertEquals($data['result'], false);
         $this->assertEquals($data['jsonrpc'], 2.0);
     }
     
