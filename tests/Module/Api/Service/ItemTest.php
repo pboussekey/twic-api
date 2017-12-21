@@ -228,7 +228,8 @@ class ItemTest extends AbstractService
         $data = $this->jsonRpc(
             'page.update', [
             'id' => 2,
-            'title' => 'updated title'
+            'title' => 'updated title',
+            'is_published' => true
             
             ]
         );

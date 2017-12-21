@@ -1,1 +1,1 @@
-{"method":"item.delete","id":1,"params":{"id":5}}
+{"method":"mail.getListTpl","id":1,"params":[]}

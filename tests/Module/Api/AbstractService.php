@@ -335,21 +335,39 @@ abstract class AbstractService extends AbstractHttpControllerTestCase
     
     public function mockMail(){
         $mailMock = new \Mail\Service\Mail();
-        $storageMock = $this->getMockBuilder('\Mail\Template\Storage\AbstractStorage')
+        /*$storageMock = $this->getMockBuilder('\Mail\Template\Storage\AbstractStorage')
                 ->setMethods(['write','read','exist','getList','init'])->getMock();
         $storageMock->expects($this->any())
             ->method('write')
             ->will($this->returnValue(1));  
         
-        $m_tplModel = new \Mail\Template\Model\TplModel();
-        $m_tplModel->setSubject('subject')->setFrom('from@test.com')->setFromName('fromName');
         
         $storageMock->expects($this->any())
             ->method('read')
             ->will($this->returnValue($m_tplModel));  
         $storageMock->expects($this->any())
             ->method('exist')
-            ->will($this->returnValue(true)); 
+            ->will($this->returnValue(true)); */
+        $cache = [];
+        $cacheMock = $this->getMockBuilder('\Zend\Cache\Storage\StorageInterface')
+                ->getMock();
+        $cacheMock->expects($this->any())
+            ->method('hasItem')
+            ->willReturnCallback(function($key){ return isset($cache[$key]);}); 
+        $cacheMock->expects($this->any())
+            ->method('replaceItem')
+            ->willReturnCallback(function($key){ $cache[$key] = true;}); 
+        $s3Mock = $this->getMockBuilder('\Aws\S3\S3Client')
+                ->setMethods(["registerStreamWrapper"])
+                ->disableOriginalConstructor()
+                ->getMock();
+        $storageMock = new \Mail\Template\Storage\FsS3Storage();
+        $storageMock->setClient($s3Mock);
+        $storageMock->setCache($cacheMock);
+        $storageMock->init(['bucket' => 'testbucket']);
+        $storageMock->setPath("./tmp/");
+        $m_tplModel = new \Mail\Template\Model\TplModel();
+        $m_tplModel->setSubject('subject')->setFrom('from@test.com')->setFromName('fromName');
         $mailMock->setTplStorage($storageMock);
         $mailMock->setOptions(['storage' => [
              'active' => false,

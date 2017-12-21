@@ -9,6 +9,7 @@ class FsS3Storage extends AbstractStorage
     protected $path;
     protected $init_path = false;
     protected $cache_tpl = [];
+    protected $client;
 
 
     /**
@@ -28,7 +29,7 @@ class FsS3Storage extends AbstractStorage
 
         if ($this->cache && $this->cache->hasItem('tpl_mail_'.$model->getName())) {
             $this->cache->replaceItem('tpl_mail_'.$model->getName(), $model);
-        } else {
+        } else if($this->cache){
             $this->cache->setItem('tpl_mail_'.$model->getName(), $model);
         }
 
@@ -86,15 +87,37 @@ class FsS3Storage extends AbstractStorage
     public function init($config = [])
     {
         if ($this->init_path === false) {
-            $s3Client = new S3Client($config['options']);
-            $s3Client->registerStreamWrapper();
-            $init_path = true;
+            if(!$this->client){
+                $this->client = new S3Client($config); //@codeCoverageIgnore
+            }
+            $this->client->registerStreamWrapper();
+            $this->init_path = true;
         }
 
         $this->path = sprintf('s3://%s/', $config['bucket']);
 
         return $this;
     }
+    
+     /**
+     * 
+     * @param S3Client $client
+     */
+    public function setClient($client){
+        $this->client = $client;
+        return $this;
+    }
+    
+     /**
+     * 
+     * @param string $path
+     */
+    public function setPath($path){
+        $this->path = $path;
+        return $this;
+    }
+   
+    
 
     /**
      * Set Cache
