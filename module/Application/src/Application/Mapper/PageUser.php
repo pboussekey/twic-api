@@ -61,6 +61,7 @@ class PageUser extends AbstractMapper
                 ->where(['(pu.role = "admin" OR user.is_active = 1)'])
                 ->where(['( page.is_published IS TRUE OR page.type <> "course" OR ( pu.role = "admin" AND pu.user_id = ? ) )' => $me]);
         }
+        
         return $this->selectWith($select);
     }
 }

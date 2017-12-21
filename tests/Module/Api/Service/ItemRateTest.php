@@ -766,6 +766,51 @@ class ItemRateTest extends AbstractService
 
     }
     
+     public function testgetUserGrade()
+    {
+        
+      
+        $this->reset();
+        $this->setIdentity(1);
+        $data = $this->jsonRpc(
+            'page.getUserGrades', [
+            'id' => 1,
+            'user_id' => 1
+            ]
+        );
+        
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals(count($data['result']) , 1); 
+        $this->assertEquals(count($data['result'][1]) , 1); 
+        $this->assertEquals(count($data['result'][1][0]) , 2); 
+        $this->assertEquals($data['result'][1][0]['average'] , 100); 
+        $this->assertEquals($data['result'][1][0]['id'] , 2); 
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
+
+
+
+    }
+    
+      public function testGetGrades()
+    {
+        $this->setIdentity(1);
+        $data = $this->jsonRpc(
+            'page.getGrades', [
+            'id' => 1
+            ]
+        );
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals(count($data['result']) , 1); 
+        $this->assertEquals(count($data['result'][1]) , 3); 
+        $this->assertEquals($data['result'][1]['id'] , 1); 
+        $this->assertEquals($data['result'][1]['median'] , 100); 
+        $this->assertEquals($data['result'][1]['average'] , 97); 
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
+
+    }
+    
     public function testgetUserGrades()
     {
         $this->setIdentity(1);

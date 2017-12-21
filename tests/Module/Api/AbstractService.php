@@ -331,23 +331,47 @@ abstract class AbstractService extends AbstractHttpControllerTestCase
         $serviceManager->setService('app_service_library', $libraryMock);
     }
     
+   
+    
     public function mockMail(){
+        $mailMock = new \Mail\Service\Mail();
+        $storageMock = $this->getMockBuilder('\Mail\Template\Storage\AbstractStorage')
+                ->setMethods(['write','read','exist','getList','init'])->getMock();
+        $storageMock->expects($this->any())
+            ->method('write')
+            ->will($this->returnValue(1));  
         
+        $m_tplModel = new \Mail\Template\Model\TplModel();
+        $m_tplModel->setSubject('subject')->setFrom('from@test.com')->setFromName('fromName');
+        
+        $storageMock->expects($this->any())
+            ->method('read')
+            ->will($this->returnValue($m_tplModel));  
+        $storageMock->expects($this->any())
+            ->method('exist')
+            ->will($this->returnValue(true)); 
+        $mailMock->setTplStorage($storageMock);
+        $mailMock->setOptions(['storage' => [
+             'active' => false,
+                ],
+                'transport' => [
+                    'active' => true,
+                    'type' => 'sendmail',
+                    'options' => [],
+                ],
+        ]);
+        
+        $mailMock->init("login", "password");
+        
+        $transportMock = $this->getMockBuilder('\Zend\Mail\Transport\Smtp')
+            ->setMethods(['send'])
+            ->getMock();
+         $transportMock->expects($this->any())
+            ->method('send')
+            ->will($this->returnValue(1));  
+        $mailMock->setTransport($transportMock);
         $serviceManager = $this->getApplicationServiceLocator();
         $serviceManager->setAllowOverride(true);
-        
-        $mailMock = $this->getMockBuilder('\Mail\Service\Mail')
-            ->setMethods(['sendTpl'])
-            ->getMock();
-        
-        $mailMock->expects($this->any())
-            ->method('sendTpl')
-            ->will(
-                $this->returnValue('1')
-            );
-        
-        
-      
         $serviceManager->setService('mail.service', $mailMock);
     }
 }

@@ -661,7 +661,7 @@ class PageTest extends AbstractService
     }
     
      /**
-     * @depends testPageAdd2
+     * @depends testPageAdd3
      * @depends testPageAddParent
      */
     public function testPageUpdate3($page_id)
@@ -679,7 +679,12 @@ class PageTest extends AbstractService
         $data = $this->jsonRpc(
             'page.update', [
             'id' => $page_id,
-            'is_published' => true    
+            'is_published' => true,    
+            'address' => 0,
+             'users' => [
+                ['user_id' => 1,'role' => 'admin', 'state' => 'member'],
+                ['user_id' => 2,'role' => 'user', 'state' => 'pending']
+            ]
             
             ]
         );
@@ -1039,6 +1044,27 @@ class PageTest extends AbstractService
         $this->assertEquals($data['result'][1][3], 9);
         $this->assertEquals($data['jsonrpc'], 2.0);
     }
+    
+    
+    public function testListSuscribersId()
+    {
+        $this->setIdentity(1);
+        $data = $this->jsonRpc(
+            'page.getListSuscribersId', [
+            'id' => 1,
+            ]
+        );
+        
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals(count($data['result']) , 4); 
+        $this->assertEquals($data['result'][0] , 1); 
+        $this->assertEquals($data['result'][1] , 2); 
+        $this->assertEquals($data['result'][2] , 3); 
+        $this->assertEquals($data['result'][3] , 4); 
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
+
+    }
 
     /**
      * @depends testPageAdd
@@ -1091,6 +1117,35 @@ class PageTest extends AbstractService
     {
         $this->setIdentity(1);
         $data = $this->jsonRpc('page.delete', ['id' => $id]);
+
+        $this->assertEquals(count($data), 3);
+        $this->assertEquals($data['id'], 1);
+        $this->assertEquals($data['result'], 1);
+        $this->assertEquals($data['jsonrpc'], 2.0);
+    }
+    
+    
+    /**
+     * @depends testPageAdd
+     */
+    public function testPageDelete2($id)
+    {
+        $this->setIdentity(1);
+        $data = $this->jsonRpc('page.delete', ['id' => $id]);
+
+        $this->assertEquals(count($data), 3);
+        $this->assertEquals($data['id'], 1);
+        $this->assertEquals($data['result'], 0);
+        $this->assertEquals($data['jsonrpc'], 2.0);
+    }
+    
+    /**
+     * @depends testPageAdd
+     */
+    public function testPageReactivate($id)
+    {
+        $this->setIdentity(1);
+        $data = $this->jsonRpc('page.reactivate', ['id' => $id]);
 
         $this->assertEquals(count($data), 3);
         $this->assertEquals($data['id'], 1);

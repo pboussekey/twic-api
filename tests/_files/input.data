@@ -1,1 +1,1 @@
-{"method":"post.reactivate","id":1,"params":{"id":"7"}}
+{"method":"submission.getPostId","id":1,"params":{"item_id":9}}

@@ -97,7 +97,7 @@ class Mail
             ->setEncoding('UTF-8')
             ->setBodyTpl($name, $datas)
             ->setTo($to);
-
+        
         $this->getTransport()->send($message);
         
         return true;
@@ -171,6 +171,11 @@ class Mail
         }
 
         return $this->transport;
+    }
+
+    public function setTransport($transport)
+    {
+        $this->transport = $transport;
     }
 
     public function setOptions($options)
