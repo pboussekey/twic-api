@@ -9,6 +9,7 @@ class MailTest extends AbstractService
 
     public static function setUpBeforeClass()
     {
+        system('phing -q reset-db deploy-db');
         parent::setUpBeforeClass();
        
     }
@@ -17,7 +18,7 @@ class MailTest extends AbstractService
     public function testAddTpl()
     {
         $this->setIdentity(1,1); 
-        $this->mockMail(); 
+        $this->mockMail(false); 
         
         $data = $this->jsonRpc(
             'mail.addTpl', [ 
@@ -49,7 +50,7 @@ class MailTest extends AbstractService
      public function testReplaceTpl()
     {
         $this->setIdentity(1,1); 
-        $this->mockMail(); 
+        $this->mockMail(false); 
         
         $data = $this->jsonRpc(
             'mail.addTpl', [ 
@@ -80,7 +81,7 @@ class MailTest extends AbstractService
      public function testGetTplMail()
     {
         $this->setIdentity(1,1); 
-        $this->mockMail(); 
+        $this->mockMail(false); 
 
         $data = $this->jsonRpc(
             'mail.getTpl', ['name' => 'tpl_test']
@@ -167,7 +168,7 @@ class MailTest extends AbstractService
     public function testGetListMail()
     {
         $this->setIdentity(1,1); 
-        $this->mockMail(); 
+        $this->mockMail(false); 
         
         $data = $this->jsonRpc(
             'mail.getListTpl', [  ]

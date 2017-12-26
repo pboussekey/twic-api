@@ -136,7 +136,7 @@ class UserTest extends AbstractService
             ],
             'sis' => 'sis']
         );
-
+        
         $this->assertEquals(count($data), 3);
         $this->assertEquals($data['result'], 9);
         $this->assertEquals($data['id'], 1);

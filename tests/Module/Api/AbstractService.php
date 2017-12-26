@@ -264,7 +264,7 @@ abstract class AbstractService extends AbstractHttpControllerTestCase
             ->will($this->returnValue(true));
         
         
-       $this->mockMail();
+       $this->mockMail(true);
         $serviceManager->setService('auth.service', $authMock);
         $serviceManager->setService('rbac.service', $rbacMock);
     }
@@ -333,30 +333,21 @@ abstract class AbstractService extends AbstractHttpControllerTestCase
     
    
     
-    public function mockMail(){
+    public function mockMail($mockCache = true){
         $mailMock = new \Mail\Service\Mail();
-        /*$storageMock = $this->getMockBuilder('\Mail\Template\Storage\AbstractStorage')
-                ->setMethods(['write','read','exist','getList','init'])->getMock();
-        $storageMock->expects($this->any())
-            ->method('write')
-            ->will($this->returnValue(1));  
-        
-        
-        $storageMock->expects($this->any())
-            ->method('read')
-            ->will($this->returnValue($m_tplModel));  
-        $storageMock->expects($this->any())
-            ->method('exist')
-            ->will($this->returnValue(true)); */
-        $cache = [];
+        $m_tplModel = new \Mail\Template\Model\TplModel();
+        $m_tplModel->setSubject('subject')->setFrom('from@test.com')->setFromName('fromName');
+      
         $cacheMock = $this->getMockBuilder('\Zend\Cache\Storage\StorageInterface')
                 ->getMock();
-        $cacheMock->expects($this->any())
-            ->method('hasItem')
-            ->willReturnCallback(function($key){ return isset($cache[$key]);}); 
-        $cacheMock->expects($this->any())
-            ->method('replaceItem')
-            ->willReturnCallback(function($key){ $cache[$key] = true;}); 
+        if($mockCache){
+            $cacheMock->expects($this->any())
+                ->method('hasItem')
+                ->willReturn(true); 
+            $cacheMock->expects($this->any())
+                ->method('getItem')
+                ->willReturn($m_tplModel);
+        }
         $s3Mock = $this->getMockBuilder('\Aws\S3\S3Client')
                 ->setMethods(["registerStreamWrapper"])
                 ->disableOriginalConstructor()
@@ -366,8 +357,6 @@ abstract class AbstractService extends AbstractHttpControllerTestCase
         $storageMock->setCache($cacheMock);
         $storageMock->init(['bucket' => 'testbucket']);
         $storageMock->setPath("./tmp/");
-        $m_tplModel = new \Mail\Template\Model\TplModel();
-        $m_tplModel->setSubject('subject')->setFrom('from@test.com')->setFromName('fromName');
         $mailMock->setTplStorage($storageMock);
         $mailMock->setOptions(['storage' => [
              'active' => false,
