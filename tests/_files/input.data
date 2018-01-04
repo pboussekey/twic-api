@@ -1,1 +1,1 @@
-{"method":"page.reactivate","id":1,"params":{"id":1}}
+{"method":"item.add","id":1,"params":{"page_id":"1","title":"Live class","description":"Liveclass description","type":"LC","points":10,"is_available":false,"is_published":true,"parent_id":3}}

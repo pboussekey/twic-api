@@ -4,6 +4,8 @@ namespace Application\Mapper;
 
 use Dal\Mapper\AbstractMapper;
 use Zend\Db\Sql\Predicate\Expression;
+use Application\Model\Page as ModelPage;
+use Zend\Db\Sql\Predicate\Predicate;
 
 class Message extends AbstractMapper
 {
@@ -28,7 +30,7 @@ class Message extends AbstractMapper
     
     
     
-    public function getCount($me, $interval, $start_date = null, $end_date = null, $organization_id = null, $type = null)
+    public function getCount($me, $interval, $start_date = null, $end_date = null, $page_id = null, $type = null)
     {
         $select = $this->tableGateway->getSql()->select();
         $select->columns([ 'message$created_date' => new Expression('SUBSTRING(message.created_date,1,'.$interval.')'), 'message$count' => new Expression('COUNT(DISTINCT message.id)')])
@@ -47,10 +49,13 @@ class Message extends AbstractMapper
             $select->where(['conversation.type' => $type]);
         }
         
-        if (null != $organization_id) {
+        if (null != $page_id) {
             $select->join('user', 'message.user_id = user.id', [])
-                ->join('page_user', 'user.id = page_user.user_id', [])
-                ->where(['page_user.page_id' => $organization_id]);
+                ->join('page_user', 'user.id = page_user.user_id', [], $select::JOIN_LEFT)
+                ->join('page', 'page.id = page_user.page_id',[])
+                ->where(['((page_user.page_id = ? ' => $page_id])
+                ->where([' page.type <> ? )' => ModelPage::TYPE_ORGANIZATION] )
+                ->where([' user.organization_id = ?)' => $page_id], Predicate::OP_OR);
         }
         
         return $this->selectWith($select);

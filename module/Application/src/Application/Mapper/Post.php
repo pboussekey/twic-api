@@ -6,6 +6,7 @@ use Dal\Mapper\AbstractMapper;
 use Zend\Db\Sql\Predicate\Expression;
 use Dal\Db\Sql\Select;
 use Zend\Db\Sql\Predicate\Predicate;
+use Application\Model\Page as ModelPage;
 
 class Post extends AbstractMapper
 {
@@ -129,7 +130,7 @@ class Post extends AbstractMapper
     
     
     
-    public function getCount($me, $interval, $start_date = null, $end_date = null, $organization_id = null, $parent = null)
+    public function getCount($me, $interval, $start_date = null, $end_date = null, $page_id = null, $parent = null)
     {
         $select = $this->tableGateway->getSql()->select();
         $select->columns([ 'post$created_date' => new Expression('SUBSTRING(post.created_date,1,'.$interval.')'), 'post$count' => new Expression('COUNT(DISTINCT post.id)'), 'post$parent_id' => new Expression('IF(post.parent_id IS NOT NULL,1,0)')])
@@ -145,10 +146,13 @@ class Post extends AbstractMapper
             $select->where(['post.created_date <= ? ' => $end_date]);
         }
         
-        if (null != $organization_id) {
+        if (null != $page_id) {
             $select->join('user', 'post.user_id = user.id', [])
-                ->join('page_user', 'user.id = page_user.user_id', [])
-                ->where(['page_user.page_id' => $organization_id]);
+                ->join('page_user', 'user.id = page_user.user_id', [], $select::JOIN_LEFT)
+                ->join('page', 'page.id = page_user.page_id',[])
+                ->where(['((page_user.page_id = ? ' => $page_id])
+                ->where([' page.type <> ? )' => ModelPage::TYPE_ORGANIZATION] )
+                ->where([' user.organization_id = ?)' => $page_id], Predicate::OP_OR);
         }
 
         

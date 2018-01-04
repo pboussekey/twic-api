@@ -5,14 +5,14 @@ namespace Application\Mapper;
 use Dal\Mapper\AbstractMapper;
 use Zend\Db\Sql\Predicate\Expression;
 use Zend\Db\Sql\Predicate\Predicate;
-use Application\Model\Role as ModelRole;
+use Application\Model\Page as ModelPage;
 
 class Activity extends AbstractMapper
 {
   
 
 
-    public function getList($search, $start_date, $end_date, $organization_id = null, $user_id = null)
+    public function getList($search, $start_date, $end_date, $page_id = null, $user_id = null)
     {
         $select = $this->tableGateway->getSql()->select();
         $select->columns(['id', 'user_id', 'event', 'object_name', 'object_data', 'activity$date' => new Expression('DATE_FORMAT(activity.date, "%Y-%m-%dT%TZ")')])
@@ -38,9 +38,12 @@ class Activity extends AbstractMapper
             $select->where(['date <= ? ' => $end_date]);
         }
 
-        if (null != $organization_id) {
-            $select->join('page_user', 'user.id = page_user.user_id', [])
-                ->where(['page_user.page_id' => $organization_id])
+        if (null != $page_id) {
+            $select->join('page_user', 'user.id = page_user.user_id', [], $select::JOIN_LEFT)
+                ->join('page', 'page.id = page_user.page_id',[])
+                ->where(['((page_user.page_id = ? ' => $page_id])
+                ->where([' page.type <> ? )' => ModelPage::TYPE_ORGANIZATION] )
+                ->where([' user.organization_id = ?)' => $page_id], Predicate::OP_OR)
                 ->group('activity.id');
         }
 
