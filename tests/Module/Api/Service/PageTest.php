@@ -638,12 +638,73 @@ class PageTest extends AbstractService
         $this->assertEquals($data['jsonrpc'], 2.0);
     }
     
+    /**
+     * @depends testPageAdd2
+     */
+    public function testPageUpdate2($page_id)
+    {
+        $this->setIdentity(1,1);
+        $data = $this->jsonRpc(
+            'item.add', [
+            'page_id' => $page_id,
+            'title' => 'Item title',
+            'type' => 'DISC',
+            'is_available' => 1,
+            'is_published' => true
+            
+            ]
+        );
+        
+        $this->reset();        
+        $this->setIdentity(1,1);
+        $this->jsonRpc(
+            'post.add', [
+            't_page_id' => $page_id,
+            'item_id' => $data['result']
+            
+            ]
+        );
+        
+        $this->reset();
+        $this->setIdentity(1);
+        $data = $this->jsonRpc(
+            'page.update', [
+            'id' => $page_id,
+            'title' => 'Edited course title',
+            'is_published' => true,
+            ]
+        );
+        $this->assertEquals(count($data), 3);
+        $this->assertEquals($data['id'], 1);
+        $this->assertEquals($data['result'], 1);
+        $this->assertEquals($data['jsonrpc'], 2.0);
+    }
+    
+    /**
+     * @depends testPageAdd2
+     */
+    public function testPageReUpdate2($page_id)
+    {
+      
+        $this->setIdentity(1);
+        $data = $this->jsonRpc(
+            'page.update', [
+            'id' => $page_id,
+            'title' => 'Edited course title 2',
+            'is_published' => true,
+            ]
+        );
+        $this->assertEquals(count($data), 3);
+        $this->assertEquals($data['id'], 1);
+        $this->assertEquals($data['result'], 1);
+        $this->assertEquals($data['jsonrpc'], 2.0);
+    }
     
     /**
      * @depends testPageAdd
      * @depends testPageAdd3
      */
-    public function testPageUpdate2($parent_id, $page_id)
+    public function testPageUpdate3($parent_id, $page_id)
     {
         $this->setIdentity(1);
         $data = $this->jsonRpc(
@@ -667,7 +728,7 @@ class PageTest extends AbstractService
      * @depends testPageAdd3
      * @depends testPageAddParent
      */
-    public function testPageUpdate3($page_id)
+    public function testPageUpdate4($page_id)
     {
         $this->setIdentity(1,1);
         $this->jsonRpc(

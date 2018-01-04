@@ -460,13 +460,15 @@ class Page extends AbstractService
             $this->getServicePageDoc()->replace($id, $docs);
         }
 
+        //@TODO voir ce bout de code avec CRO
         if ($is_published === true) {
             $res_post = $this->getServicePost()->getListId(null, null, $id, null, true);
+            $date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
             foreach ($res_post as $m_post) {
                 $this->getServicePostSubscription()->add(
                     'PP'.$id,
                     $m_post->getId(),
-                    null,
+                    $date,
                     'UPDATE',
                     $owner_id
                 );

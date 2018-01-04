@@ -1,1 +1,1 @@
-{"method":"mail.getListTpl","id":1,"params":[]}
+{"method":"page.reactivate","id":1,"params":{"id":1}}
