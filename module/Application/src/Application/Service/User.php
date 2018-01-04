@@ -516,7 +516,6 @@ class User extends AbstractService
      * Get number of sis.
      *
      * @param string $sis
-     * @param int    $user_id
      *
      * @return int
      */

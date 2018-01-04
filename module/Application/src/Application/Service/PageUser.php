@@ -358,6 +358,7 @@ class PageUser extends AbstractService
      * @param int|array $page_id
      * @param string    $role
      * @param string    $state
+     * @param bool    $sent
      * @param int       $is_pinned
      * @param string    $search
      */
