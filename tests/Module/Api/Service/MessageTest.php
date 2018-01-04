@@ -724,6 +724,26 @@ class MessageTest extends AbstractService
         $this->assertEquals($data['result']['count'], 3);
         $this->assertEquals($data['jsonrpc'], 2.0);
     }
+    
+    public function testCanMessageGetCount()
+    {
+        $this->setIdentity(2);
+        $data = $this->jsonRpc('message.getCount', [
+            'start_date' => '2015-10-10T06:00:00Z',
+            'end_date' => '2099-10-10T06:00:00Z',
+            'type' => 2,
+            'organization_id' => 1]);
+
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals(count($data['result']) , 1); 
+        $this->assertEquals(count($data['result'][0]) , 3); 
+        $this->assertEquals($data['result'][0]['count'] , 5); 
+        $this->assertEquals($data['result'][0]['type'] , 2); 
+        $this->assertEquals($data['result'][0]['created_date'] , "2018-01-04"); 
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
+
+    }
 
     /**
      * @depends testCanSendMessageunadeux

@@ -56,7 +56,6 @@ class PostSubscription extends AbstractMapper
             ->where(['post_subscription.post_id' => $post_id])
             ->quantifier('DISTINCT');
 
-        echo $this->printSql($select);
         return $this->selectWith($select);
     }
 }
