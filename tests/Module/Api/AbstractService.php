@@ -332,6 +332,22 @@ abstract class AbstractService extends AbstractHttpControllerTestCase
     }
     
    
+    public function mockOpentok(){
+        $serviceManager = $this->getApplicationServiceLocator();
+        $mock = $this->getMockBuilder('\ZOpenTok\Service\OpenTok')
+            ->disableOriginalConstructor()
+            ->setMethods(['startArchive','stopArchive'])->getMock();
+        $mock->expects($this->any())
+            ->method('startArchive')
+            ->willReturn(json_encode(['status' => 'started', 'id' => 1234]));
+        
+        $mock->expects($this->any())
+            ->method('stopArchive')
+            ->willReturn(['status' => 'stop', 'id' => 1234]);
+
+        $serviceManager->setAllowOverride(true);
+        $serviceManager->setService('opentok.service', $mock);
+    }
     
     public function mockMail($mockCache = true){
         $mailMock = new \Mail\Service\Mail();

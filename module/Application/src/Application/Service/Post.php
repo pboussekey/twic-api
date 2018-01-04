@@ -193,16 +193,17 @@ class Post extends AbstractService
             $pevent = array_merge($pevent, $sub);
         }
         $ev=((!empty($event))? $event:(($base_id!==$id) ? ModelPostSubscription::ACTION_COM : ModelPostSubscription ::ACTION_CREATE));
-
-        $this->getServicePostSubscription()->add(
-            array_unique($pevent),
-            $base_id,
-            $date,
-            $ev,
-            ((!$is_notif) ? $user_id:null),
-            (($base_id!==$id) ? $id:null),
-            $data
-        );
+        if(count($pevent) > 0){
+            $this->getServicePostSubscription()->add(
+                array_unique($pevent),
+                $base_id,
+                $date,
+                $ev,
+                ((!$is_notif) ? $user_id:null),
+                (($base_id!==$id) ? $id:null),
+                $data
+            );
+        }
         
         if($parent_id == null) {
             if($t_page_id != null) {

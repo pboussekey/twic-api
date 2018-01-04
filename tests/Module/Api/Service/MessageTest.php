@@ -763,19 +763,9 @@ class MessageTest extends AbstractService
      */
     public function testCanStartRecord($item)
     {
-        //MOCK OPENTOK
-        $serviceManager = $this->getApplicationServiceLocator();
-        $mock = $this->getMockBuilder('\ZOpenTok\Service\OpenTok')
-            ->disableOriginalConstructor()
-            ->setMethods(['startArchive'])->getMock();
-        $mock->expects($this->any())
-            ->method('startArchive')
-            ->willReturn(json_encode(['status' => 'started', 'id' => 1234]));
-
-        $serviceManager->setAllowOverride(true);
-        $serviceManager->setService('opentok.service', $mock);
 
         $this->setIdentity(2);
+        $this->mockOpenTok();
         $data = $this->jsonRpc('videoarchive.startRecord', ['conversation_id' => $item['conversation_id']]);
 
         $this->assertEquals(count($data), 3);
@@ -791,19 +781,8 @@ class MessageTest extends AbstractService
      */
     public function testCanStopRecord($item)
     {
-        //MOCK OPENTOK
-        $serviceManager = $this->getApplicationServiceLocator();
-        $mock = $this->getMockBuilder('\ZOpenTok\Service\OpenTok')
-            ->disableOriginalConstructor()
-            ->setMethods(['stopArchive'])->getMock();
-        $mock->expects($this->any())
-            ->method('stopArchive')
-            ->willReturn(['status' => 'stop', 'id' => 1234]);
-
-        $serviceManager->setAllowOverride(true);
-        $serviceManager->setService('opentok.service', $mock);
-
         $this->setIdentity(2);
+        $this->mockOpenTok();
         $data = $this->jsonRpc('videoarchive.stopRecord', ['conversation_id' => $item['conversation_id']]);
 
         $this->assertEquals(count($data), 3);
@@ -812,5 +791,23 @@ class MessageTest extends AbstractService
         $this->assertEquals($data['result']['status'], "stop");
         $this->assertEquals($data['result']['id'], 1234);
         $this->assertEquals($data['jsonrpc'], 2.0);
+    }
+    
+    /**
+     * @depends testCreateLC
+     */
+    public function testCheckStatus($item)
+    {
+        $this->setIdentity(2);
+        $data = $this->jsonRpc('videoarchive.checkStatus', ['json' => [
+            'id' => 1234, 'status' => 'uploaded', 'link' => 'link'
+            ]
+        ]);
+
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals($data['result'] , 1); 
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
+
     }
 }

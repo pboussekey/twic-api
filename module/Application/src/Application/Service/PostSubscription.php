@@ -43,7 +43,7 @@ class PostSubscription extends AbstractService
             ->setSubPostId($sub_post_id)
             ->setData($data)
             ->setLastDate($last_date);
-
+        
         foreach ($libelle as $l) {
             $m_post_subscription->setLibelle($l);
             $this->getMapper()->insert($m_post_subscription);
@@ -124,7 +124,9 @@ class PostSubscription extends AbstractService
 
         $lib = [];
         foreach ($res_post_subscription as $m_post_subscription) {
-            $lib[] = $m_post_subscription->getLibelle();
+            if(!empty($m_post_subscription->getLibelle())){
+                $lib[] = $m_post_subscription->getLibelle();
+            }
         }
 
         return array_unique($lib);
