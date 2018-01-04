@@ -1356,7 +1356,6 @@ class UserTest extends AbstractService
         $this->mockRbac();
         $this->mockLinkedin();
         $this->mockLibrary();
-        
         $data = $this->jsonRpc('user.linkedinSignIn', 
             ['account_token' => 'token3',  
                 'code' => 'code']);

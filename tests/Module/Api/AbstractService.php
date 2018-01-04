@@ -304,7 +304,7 @@ abstract class AbstractService extends AbstractHttpControllerTestCase
         $m_people->setId('ID')
                 ->setFirstname('Paul')
                 ->setLastname('BOUSSEKEY')
-                ->setPictureUrls(['values' => ['https://avatar.url']]);
+                ->setPictureUrls(['values' => ['https://api.twic.io/data/85b66049184b2d8fcf99a1e258ba5c5c0229f6d5-120m120']]);
         $linkedinMock->expects($this->any())
             ->method('people')
             ->will($this->returnValue($m_people));
