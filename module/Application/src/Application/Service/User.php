@@ -520,9 +520,9 @@ class User extends AbstractService
      *
      * @return int
      */
-    public function getNbrSisUnique($sis, $user_id = null)
+    public function getNbrSisUnique($sis)
     {
-        $res_user = $this->getMapper()->getNbrSisUnique($sis, $user_id);
+        $res_user = $this->getMapper()->getNbrSisUnique($sis);
         
         return ($res_user->count() > 0) ? $res_user->current()->getNbUser() : 0;
     }

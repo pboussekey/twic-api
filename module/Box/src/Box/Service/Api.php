@@ -43,7 +43,7 @@ class Api extends AbstractApi
         if (!in_array($type, $this->allow_type)) {
             return;
         }
-        $this->setMethode(Request::METHOD_POST);
+        $this->setMethod(Request::METHOD_POST);
         $this->setPath(sprintf('/documents'));
         $this->setParams(['url' => $url]);
 
@@ -58,7 +58,7 @@ class Api extends AbstractApi
      */
     public function createSession($document_id, $duration = 60)
     {
-        $this->setMethode(Request::METHOD_POST);
+        $this->setMethod(Request::METHOD_POST);
         $this->setPath(sprintf('/sessions'));
         $this->setParams(['document_id' => $document_id, 'duration' => $duration]);
 

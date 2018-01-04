@@ -462,6 +462,26 @@ class PostTest extends AbstractService
         $this->assertEquals($data['result'], 1);
         $this->assertEquals($data['jsonrpc'], 2.0);
     }
+    
+    /**
+     * @depends testPostAdd
+     */
+      public function testCanGetListUsersWhoLiked($post_id)
+    {
+        $this->setIdentity(1,1);
+        $data = $this->jsonRpc(
+            'user.getListId', [
+             'post_id' => $post_id
+            ]
+        );
+        
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals(count($data['result']) , 1); 
+        $this->assertEquals($data['result'][0] , 2); 
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
+
+    }
 
     /**
      * @depends testPostAdd

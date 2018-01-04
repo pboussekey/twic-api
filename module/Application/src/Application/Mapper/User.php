@@ -62,14 +62,6 @@ class User extends AbstractMapper
         return $this->selectWith($select);
     }
 
-    public function getListLite($id)
-    {
-        $select = $this->tableGateway->getSql()->select();
-        $select->columns(array('id', 'firstname', 'lastname', 'nickname', 'avatar'))->where(array('user.id' => $id));
-
-        return $this->selectWith($select);
-    }
-
     public function getList(
         $user_id,
         $is_admin,
@@ -205,7 +197,7 @@ class User extends AbstractMapper
         return $this->selectWith($select);
     }
 
-    public function getNbrSisUnique($sis, $user)
+    public function getNbrSisUnique($sis)
     {
         $select = $this->tableGateway->getSql()->select();
         $select->columns(array('user$nb_user' => new Expression('COUNT(true)')))
@@ -213,11 +205,7 @@ class User extends AbstractMapper
             ->where(array('user.deleted_date IS NULL'))
             ->where(array('user.sis IS NOT NULL'))
             ->where(array('user.sis <> ""'));
-
-        if (null !== $user) {
-            $select->where(array('user.id <> ?' => $user));
-        }
-
+      
         return $this->selectWith($select);
     }
     
