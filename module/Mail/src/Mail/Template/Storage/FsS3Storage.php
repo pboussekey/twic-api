@@ -88,7 +88,7 @@ class FsS3Storage extends AbstractStorage
     {
         if ($this->init_path === false) {
             if(!$this->client){
-                $this->client = new S3Client($config); //@codeCoverageIgnore
+                $this->client = new S3Client($config['options']); //@codeCoverageIgnore
             }
             $this->client->registerStreamWrapper();
             $this->init_path = true;
