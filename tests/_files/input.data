@@ -1,1 +1,1 @@
-{"method":"library.update","id":1,"params":{"id":1,"type":"text","token":"token","name":"library title"}}
+{"method":"user.linkedinSignIn","id":1,"params":{"account_token":"newtoken","code":"code"}}
