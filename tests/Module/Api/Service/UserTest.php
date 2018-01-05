@@ -560,7 +560,7 @@ class UserTest extends AbstractService
 
 
         $this->setIdentity(1,2);
-        $data = $this->jsonRpc('user.suspend', ['id' => 9,'suspend' => true]);
+        $data = $this->jsonRpc('user.suspend', ['id' => 9,'suspend' => 1]);
         $this->assertEquals(count($data) , 3); 
         $this->assertEquals($data['id'] , 1); 
         $this->assertEquals(count($data['error']) , 3); 

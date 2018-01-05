@@ -92,26 +92,6 @@ class PostSubscription extends AbstractService
     }
 
     /**
-     * Get Last Model Post Subscription
-     *
-     * @param int $post_id
-     *
-     * @return \Application\Model\PostSubscription
-     */
-    public function getLast($post_id)
-    {
-        $user_id = $this->getServiceUser()->getIdentity()['id'];
-
-        $m_post_subscription = $this->getMapper()->getLast($post_id, $user_id)->current();
-
-        if ($m_post_subscription && is_string($m_post_subscription->getData())) {
-            $m_post_subscription->setData(json_decode($m_post_subscription->getData(), true));
-        }
-
-        return $m_post_subscription;
-    }
-
-    /**
      * Get List Libelle of Post
      *
      * @param int $post_id
