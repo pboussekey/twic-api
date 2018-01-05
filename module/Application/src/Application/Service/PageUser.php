@@ -13,6 +13,7 @@ use Application\Model\Role as ModelRole;
 use Application\Model\PageRelation as ModelPageRelation;
 use ZendService\Google\Gcm\Notification as GcmNotification;
 use Zend\Db\Sql\Predicate\IsNull;
+use JRpc\Json\Server\Exception\JrpcException;
 
 
 /**
@@ -38,6 +39,18 @@ class PageUser extends AbstractService
      */
     public function add($page_id, $user_id, $role, $state, $email = null, $is_pinned = 0)
     {
+        
+        if(!$this->getServiceUser()->isStudnetAdmin()  && !$this->getServicePage()->isAdmin($page_id)) {
+            throw new JrpcException('Unauthorized operation pageuser.add', -38003);
+        }
+
+        return $this->_add($page_id, $user_id, $role, $state, $email, $is_pinned);
+    }
+
+    
+    public function _add($page_id, $user_id, $role, $state, $email = null, $is_pinned = 0)
+    {
+        
         if (!is_array($user_id)) {
             $user_id = [$user_id];
         }
@@ -47,7 +60,7 @@ class PageUser extends AbstractService
                 $email = [$email];
             }
             foreach($email as $e){
-                $id = $this->getServiceUser()->add(null, null, $e, null, null, null, null, null, null, null, $page_id);
+                $id = $this->getServiceUser()->_add(null, null, $e, null, null, null, null, null, null, null, null);
                 $user_id[] = $id;
             }
         }
@@ -69,6 +82,12 @@ class PageUser extends AbstractService
       
         foreach ($user_id as $uid) {
             $ret +=  $this->getMapper()->insert($m_page_user->setUserId($uid));
+            $identity = $this->getServiceUser()->getIdentity();
+            $is_admin = $this->getServiceUser()->isStudnetAdmin();
+            $m_user = $this->getServiceUser()->getLite($uid);
+            if (($state === ModelPageUser::STATE_MEMBER || $state === ModelPageUser::STATE_PENDING) && ModelPage::TYPE_ORGANIZATION === $m_page->getType() && $m_user->getOrganizationId() instanceof IsNull) {
+                $this->getServiceUser()->_update($uid, null, null, null, null, null, null, null, null, null, $page_id);
+            }
             // inviter only event
             if ($state === ModelPageUser::STATE_INVITED) {
                 $this->getServicePost()->addSys(
@@ -107,12 +126,7 @@ class PageUser extends AbstractService
                 */
                 // member only group
             } elseif ($state === ModelPageUser::STATE_MEMBER) {
-                $identity = $this->getServiceUser()->getIdentity();
-                $is_admin = $this->getServiceUser()->isStudnetAdmin();
-                $m_user = $this->getServiceUser()->getLite($uid);
-                if (ModelPage::TYPE_ORGANIZATION === $m_page->getType() && $m_user->getOrganizationId() instanceof IsNull) {
-                    $this->getServiceUser()->_update($uid, null, null, null, null, null, null, null, null, null, $page_id);
-                }
+              
 
                 $this->getServiceSubscription()->add('PP'.$page_id, $uid);
                 if(ModelPage::TYPE_ORGANIZATION == $m_page->getType()) {
@@ -428,7 +442,7 @@ class PageUser extends AbstractService
      * @param  array $data
      * @return array
      */
-    public function _add($page_id, $data)
+    public function addFromArray($page_id, $data)
     {
         $ret = [];
         foreach ($data as $ar_u) {
@@ -436,7 +450,7 @@ class PageUser extends AbstractService
             $role = (isset($ar_u['role'])) ? $ar_u['role']:null;
             $state = (isset($ar_u['state'])) ? $ar_u['state']:null;
 
-            $ret[$user_id] = $this->add($page_id, $user_id, $role, $state);
+            $ret[$user_id] = $this->_add($page_id, $user_id, $role, $state);
         }
 
         return $ret;
@@ -453,7 +467,7 @@ class PageUser extends AbstractService
     {
         $this->getMapper()->delete($this->getModel()->setPageId($page_id));
 
-        return $this->_add($page_id, $data);
+        return $this->addFromArray($page_id, $data);
     }
 
     /**

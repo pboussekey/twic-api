@@ -211,7 +211,8 @@ class Page extends AbstractService
         $is_present = false;
         foreach ($users as &$ar_u) {
             if(isset($ar_u['user_email'])) {
-                $ar_u['user_id'] = $this->getServiceUser()->add(null, null, $ar_u['user_email'], null, null, null, null, null, null, null, $id);
+                $ar_u['user_id'] = $this->getServiceUser()->_add(null, null, $ar_u['user_email'], null, null, null, null, null, null, null, null);
+                $ar_u['user_email'] = null;
                  
             }
             if ($ar_u['user_id'] === $m_page->getOwnerId()) {
@@ -228,7 +229,7 @@ class Page extends AbstractService
             ];
         }
         if (null !== $users) {
-            $this->getServicePageUser()->_add($id, $users);
+            $this->getServicePageUser()->addFromArray($id, $users);
         }
         if (null !== $tags) {
             $this->getServicePageTag()->_add($id, $tags);

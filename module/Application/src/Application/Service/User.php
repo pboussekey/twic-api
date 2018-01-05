@@ -338,7 +338,7 @@ class User extends AbstractService
         
         
         if ($organization_id !== null) {
-            $this->getServicePageUser()->add($organization_id, $id, ModelPageUser::ROLE_USER, ModelPageUser::STATE_MEMBER);
+            $this->getServicePageUser()->_add($organization_id, $id, ModelPageUser::ROLE_USER, ModelPageUser::STATE_PENDING);
         }
         
         $this->getServiceSubscription()->add('SU' . $id, $id);

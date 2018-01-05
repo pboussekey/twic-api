@@ -989,7 +989,7 @@ class PageTest extends AbstractService
      */
     public function testPageUserAdd($id)
     {
-        $this->setIdentity(1);
+        $this->setIdentity(2);
         $data = $this->jsonRpc(
             'pageuser.add', [
             'page_id' => $id,
@@ -1021,11 +1021,39 @@ class PageTest extends AbstractService
             'state' => 'invited'
             ]
         );
-
+        
         $this->assertEquals(count($data), 3);
         $this->assertEquals($data['id'], 1);
         $this->assertEquals($data['result'], 1);
         $this->assertEquals($data['jsonrpc'], 2.0);
+    }
+    
+    
+      /**
+     * @depends testPageAdd
+     * @depends testPageAdd2
+     */
+    public function testPageUserAddError($id)
+    {
+        $this->setIdentity(8);
+        $data = $this->jsonRpc(
+            'pageuser.add', [
+            'page_id' => $id,
+            'user_id' => [],
+            'email' => 'test@test.com',
+            'role' => 'user',
+            'state' => 'invited'
+            ]
+        );
+        
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals(count($data['error']) , 3); 
+        $this->assertEquals($data['error']['code'] , -38003); 
+        $this->assertEquals($data['error']['message'] , "Unauthorized operation pageuser.add"); 
+        $this->assertEquals($data['error']['data'] , null); 
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
+
     }
 
     /**
@@ -1038,7 +1066,7 @@ class PageTest extends AbstractService
 
         $this->assertEquals(count($data), 3);
         $this->assertEquals($data['id'], 1);
-        $this->assertEquals($data['result'], 3);
+        $this->assertEquals($data['result'], 2);
         $this->assertEquals($data['jsonrpc'], 2.0);
     }
 
