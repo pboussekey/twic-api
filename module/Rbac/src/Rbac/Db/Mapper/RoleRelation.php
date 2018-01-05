@@ -10,10 +10,8 @@ class RoleRelation extends AbstractMapper
     {
         $select = $this->tableGateway->getSql()->select();
 
-        $select->columns(array())
-            ->join('role', 'role_relation.parent_id=role.id', array('id', 'name'))
-            ->where(array('role_relation.role_id' => $role));
-
+        $select->where(array('role_relation.role_id' => $role));
+        
         return $this->selectWith($select);
     }
 }

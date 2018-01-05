@@ -313,15 +313,15 @@ class User extends AbstractService
             ->setEmailSent(0)
             ->setCreatedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'));
         
+        if (! empty($password)) {
+            $m_user->setPassword(md5($password));
+        }
+        
         if ($this->getMapper()->insert($m_user) <= 0) {
             throw new \Exception('error insert'); // @codeCoverageIgnore
         }
         
         $id = (int) $this->getMapper()->getLastInsertValue();
-        
-        if ($organization_id !== null) {
-            $this->addOrganization($organization_id, $id, true);
-        }
         
         // Si il n'y a pas de role ou que ce n'est pas un admin c'est un user
         if (empty($roles) || ! in_array(ModelRole::ROLE_ADMIN_STR, $this->getIdentity()['roles'])) {
@@ -334,6 +334,11 @@ class User extends AbstractService
                 $this->getServiceRole()
                     ->getIdByName($r), $id
             );
+        }
+        
+        
+        if ($organization_id !== null) {
+            $this->getServicePageUser()->add($organization_id, $id, ModelPageUser::ROLE_USER, ModelPageUser::STATE_MEMBER);
         }
         
         $this->getServiceSubscription()->add('SU' . $id, $id);
@@ -595,7 +600,7 @@ class User extends AbstractService
             }
         }
         
-        if (! is_array($id)) {
+        if (!is_array($id)) {
             $id = [$id];
         }
 
@@ -751,9 +756,7 @@ class User extends AbstractService
     {
         $identity = $this->getIdentity();
         if (null !== $exclude && ! is_array($exclude)) {
-            $exclude = [
-                $exclude
-            ];
+            $exclude = [$exclude];
         }
         
         $is_admin = (in_array(ModelRole::ROLE_ADMIN_STR, $identity['roles']));
@@ -901,7 +904,6 @@ class User extends AbstractService
         if (false === $m_registration) {
             throw new \Exception('Account token not found.');
         }
-        
         if (is_numeric($m_registration->getUserId())) {
             $this->getMapper()->update(
                 $this->getModel()
@@ -954,7 +956,6 @@ class User extends AbstractService
             throw new \Exception('Error LinkedIn Id');
         }
         $res_user = $this->getMapper()->select($this->getModel()->setDeletedDate(new IsNull())->setIsActive(1)->setLinkedinId($linkedin_id));
-        
         if ($res_user->count() > 0) { // utilisateur existe on renvoie une session
             $m_user = $res_user->current();
             $login = $this->loginLinkedIn($linkedin_id);
@@ -1032,7 +1033,7 @@ class User extends AbstractService
                     )
                 );
                 $m_user = $this->getModel()->setLinkedinId($linkedin_id);
-                if($identity['avatar'] === null && $m_people->getPictureUrls() !== null) {
+                if((!isset($identity['avatar']) || $identity['avatar'] === null) && $m_people->getPictureUrls() !== null) {
                     $url = $m_people->getPictureUrls()['values']['0'];
                     $m_user->setAvatar($this->getServiceLibrary()->upload($url, $identity['firstname'].' '.$identity['lastname']));
                 }

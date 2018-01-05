@@ -588,7 +588,7 @@ class Post extends AbstractService
     {
         $m_post = $this->getLite($id);
         $user_id = $this->getServiceUser()->getIdentity()['id'];
-        if($user_id != $m_post->getUserId()) {
+        if(!$m_post->getUserId() instanceof IsNull && $user_id != $m_post->getUserId()) {
             $m_user = $this->getServiceUser()->getLite($m_post->getUserId());
             $m_me = $this->getServiceUser()->getLite($user_id);
             $m_page = false;
@@ -712,8 +712,11 @@ class Post extends AbstractService
         case (is_numeric($m_post->getPageId())):
             $u = 'P'.$m_post->getPageId();
             break;
-        default:
+        case (is_numeric($m_post->getUserId())):
             $u ='U'.$m_post->getUserId();
+            break;
+        default:
+            $u = null;
             break;
         }
 

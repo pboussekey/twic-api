@@ -3,6 +3,7 @@ namespace ModuleTest\Api\Service;
 
 use ModuleTest\Api\AbstractService;
 use Box\Model\Document;
+use Box\Model\Session;
 
 class BoxTest extends AbstractService
 {
@@ -12,13 +13,8 @@ class BoxTest extends AbstractService
     {
         parent::setUpBeforeClass();
     }
- protected $id;
-    protected $name;
-    protected $created_at;
-    protected $modified_at;
-    protected $status;
 
-    public function testInit()
+    public function testDocument()
     {
         $m_document = new Document([
             'id' => 'id',
@@ -36,6 +32,33 @@ class BoxTest extends AbstractService
         $this->assertEquals($m_document->getStatus() , "status"); 
         
         $data = $m_document->jsonSerialize();
+        $this->assertEquals(count($data) , 5); 
+        $this->assertEquals($data['status'] , "status"); 
+        $this->assertEquals($data['modifiedAt'] , "modifiedAt"); 
+        $this->assertEquals($data['createdAt'] , "createdAt"); 
+        $this->assertEquals($data['name'] , "name"); 
+        $this->assertEquals($data['id'] , "id"); 
+
+    }
+    
+     public function testSession()
+    {
+        $m_session = new Session([
+            'id' => 'id',
+            'name' => 'name',
+            'createdAt' => 'createdAt',
+            'modifiedAt' => 'modifiedAt',
+            'status' => 'status'
+            
+        ]);
+        
+        $this->assertEquals($m_session->getId() , "id"); 
+        $this->assertEquals($m_session->getName() , "name"); 
+        $this->assertEquals($m_session->getCreatedAt() , "createdAt"); 
+        $this->assertEquals($m_session->getModifiedAt() , "modifiedAt"); 
+        $this->assertEquals($m_session->getStatus() , "status"); 
+        
+        $data = $m_session->jsonSerialize();
         $this->assertEquals(count($data) , 5); 
         $this->assertEquals($data['status'] , "status"); 
         $this->assertEquals($data['modifiedAt'] , "modifiedAt"); 

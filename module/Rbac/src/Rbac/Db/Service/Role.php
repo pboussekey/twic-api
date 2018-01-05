@@ -44,14 +44,6 @@ class Role extends AbstractService
     }
 
     /**
-     * @return \Rbac\Db\Service\RoleRelation
-     */
-    public function getServiceRoleRelation()
-    {
-        return $this->container->get('rbac_service_role_relation');
-    }
-
-    /**
      * @return \Rbac\Db\Service\Role
      */
     public function getServiceRole()

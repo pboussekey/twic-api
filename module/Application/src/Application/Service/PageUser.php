@@ -108,7 +108,7 @@ class PageUser extends AbstractService
                 // member only group
             } elseif ($state === ModelPageUser::STATE_MEMBER) {
                 $identity = $this->getServiceUser()->getIdentity();
-                $is_admin = (in_array(ModelRole::ROLE_ADMIN_STR, $identity['roles']));
+                $is_admin = $this->getServiceUser()->isStudnetAdmin();
                 $m_user = $this->getServiceUser()->getLite($uid);
                 if (ModelPage::TYPE_ORGANIZATION === $m_page->getType() && $m_user->getOrganizationId() instanceof IsNull) {
                     $this->getServiceUser()->_update($uid, null, null, null, null, null, null, null, null, null, $page_id);

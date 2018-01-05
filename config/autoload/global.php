@@ -92,6 +92,7 @@ return [
             'mail.service',
             'rbac_service_permission',
             'rbac_service_role_permission',
+            'rbac_service_role_relation',
             [
                 'class' => 'addr_service_address',
                 'methods' => [

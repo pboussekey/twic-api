@@ -300,12 +300,12 @@ class UserTest extends AbstractService
      /**
      * @depends testCanAddUser
      */
-    public function testSendPwd($id)
+    public function testSendPassword($id)
     {
         $this->mockRbac();
         $this->mockMail();
 
-        $data = $this->jsonRpc('user.sendPassword', ['id' => $id]);
+        $data = $this->jsonRpc('user.sendPassword', ['id' => [$id, -1]]);
         $this->assertEquals(count($data) , 3); 
         $this->assertEquals($data['id'] , 1); 
         $this->assertEquals($data['result'] , 1); 
@@ -314,7 +314,7 @@ class UserTest extends AbstractService
 
     }
     
-       /**
+    /**
      * @depends testCanAddUser
      */
     public function testAddPreregistration($id)
@@ -386,7 +386,7 @@ class UserTest extends AbstractService
      /**
      * @depends testCanAddExternal
      */
-    public function testSendPwd2($id)
+    public function testSendPwdForExternal($id)
     {
         $this->mockRbac();
 
@@ -435,9 +435,45 @@ class UserTest extends AbstractService
         $this->assertEquals($data['error']['code'] , -32000); 
         $this->assertEquals(!empty($data['error']['message']) , true); 
 
+    }
+    
+    public function testSignIn3()
+    {
+        $this->mockRbac();
 
+
+        $this->jsonRpc('preregistration.add', 
+            ['account_token' => 'testtoken', 'firstname' => 'Test', 'lastname' => 'Test', 'email' => 'test@thestudnet.com', 'organization_id' => 1]);
+      
+        $this->reset();
+        $data = $this->jsonRpc('user.signIn', 
+            ['account_token' => 'testtoken',  'password' => 'thestudnet']);
+        
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals(count($data['result']) , 16); 
+        $this->assertEquals($data['result']['id'] , 11); 
+        $this->assertEquals(!empty($data['result']['token']) , true); 
+        $this->assertEquals(!empty($data['result']['created_date']) , true); 
+        $this->assertEquals($data['result']['firstname'] , "Test"); 
+        $this->assertEquals($data['result']['lastname'] , "Test"); 
+        $this->assertEquals($data['result']['nickname'] , null); 
+        $this->assertEquals($data['result']['suspension_date'] , null); 
+        $this->assertEquals($data['result']['suspension_reason'] , null); 
+        $this->assertEquals($data['result']['organization_id'] , 1); 
+        $this->assertEquals($data['result']['email'] , "test@thestudnet.com"); 
+        $this->assertEquals($data['result']['avatar'] , null); 
+        $this->assertEquals($data['result']['expiration_date'] , null); 
+        $this->assertEquals($data['result']['has_linkedin'] , false); 
+        $this->assertEquals(count($data['result']['roles']) , 1); 
+        $this->assertEquals($data['result']['roles'][2] , "user"); 
+        $this->assertEquals(!empty($data['result']['wstoken']) , true); 
+        $this->assertEquals(!empty($data['result']['fbtoken']) , true); 
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
 
     }
+     
+  
     
     
     public function testSignInError()
@@ -742,6 +778,26 @@ class UserTest extends AbstractService
 
     }
     
+    public function testLostPasswordError2()
+    {
+        $this->setIdentity(1);
+
+        $data = $this->jsonRpc(
+            'user.lostPassword', [
+            'email' => 'unknownemail'
+            ]
+         
+        );
+        
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals(count($data['error']) , 3); 
+        $this->assertEquals($data['error']['code'] , -32000); 
+        $this->assertEquals(!empty($data['error']['message']) , true); 
+
+
+    }
+    
     /**
      * @depends testCanAddUser
      */
@@ -993,23 +1049,7 @@ class UserTest extends AbstractService
         $this->assertEquals(count($data['error']) , 3); 
         $this->assertEquals($data['error']['code'] , -32000); 
         $this->assertEquals(!empty($data['error']['message']) , true);
-    }
-    
-
-    /**
-     * @TODO MOCK
-     * @depends testCanAddUser
-     */
-    public function testSendPassword($id)
-    {
-        $this->setIdentity(1);
-        $data = $this->jsonRpc('user.sendPassword', ['id' => $id]);
-
-        $this->assertEquals(count($data), 3);
-        $this->assertEquals($data['id'], 1);
-        $this->assertEquals($data['result'], 1);
-        $this->assertEquals($data['jsonrpc'], 2.0);
-    }
+    }   
 
     public function testExceptionAddContact()
     {
@@ -1387,6 +1427,75 @@ class UserTest extends AbstractService
         $this->assertEquals($data['error']['code'] , -32000); 
         $this->assertEquals(!empty($data['error']['message']) , true); 
    }
+   
+      /**
+     * @depends testCanAddUser
+     */
+    public function testLinkedinSignInError2($id)
+    {
+        
+        
+        $this->mockRbac();
+        $this->mockLinkedin(1);
+        $this->mockLibrary();
+        
+        $data = $this->jsonRpc('user.linkedinSignIn', 
+            ['account_token' => 'token3',  
+                'code' => 'code']);
+        
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals(count($data['error']) , 3); 
+        $this->assertEquals($data['error']['code'] , -32000); 
+        $this->assertEquals(!empty($data['error']['message']) , true); 
+   }
+    
+    
+     
+      /**
+     * @depends testCanAddUser
+     */
+    public function testLinkedinSignInWhenConnected($id)
+    {
+       
+        $this->reset();
+        $this->mockRbac();
+        $this->mockLinkedin("NewID");
+        $this->mockLibrary();
+        $this->mockIdentity([
+            'id' => 1,
+            'firstname' => 'Paul',
+            'avatar' => 'avatar',
+            'lastname' => 'BOUSSEKEY',
+            'nickname' => '',
+            'email' => 'pboussekey@thestudnet.com',
+            'created_date' => '01-01-1970',
+            'token' => 'token',
+            'organization_id' => 1,
+            'roles' => [2 => 'user']
+        ]);
+        $data = $this->jsonRpc('user.linkedinSignIn', 
+            ['code' => 'newcode']);
+        
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals(count($data['result']) , 11); 
+        $this->assertEquals($data['result']['id'] , 1); 
+        $this->assertEquals($data['result']['firstname'] , "Paul"); 
+        $this->assertEquals($data['result']['avatar'] , "avatar"); 
+        $this->assertEquals($data['result']['lastname'] , "BOUSSEKEY"); 
+        $this->assertEquals($data['result']['nickname'] , ""); 
+        $this->assertEquals($data['result']['email'] , "pboussekey@thestudnet.com"); 
+        $this->assertEquals($data['result']['created_date'] , "01-01-1970"); 
+        $this->assertEquals($data['result']['token'] , "token"); 
+        $this->assertEquals($data['result']['organization_id'] , 1); 
+        $this->assertEquals(count($data['result']['roles']) , 1); 
+        $this->assertEquals($data['result']['roles'][2] , "user"); 
+        $this->assertEquals($data['result']['has_linkedin'] , true); 
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
+
+
+    }
     
     
      /**
@@ -1434,50 +1543,7 @@ class UserTest extends AbstractService
 
 
     }
-    
-      /**
-     * @depends testCanAddUser
-     */
-    public function testLinkedinSignInASecondTime($id)
-    {
-        $this->mockRbac();
-        $data = $this->jsonRpc('preregistration.add', 
-            ['account_token' => 'token3', 'firstname' => '', 'lastname' => '', 'email' => 'contact@paul-boussekey.com', 'organization_id' => 1, 'user_id' => 8]);
-        
-        $this->reset();
-        
-        $this->mockRbac();
-        $this->mockLinkedin();
-        $this->mockLibrary();
-        
-        $data = $this->jsonRpc('user.linkedinSignIn', 
-            ['account_token' => 'token3',  
-                'code' => 'code']);
-        
-        $this->assertEquals(count($data) , 3); 
-        $this->assertEquals($data['id'] , 1); 
-        $this->assertEquals(count($data['result']) , 16); 
-        $this->assertEquals($data['result']['id'] , 8); 
-        $this->assertEquals(!empty($data['result']['token']) , true); 
-        $this->assertEquals(!empty($data['result']['created_date']) , true); 
-        $this->assertEquals($data['result']['firstname'] , "Paul"); 
-        $this->assertEquals($data['result']['lastname'] , "BOUSSEKEY"); 
-        $this->assertEquals($data['result']['nickname'] , null); 
-        $this->assertEquals($data['result']['suspension_date'] , null); 
-        $this->assertEquals($data['result']['suspension_reason'] , null); 
-        $this->assertEquals($data['result']['organization_id'] , 1); 
-        $this->assertEquals($data['result']['email'] , "contact@paul-boussekey.com"); 
-        $this->assertEquals($data['result']['avatar'] , "token"); 
-        $this->assertEquals($data['result']['expiration_date'] , null); 
-        $this->assertEquals($data['result']['has_linkedin'] , true); 
-        $this->assertEquals(count($data['result']['roles']) , 1); 
-        $this->assertEquals($data['result']['roles'][2] , "user"); 
-        $this->assertEquals(!empty($data['result']['wstoken']) , true); 
-        $this->assertEquals(!empty($data['result']['fbtoken']) , true); 
-        $this->assertEquals($data['jsonrpc'] , 2.0); 
-
-    }
-    
+  
     /**
      * @depends testCanAddUser
      */
@@ -1516,7 +1582,26 @@ class UserTest extends AbstractService
 
     }
     
-    public function testLinkedinLogInExternalser()
+    
+    /**
+     * @depends testCanAddUser
+     */
+    public function testLinkedinLogInError($id)
+    {
+        $this->mockRbac();
+      
+        $data = $this->jsonRpc('user.linkedinLogIn', 
+            ['linkedin_id' => 'unknowntoken']);
+        
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals(count($data['error']) , 3); 
+        $this->assertEquals($data['error']['code'] , -32000); 
+        $this->assertEquals(!empty($data['error']['message']) , true); 
+
+    }
+    
+    public function testLinkedinLogInExternal()
     {
         $this->setIdentity(1,1);
         $data = $this->jsonRpc('user.update', ['id' => 8,'roles' => 'external']);
@@ -1593,7 +1678,7 @@ class UserTest extends AbstractService
         $this->assertEquals(count($data) , 3); 
         $this->assertEquals($data['id'] , 1); 
         $this->assertEquals(count($data['result']) , 16); 
-        $this->assertEquals($data['result']['id'] , 11); 
+        $this->assertEquals($data['result']['id'] , 12); 
         $this->assertEquals(!empty($data['result']['token']) , true); 
         $this->assertEquals(!empty($data['result']['created_date']) , true); 
         $this->assertEquals($data['result']['firstname'] , "Paul"); 

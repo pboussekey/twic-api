@@ -5,6 +5,7 @@ namespace Application\Service;
 use Dal\Service\AbstractService;
 use Application\Model\Page as ModelPage;
 use Application\Model\PostSubscription as ModelPostSubscription;
+use Zend\Db\Sql\Predicate\IsNull;
 
 class PostLike extends AbstractService
 {
@@ -39,7 +40,7 @@ class PostLike extends AbstractService
             $m_post_like->setIsLike(true)->setCreatedDate($date);
 
             if ($this->getMapper()->insert($m_post_like) <= 0) {
-                throw new \Exception('error add like');
+                throw new \Exception('error add like');// @codeCoverageIgnore
             }
             $res = $this->getMapper()->getLastInsertValue();
 
@@ -48,10 +49,11 @@ class PostLike extends AbstractService
              */
             $m_post = $this->getServicePost()->getLite($post_id);
             $m_post_like = $this->getLite($res);
-            $sub_post = [
-                'P'.$this->getServicePost()->getTarget($m_post),
-                'M'.$m_post->getUserId(),
-            ];
+            
+            $sub_post = ['P'.$this->getServicePost()->getTarget($m_post)];
+            if(!$m_post->getUserId() instanceof IsNull){
+                $sub_post[] = 'M'.$m_post->getUserId();
+            }
 
             $origin_id = $m_post->getOriginId();
             $base_id = (is_numeric($origin_id)) ? $origin_id:$post_id;

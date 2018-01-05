@@ -288,11 +288,11 @@ class Library extends AbstractService
             );
 
             if ($res_library->count() <= 0) {
-                throw new \Exception();
+                throw new \Exception(); 
             }
             $m_library = $res_library->current();
             $box_id = $m_library->getBoxId();
-            if (empty($box_id)) {
+            if ($box_id instanceof IsNull) {
                 throw new JrpcException('No Box Id', 123456);
             }
         }

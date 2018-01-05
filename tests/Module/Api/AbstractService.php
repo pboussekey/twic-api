@@ -10,6 +10,8 @@ use LinkedIn\Model\People;
 use Zend\Json\Json;
 use Zend\Test\PHPUnit\Controller\AbstractHttpControllerTestCase;
 use function GuzzleHttp\json_encode;
+use Box\Model\Document;
+use Box\Model\Session;
 
 abstract class AbstractService extends AbstractHttpControllerTestCase
 {
@@ -175,10 +177,9 @@ abstract class AbstractService extends AbstractHttpControllerTestCase
         return $data;
     }
 
-    public function setIdentity($id, $role = null)
+    public function setIdentity($id = null, $role = null)
     {
       
-        
         $serviceManager = $this->getApplicationServiceLocator();
         $serviceManager->setAllowOverride(true);
         $identityMock = $this->getMockBuilder('\Auth\Authentication\Adapter\Model\Identity')
@@ -283,8 +284,64 @@ abstract class AbstractService extends AbstractHttpControllerTestCase
         $serviceManager->setAllowOverride(true);
         $serviceManager->setService('rbac.service', $rbacMock);
     }
+    
+    public function mockIdentity($user){
         
-    public function mockLinkedin(){
+        $id = $user['id'];
+        $identityMock = $this->getMockBuilder('\Auth\Authentication\Adapter\Model\Identity')
+            ->disableOriginalConstructor()
+            ->getMock();
+         $identityMock->expects($this->any())
+            ->method('toArray')
+            ->will(
+                $this->returnValue($user)
+            );
+         
+        $identityMock->expects($this->any())
+            ->method('getId')
+            ->will($this->returnValue($id));
+        
+        $adapterMock = $this->getMockBuilder('\Auth\Authentication\Adapter\DbAdapter')
+          ->disableOriginalConstructor()
+          ->getMock();
+        
+        $resultMock = $this->getMockBuilder("\Zend\Authentication\Result")
+          ->disableOriginalConstructor()
+          ->getMock();
+         $resultMock->expects($this->any())
+            ->method('isValid')
+            ->will(
+                $this->returnValue(true)
+            );
+         
+        $authMock = $this->getMockBuilder('\Zend\Authentication\AuthenticationService')
+            ->getMock();
+        
+
+        $authMock->expects($this->any())
+            ->method('getIdentity')
+            ->will($this->returnValue($identityMock));
+        
+        $authMock->expects($this->any())
+            ->method('hasIdentity')
+            ->will($this->returnValue(true));
+        
+        $authMock->expects($this->any())
+            ->method('getAdapter')
+            ->will($this->returnValue($adapterMock));
+        
+        $authMock->expects($this->any())
+            ->method('authenticate')
+            ->will($this->returnValue($resultMock));
+        
+        
+        $serviceManager = $this->getApplicationServiceLocator();
+        $serviceManager->setAllowOverride(true);
+        $serviceManager->setService('auth.service', $authMock);
+        $serviceManager->get('app_service_user')->getCache()->setItem('identity_'.$id, $user);
+    }
+        
+    public function mockLinkedin($id = 'ID'){
         
         $serviceManager = $this->getApplicationServiceLocator();
         $serviceManager->setAllowOverride(true);
@@ -301,7 +358,7 @@ abstract class AbstractService extends AbstractHttpControllerTestCase
         
         
         $m_people = new People();
-        $m_people->setId('ID')
+        $m_people->setId($id)
                 ->setFirstname('Paul')
                 ->setLastname('BOUSSEKEY')
                 ->setPictureUrls(['values' => ['https://avatar.url']]);
@@ -347,6 +404,37 @@ abstract class AbstractService extends AbstractHttpControllerTestCase
 
         $serviceManager->setAllowOverride(true);
         $serviceManager->setService('opentok.service', $mock);
+    }
+    
+     public function mockBox($id = 'id'){
+        $serviceManager = $this->getApplicationServiceLocator();
+         $m_document = new Document([
+            'id' => $id,
+            'name' => 'name',
+            'createdAt' => 'createdAt',
+            'modifiedAt' => 'modifiedAt',
+            'status' => 'status'
+            
+        ]);
+        $m_session = new Session([
+            'id' => 'id',
+            'name' => 'name',
+            'createdAt' => 'createdAt',
+            'modifiedAt' => 'modifiedAt',
+            'status' => 'status'
+            
+        ]);
+        $mock = $this->getMockBuilder('\Box\Service\Api')
+            ->disableOriginalConstructor()
+            ->setMethods(['addFile', 'createSession'])->getMock();
+        $mock->expects($this->any())
+            ->method('addFile')
+            ->willReturn($m_document);
+        $mock->expects($this->any())
+            ->method('createSession')
+            ->willReturn($m_session);
+        $serviceManager->setAllowOverride(true);
+        $serviceManager->setService('box.service', $mock);
     }
     
     public function mockMail($mockCache = true){
