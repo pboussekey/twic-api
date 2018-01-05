@@ -63,7 +63,7 @@ class Message extends AbstractService
             ->setCreatedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'));
 
         if ($this->getMapper()->insert($m_message) <= 0) {
-            throw new \Exception('error insert message');
+            throw new \Exception('error insert message'); //@codeCoverageIgnore
         }
 
         $id = $this->getMapper()->getLastInsertValue();
@@ -71,7 +71,7 @@ class Message extends AbstractService
         if ($type === ModelConversation::TYPE_CHAT) {
             $message_user_id = $this->getServiceMessageUser()->send($id, $conversation_id, $text, $library);
         }
-
+        
         if($type === ModelConversation::TYPE_LIVECLASS) {
             $m_item = $this->getServiceItem()->getLite(null, $conversation_id)->current();
             $page_id = $m_item->getPageId();

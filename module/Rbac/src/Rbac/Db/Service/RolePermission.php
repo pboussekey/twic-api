@@ -6,13 +6,7 @@ use Dal\Service\AbstractService;
 
 class RolePermission extends AbstractService
 {
-    public function getDroits()
-    {
-        return $this->getMapper()
-            ->getDroit()
-            ->toArray();
-    }
-
+   
     public function insert($permission)
     {
         return $this->getMapper()->insert($permission);

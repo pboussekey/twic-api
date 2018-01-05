@@ -1250,7 +1250,11 @@ class UserTest extends AbstractService
     {
         $this->setIdentity(1);
 
-        $data = $this->jsonRpc('contact.getRequestsCount', []);
+        $data = $this->jsonRpc('contact.getRequestsCount', [
+             'start_date' => '2015-10-10T06:00:00Z',
+            'end_date' => '2099-10-10T06:00:00Z',
+            'organization_id' => 1
+        ]);
         $this->assertEquals(count($data), 3);
         $this->assertEquals($data['id'], 1);
         $this->assertEquals(count($data['result']), 1);
@@ -1261,7 +1265,10 @@ class UserTest extends AbstractService
         
         $this->reset();
         $this->setIdentity(1);
-        $data = $this->jsonRpc('contact.getAcceptedCount', []);
+        $data = $this->jsonRpc('contact.getAcceptedCount', [
+             'start_date' => '2015-10-10T06:00:00Z',
+            'end_date' => '2099-10-10T06:00:00Z',
+            'organization_id' => 1]);
         $this->assertEquals(count($data), 3);
         $this->assertEquals($data['id'], 1);
         $this->assertEquals(count($data['result']), 1);
