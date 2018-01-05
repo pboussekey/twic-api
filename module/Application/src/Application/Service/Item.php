@@ -624,7 +624,7 @@ class Item extends AbstractService
     /**
      * Get Lite Item
      *
-     * @param int $item_id
+     * @param int $id
      * @param int $conversation_id
      *
      * @return ResultSet|\Application\Model\Item

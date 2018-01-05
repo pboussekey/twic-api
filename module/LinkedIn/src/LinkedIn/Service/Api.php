@@ -20,7 +20,7 @@ class Api extends AbstractApi
             $this->http_client->getRequest()->setUri('https://www.linkedin.com');
             $this->http_client->getRequest()->getHeaders()->clearHeaders();
             $this->http_client->getRequest()->getHeaders()->addHeaderLine('Content-Type', 'application/x-www-form-urlencoded');
-            $this->setMethode(Request::METHOD_POST);
+            $this->setMethod(Request::METHOD_POST);
             $this->setPath('/oauth/v2/accessToken');
             $this->setPost(
                 [
@@ -46,7 +46,7 @@ class Api extends AbstractApi
      */
     public function people()
     {
-        $this->setMethode(Request::METHOD_GET);
+        $this->setMethod(Request::METHOD_GET);
         $this->setPath(sprintf('/people/~:(id,first-name,last-name,summary,positions,picture-urls::(original),picture-url,public-profile-url)?format=json'));
         
         return new People($this->getBody($this->send()));

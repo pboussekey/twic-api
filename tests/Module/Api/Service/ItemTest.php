@@ -218,6 +218,29 @@ class ItemTest extends AbstractService
         return $items;
     }
     
+     /**
+     * @depends testPageAdd
+     */
+    public function testCourseUpdate($id)
+    {
+        $this->reset();
+        $this->setIdentity(1);
+        $data = $this->jsonRpc(
+            'page.update', [
+            'id' => 2,
+            'title' => 'updated title',
+            'is_published' => true
+            
+            ]
+        );
+        
+        
+        $this->assertEquals(count($data), 3);
+        $this->assertEquals($data['id'], 1);
+        $this->assertEquals($data['result'], 1);
+        $this->assertEquals($data['jsonrpc'], 2.0);
+    }
+    
     /**
      * @depends testPageAdd
      */

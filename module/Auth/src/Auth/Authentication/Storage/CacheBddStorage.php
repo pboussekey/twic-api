@@ -89,7 +89,7 @@ class CacheBddStorage implements StorageInterface
     {
         $this->setToken($data->getToken());
         $this->saveCacheSession($data);
-        $this->saveDbbSession($data);
+        $this->saveBddSession($data);
         $this->data = $data;
         
         return;
@@ -168,7 +168,7 @@ class CacheBddStorage implements StorageInterface
      * @param  string $data
      * @return boolean
      */
-    protected function saveDbbSession($data)
+    protected function saveBddSession($data)
     {
         $ret = false;
         $sql = new DbSql($this->db_adapter);

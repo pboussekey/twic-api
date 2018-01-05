@@ -6,15 +6,7 @@ use Dal\Service\AbstractService;
 
 class Permission extends AbstractService
 {
-    public function getPermission()
-    {
-        return $this->getMapper()->getPermissions();
-    }
-
-    public function getPermissionByRole($role)
-    {
-    }
-
+    
     public function insert($perm)
     {
         $this->getMapper()->insert($perm);

@@ -264,7 +264,7 @@ abstract class AbstractService extends AbstractHttpControllerTestCase
             ->will($this->returnValue(true));
         
         
-       $this->mockMail();
+       $this->mockMail(true);
         $serviceManager->setService('auth.service', $authMock);
         $serviceManager->setService('rbac.service', $rbacMock);
     }
@@ -283,7 +283,7 @@ abstract class AbstractService extends AbstractHttpControllerTestCase
         $serviceManager->setAllowOverride(true);
         $serviceManager->setService('rbac.service', $rbacMock);
     }
-    
+        
     public function mockLinkedin(){
         
         $serviceManager = $this->getApplicationServiceLocator();
@@ -332,24 +332,47 @@ abstract class AbstractService extends AbstractHttpControllerTestCase
     }
     
    
-    
-    public function mockMail(){
-        $mailMock = new \Mail\Service\Mail();
-        $storageMock = $this->getMockBuilder('\Mail\Template\Storage\AbstractStorage')
-                ->setMethods(['write','read','exist','getList','init'])->getMock();
-        $storageMock->expects($this->any())
-            ->method('write')
-            ->will($this->returnValue(1));  
+    public function mockOpentok(){
+        $serviceManager = $this->getApplicationServiceLocator();
+        $mock = $this->getMockBuilder('\ZOpenTok\Service\OpenTok')
+            ->disableOriginalConstructor()
+            ->setMethods(['startArchive','stopArchive'])->getMock();
+        $mock->expects($this->any())
+            ->method('startArchive')
+            ->willReturn(json_encode(['status' => 'started', 'id' => 1234]));
         
+        $mock->expects($this->any())
+            ->method('stopArchive')
+            ->willReturn(['status' => 'stop', 'id' => 1234]);
+
+        $serviceManager->setAllowOverride(true);
+        $serviceManager->setService('opentok.service', $mock);
+    }
+    
+    public function mockMail($mockCache = true){
+        $mailMock = new \Mail\Service\Mail();
         $m_tplModel = new \Mail\Template\Model\TplModel();
         $m_tplModel->setSubject('subject')->setFrom('from@test.com')->setFromName('fromName');
-        
-        $storageMock->expects($this->any())
-            ->method('read')
-            ->will($this->returnValue($m_tplModel));  
-        $storageMock->expects($this->any())
-            ->method('exist')
-            ->will($this->returnValue(true)); 
+      
+        $cacheMock = $this->getMockBuilder('\Zend\Cache\Storage\StorageInterface')
+                ->getMock();
+        if($mockCache){
+            $cacheMock->expects($this->any())
+                ->method('hasItem')
+                ->willReturn(true); 
+            $cacheMock->expects($this->any())
+                ->method('getItem')
+                ->willReturn($m_tplModel);
+        }
+        $s3Mock = $this->getMockBuilder('\Aws\S3\S3Client')
+                ->setMethods(["registerStreamWrapper"])
+                ->disableOriginalConstructor()
+                ->getMock();
+        $storageMock = new \Mail\Template\Storage\FsS3Storage();
+        $storageMock->setClient($s3Mock);
+        $storageMock->setCache($cacheMock);
+        $storageMock->init(['bucket' => 'testbucket']);
+        $storageMock->setPath("./tmp/");
         $mailMock->setTplStorage($storageMock);
         $mailMock->setOptions(['storage' => [
              'active' => false,

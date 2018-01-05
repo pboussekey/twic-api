@@ -28,9 +28,9 @@ abstract class AbstractApi
         $this->http_client->getRequest()->getHeaders()->addHeaderLine('Content-Type', 'application/json');
     }
 
-    public function setMethode($methode)
+    public function setMethod($method)
     {
-        $this->http_client->setMethod($methode);
+        $this->http_client->setMethod($method);
     }
 
     public function setPath($path)

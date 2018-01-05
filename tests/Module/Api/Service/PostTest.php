@@ -113,6 +113,7 @@ class PostTest extends AbstractService
             'link_title' => 'link_title',
             'link_desc' => 'link_desc',
             't_page_id' => $data['result'],
+            'page_id' => 1,
             'data' => ['test' => 'test'],
             //'t_user_id' => 1,
             'docs' => [
@@ -129,10 +130,47 @@ class PostTest extends AbstractService
 
         return $data['result'];
     }
-    
+       /**
+     * @depends testPostAdd
+     */
+    public function testPostAdd2($post_id)
+    {
+        $this->setIdentity(2);
+        $data = $this->jsonRpc(
+            'post.add', [
+            'content' => 'Other post',
+            't_page_id' => 1,
+            ]
+            );
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals($data['result'] , 8); 
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
+        
+        return $data['result'];
+    }
      
   
-    
+     /**
+     * @depends testPostAdd
+     */
+    public function testNotifAdd($post_id)
+    {
+        $this->setIdentity(2);
+        $data = $this->jsonRpc(
+            'post.add', [
+            'content' => 'Other post',
+            'origin_id' => $post_id,
+            'uid' => 'uid'
+            ]
+            );
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals($data['result'] , 9); 
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
+        
+        return $data['result'];
+    }
     
     /**
      * @depends testPostAdd
@@ -143,12 +181,33 @@ class PostTest extends AbstractService
         $data = $this->jsonRpc(
             'post.add', [
             'content' => 'Comment',
-            'parent_id' => $post_id
+            'parent_id' => $post_id,
+            'data' => ['test']
             ]
             );
         $this->assertEquals(count($data) , 3); 
         $this->assertEquals($data['id'] , 1); 
-        $this->assertEquals($data['result'] , 8); 
+        $this->assertEquals($data['result'] , 10); 
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
+
+    }
+    
+    /**
+     * @depends testNotifAdd
+     */
+    public function testCommentAdd2($post_id)
+    {
+        $this->setIdentity(2);
+        $data = $this->jsonRpc(
+            'post.add', [
+            'content' => 'Comment',
+            'parent_id' => $post_id,
+            'data' => ['test']
+            ]
+            );
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals($data['result'] , 11); 
         $this->assertEquals($data['jsonrpc'] , 2.0); 
 
     }
@@ -347,15 +406,44 @@ class PostTest extends AbstractService
 
         $this->assertEquals(count($data) , 3); 
         $this->assertEquals($data['id'] , 1); 
-        $this->assertEquals(count($data['result']) , 2); 
+        $this->assertEquals(count($data['result']) , 3); 
         $this->assertEquals(count($data['result'][0]) , 2); 
         $this->assertEquals(!empty($data['result'][0]['last_date']) , true); 
         $this->assertEquals($data['result'][0]['id'] , 7); 
         $this->assertEquals(count($data['result'][1]) , 2); 
         $this->assertEquals(!empty($data['result'][1]['last_date']) , true); 
-        $this->assertEquals($data['result'][1]['id'] , 6); 
+        $this->assertEquals($data['result'][1]['id'] , 8); 
+        $this->assertEquals(count($data['result'][2]) , 2); 
+        $this->assertEquals(!empty($data['result'][2]['last_date']) , true); 
+        $this->assertEquals($data['result'][2]['id'] , 6); 
         $this->assertEquals($data['jsonrpc'] , 2.0); 
+
     }
+    
+     public function testPostGetListId2()
+    {
+        $this->setIdentity(1);
+        $data = $this->jsonRpc('post.getListId', ['filter' => ['n' => 10, 'p' => 1]]);
+
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals(count($data['result']) , 2); 
+        $this->assertEquals($data['result']['count'] , 3); 
+        $this->assertEquals(count($data['result']['list']) , 3); 
+        $this->assertEquals(count($data['result']['list'][0]) , 2); 
+        $this->assertEquals(!empty($data['result']['list'][0]['last_date']) , true); 
+        $this->assertEquals($data['result']['list'][0]['id'] , 7); 
+        $this->assertEquals(count($data['result']['list'][1]) , 2); 
+        $this->assertEquals(!empty($data['result']['list'][1]['last_date']) , true); 
+        $this->assertEquals($data['result']['list'][1]['id'] , 8); 
+        $this->assertEquals(count($data['result']['list'][2]) , 2); 
+        $this->assertEquals(!empty($data['result']['list'][2]['last_date']) , true); 
+        $this->assertEquals($data['result']['list'][2]['id'] , 6); 
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
+
+
+    }
+
 
     /**
      * @depends testPostAdd
@@ -373,6 +461,26 @@ class PostTest extends AbstractService
         $this->assertEquals($data['id'], 1);
         $this->assertEquals($data['result'], 1);
         $this->assertEquals($data['jsonrpc'], 2.0);
+    }
+    
+    /**
+     * @depends testPostAdd
+     */
+      public function testCanGetListUsersWhoLiked($post_id)
+    {
+        $this->setIdentity(1,1);
+        $data = $this->jsonRpc(
+            'user.getListId', [
+             'post_id' => $post_id
+            ]
+        );
+        
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals(count($data['result']) , 1); 
+        $this->assertEquals($data['result'][0] , 2); 
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
+
     }
 
     /**
@@ -428,7 +536,7 @@ class PostTest extends AbstractService
         $this->assertEquals($data['id'] , 1); 
         $this->assertEquals(count($data['result']) , 1); 
         $this->assertEquals(count($data['result'][0]) , 3); 
-        $this->assertEquals($data['result'][0]['count'] , 1); 
+        $this->assertEquals($data['result'][0]['count'] , 2); 
         $this->assertEquals(!empty($data['result'][0]['created_date']) , true); 
         $this->assertEquals($data['result'][0]['parent_id'] , 0); 
         $this->assertEquals($data['jsonrpc'] , 2.0); 
@@ -451,7 +559,7 @@ class PostTest extends AbstractService
         $this->assertEquals($data['id'] , 1); 
         $this->assertEquals(count($data['result']) , 1); 
         $this->assertEquals(count($data['result'][0]) , 3); 
-        $this->assertEquals($data['result'][0]['count'] , 1); 
+        $this->assertEquals($data['result'][0]['count'] , 2); 
         $this->assertEquals(!empty($data['result'][0]['created_date']) , true); 
         $this->assertEquals($data['result'][0]['parent_id'] , 1); 
         $this->assertEquals($data['jsonrpc'] , 2.0);

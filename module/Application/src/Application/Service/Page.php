@@ -431,19 +431,18 @@ class Page extends AbstractService
                 }
             }
         }
-
+        $tmp_m_page = $this->getLite($id);
         if (null !== $users) {
             $is_present = false;
             foreach ($users as &$ar_u) {
                 if(isset($ar_u['user_email'])) {
                     $ar_u['user_id'] = $this->getServiceUser()->add(null, null, $ar_u['user_email'], null, null, null, null, null, null, null, $id);
                 }
-                if ($ar_u['user_id'] === $m_page->getOwnerId()) {
+                if ($ar_u['user_id'] === $tmp_m_page->getOwnerId()) {
                     $is_present = true;
                     $ar_u['role'] = ModelPageUser::ROLE_ADMIN;
                     $ar_u['state'] = ModelPageUser::STATE_MEMBER;
 
-                    break;
                 }
             }
             $this->getServicePageUser()->replace($id, $users);
@@ -461,14 +460,15 @@ class Page extends AbstractService
             $this->getServicePageDoc()->replace($id, $docs);
         }
 
-        $tmp_m_page = $this->getMapper()->select($this->getModel()->setId($id))->current();
+        //@TODO voir ce bout de code avec CRO
         if ($is_published === true) {
             $res_post = $this->getServicePost()->getListId(null, null, $id, null, true);
+            $date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
             foreach ($res_post as $m_post) {
                 $this->getServicePostSubscription()->add(
                     'PP'.$id,
                     $m_post->getId(),
-                    null,
+                    $date,
                     'UPDATE',
                     $owner_id
                 );
@@ -547,18 +547,18 @@ class Page extends AbstractService
         }
         $m_page = $this->getModel()->setId($id)
             ->setDeletedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'));
-        if ($this->getMapper()->update($m_page)) {
-            foreach ($id as $i) {
-                $this->getServicePost()->hardDelete('PP'.$i);
-                $m_tmp_page = $this->getLite($i);
-                if ($m_tmp_page->getType() === ModelPage::TYPE_ORGANIZATION) {
-                    $this->getServiceUser()->removeOrganizationId($i);
-                }
+        
+        $ret = $this->getMapper()->update($m_page);
+       
+        foreach ($id as $i) {
+            $this->getServicePost()->hardDelete('PP'.$i);
+            $m_tmp_page = $this->getLite($i);
+            if ($m_tmp_page->getType() === ModelPage::TYPE_ORGANIZATION) {
+                $this->getServiceUser()->removeOrganizationId($i);
             }
-            return true;
         }
 
-        return false;
+        return $ret;
     }
 
     /**

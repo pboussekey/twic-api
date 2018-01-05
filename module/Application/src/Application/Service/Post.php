@@ -103,8 +103,6 @@ class Post extends AbstractService
             $uid = null;
         }
         
-
-        $user_id = $this->getServiceUser()->getIdentity()['id'];
         $m_post = $this->getModel()
             ->setContent($content)
             ->setPicture($picture)
@@ -182,8 +180,9 @@ class Post extends AbstractService
             if (!$is_private_page &&  !$is_notif) {
                 $pevent = array_merge($pevent, ['P'.$this->getOwner($m_post)]);
             }
-
-            $pevent = array_merge($pevent, ['M'.$m_post_base->getUserId()]);
+            if(!$m_post_base->getUserId() instanceof IsNull){
+                $pevent = array_merge($pevent, ['M'.$m_post_base->getUserId()]);
+            }
             // SI NOTIF ET QUE LE PARENT N'A PAS DE TARGET ON RECUPERE TTES LES SUBSCRIPTIONS
             if ($is_notif && null === $sub && $et === false) {
                 $sub = $this->getServicePostSubscription()->getListLibelle($origin_id);
@@ -194,16 +193,17 @@ class Post extends AbstractService
             $pevent = array_merge($pevent, $sub);
         }
         $ev=((!empty($event))? $event:(($base_id!==$id) ? ModelPostSubscription::ACTION_COM : ModelPostSubscription ::ACTION_CREATE));
-
-        $this->getServicePostSubscription()->add(
-            array_unique($pevent),
-            $base_id,
-            $date,
-            $ev,
-            ((!$is_notif) ? $user_id:null),
-            (($base_id!==$id) ? $id:null),
-            $data
-        );
+        if(count($pevent) > 0){
+            $this->getServicePostSubscription()->add(
+                array_unique($pevent),
+                $base_id,
+                $date,
+                $ev,
+                ((!$is_notif) ? $user_id:null),
+                (($base_id!==$id) ? $id:null),
+                $data
+            );
+        }
         
         if($parent_id == null) {
             if($t_page_id != null) {
@@ -298,7 +298,7 @@ class Post extends AbstractService
             }
         } else {
             $m_post = $this->getLite($parent_id);
-            if($user_id != $m_post->getUserId()) {
+            if(!$m_post->getUserId() instanceof IsNull && $user_id != $m_post->getUserId()) {
                 $m_user = $this->getServiceUser()->getLite($m_post->getUserId());
                 $m_me = $this->getServiceUser()->getLite($user_id);
                 $m_page = false;

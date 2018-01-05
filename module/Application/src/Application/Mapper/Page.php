@@ -6,6 +6,7 @@ use Dal\Mapper\AbstractMapper;
 use Zend\Db\Sql\Predicate\Expression;
 use Zend\Db\Sql\Predicate\Predicate;
 use Zend\Db\Sql\Select;
+use Application\Model\Page as ModelPage;
 
 class Page extends AbstractMapper
 {
@@ -362,7 +363,7 @@ class Page extends AbstractMapper
         return $this->selectWith($select);
     }
     
-    public function getCount($me, $interval, $start_date = null, $end_date = null, $organization_id = null, $type = null)
+    public function getCount($me, $interval, $start_date = null, $end_date = null, $page_id = null, $type = null)
     {
         $select = $this->tableGateway->getSql()->select();
         $select->columns([ 'page$created_date' => new Expression('SUBSTRING(page.created_date,1,'.$interval.')'), 'page$count' => new Expression('COUNT(DISTINCT page.id)'), 'type'])
@@ -381,10 +382,12 @@ class Page extends AbstractMapper
             $select->where(['page.type' => $type]);
         }
         
-        if (null != $organization_id) {
+        if (null != $page_id) {
             $select->join('user', 'page.user_id = user.id', [])
-                ->join('page_user', 'user.id = page_user.user_id', [])
-                ->where(['page_user.page_id' => $organization_id]);
+                ->join('page_user', 'user.id = page_user.user_id', [], $select::JOIN_LEFT)
+                ->where(['((page_user.page_id = ? ' => $page_id])
+                ->where([' page.type <> ? )' => ModelPage::TYPE_ORGANIZATION] )
+                ->where([' user.organization_id = ?)' => $page_id], Predicate::OP_OR);
         }
         
         return $this->selectWith($select);

@@ -136,7 +136,7 @@ class UserTest extends AbstractService
             ],
             'sis' => 'sis']
         );
-
+        
         $this->assertEquals(count($data), 3);
         $this->assertEquals($data['result'], 9);
         $this->assertEquals($data['id'], 1);
@@ -1156,6 +1156,27 @@ class UserTest extends AbstractService
         $this->assertEquals($data['result']['count'], 1);
         $this->assertEquals($data['jsonrpc'], 2.0);
     }
+    
+     public function testGetListContact3()
+    {
+        $this->setIdentity(1);
+        $data = $this->jsonRpc(
+            'user.getListId', [
+            'contact_state' => 0
+            ]
+        );
+        
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals(count($data['result']) , 6); 
+        $this->assertEquals($data['result'][0] , 10); 
+        $this->assertEquals($data['result'][1] , 7); 
+        $this->assertEquals($data['result'][2] , 6); 
+        $this->assertEquals($data['result'][3] , 5); 
+        $this->assertEquals($data['result'][4] , 2); 
+        $this->assertEquals($data['result'][5] , 1); 
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
+    }
 
     public function testDeleteContact()
     {
@@ -1219,20 +1240,46 @@ class UserTest extends AbstractService
             'exclude' => [2],
             'search' => 'robert',
             'filter' => ['p' => 1, 'n' => 10],
+            'order' => ['type' => 'firstname']
             //  'page_id' => 1
             ]
         );
+        
         $this->assertEquals(count($data) , 3); 
         $this->assertEquals($data['id'] , 1); 
         $this->assertEquals(count($data['result']) , 2); 
         $this->assertEquals(count($data['result']['list']) , 2); 
-        $this->assertEquals($data['result']['list'][0] , 10); 
-        $this->assertEquals($data['result']['list'][1] , 3); 
+        $this->assertEquals($data['result']['list'][0] , 3); 
+        $this->assertEquals($data['result']['list'][1] , 10); 
         $this->assertEquals($data['result']['count'] , 2); 
         $this->assertEquals($data['jsonrpc'] , 2.0); 
 
     }
 
+     public function testCanGetListIdAdmin()
+    {
+        $this->setIdentity(1,1);
+        $data = $this->jsonRpc(
+            'user.getListId', [
+            'exclude' => [2],
+            'search' => 'robert',
+            'filter' => ['p' => 1, 'n' => 10],
+            'order' => ['type' => 'random', 'seed' => 1]
+            //  'page_id' => 1
+            ]
+        );
+        
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals(count($data['result']) , 2); 
+        $this->assertEquals(count($data['result']['list']) , 2); 
+        $this->assertEquals($data['result']['list'][0] , 3); 
+        $this->assertEquals($data['result']['list'][1] , 10); 
+        $this->assertEquals($data['result']['count'] , 2); 
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
+
+    }
+    
     public function testCanLanguageGetList()
     {
         $this->setIdentity(1);
@@ -1356,7 +1403,6 @@ class UserTest extends AbstractService
         $this->mockRbac();
         $this->mockLinkedin();
         $this->mockLibrary();
-        
         $data = $this->jsonRpc('user.linkedinSignIn', 
             ['account_token' => 'token3',  
                 'code' => 'code']);

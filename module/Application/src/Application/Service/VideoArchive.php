@@ -16,23 +16,6 @@ class VideoArchive extends AbstractService
 {
 
     /**
-     * Get Video.
-     *
-     * @param int $id
-     *
-     * @return \Application\Model\VideoArchive
-     */
-    public function get($id)
-    {
-        $res_videoconf_archive = $this->getMapper()->get($id);
-        if ($res_videoconf_archive->count() <= 0) {
-            throw new \Exception('video_conf');
-        }
-
-        return $res_videoconf_archive->current();
-    }
-
-    /**
      * Start record video conf
      *
      * @invokable
@@ -105,7 +88,8 @@ class VideoArchive extends AbstractService
 
     /**
      * Valide the video transfer
-     *
+     * @invokable
+     * 
      * @param array $json
      */
     public function checkStatus($json)
@@ -116,13 +100,14 @@ class VideoArchive extends AbstractService
             if ($ret) {
                 $m_video_archive = $this->getMapper()->select($this->getModel()->setArchiveToken($json['id']))->current();
                 $m_conversation = $this->getServiceConversation()->getLite($m_video_archive->getConversationId());
-
-                $m_user = $this->getServiceConversationUser()->getListUserIdByConversation($m_conversation->getId());
+                $m_item = $this->getServiceItem()->getLite(null, $m_video_archive->getConversationId())->current();
+                $ar_user = ($m_item->getParticipants() === 'all') ?
+                    $this->getServicePageUser()->getListByPage($m_item->getPageId())[$m_item->getPageId()] :
+                    $this->getServiceItemUser()->getListUserId(null, $m_item->getId());
                 $miid = [];
-                foreach ($m_user as $u_id) {
+                foreach ($ar_user as $u_id) {
                     $miid[] = 'M'.$u_id;
                 }
-
                 $this->getServicePost()->addSys(
                     'VCONV'.$m_conversation->getId(),
                     '',
@@ -131,7 +116,7 @@ class VideoArchive extends AbstractService
                     'link' => $json['link']
                     ],
                     'create',
-                    [$miid]/*sub*/,
+                    $miid/*sub*/,
                     null/*parent*/,
                     null/*page*/,
                     null/*user*/,
@@ -175,13 +160,13 @@ class VideoArchive extends AbstractService
     }
     
        /**
-        * Get Service ConversationUser.
+        * Get Service PageUser.
         *
-        * @return \Application\Service\ConversationUser
+        * @return \Application\Service\PageUser
         */
-    private function getServiceConversationUser()
+    private function getServicePageUser()
     {
-        return $this->container->get('app_service_conversation_user');
+        return $this->container->get('app_service_page_user');
     }
 
     /**
@@ -205,12 +190,13 @@ class VideoArchive extends AbstractService
     }
 
     /**
-     * Get Service User.
+     * Get Service Item
      *
-     * @return \Application\Service\User
+     * @return \Application\Service\Item
      */
-    private function getServiceUser()
+    private function getServiceItem()
     {
-        return $this->container->get('app_service_user');
+        return $this->container->get('app_service_item');
     }
+
 }

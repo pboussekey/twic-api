@@ -351,29 +351,6 @@ class PageUser extends AbstractService
     }
 
     /**
-     * Get List Page User Relation
-     *
-     * @param int    $page_id
-     * @param array  $filter
-     * @param string $state
-     *
-     * @return \Dal\Db\ResultSet\ResultSet
-     */
-    public function getList($page_id, $filter = null, $role = null)
-    {
-        //@TODO Petit hack pour le filtre getList dans le mapper a optimisé
-        if (null === $role) {
-            $role = 'norole';
-        }
-        $mapper = $this->getMapper();
-        $res = $mapper->usePaginator($filter)->getList($page_id, null, $role);
-
-        return null !== $filter ?
-        ['list' => $res,'count' => $mapper->count()] :
-        $res;
-    }
-
-    /**
      * Get List userId by Page
      *
      * @invokable
@@ -381,6 +358,7 @@ class PageUser extends AbstractService
      * @param int|array $page_id
      * @param string    $role
      * @param string    $state
+     * @param bool    $sent
      * @param int       $is_pinned
      * @param string    $search
      */

@@ -313,6 +313,7 @@ class Library extends AbstractService
      *
      * @param  string $url
      * @return string
+     * @codeCoverageIgnore
      */
     public function upload($url, $name)
     {
