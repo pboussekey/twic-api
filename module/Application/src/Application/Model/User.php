@@ -22,10 +22,6 @@ class User extends BaseUser
 
     public function exchangeArray(array &$data)
     {
-        if ($this->isRepeatRelational()) {
-            return;
-        }
-
         parent::exchangeArray($data);
 
         $this->role = $this->requireModel('app_model_role', $data);

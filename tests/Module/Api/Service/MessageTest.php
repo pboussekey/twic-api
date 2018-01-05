@@ -977,7 +977,6 @@ class MessageTest extends AbstractService
         $this->mockOpenTok();
         $data = $this->jsonRpc('videoarchive.startRecord', ['conversation_id' => $item['conversation_id']]);
 
-        $this->printCreateTest($data);
         $this->assertEquals(count($data), 3);
         $this->assertEquals($data['id'], 1);
         $this->assertEquals(count($data['result']), 2);

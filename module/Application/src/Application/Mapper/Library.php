@@ -63,36 +63,4 @@ class Library extends AbstractMapper
 
         return $this->selectWith($select);
     }
-
-    /**
-     * Get List Library By Bank Question
-     *
-     * @param  int $bank_question_id
-     * @return \Dal\Db\ResultSet\ResultSet
-     */
-    public function getListByBankQuestion($bank_question_id)
-    {
-        $select = $this->tableGateway->getSql()->select();
-        $select->columns(['id','name','link','token','type','created_date','deleted_date','updated_date','folder_id','owner_id','box_id'])
-            ->join('bank_question_media', 'bank_question_media.library_id=library.id', [])
-            ->where(['bank_question_media.bank_question_id' => $bank_question_id]);
-
-        return $this->selectWith($select);
-    }
-
-    /**
-     * Get List Library By Conversation
-     *
-     * @param  int $conversation_id
-     * @return \Dal\Db\ResultSet\ResultSet
-     */
-    public function getListByConversation($conversation_id)
-    {
-        $select = $this->tableGateway->getSql()->select();
-        $select->columns(['id','name','link','token','type','created_date','deleted_date','updated_date','folder_id','owner_id','box_id'])
-            ->join('conversation_doc', 'conversation_doc.library_id=library.id', [])
-            ->where(['conversation_doc.conversation_id' => $conversation_id]);
-
-        return $this->selectWith($select);
-    }
 }
