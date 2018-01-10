@@ -15,7 +15,7 @@ class Conversation extends AbstractMapper
     {
         $select_nb_users = new Select('conversation_user');
         $select_nb_users->columns(['nbr_users' => new Expression('COUNT(true)')])->where(['conversation_user.conversation_id=conversation.id']);
-
+ 
         $subselect = new Select('message');
         $colums  = ['conversation$id' => 'id','type','name','conversation_message$id' => $subselect, 'conversation$nb_users' => $select_nb_users];
 
