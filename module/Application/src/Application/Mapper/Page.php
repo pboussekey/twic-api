@@ -7,6 +7,7 @@ use Zend\Db\Sql\Predicate\Expression;
 use Zend\Db\Sql\Predicate\Predicate;
 use Zend\Db\Sql\Select;
 use Application\Model\Page as ModelPage;
+use Application\Model\PageUser as ModelPageUser;
 
 class Page extends AbstractMapper
 {
@@ -386,8 +387,10 @@ class Page extends AbstractMapper
             $select->join('user', 'page.user_id = user.id', [])
                 ->join('page_user', 'user.id = page_user.user_id', [], $select::JOIN_LEFT)
                 ->where(['((page_user.page_id = ? ' => $page_id])
+                ->where([' page_user.page_id = ' => $page_id])
+                ->where([' page_user.role = ? ' => ModelPageUser::ROLE_ADMIN])
                 ->where([' page.type <> ? )' => ModelPage::TYPE_ORGANIZATION] )
-                ->where([' user.organization_id = ?)' => $page_id], Predicate::OP_OR);
+                ->where([' page.owner_id = ?)' => $page_id], Predicate::OP_OR);
         }
         
         return $this->selectWith($select);

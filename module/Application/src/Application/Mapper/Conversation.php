@@ -33,8 +33,8 @@ class Conversation extends AbstractMapper
             $select->where(['conversation.id' => $conversation_id]);
         } else {
             $select->join('conversation_user', 'conversation.id=conversation_user.conversation_id', [], $select::JOIN_LEFT)
-                ->join('page_user', 'page.id=page_user.page_id', [], $select::JOIN_LEFT)
-                ->join('item_user', 'item.id=item_user.item_id', [], $select::JOIN_LEFT)
+                ->join('page_user', new Expression('page.id=page_user.page_id AND page_user.user_id = ?', [$user_id]), [], $select::JOIN_LEFT)
+                ->join('item_user', new Expression('item.id=item_user.item_id AND item_user.user_id = ?', [$user_id]), [], $select::JOIN_LEFT)
                 ->where([' ( conversation_user.user_id = ? ' => $user_id])
                 ->where(['page_user.user_id = ? ' => $user_id],  Predicate::OP_OR)
                 ->where(['item_user.user_id = ? )' => $user_id], Predicate::OP_OR);
