@@ -32,7 +32,7 @@ class Conversation extends AbstractMapper
         if (null !== $conversation_id) {
             $select->where(['conversation.id' => $conversation_id]);
         } else {
-            $select->join('conversation_user', 'conversation.id=conversation_user.conversation_id', [], $select::JOIN_LEFT)
+            $select->join('conversation_user', new Expression('conversation.id=conversation_user.conversation_id AND conversation_user.user_id = ?', [$user_id]), [], $select::JOIN_LEFT)
                 ->join('page_user', new Expression('page.id=page_user.page_id AND page_user.user_id = ?', [$user_id]), [], $select::JOIN_LEFT)
                 ->join('item_user', new Expression('item.id=item_user.item_id AND item_user.user_id = ?', [$user_id]), [], $select::JOIN_LEFT)
                 ->where([' ( conversation_user.user_id = ? ' => $user_id])
@@ -87,7 +87,7 @@ class Conversation extends AbstractMapper
         if (null !== $type) {
             $select->where(['conversation.type' => $type]);
         }
-
+        
         return $this->selectWith($select);
     }
 }
