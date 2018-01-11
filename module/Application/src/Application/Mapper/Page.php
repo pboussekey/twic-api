@@ -390,7 +390,7 @@ class Page extends AbstractMapper
                 ->where->NEST->NEST
                 ->in('user.organization_id', $page_id)->AND
                 ->literal(' page_relation.parent_id IS NULL')->UNNEST->OR
-                ->in(' page.owner_id',$page_id)->UNNEST;
+                ->in(' page_relation.parent_id',$page_id)->UNNEST;
         }
         
         return $this->selectWith($select);
