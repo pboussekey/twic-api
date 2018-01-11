@@ -123,11 +123,11 @@ class Activity extends AbstractService
      *
      * @invokable
      *
-     * @param int    $organization_id
-     * @param int    $user_id
      * @param string $start_date
-     * @param string $interval_date
      * @param string $end_date
+     * @param int    $organization_id
+     * @param string $interval_date
+     * @param int    $user_id
      *
      * @return array
      */
@@ -186,7 +186,7 @@ class Activity extends AbstractService
 
     public function interval($interval = 'D') 
     {
-        $ret = false;
+        $ret = 10;
         switch ($interval) {
         case 'D':
             $ret = 10;

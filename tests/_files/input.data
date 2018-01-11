@@ -1,1 +1,1 @@
-{"method":"user.linkedinSignIn","id":1,"params":{"account_token":"newtoken","code":"code"}}
+{"method":"postlike.getCount","id":1,"params":{"start_date":"2015-10-10T06:00:00Z","end_date":"2099-10-10T06:00:00Z","type":2,"organization_id":1}}

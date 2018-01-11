@@ -135,7 +135,7 @@ class PostLike extends AbstractService
     }
     
      /**
-      * Get page counts.
+      * Get like counts.
       *
       * @invokable
       *
