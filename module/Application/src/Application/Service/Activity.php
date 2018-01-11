@@ -112,9 +112,6 @@ class Activity extends AbstractService
      */
     public function getList($filter = [], $search = null, $start_date = null, $end_date = null, $user_id = null)
     {
-        if(null !== $organization_id && !is_array($organization_id)){
-            $organization_id = [$organization_id];
-        }
         $mapper = $this->getMapper();
         $res_activity = $mapper->usePaginator($filter)->getList($search, $start_date, $end_date, null, $user_id);
 
@@ -136,6 +133,9 @@ class Activity extends AbstractService
      */
     public function getConnections($start_date = null, $end_date = null, $organization_id = null, $interval_date = 'D', $user_id = null)
     {
+        if(null !== $organization_id && !is_array($organization_id)){
+            $organization_id = [$organization_id];
+        }
         $mapper = $this->getMapper();
         $res_activity = $mapper->getList(null, $start_date, $end_date, $organization_id, $user_id);
         $arrayUser = [];
