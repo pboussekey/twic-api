@@ -145,14 +145,14 @@ class Post extends AbstractMapper
         if (null != $end_date) {
             $select->where(['post.created_date <= ? ' => $end_date]);
         }
-        
         if (null != $page_id) {
             $select->join('user', 'post.user_id = user.id', [])
                 ->join('page_user', 'user.id = page_user.user_id', [], $select::JOIN_LEFT)
                 ->join('page', 'page.id = page_user.page_id',[])
-                ->where(['((page_user.page_id = ? ' => $page_id])
-                ->where([' page.type <> ? )' => ModelPage::TYPE_ORGANIZATION] )
-                ->where([' user.organization_id = ?)' => $page_id], Predicate::OP_OR);
+                ->where->NEST->NEST
+                ->in('page_user.page_id',$page_id)
+                ->notEqualTo(' page.type',ModelPage::TYPE_ORGANIZATION )->UNNEST->OR
+                ->in(' user.organization_id', $page_id)->UNNEST;
         }
 
         

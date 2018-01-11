@@ -1,1 +1,1 @@
-{"method":"videoarchive.checkStatus","id":1,"params":{"json":{"id":1234,"status":"uploaded","link":"link"}}}
+{"method":"user.linkedinSignIn","id":1,"params":{"account_token":"newtoken","code":"code"}}

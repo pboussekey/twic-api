@@ -87,7 +87,6 @@ class Conversation extends AbstractMapper
         if (null !== $type) {
             $select->where(['conversation.type' => $type]);
         }
-        
         return $this->selectWith($select);
     }
 }

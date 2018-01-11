@@ -369,7 +369,7 @@ class Contact extends AbstractService
       * @param string $start_date
       * @param string $end_date
       * @param string $interval_date
-      * @param int    $organization_id
+      * @param int|array $organization_id
       *
       * @return array
       */
@@ -390,7 +390,7 @@ class Contact extends AbstractService
       * @param string $start_date
       * @param string $end_date
       * @param string $interval_date
-      * @param int    $organization_id
+      * @param int|array $organization_id
       *
       * @return array
       */

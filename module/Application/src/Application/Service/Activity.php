@@ -112,6 +112,9 @@ class Activity extends AbstractService
      */
     public function getList($filter = [], $search = null, $start_date = null, $end_date = null, $user_id = null)
     {
+        if(null !== $organization_id && !is_array($organization_id)){
+            $organization_id = [$organization_id];
+        }
         $mapper = $this->getMapper();
         $res_activity = $mapper->usePaginator($filter)->getList($search, $start_date, $end_date, null, $user_id);
 

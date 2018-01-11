@@ -7,7 +7,7 @@ use Zend\Db\Sql\Predicate\Expression;
 use Zend\Db\Sql\Predicate\Predicate;
 use Zend\Db\Sql\Select;
 use Application\Model\Page as ModelPage;
-use Application\Model\PageUser as ModelPageUser;
+use Application\Model\PageRelation as ModelPageRelation;
 
 class Page extends AbstractMapper
 {
@@ -384,12 +384,13 @@ class Page extends AbstractMapper
         }
         
         if (null != $page_id) {
-            $select->join('user', 'page.user_id = user.id', [])
-                ->join('page_user', 'user.id = page_user.user_id', [], $select::JOIN_LEFT)
-                ->where(['((page_user.page_id = ? ' => $page_id])
-                ->where([' page_user.role = ? ' => ModelPageUser::ROLE_ADMIN ])
-                ->where([' page.type <> ? )' => ModelPage::TYPE_ORGANIZATION] )
-                ->where([' page.owner_id = ?)' => $page_id], Predicate::OP_OR);
+            $select
+                ->join('user', 'page.owner_id = user.id', [], $select::JOIN_LEFT) 
+                ->join('page_relation', new Expression('page_relation.page_id = page.id AND page_relation.type = ?', [ModelPageRelation::TYPE_OWNER]), [], $select::JOIN_LEFT) 
+                ->where->NEST->NEST
+                ->in('user.organization_id', $page_id)->AND
+                ->literal(' page_relation.parent_id IS NULL')->UNNEST->OR
+                ->in(' page.owner_id',$page_id)->UNNEST;
         }
         
         return $this->selectWith($select);

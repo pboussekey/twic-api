@@ -43,10 +43,22 @@ class Message extends AbstractService
                 $conversation_id = $this->getServiceConversation()->_create(ModelConversation::TYPE_CHAT, $to);
             }
         } elseif ($conversation_id !== null) {
-            // TODO URGENT TESTE CONVERSATIONUSER OU PAGEUSER OU ITEMUSER SELON LE TYPE 
-            if (!$this->getServiceConversation()->isInConversation($conversation_id, $user_id)) {
-                throw new \Exception('User '.$user_id.' is not in conversation '.$conversation_id);
+            
+            $m_item = $this->getServiceItem()->getLite(null, $conversation_id)->current();
+            if($m_item === false){
+                if (!$this->getServiceConversation()->isInConversation($conversation_id, $user_id)) {
+                    throw new \Exception('User '.$user_id.' is not in conversation '.$conversation_id);
+                }
             }
+            else{
+                $ar_uid = ($m_item->getParticipants() === 'all') ?
+                    $this->getServicePageUser()->getListByPage($m_item->getPageId())[$m_item->getPageId()] :
+                    $this->getServiceItemUser()->getListUserId(null, $m_item->getId());
+                if (!in_array($user_id, $ar_uid) && !$this->getServicePage()->isAdmin($m_item->getPageId())) {
+                    throw new \Exception('User '.$user_id.' is not in conversation '.$conversation_id);
+                }
+            }
+           
         }
 
         if (empty($text) && empty($library)) {
@@ -217,13 +229,16 @@ class Message extends AbstractService
       * @param string       $end_date
       * @param string       $interval_date
       * @param array|string $type
-      * @param int          $organization_id
+      * @param int|array $organization_id
       *
       * @return array
       */
     public function getCount( $start_date = null, $end_date = null, $interval_date = 'D', $type = null, $organization_id  = null)
     {
         
+        if(null !== $organization_id && !is_array($organization_id)){
+            $organization_id = [$organization_id];
+        }
         $interval = $this->getServiceActivity()->interval($interval_date);
         $identity = $this->getServiceUser()->getIdentity();
         
@@ -288,6 +303,16 @@ class Message extends AbstractService
     private function getServiceItemUser()
     {
         return $this->container->get('app_service_item_user');
+    }
+    
+    /**
+     * Get Service Page
+     *
+     * @return \Application\Service\Page
+     */
+    private function getServicePage()
+    {
+        return $this->container->get('app_service_page');
     }
     
     /**

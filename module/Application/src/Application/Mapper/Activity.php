@@ -41,10 +41,11 @@ class Activity extends AbstractMapper
         if (null != $page_id) {
             $select->join('page_user', 'user.id = page_user.user_id', [], $select::JOIN_LEFT)
                 ->join('page', 'page.id = page_user.page_id',[])
-                ->where(['((page_user.page_id = ? ' => $page_id])
-                ->where([' page.type <> ? )' => ModelPage::TYPE_ORGANIZATION] )
-                ->where([' user.organization_id = ?)' => $page_id], Predicate::OP_OR)
-                ->group('activity.id');
+                ->group('activity.id')
+                ->where->NEST->NEST
+                ->in('page_user.page_id',$page_id)
+                ->notEqualTo(' page.type',ModelPage::TYPE_ORGANIZATION )->UNNEST->OR
+                ->in(' user.organization_id', $page_id)->UNNEST;
         }
 
         if (null != $user_id) {

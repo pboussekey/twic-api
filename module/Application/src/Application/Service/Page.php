@@ -889,13 +889,16 @@ class Page extends AbstractService
       * @param string       $end_date
       * @param string       $interval_date
       * @param array|string $type
-      * @param int          $organization_id
+      * @param int|array $organization_id
       *
       * @return array
       */
     public function getCount( $start_date = null, $end_date = null, $interval_date = 'D', $type = null, $organization_id  = null)
     {
         
+        if(null !== $organization_id && !is_array($organization_id)){
+            $organization_id = [$organization_id];
+        }
         $interval = $this->getServiceActivity()->interval($interval_date);
         $identity = $this->getServiceUser()->getIdentity();
         
