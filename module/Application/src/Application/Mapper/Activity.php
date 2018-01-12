@@ -127,7 +127,6 @@ class Activity extends AbstractMapper
            $select->where->in(new Expression('SUBSTRING_INDEX(SUBSTRING_INDEX(object_data, \'"id":"\', \'-1\'), \'"\', 1)'), $page_id);
         }
         
-        syslog(1,$this->printSql($select));
         return $this->selectWith($select);
     }
 }
