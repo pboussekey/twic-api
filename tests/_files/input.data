@@ -1,1 +1,1 @@
-{"method":"activity.getVisitsCount","id":1,"params":{"start_date":"2015-04-20","end_date":"2015-04-25","organization_id":1}}
+{"method":"permission.delete","id":1,"params":{"libelle":"permission.test2"}}
