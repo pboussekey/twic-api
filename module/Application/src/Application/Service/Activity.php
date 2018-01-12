@@ -7,9 +7,6 @@
 namespace Application\Service; 
 
 use Dal\Service\AbstractService;
-use JRpc\Json\Server\Exception\JrpcException;
-use Zend\Db\Sql\Predicate\Between;
-use Application\Model\Role as ModelRole;
 
 /**
  * Class Activity
@@ -213,6 +210,31 @@ class Activity extends AbstractService
     {
         $mapper = $this->getMapper();
         return $mapper->getPages($object_name, $start_date, $end_date);
+    }
+    
+     /**
+     * Get List connections.
+     *
+     * @invokable
+     *
+     * @param string $start_date
+     * @param string $end_date
+     * @param int    $organization_id
+     * @param string $interval_date
+     * @param int    $user_id
+     *
+     * @return array
+     */
+    public function getVisitsCount($start_date = null, $end_date = null, $organization_id = null, $interval_date = 'D', $user_id = null)
+    {
+        if(null !== $organization_id && !is_array($organization_id)){
+            $organization_id = [$organization_id];
+        }
+        $interval = $this->interval($interval_date);
+        $identity = $this->getServiceUser()->getIdentity();
+        
+        return $this->getMapper()->getVisitsCount($identity['id'], $interval, $start_date, $end_date, $organization_id);
+      
     }
 
     /**

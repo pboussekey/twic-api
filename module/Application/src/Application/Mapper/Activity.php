@@ -6,6 +6,7 @@ use Dal\Mapper\AbstractMapper;
 use Zend\Db\Sql\Predicate\Expression;
 use Zend\Db\Sql\Predicate\Predicate;
 use Application\Model\Page as ModelPage;
+use Application\Model\Role as ModelRole;
 
 class Activity extends AbstractMapper
 {
@@ -89,6 +90,44 @@ class Activity extends AbstractMapper
         }
 
         $select->order(['activity$count' => 'DESC']);
+        return $this->selectWith($select);
+    }
+    
+    public function getVisitsCount($me, $interval, $start_date = null, $end_date = null, $page_id = null)
+    {
+        $select = $this->tableGateway->getSql()->select();
+       $select->columns([ 
+           'activity$date' => new Expression('SUBSTRING(activity.date,1,'.$interval.')'), 
+           'activity$count' => new Expression('COUNT(DISTINCT activity.id)'),
+           'activity$object_name' => new Expression("SUBSTRING_INDEX(REPLACE(object_name, 'lms.page.', ''),'.', 1)")]
+        )
+               
+            ->join('user', 'activity.user_id = user.id', [])
+            ->join('user_role', 'user_role.user_id = user.id', [])
+            ->group(
+                new Expression("SUBSTRING_INDEX(REPLACE(object_name, 'lms.page.', ''),'.', 1)"),
+                new Expression('SUBSTRING(activity.date,1,'.$interval.')')
+            )
+            ->where(['user_role.role_id <> ? ' => ModelRole::ROLE_ADMIN_ID])
+            ->where(['object_name is not NULL'])
+            ->where(["object_name LIKE 'lms.page%'"])
+            ->where(["event = 'navigation'"]);
+
+       
+
+        if (null != $start_date) {
+            $select->where(['date >= ? ' => $start_date]);
+        }
+
+        if (null != $end_date) {
+            $select->where(['date <= ? ' => $end_date]);
+        }
+        
+        if(null !== $page_id){
+           $select->where->in(new Expression('SUBSTRING_INDEX(SUBSTRING_INDEX(object_data, \'"id":"\', \'-1\'), \'"\', 1)'), $page_id);
+        }
+        
+        syslog(1,$this->printSql($select));
         return $this->selectWith($select);
     }
 }
