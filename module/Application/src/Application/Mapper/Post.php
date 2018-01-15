@@ -147,14 +147,14 @@ class Post extends AbstractMapper
         }
         if (null != $page_id) {
             $select->join('user', 'post.user_id = user.id', [])
-                ->join('page_user', 'user.id = page_user.user_id', [], $select::JOIN_LEFT)
-                ->join('page', 'page.id = page_user.page_id',[])
-                ->where->NEST->NEST
-                ->in('page_user.page_id',$page_id)
+                ->join(['parent' => 'post'], 'post.parent_id = parent.id', [], $select::JOIN_LEFT)
+                ->join('page', 'page.id = post.t_page_id OR page.id = parent.t_page_id', [], $select::JOIN_LEFT)
+                ->where->NEST->NEST->NEST
+                ->in('post.t_page_id',$page_id)->OR
+                ->in('parent.t_page_id',$page_id)->UNNEST
                 ->notEqualTo(' page.type',ModelPage::TYPE_ORGANIZATION )->UNNEST->OR
                 ->in(' user.organization_id', $page_id)->UNNEST;
         }
-
         
         if(0 === $parent) {
             $select->where('post.parent_id IS NULL');

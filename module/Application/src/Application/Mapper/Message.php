@@ -51,10 +51,9 @@ class Message extends AbstractMapper
         
         if (null != $page_id) {
             $select->join('user', 'message.user_id = user.id', [])
-                ->join('page_user', 'user.id = page_user.user_id', [], $select::JOIN_LEFT)
-                ->join('page', 'page.id = page_user.page_id',[])
+                ->join('page', 'page.conversation_id = conversation.id',[], $select::JOIN_LEFT)
                 ->where->NEST->NEST
-                ->in('page_user.page_id',$page_id)
+                ->in('page.id',$page_id)
                 ->notEqualTo(' page.type',ModelPage::TYPE_ORGANIZATION )->UNNEST->OR
                 ->in(' user.organization_id', $page_id)->UNNEST;
         }
