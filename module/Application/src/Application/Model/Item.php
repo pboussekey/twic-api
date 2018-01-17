@@ -10,7 +10,7 @@ class Item extends BaseItem
     const IS_AVAILABLE_OFF = 2;
     const IS_AVAILABLE_AUTO = 3;
 
-    const TYPE_SECTION = 'SCT';
+    const TYPE_SECTION = 'FOLDER';
     const TYPE_LIVE_CLASS = 'LC';
     const TYPE_ASSIGNMENT = 'A';
     const TYPE_GROUP_ASSIGNMENT = 'GA';

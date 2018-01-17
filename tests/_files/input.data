@@ -1,1 +1,1 @@
-{"method":"item.delete","id":1,"params":{"id":5}}
+{"method":"item.getCountByPage","id":1,"params":{"page_id":2}}
