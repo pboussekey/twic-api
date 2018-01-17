@@ -236,6 +236,51 @@ class Activity extends AbstractService
         return $this->getMapper()->getVisitsCount($identity['id'], $interval, $start_date, $end_date, $organization_id);
       
     }
+    
+     /**
+     * Get List connections.
+     *
+     * @invokable
+     *
+     * @param string $start_date
+     * @param string $end_date
+     * @param int    $organization_id
+     * @param string $interval_date
+     * @param int    $user_id
+     *
+     * @return array
+     */
+    public function getDocumentsOpeningCount($start_date = null, $end_date = null, $organization_id = null, $interval_date = 'D', $user_id = null)
+    {
+        if(null !== $organization_id && !is_array($organization_id)){
+            $organization_id = [$organization_id];
+        }
+        $interval = $this->interval($interval_date);
+        $identity = $this->getServiceUser()->getIdentity();
+        
+        return $this->getMapper()->getDocumentsOpeningCount($identity['id'], $interval, $start_date, $end_date, $organization_id);
+      
+    }
+    
+    
+     /**
+     * Get List connections.
+     *
+     * @invokable
+     *
+     * @param int|array    $organization_id
+     * @param string $start_date
+     * @param string $end_date
+     *
+     * @return array
+     */
+    public function getVisitsPrc($organization_id, $start_date = null, $end_date = null)
+    {
+        if(!is_array($organization_id)){
+            $organization_id = [$organization_id];
+        }
+        return $this->getMapper()->getVisitsPrc($organization_id, $start_date, $end_date);
+    }
 
     /**
      * Get Service User.

@@ -9,6 +9,7 @@ class Activity extends BaseActivity
     protected $linkedin_id;
     protected $object_name;
     protected $count;
+    protected $prc;
     protected $min_date;
     protected $max_date;
 
@@ -34,6 +35,19 @@ class Activity extends BaseActivity
     public function getCount()
     {
         return $this->count;
+    }
+    
+
+    public function setPrc($prc)
+    {
+        $this->prc = $prc;
+
+        return $this;
+    }
+
+    public function getPrc()
+    {
+        return $this->prc;
     }
     
     public function getLinkedinId()

@@ -15,6 +15,31 @@ class ActivityTest extends AbstractService
 
     public function testCanAdd()
     {
+        
+        $this->setIdentity(1, 1);
+        $this->jsonRpc(
+            'page.add', [
+            'title' => 'super title',
+            'logo' => 'logo',
+            'background' => 'background',
+            'description' => 'description',
+            'confidentiality' => 1,
+            'type' => 'organization',
+            'admission' => 'free',
+            'start_date' => '2015-00-00 00:00:00',
+            'end_date' => '2016-00-00 00:00:00',
+            'location' => 'location',
+            'organization_id' => 1,
+            'users' => [
+              ['user_id' => 1,'role' => 'admin', 'state' => 'member'],
+              ['user_id' => 2,'role' => 'user', 'state' => 'member'],
+              ['user_id' => 3,'role' => 'user', 'state' => 'member'],
+              ['user_id' => 4,'role' => 'user', 'state' => 'member']
+            ],
+            ]
+        );
+
+        $this->reset();
         $this->setIdentity(4);
         $data = $this->jsonRpc(
             'activity.add', [
@@ -290,14 +315,31 @@ class ActivityTest extends AbstractService
         $this->assertEquals(count($data) , 3); 
         $this->assertEquals($data['id'] , 1); 
         $this->assertEquals(count($data['result']) , 2); 
-        $this->assertEquals(count($data['result'][0]) , 3); 
-        $this->assertEquals($data['result'][0]['object_name'] , "timeline"); 
+        $this->assertEquals(count($data['result'][0]) , 2); 
         $this->assertEquals($data['result'][0]['count'] , 1); 
-        $this->assertEquals($data['result'][0]['date'] , "2015-04-24"); 
-        $this->assertEquals(count($data['result'][1]) , 3); 
-        $this->assertEquals($data['result'][1]['object_name'] , "users"); 
+        $this->assertEquals($data['result'][0]['date'] , "2015-04-22"); 
+        $this->assertEquals(count($data['result'][1]) , 2); 
         $this->assertEquals($data['result'][1]['count'] , 1); 
-        $this->assertEquals($data['result'][1]['date'] , "2015-04-22"); 
+        $this->assertEquals($data['result'][1]['date'] , "2015-04-24"); 
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
+
+
+    }
+    
+     public function testGetVisitsPrc()
+     {
+        $this->setIdentity(1);
+
+        $data = $this->jsonRpc(
+            'activity.getVisitsPrc',
+            ['start_date'=> '2015-04-20' , 'end_date' => '2015-04-25', 'organization_id' => 1]
+        );
+        
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals(count($data['result']) , 1); 
+        $this->assertEquals(count($data['result'][0]) , 1); 
+        $this->assertEquals($data['result'][0]['prc'] , 25.0000); 
         $this->assertEquals($data['jsonrpc'] , 2.0); 
 
     }

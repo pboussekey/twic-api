@@ -5,7 +5,6 @@ namespace Application\Mapper;
 use Dal\Mapper\AbstractMapper;
 use Zend\Db\Sql\Predicate\Expression;
 use Application\Model\Page as ModelPage;
-use Zend\Db\Sql\Predicate\Predicate;
 
 class Message extends AbstractMapper
 {
