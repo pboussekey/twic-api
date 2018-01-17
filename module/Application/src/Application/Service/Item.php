@@ -230,6 +230,22 @@ class Item extends AbstractService
         return $this->getServiceItemUser()->deleteUsers($id, $user_ids);
     }
 
+    
+    /**
+    * GetList available items count for a page
+    *
+    * @invokable
+    *
+    * @param int  $page_id
+    */
+    public function getCountByPage($page_id)
+    {
+        $identity = $this->getServiceUser()->getIdentity();
+        $res_item = $this->getMapper()->getListId($page_id, $identity['id'],  $this->getServicePage()->isAdmin($page_id), 0);
+        
+        return count($res_item->toArray());
+    }
+    
     /**
      * GetList Id Item
      *

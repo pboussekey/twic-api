@@ -17,8 +17,10 @@ class Item extends AbstractMapper
             ->order('item.page_id ASC')
             ->order('item.order ASC')
             ->quantifier('DISTINCT');
-
-        if (null !== $parent_id) {
+        if(0 === $parent_id){
+            $select->where(["item.type <> 'SCT'"]);
+        }
+        else if (null !== $parent_id) {
             $select->where(['item.parent_id' => $parent_id]);
         } else {
             $select->where(['item.parent_id IS NULL']);
@@ -31,7 +33,7 @@ class Item extends AbstractMapper
         }elseif ($is_admin_page === true && $is_publish === true) {
             $select->where(['item.is_published IS TRUE']);
         }
-
+        echo $this->printSql($select);
         return $this->selectWith($select);
     }
 
