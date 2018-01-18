@@ -267,40 +267,19 @@ class Activity extends AbstractService
      *
      * @invokable
      *
-     * @param int|array $page_id
+     * @param int|array    $organization_id
      * @param string $start_date
      * @param string $end_date
      *
      * @return array
      */
-    public function getVisitsPrc($page_id, $start_date = null, $end_date = null)
+    public function getVisitsPrc($organization_id, $start_date = null, $end_date = null)
     {
-        if(!is_array($page_id)){
-            $page_id = [$page_id];
+        if(!is_array($organization_id)){
+            $organization_id = [$organization_id];
         }
-        return $this->getMapper()->getVisitsPrc($page_id, $start_date, $end_date)->current()->getPrc();
+        return $this->getMapper()->getVisitsPrc($organization_id, $start_date, $end_date);
     }
-    
-     /**
-     * Get List connections.
-     *
-     * @invokable
-     *
-     * @param int|array $page_id
-     * @param int|array $library_id
-     * @param string $start_date
-     * @param string $end_date
-     *
-     * @return array
-     */
-    public function getDocumentsOpeningPrc($page_id, $library_id = null, $start_date = null, $end_date = null)
-    {
-        if(!is_array($page_id)){
-            $page_id = [$page_id];
-        }
-        return $this->getMapper()->getDocumentsOpeningPrc($start_date, $end_date, $page_id, $library_id);
-    }
-
 
     /**
      * Get Service User.

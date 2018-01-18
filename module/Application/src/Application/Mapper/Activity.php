@@ -183,36 +183,4 @@ class Activity extends AbstractMapper
         
         return $this->selectWith($select);
     }
-    
-     public function getDocumentsOpeningPrc($start_date = null, $end_date = null, $page_id = null, $library_id = null)
-    {
-        $users_select = new Select('page_user');
-        $users_select->columns(['count' => new Expression('COUNT(DISTINCT page_user.user_id)')])
-            ->where(['page_user.state = ?' => ModelPageUser::STATE_MEMBER])
-            ->where->in('page_user.page_id', $page_id);
-        
-        $select = $this->tableGateway->getSql()->select();
-        $select->columns([ 'activity$prc' => new Expression('100 * COUNT(DISTINCT activity.user_id) / users.count')])
-            ->join(['users' => $users_select], new Expression('1'))
-            ->join('library', new Expression('activity.object_id = library.id'), ['activity$id' => 'id'], $select::JOIN_LEFT)
-            ->where('event IN ("document.open", "document.download")')
-            ->group('library.id');
-           
-       if (null != $start_date) {
-            $select->where(['date >= ? ' => $start_date]);
-        }
-
-        if (null != $end_date) {
-            $select->where(['date <= ? ' => $end_date]);
-        }
-        
-        if(null !== $page_id){
-           $select->join('page_doc', 'library.id = page_doc.library_id',[], $select::JOIN_LEFT)
-                  ->join('item', 'library.id = item.library_id',[], $select::JOIN_LEFT)
-                  ->where->NEST->in('item.page_id',$page_id)->OR
-                  ->in('page_doc.page_id',$page_id)->UNNEST;
-        }
-        
-        return $this->selectWith($select);
-    }
 }

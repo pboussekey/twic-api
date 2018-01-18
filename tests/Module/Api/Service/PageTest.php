@@ -50,6 +50,7 @@ class PageTest extends AbstractService
             ],
             ]
         );
+        
         $this->assertEquals(count($data), 3);
         $this->assertEquals($data['id'], 1);
         $this->assertEquals($data['result'], 1);
@@ -633,10 +634,6 @@ class PageTest extends AbstractService
             'users' => [
                 ['user_id' => 1,'role' => 'user', 'state' => 'member'],
                 ['user_id' => 2,'role' => 'admin', 'state' => 'member'],
-                ['user_id' => 3,'role' => 'user', 'state' => 'member'],
-                ['user_id' => 4,'role' => 'user', 'state' => 'member'],
-                ['user_id' => 5,'role' => 'user', 'state' => 'member'],
-                ['user_id' => 6,'role' => 'user', 'state' => 'member'],
                 ['user_id' => 8,'role' => 'user', 'state' => 'pending'],
                 ['user_email' => 'newaccount@test.com','role' => 'user', 'state' => 'pending']
             ],
@@ -972,43 +969,6 @@ class PageTest extends AbstractService
             ['start_date'=> '2015-04-20' , 'end_date' => '2015-04-25', 'interval_date' => 'D', 'page_id' => $page_id]
         );
 
-        $this->assertEquals(count($data) , 3); 
-        $this->assertEquals($data['id'] , 1); 
-        $this->assertEquals(count($data['result']) , 3); 
-        $this->assertEquals(count($data['result'][0]) , 4); 
-        $this->assertEquals($data['result'][0]['count'] , 1); 
-        $this->assertEquals($data['result'][0]['id'] , 6); 
-        $this->assertEquals($data['result'][0]['event'] , "document.download"); 
-        $this->assertEquals($data['result'][0]['date'] , "2015-04-23"); 
-        $this->assertEquals(count($data['result'][1]) , 4); 
-        $this->assertEquals($data['result'][1]['count'] , 2); 
-        $this->assertEquals($data['result'][1]['id'] , 6); 
-        $this->assertEquals($data['result'][1]['event'] , "document.open"); 
-        $this->assertEquals($data['result'][1]['date'] , "2015-04-22"); 
-        $this->assertEquals(count($data['result'][2]) , 4); 
-        $this->assertEquals($data['result'][2]['count'] , 1); 
-        $this->assertEquals($data['result'][2]['id'] , 6); 
-        $this->assertEquals($data['result'][2]['event'] , "document.open"); 
-        $this->assertEquals($data['result'][2]['date'] , "2015-04-23"); 
-        $this->assertEquals($data['jsonrpc'] , 2.0); 
-
-        
-        return $data['result'];
-    }
-    
-     /**
-     * @depends testPageAdd
-      * @depends testPageAddDocument
-     */
-    public function testGetPrcOpeningDocuments($page_id, $library_id)
-    {
-        $this->setIdentity(1);
-        $data = $this->jsonRpc(
-            'activity.getDocumentsOpeningPrc', 
-            ['start_date'=> '2015-04-20' , 'end_date' => '2015-04-25',  'page_id' => $page_id]
-        );
-
-        $this->printCreateTest($data);
         $this->assertEquals(count($data) , 3); 
         $this->assertEquals($data['id'] , 1); 
         $this->assertEquals(count($data['result']) , 3); 
