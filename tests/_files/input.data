@@ -1,1 +1,1 @@
-{"method":"user.linkedinSignIn","id":1,"params":{"account_token":"newtoken","code":"code"}}
+{"method":"activity.getDocumentsOpeningPrc","id":1,"params":{"start_date":"2015-04-20","end_date":"2015-04-25","page_id":1}}
