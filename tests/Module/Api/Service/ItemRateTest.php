@@ -792,7 +792,7 @@ class ItemRateTest extends AbstractService
 
     }
     
-      public function testGetGrades()
+    public function testGetGrades()
     {
         $this->setIdentity(1);
         $data = $this->jsonRpc(

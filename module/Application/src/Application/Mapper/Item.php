@@ -18,7 +18,7 @@ class Item extends AbstractMapper
             ->order('item.order ASC')
             ->quantifier('DISTINCT');
         if(0 === $parent_id){
-            $select->where(["item.type <> 'FOLDER'"]);
+            $select->where(["item.type <> 'SCT'"]);
         }
         else if (null !== $parent_id) {
             $select->where(['item.parent_id' => $parent_id]);
