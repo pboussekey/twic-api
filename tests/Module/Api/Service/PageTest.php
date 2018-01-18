@@ -911,6 +911,86 @@ class PageTest extends AbstractService
         $this->assertEquals($data['id'], 1);
         $this->assertEquals($data['result'], 6);
         $this->assertEquals($data['jsonrpc'], 2.0);
+        
+        return $data['result'];
+    }
+    
+     /**
+     * @depends testPageAdd
+      * @depends testPageAddDocument
+     */
+    public function testGetCountOpeningDocuments($page_id, $library_id)
+    {
+        $this->setIdentity(1);
+        $this->jsonRpc(
+            'activity.add', [
+                'activities' => [
+                    [
+                        'event'=> 'document.open',
+                        'date' => '2015-04-22T06:00:00Z',
+                        'object' => ['id' => $library_id]
+                    ],
+                     [
+                        'event'=> 'document.open',
+                        'date' => '2015-04-22T08:00:00Z',
+                        'object' => ['id' => $library_id]
+                    ]
+                ]
+            ]
+        );
+        $this->reset();
+        $this->setIdentity(3);
+        $this->jsonRpc(
+            'activity.add', [
+                'activities' => [
+                    [
+                        'event'=> 'document.open',
+                        'date' => '2015-04-22T06:00:00Z',
+                        'object' => ['id' => $library_id]
+                    ],
+                    [
+                        'event'=> 'document.open',
+                        'date' => '2015-04-23T06:00:00Z',
+                        'object' => ['id' => $library_id]
+                    ],
+                    [
+                        'date' => '2015-04-23T08:00:00Z',
+                        'event'=> 'document.download',
+                        'object' => ['id' => $library_id]
+                    ]
+                ]
+            ]
+        );
+        
+        $this->reset();
+        $this->setIdentity(1);
+        $data = $this->jsonRpc(
+            'activity.getDocumentsOpeningCount', 
+            ['start_date'=> '2015-04-20' , 'end_date' => '2015-04-25', 'interval_date' => 'D', 'page_id' => $page_id]
+        );
+
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals(count($data['result']) , 3); 
+        $this->assertEquals(count($data['result'][0]) , 4); 
+        $this->assertEquals($data['result'][0]['count'] , 1); 
+        $this->assertEquals($data['result'][0]['id'] , 6); 
+        $this->assertEquals($data['result'][0]['event'] , "document.download"); 
+        $this->assertEquals($data['result'][0]['date'] , "2015-04-23"); 
+        $this->assertEquals(count($data['result'][1]) , 4); 
+        $this->assertEquals($data['result'][1]['count'] , 2); 
+        $this->assertEquals($data['result'][1]['id'] , 6); 
+        $this->assertEquals($data['result'][1]['event'] , "document.open"); 
+        $this->assertEquals($data['result'][1]['date'] , "2015-04-22"); 
+        $this->assertEquals(count($data['result'][2]) , 4); 
+        $this->assertEquals($data['result'][2]['count'] , 1); 
+        $this->assertEquals($data['result'][2]['id'] , 6); 
+        $this->assertEquals($data['result'][2]['event'] , "document.open"); 
+        $this->assertEquals($data['result'][2]['date'] , "2015-04-23"); 
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
+
+        
+        return $data['result'];
     }
 
     /**

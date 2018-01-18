@@ -151,19 +151,20 @@ class Activity extends AbstractMapper
         $select = $this->tableGateway->getSql()->select();
      
             $select->columns([ 
-                'activity$id' => 'library.id', 
                 'activity$date' => new Expression('SUBSTRING(activity.date,1,'.$interval.')'), 
-                'activity.event', 
-                'activity$count' => new Expression('COUNT(DISTINCT SUBSTRING(activity.date,1,10), library.id, activity.user_id, activity.event)')]
+                'event', 
+                'activity$count' => new Expression('COUNT(DISTINCT SUBSTRING(activity.date,1,10), library.id, activity.user_id, activity.event)')
+                ]
              )
             ->join('user', 'activity.user_id = user.id', [])
             ->join('user_role', 'user_role.user_id = user.id', [])
-            ->join('library', new Expression('activity.object_id = library.id'), [])
+            ->join('library', new Expression('activity.object_id = library.id'), ['activity$id' => 'id'])
             ->group(
                 new Expression('event, library.id, SUBSTRING(activity.date,1,'.$interval.')')
             )
             ->where(['user_role.role_id <> ? ' => ModelRole::ROLE_ADMIN_ID])
-            ->where(["event IN ('document.open', 'document.download')"]);
+            ->where(["event IN ('document.open', 'document.download')"])
+            ->order(['event']);
 
         if (null != $start_date) {
             $select->where(['date >= ? ' => $start_date]);
@@ -174,11 +175,12 @@ class Activity extends AbstractMapper
         }
         
         if(null !== $page_id){
-           $select->join('page_library', 'library.id = page_doc.library_id',[], $select::JOIN_LEFT)
+           $select->join('page_doc', 'library.id = page_doc.library_id',[], $select::JOIN_LEFT)
                   ->join('item', 'library.id = item.library_id',[], $select::JOIN_LEFT)
-                  ->where(['item.page_id' => $page_id])
-                  ->where(['page_doc.page_id' => $page_id]);
+                  ->where->NEST->in('item.page_id',$page_id)->OR
+                  ->in('page_doc.page_id',$page_id)->UNNEST;
         }
+        
         return $this->selectWith($select);
     }
 }

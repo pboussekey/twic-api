@@ -442,36 +442,8 @@ class LibraryTest extends AbstractService
         $this->assertEquals($data['jsonrpc'] , 2.0); 
 
     }
-    /*
-    public function testLibraryGetSession()
-    {
-        $this->setIdentity(1, 1);
-        $data = $this->jsonRpc(
-            'library.getSession', [
-                'id' => 1,
-            ]
-        );
-        
-        $this->printCreateTest($data);
-        $this->assertEquals(count($data), 3);
-        $this->assertEquals($data['id'], 1);
-        $this->assertEquals(count($data['result']), 13);
-        $this->assertEquals($data['result']['id'], 4);
-        $this->assertEquals($data['result']['name'], "super file");
-        $this->assertEquals($data['result']['link'], null);
-        $this->assertEquals($data['result']['token'], null);
-        $this->assertEquals($data['result']['type'], "text");
-        $this->assertEquals(!empty($data['result']['created_date']), true);
-        $this->assertEquals($data['result']['deleted_date'], null);
-        $this->assertEquals($data['result']['updated_date'], null);
-        $this->assertEquals($data['result']['folder_id'], null);
-        $this->assertEquals($data['result']['owner_id'], 1);
-        $this->assertEquals($data['result']['box_id'], null);
-        $this->assertEquals($data['result']['global'], 0);
-        $this->assertEquals($data['result']['text'], "super cool");
-        $this->assertEquals($data['jsonrpc'], 2.0);
-
-    }*/
+    
+  
 
     
    

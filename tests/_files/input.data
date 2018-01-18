@@ -1,1 +1,1 @@
-{"method":"item.getCountByPage","id":1,"params":{"page_id":2}}
+{"method":"user.linkedinSignIn","id":1,"params":{"account_token":"newtoken","code":"code"}}

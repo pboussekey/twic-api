@@ -122,19 +122,19 @@ class Activity extends AbstractService
      *
      * @param string $start_date
      * @param string $end_date
-     * @param int    $organization_id
+     * @param int    $page_id
      * @param string $interval_date
      * @param int    $user_id
      *
      * @return array
      */
-    public function getConnections($start_date = null, $end_date = null, $organization_id = null, $interval_date = 'D', $user_id = null)
+    public function getConnections($start_date = null, $end_date = null, $page_id = null, $interval_date = 'D', $user_id = null)
     {
-        if(null !== $organization_id && !is_array($organization_id)){
-            $organization_id = [$organization_id];
+        if(null !== $page_id && !is_array($page_id)){
+            $page_id = [$page_id];
         }
         $mapper = $this->getMapper();
-        $res_activity = $mapper->getList(null, $start_date, $end_date, $organization_id, $user_id);
+        $res_activity = $mapper->getList(null, $start_date, $end_date, $page_id, $user_id);
         $arrayUser = [];
         $connections = [];
         $interval = $this->interval($interval_date);
@@ -219,21 +219,21 @@ class Activity extends AbstractService
      *
      * @param string $start_date
      * @param string $end_date
-     * @param int    $organization_id
+     * @param int    $page_id
      * @param string $interval_date
      * @param int    $user_id
      *
      * @return array
      */
-    public function getVisitsCount($start_date = null, $end_date = null, $organization_id = null, $interval_date = 'D', $user_id = null)
+    public function getVisitsCount($start_date = null, $end_date = null, $page_id = null, $interval_date = 'D', $user_id = null)
     {
-        if(null !== $organization_id && !is_array($organization_id)){
-            $organization_id = [$organization_id];
+        if(null !== $page_id && !is_array($page_id)){
+            $page_id = [$page_id];
         }
         $interval = $this->interval($interval_date);
         $identity = $this->getServiceUser()->getIdentity();
         
-        return $this->getMapper()->getVisitsCount($identity['id'], $interval, $start_date, $end_date, $organization_id);
+        return $this->getMapper()->getVisitsCount($identity['id'], $interval, $start_date, $end_date, $page_id);
       
     }
     
@@ -244,21 +244,20 @@ class Activity extends AbstractService
      *
      * @param string $start_date
      * @param string $end_date
-     * @param int    $organization_id
+     * @param int    $page_id
      * @param string $interval_date
      * @param int    $user_id
      *
      * @return array
      */
-    public function getDocumentsOpeningCount($start_date = null, $end_date = null, $organization_id = null, $interval_date = 'D', $user_id = null)
+    public function getDocumentsOpeningCount($start_date = null, $end_date = null, $page_id = null, $interval_date = 'D', $user_id = null)
     {
-        if(null !== $organization_id && !is_array($organization_id)){
-            $organization_id = [$organization_id];
+        if(null !== $page_id && !is_array($page_id)){
+            $page_id = [$page_id];
         }
         $interval = $this->interval($interval_date);
         $identity = $this->getServiceUser()->getIdentity();
-        
-        return $this->getMapper()->getDocumentsOpeningCount($identity['id'], $interval, $start_date, $end_date, $organization_id);
+        return $this->getMapper()->getDocumentsOpeningCount($identity['id'], $interval, $start_date, $end_date, $page_id);
       
     }
     
