@@ -45,10 +45,10 @@ class Subscription extends AbstractService
                 $u[] = (int)substr($l, 1);
             } else {
                 if(null != $filter) {
-                    $res_subscription = $this->getMapper()->usePaginator($filter)->select($this->getModel()->setLibelle($l));
+                    $res_subscription = $this->getMapper()->usePaginator($filter)->getListUserId($l);
                 }
                 else{
-                    $res_subscription = $this->getMapper()->select($this->getModel()->setLibelle($l));
+                    $res_subscription = $this->getMapper()->getListUserId($l);
                 }
                 foreach ($res_subscription as $m_subscription) {
                     $u[] = $m_subscription->getUserId();

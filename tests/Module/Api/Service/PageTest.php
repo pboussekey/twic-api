@@ -974,22 +974,26 @@ class PageTest extends AbstractService
         $this->assertEquals(count($data) , 3); 
         $this->assertEquals($data['id'] , 1); 
         $this->assertEquals(count($data['result']) , 3); 
-        $this->assertEquals(count($data['result'][0]) , 4); 
+        $this->assertEquals(count($data['result'][0]) , 5); 
+        $this->assertEquals($data['result'][0]['object_name'] , "azerty"); 
         $this->assertEquals($data['result'][0]['count'] , 1); 
         $this->assertEquals($data['result'][0]['id'] , 6); 
         $this->assertEquals($data['result'][0]['event'] , "document.download"); 
         $this->assertEquals($data['result'][0]['date'] , "2015-04-23"); 
-        $this->assertEquals(count($data['result'][1]) , 4); 
+        $this->assertEquals(count($data['result'][1]) , 5); 
+        $this->assertEquals($data['result'][1]['object_name'] , "azerty"); 
         $this->assertEquals($data['result'][1]['count'] , 2); 
         $this->assertEquals($data['result'][1]['id'] , 6); 
         $this->assertEquals($data['result'][1]['event'] , "document.open"); 
         $this->assertEquals($data['result'][1]['date'] , "2015-04-22"); 
-        $this->assertEquals(count($data['result'][2]) , 4); 
+        $this->assertEquals(count($data['result'][2]) , 5); 
+        $this->assertEquals($data['result'][2]['object_name'] , "azerty"); 
         $this->assertEquals($data['result'][2]['count'] , 1); 
         $this->assertEquals($data['result'][2]['id'] , 6); 
         $this->assertEquals($data['result'][2]['event'] , "document.open"); 
         $this->assertEquals($data['result'][2]['date'] , "2015-04-23"); 
         $this->assertEquals($data['jsonrpc'] , 2.0); 
+
 
         
         return $data['result'];
@@ -1010,10 +1014,13 @@ class PageTest extends AbstractService
         $this->assertEquals(count($data) , 3); 
         $this->assertEquals($data['id'] , 1); 
         $this->assertEquals(count($data['result']) , 1); 
-        $this->assertEquals(count($data['result'][0]) , 2); 
+        $this->assertEquals(count($data['result'][0]) , 4); 
+        $this->assertEquals($data['result'][0]['object_name'] , "azerty"); 
         $this->assertEquals($data['result'][0]['prc'] , 40.0000); 
         $this->assertEquals($data['result'][0]['id'] , 6); 
+        $this->assertEquals($data['result'][0]['target_name'] , "MATERIAL"); 
         $this->assertEquals($data['jsonrpc'] , 2.0); 
+
 
 
         
@@ -1344,6 +1351,7 @@ class PageTest extends AbstractService
         $this->assertEquals($data['jsonrpc'] , 2.0); 
 
 
+
     }
     
     
@@ -1356,6 +1364,7 @@ class PageTest extends AbstractService
             ]
         );
         
+        
         $this->assertEquals(count($data) , 3); 
         $this->assertEquals($data['id'] , 1); 
         $this->assertEquals(count($data['result']) , 7); 
@@ -1366,7 +1375,7 @@ class PageTest extends AbstractService
         $this->assertEquals($data['result'][4] , 5); 
         $this->assertEquals($data['result'][5] , 6); 
         $this->assertEquals($data['result'][6] , 8); 
-        $this->assertEquals($data['jsonrpc'] , 2.0); 
+
 
     }
 
@@ -1381,10 +1390,9 @@ class PageTest extends AbstractService
             'end_date' => '2099-0-1',
             'interval_date' => 'D',
             'type' => 'course',
-            'organization_id' => 1
+            'page_id' => 1
         ]);
         
-        $this->printCreateTest($data);
         $this->assertEquals(count($data) , 3); 
         $this->assertEquals($data['id'] , 1); 
         $this->assertEquals(count($data['result']) , 1); 
@@ -1393,6 +1401,8 @@ class PageTest extends AbstractService
         $this->assertEquals($data['result'][0]['type'] , "course"); 
         $this->assertEquals(!empty($data['result'][0]['created_date']) , true); 
         $this->assertEquals($data['jsonrpc'] , 2.0); 
+
+
 
     }
 

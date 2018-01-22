@@ -213,6 +213,9 @@ class Item extends AbstractService
             $m_group = $this->getServiceGroup()->getOrCreate($group_name, $id);
             $group_id = $m_group->getId();
         }
+        else if(null !== $group_id && null !== $group_name){
+            $this->getServiceGroup()->update($group_id, $group_name);
+        }
 
         return $this->getServiceItemUser()->addUsers($id, $user_ids, $group_id);
     }

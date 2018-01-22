@@ -151,21 +151,23 @@ class ItemUser extends AbstractService
             ];
         }
         
-        $res_item_user = $this->getMapper()->select(
-            $this->getModel()
-                ->setUserId($user_id)
-                ->setItemId($item_id)
-        );
-        foreach ($res_item_user as $m_item_user) {
-            //@TODO update submission_id
-            $this->getMapper()->update(
+        if(count($user_id) > 0){
+            $res_item_user = $this->getMapper()->select(
                 $this->getModel()
-                    ->setGroupId($group_id)
-                    ->setDeletedDate(new IsNull('deleted_date')), [
-                'id' => $m_item_user->getId()
-                    ]
+                    ->setUserId($user_id)
+                    ->setItemId($item_id)
             );
-            unset($user_id[array_search($m_item_user->getUserId(), $user_id)]);
+            foreach ($res_item_user as $m_item_user) {
+                //@TODO update submission_id
+                $this->getMapper()->update(
+                    $this->getModel()
+                        ->setGroupId($group_id)
+                        ->setDeletedDate(new IsNull('deleted_date')), [
+                    'id' => $m_item_user->getId()
+                        ]
+                );
+                unset($user_id[array_search($m_item_user->getUserId(), $user_id)]);
+            }
         }
         
         foreach ($user_id as $user) {

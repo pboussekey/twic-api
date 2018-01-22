@@ -158,7 +158,7 @@ class Activity extends AbstractMapper
              )
             ->join('user', 'activity.user_id = user.id', [])
             ->join('user_role', 'user_role.user_id = user.id', [])
-            ->join('library', new Expression('activity.object_id = library.id'), ['activity$id' => 'id'])
+            ->join('library', new Expression('activity.object_id = library.id'), ['activity$id' => 'id', 'activity$object_name' => 'name'])
             ->group(
                 new Expression('event, library.id, SUBSTRING(activity.date,1,'.$interval.')')
             )
@@ -192,9 +192,9 @@ class Activity extends AbstractMapper
             ->where->in('page_user.page_id', $page_id);
         
         $select = $this->tableGateway->getSql()->select();
-        $select->columns([ 'activity$prc' => new Expression('100 * COUNT(DISTINCT activity.user_id) / users.count')])
+        $select->columns([ 'activity$prc' => new Expression('100 * COUNT(DISTINCT activity.user_id) / users.count'), 'activity$target_name' => new Expression('IF(item.id IS NOT NULL, "MEDIA", "MATERIAL")')])
             ->join(['users' => $users_select], new Expression('1'))
-            ->join('library', new Expression('activity.object_id = library.id'), ['activity$id' => 'id'], $select::JOIN_LEFT)
+            ->join('library', new Expression('activity.object_id = library.id'), ['activity$id' => 'id', 'activity$object_name' => 'name'], $select::JOIN_LEFT)
             ->where('event IN ("document.open", "document.download")')
             ->group('library.id');
            
@@ -212,6 +212,8 @@ class Activity extends AbstractMapper
                   ->where->NEST->in('item.page_id',$page_id)->OR
                   ->in('page_doc.page_id',$page_id)->UNNEST;
         }
+        
+        $select->order(new Expression('1 / (100 * COUNT(DISTINCT activity.user_id) / users.count)'));
         
         return $this->selectWith($select);
     }

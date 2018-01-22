@@ -575,6 +575,8 @@ class MessageTest extends AbstractService
         $this->assertEquals($data['result'][4]['options']['rules']['kick'][0]['roles'][0] , "admin"); 
         $this->assertEquals($data['jsonrpc'] , 2.0); 
 
+
+
     }
 
     /**
