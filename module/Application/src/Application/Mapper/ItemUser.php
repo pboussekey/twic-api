@@ -72,7 +72,7 @@ class ItemUser extends AbstractMapper
             //TODO CHECK IF MEMBER
             $select->where(['item_user.item_id' => $item_id]);
         }
-        
+        $select->where('item_user.deleted_date IS NULL');
         return $this->selectWith($select);
     }
 }
