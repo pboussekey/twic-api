@@ -67,7 +67,7 @@ class PageUser extends AbstractMapper
         if (null !== $order) {
             switch ($order['type']) {
             case 'name':
-                $select->order(new Expression('COALESCE(user.nickname,TRIM(CONCAT_WS(" ",user.lastname,user.firstname)), user.email)'));
+                $select->order(new Expression('user.is_active DESC, COALESCE(NULLIF(user.nickname,""),TRIM(CONCAT_WS(" ",user.lastname,user.firstname, user.email)))'));
                 break;
             case 'firstname':
                 $select->order('user.firstname ASC');
