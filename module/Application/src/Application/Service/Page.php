@@ -221,7 +221,7 @@ class Page extends AbstractService
                 $ar_u['state'] = ModelPageUser::STATE_MEMBER;
             }
         }
-        if (! $is_present) {
+        if (! $is_present && !$this->getServiceUser()->isStudnetAdmin()) {
             $users[] = [
               'user_id' => $m_page->getOwnerId(),
               'role' => ModelPageUser::ROLE_ADMIN,

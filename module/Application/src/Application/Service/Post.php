@@ -206,7 +206,7 @@ class Post extends AbstractService
         }
         
         if($parent_id == null) {
-            if($t_page_id != null) {
+            if($t_page_id != null && $this->getServicePage()->isAdmin($t_page_id)) {
                 $m_page = $this->getServicePage()->getLite($t_page_id);
                 if($m_page->getType() == ModelPage::TYPE_COURSE && $type === 'post' && $m_page->getIsPublished()) {
                     $ar_pages = [];
