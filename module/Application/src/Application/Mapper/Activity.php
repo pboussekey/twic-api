@@ -188,14 +188,18 @@ class Activity extends AbstractMapper
     {
         $users_select = new Select('page_user');
         $users_select->columns(['count' => new Expression('COUNT(DISTINCT page_user.user_id)')])
+             ->join('user_role', 'page_user.user_id = user_role.user_id', [])
             ->where(['page_user.state = ?' => ModelPageUser::STATE_MEMBER])
+            ->where(['user_role.role_id <> ? ' => ModelRole::ROLE_ADMIN_ID])
             ->where->in('page_user.page_id', $page_id);
         
         $select = $this->tableGateway->getSql()->select();
         $select->columns([ 'activity$prc' => new Expression('100 * COUNT(DISTINCT activity.user_id) / users.count'), 'activity$target_name' => new Expression('IF(item.id IS NOT NULL, "MEDIA", "MATERIAL")')])
-            ->join(['users' => $users_select], new Expression('1'))
+            ->join(['users' => $users_select], new Expression('1'), [])
+            ->join('user_role', 'activity.user_id = user_role.user_id')
             ->join('library', new Expression('activity.object_id = library.id'), ['activity$id' => 'id', 'activity$object_name' => 'name'], $select::JOIN_LEFT)
             ->where('event IN ("document.open", "document.download")')
+            ->where(['user_role.role_id <> ? ' => ModelRole::ROLE_ADMIN_ID])
             ->group('library.id');
            
        if (null != $start_date) {
@@ -207,14 +211,17 @@ class Activity extends AbstractMapper
         }
         
         if(null !== $page_id){
-           $select->join('page_doc', 'library.id = page_doc.library_id',[], $select::JOIN_LEFT)
+           $select
+                  ->join('page_user', 'activity.user_id = page_user.user_id', [])
+                  ->join('page_doc', 'library.id = page_doc.library_id',[], $select::JOIN_LEFT)
                   ->join('item', 'library.id = item.library_id',[], $select::JOIN_LEFT)
-                  ->where->NEST->in('item.page_id',$page_id)->OR
+                  ->where
+                   ->in('page_user.page_id', $page_id)
+                   ->NEST->in('item.page_id',$page_id)->OR
                   ->in('page_doc.page_id',$page_id)->UNNEST;
         }
         
         $select->order(new Expression('1 / (100 * COUNT(DISTINCT activity.user_id) / users.count)'));
-        
         return $this->selectWith($select);
     }
 }
