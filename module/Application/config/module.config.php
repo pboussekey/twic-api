@@ -171,4 +171,11 @@ return [
             'routes' => [],
         ],
     ],
+    'json-rpc-server' => [
+        'headers' => [
+            'Access-Control-Allow-Origin' => function(){
+                return isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : "*";
+            },
+        ]
+    ]
 ];

@@ -548,10 +548,10 @@ class User extends AbstractService
             $this->getModel()
                 ->setEmail($email)
                 ->setSuspensionDate(new IsNull())
-                ->setDeletedDate(new IsNull())->setIsActive(1)
+                ->setDeletedDate(new IsNull())
         )->current();
         
-        if ($m_user !== false) {
+        if ($m_user !== false && $m_user->getIsActive() === 1) {
             $uniqid = uniqid($m_user->getId() . "_", true);
             $m_page = $this->getServicePage()->getLite($m_user->getOrganizationId());
             $this->getServicePreregistration()->add($uniqid, null, null, null, $m_user->getOrganizationId(), $m_user->getId());
@@ -573,7 +573,11 @@ class User extends AbstractService
             } catch (\Exception $e) {
                 syslog(1, 'Model name does not exist <> uniqid is : ' . $uniqid . ' <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode() . ' <URL> ' . $url . ' <Email> ' . $m_user->getEmail());
             }
-        } else {
+        }
+        else if($m_user !== false && $m_user->getIsActive() === 0){
+            $this->sendPassword($m_user->getId());
+        }
+        else {
             throw new \Exception("no account with email: ". $email);
         }
         
