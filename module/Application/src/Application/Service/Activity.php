@@ -268,17 +268,23 @@ class Activity extends AbstractService
      * @invokable
      *
      * @param int|array $page_id
+     * @param string $interval_date
      * @param string $start_date
      * @param string $end_date
      *
      * @return array
      */
-    public function getVisitsPrc($page_id, $start_date = null, $end_date = null)
+    public function getVisitsPrc($page_id, $interval_date = 'D', $start_date = null, $end_date = null)
     {
         if(!is_array($page_id)){
             $page_id = [$page_id];
         }
-        return $this->getMapper()->getVisitsPrc($page_id, $start_date, $end_date)->current()->getPrc();
+        $interval = $this->interval($interval_date);
+        $res_activity = $this->getMapper()->getVisitsPrc($page_id, $start_date, $end_date, $interval);
+        foreach($res_activity as $m_activity){
+            $m_activity->setObjectData(json_decode($m_activity->getObjectData(), true));
+        }
+        return $res_activity;
     }
     
      /**
@@ -298,7 +304,11 @@ class Activity extends AbstractService
         if(!is_array($page_id)){
             $page_id = [$page_id];
         }
-        return $this->getMapper()->getDocumentsOpeningPrc($start_date, $end_date, $page_id, $library_id);
+        $res_activity = $this->getMapper()->getDocumentsOpeningPrc($start_date, $end_date, $page_id, $library_id);
+        foreach($res_activity as $m_activity){
+            $m_activity->setObjectData(json_decode($m_activity->getObjectData(), true));
+        }
+        return $res_activity;
     }
 
 
