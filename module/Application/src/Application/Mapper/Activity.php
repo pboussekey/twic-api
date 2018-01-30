@@ -178,7 +178,7 @@ class Activity extends AbstractMapper
         $select = $this->tableGateway->getSql()->select();
      
             $select->columns([ 
-                'activity$date' => new Expression('SUBSTRING(activity.date,1,'.$interval.')'), 
+                'activity$date' => new Expression('SUBSTRING(activity.date,1,10); '), 
                 'event', 
                 'activity$count' => new Expression('COUNT(DISTINCT SUBSTRING(activity.date,1,10), library.id, activity.user_id, activity.event)')
                 ]
@@ -209,10 +209,11 @@ class Activity extends AbstractMapper
                   ->in('page_user.page_id', $page_id);
         }
         
+        syslog(1, $this->printSql($select));
         return $this->selectWith($select);
     }
     
-     public function getDocumentsOpeningPrc($start_date = null, $end_date = null, $page_id = null, $library_id = null)
+     public function getDocumentsOpeningPrc( $start_date = null, $end_date = null,  $page_id = null, $library_id = null)
     {
         $users_select = new Select('page_user');
         $users_select->columns(['count' => new Expression('COUNT(DISTINCT page_user.user_id)')])
@@ -221,7 +222,9 @@ class Activity extends AbstractMapper
             ->where->in('page_user.page_id', $page_id);
         
         $select = $this->tableGateway->getSql()->select();
-        $select->columns([ 'activity$object_data' => new Expression('CONCAT("{ \"visitors\" : ",COUNT(DISTINCT activity.user_id),", \"total\" : ", users.count, "}")'), 'activity$target_name' => new Expression('IF(item.id IS NOT NULL, "MEDIA", "MATERIAL")')])
+        $select->columns([ 'activity$object_data' => 
+            new Expression('CONCAT("{ \"count\" : ", COUNT(DISTINCT SUBSTRING(activity.date,1, 10), activity.user_id),", \"visitors\" : ",COUNT(DISTINCT activity.user_id),", \"total\" : ", users.count, "}")'), 
+            'activity$target_name' => new Expression('IF(item.id IS NOT NULL, "MEDIA", "MATERIAL")')])
             ->join(['users' => $users_select], new Expression('1'), [])
             ->join('library', new Expression('activity.object_id = library.id'), ['activity$id' => 'id', 'activity$object_name' => 'name'], $select::JOIN_LEFT)
             ->where('event IN ("document.open", "document.download")')
@@ -248,6 +251,7 @@ class Activity extends AbstractMapper
         }
         
         $select->order(new Expression('1 / (100 * COUNT(DISTINCT activity.user_id) / users.count)'));
+        syslog(1, $this->printSql($select));
         return $this->selectWith($select);
     }
 }
