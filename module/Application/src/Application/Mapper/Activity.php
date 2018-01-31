@@ -178,8 +178,7 @@ class Activity extends AbstractMapper
         $select = $this->tableGateway->getSql()->select();
      
             $select->columns([ 
-                'activity$date' => new Expression('SUBSTRING(activity.date,1,10); '), 
-                'event', 
+                'activity$date' => new Expression('SUBSTRING(activity.date,1,10)'), 
                 'activity$count' => new Expression('COUNT(DISTINCT SUBSTRING(activity.date,1,10), library.id, activity.user_id, activity.event)')
                 ]
              )
@@ -209,7 +208,6 @@ class Activity extends AbstractMapper
                   ->in('page_user.page_id', $page_id);
         }
         
-        syslog(1, $this->printSql($select));
         return $this->selectWith($select);
     }
     
