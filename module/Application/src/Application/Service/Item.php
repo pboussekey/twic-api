@@ -600,14 +600,14 @@ class Item extends AbstractService
                         $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
                         $m_organization->getLibelle() : null;
                         $url = sprintf("https://%s%s/page/course/%s/content", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl'], $m_page->getId());
-                        $this->getServiceMail()->sendTpl(
+                        /*$this->getServiceMail()->sendTpl(
                             'tpl_itempublished', $m_user->getEmail(), [
                             'itemtype' => ModelItem::type_relation[$m_item->getType()],
                             'itemtitle' => $m_item->getTitle(),
                             'firstname' => $m_user->getFirstName(),
                             'pageurl' => $url,
                             ]
-                        );
+                        );*/
 
 
                       
@@ -738,7 +738,7 @@ class Item extends AbstractService
                         $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
                         $m_organization->getLibelle() : null;
                         $url = sprintf("https://%s%s/page/course/%s/content", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl'], $m_page->getId());
-                        $this->getServiceMail()->sendTpl(
+                        /*$this->getServiceMail()->sendTpl(
                             'tpl_itemupdate', $m_user->getEmail(), [
                             'itemtype' => ModelItem::type_relation[$m_item->getType()],
                             'itemtitle' => $final_title,
@@ -746,7 +746,7 @@ class Item extends AbstractService
                             'pagename' => $m_page->getTitle(),
                             'pageurl' => $url,
                             ]
-                        );
+                        );*/
 
                     }
                     catch (\Exception $e) {

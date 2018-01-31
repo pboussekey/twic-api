@@ -495,13 +495,13 @@ class Page extends AbstractService
                         $m_organization->getLibelle() : null;
                         
                         $url = sprintf("https://%s%s/page/course/%s/timeline", ($prefix ? $prefix.'.':''),  $this->container->get('config')['app-conf']['uiurl'], $tmp_m_page->getId());
-                        $this->getServiceMail()->sendTpl(
+                        /*$this->getServiceMail()->sendTpl(
                             'tpl_coursepublished', $m_user->getEmail(), [
                             'pagename' => $tmp_m_page->getTitle(),
                             'firstname' => $m_user->getFirstName(),
                             'pageurl' => $url
                             ]
-                        );
+                        );*/
                         
                         $gcm_notification = new GcmNotification();
                         $gcm_notification->setTitle($tmp_m_page->getTitle())

@@ -229,13 +229,13 @@ class Post extends AbstractService
                                 $m_organization->getLibelle() : null;
                                
                                 $url = sprintf("https://%s%s/page/course/%s/timeline", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl'], $m_page->getId());
-                                $this->getServiceMail()->sendTpl(
+                                /*$this->getServiceMail()->sendTpl(
                                     'tpl_coursepost', $m_user->getEmail(), [
                                     'pagename' => $m_page->getTitle(),
                                     'pageurl' => $url,
                                     'firstname' => $m_user->getFirstName()
                                     ]
-                                );
+                                );*/
                                 
                                 $gcm_notification = new GcmNotification();
                                 $gcm_notification->setTitle($m_page->getTitle())
@@ -271,13 +271,13 @@ class Post extends AbstractService
                                 $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
                                 $m_organization->getLibelle() : null;
                                 $url = sprintf("https://%s%s/page/organization/%s/timeline", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl'], $m_page->getId());
-                                $this->getServiceMail()->sendTpl(
+                                /*$this->getServiceMail()->sendTpl(
                                     'tpl_organizationpost', $m_user->getEmail(), [
                                     'pagename' => $m_page->getTitle(),
                                     'pageurl' => $url,
                                     'firstname' => $m_user->getFirstName()
                                     ]
-                                );
+                                );*/
                                 
                                 $gcm_notification = new GcmNotification();
                                 $gcm_notification->setTitle($m_page->getTitle())
@@ -310,13 +310,13 @@ class Post extends AbstractService
                     $prefix = ($m_page !== false && is_string($m_page->getLibelle()) && !empty($m_page->getLibelle())) ?
                     $m_page->getLibelle() : null;
                     $url = sprintf("https://%s%s/", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl']);
-                    $this->getServiceMail()->sendTpl(
+                    /*$this->getServiceMail()->sendTpl(
                         'tpl_postcomment', $m_user->getEmail(), [
                         'url' => $url,
                         'firstname' => $m_user->getFirstname(),
                         'someone' => $m_me->getFirstname()
                         ]
-                    );
+                    );*/
                     
                     $gcm_notification = new GcmNotification();
                     $gcm_notification->setTitle($m_page->getTitle())
@@ -600,13 +600,13 @@ class Post extends AbstractService
                 $m_page->getLibelle() : null;
                 
                 $url = sprintf("https://%s%s/", ($prefix ? $prefix.'.':''),  $this->container->get('config')['app-conf']['uiurl']);
-                $this->getServiceMail()->sendTpl(
+                /*$this->getServiceMail()->sendTpl(
                     'tpl_postlike', $m_user->getEmail(), [
                     'url' => $url,
                     'firstname' => $m_user->getFirstname(),
                     'someone' => $m_me->getFirstname(),
                     ]
-                );
+                );*/
                 if($m_page !== false){
                     $gcm_notification = new GcmNotification();
                     $gcm_notification->setTitle($m_page->getTitle())

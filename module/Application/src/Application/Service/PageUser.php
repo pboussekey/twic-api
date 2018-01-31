@@ -206,13 +206,13 @@ class PageUser extends AbstractService
                     $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
                     $m_organization->getLibelle() : null;
                     $url = sprintf("https://%s%s/page/course/%s/timeline", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl'], $m_page->getId());
-                    $this->getServiceMail()->sendTpl(
+                    /*$this->getServiceMail()->sendTpl(
                         'tpl_coursepublished', $m_user->getEmail(), [
                         'pagename' => $m_page->getTitle(),
                         'firstname' => $m_user->getFirstName(),
                         'pageurl' => $url,
                         ]
-                    );
+                    );*/
                     
                     $gcm_notification = new GcmNotification();
                     $gcm_notification->setTitle($m_page->getTitle())
