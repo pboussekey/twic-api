@@ -222,7 +222,7 @@ class User extends AbstractMapper
     public function checkAccountToken($token)
     {
         $select = $this->tableGateway->getSql()->select();
-        $select->columns(['is_active'])
+        $select->columns(['is_active','email'])
             ->join('preregistration', 'preregistration.user_id = user.id', [])
             ->where(['preregistration.account_token' => $token]);
         
