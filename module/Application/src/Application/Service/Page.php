@@ -362,6 +362,7 @@ class Page extends AbstractService
      * @param string $custom
      * @param int    $circle_id
      * @param bool   $is_published
+     * @param int $confidentiality
      *
      *
      * @return int
@@ -388,7 +389,8 @@ class Page extends AbstractService
         $libelle = null,
         $custom = null,
         $circle_id = null,
-        $is_published = null
+        $is_published = null,
+        $confidentiality = null
     ) {
         if(!$this->getServiceUser()->isStudnetAdmin() &&  !$this->isAdmin($id)) {
             throw new JrpcException('Unauthorized operation page.update', -38003);
@@ -419,7 +421,8 @@ class Page extends AbstractService
             ->setLibelle($libelle)
             ->setWebsite($formattedWebsite)
             ->setPhone($phone)
-            ->setShortTitle($short_title);
+            ->setShortTitle($short_title)
+            ->setConfidentiality($confidentiality);
 
         if ($address !== null) {
             if($address === 0) {
