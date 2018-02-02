@@ -217,7 +217,7 @@ class User extends AbstractMapper
             $select->where(['user.email_sent IS FALSE']);
         }
         if(!empty($email)) {
-            $select->where(['LOWER(user.email)' => $email]);
+            $select->where->in(new Expression('LOWER(user.email)'),$email);
         }
         else if($unsent !== true) {
             $select->where(['user.is_active' => 1]);
