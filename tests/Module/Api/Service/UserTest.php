@@ -347,9 +347,43 @@ class UserTest extends AbstractService
         
         $this->assertEquals(count($data) , 3); 
         $this->assertEquals($data['id'] , 1); 
-        $this->assertEquals(count($data['result']) , 1); 
+        $this->assertEquals(count($data['result']) , 6); 
+        $this->assertEquals($data['result']['firstname'] , "Christophe"); 
+        $this->assertEquals($data['result']['lastname'] , "Robert"); 
+        $this->assertEquals($data['result']['nickname'] , null); 
+        $this->assertEquals($data['result']['email'] , "crobertr@thestudnet.com"); 
+        $this->assertEquals($data['result']['avatar'] , "un_token"); 
         $this->assertEquals($data['result']['is_active'] , 0); 
         $this->assertEquals($data['jsonrpc'] , 2.0); 
+
+
+
+        return $data['result'];
+    }
+    
+     
+       /**
+     * @depends testAddPreregistration
+     */
+    public function testCheckEmail($token)
+    {
+        $this->mockRbac();
+
+
+        $data = $this->jsonRpc('user.checkEmail', 
+            ['email' => 'pboussekey@thestudnet.com']);
+        
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals(count($data['result']) , 6); 
+        $this->assertEquals($data['result']['firstname'] , "Paul"); 
+        $this->assertEquals($data['result']['lastname'] , "Boussekey"); 
+        $this->assertEquals($data['result']['nickname'] , null); 
+        $this->assertEquals($data['result']['email'] , "pboussekey@thestudnet.com"); 
+        $this->assertEquals($data['result']['avatar'] , null); 
+        $this->assertEquals($data['result']['is_active'] , 1); 
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
+
 
 
         return $data['result'];

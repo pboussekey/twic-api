@@ -256,15 +256,22 @@ class User extends AbstractMapper
        * Check if an account token is valid
        *
        * @param string $token
+       * @param string $email
        *
        * @return \Zend\Db\Sql\Select
        */
-    public function checkAccountToken($token)
+    public function checkUser($token = null, $email = null)
     {
         $select = $this->tableGateway->getSql()->select();
-        $select->columns(['is_active','email'])
+        $select->columns(['firstname', 'lastname', 'avatar', 'nickname', 'is_active','email']);
+        if(null !== $token){
+            $select
             ->join('preregistration', 'preregistration.user_id = user.id', [])
             ->where(['preregistration.account_token' => $token]);
+        }
+        if(null !== $email){
+            $select->where(['user.email' => $email]);
+        }
         
         return $this->selectWith($select);
     }

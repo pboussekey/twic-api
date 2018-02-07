@@ -690,7 +690,21 @@ class User extends AbstractService
      */
     public function checkAccountToken($token)
     {
-        $res_user = $this->getMapper()->checkAccountToken($token);
+        $res_user = $this->getMapper()->checkUser($token);
+        
+        return $res_user->current();
+    }
+    
+    /**
+     * Check if an email is valid
+     * 
+     * @invokable
+     * @param     string $email
+     * @return    \Dal\Db\ResultSet\ResultSet|\Application\Model\User
+     */
+    public function checkEmail($email)
+    {
+        $res_user = $this->getMapper()->checkUser(null, $email);
         
         return $res_user->current();
     }
