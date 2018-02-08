@@ -2,15 +2,19 @@
 
 namespace Auth\Authentication\Adapter;
 
-use Zend\Authentication\Adapter\AbstractAdapter;
-use Zend\Db\Adapter\Adapter;
-use Zend\Authentication\Result;
-use Zend\Db\Sql\Sql as DbSql;
 use Auth\Authentication\Adapter\Model\Identity;
-use Zend\Math\Rand;
+use Auth\Authentication\Adapter\Model\IdentityInterface;
+use Exception;
+use Zend\Authentication\Adapter\AbstractAdapter;
+use Zend\Authentication\Adapter\Exception\ExceptionInterface;
+use Zend\Authentication\Result;
+use Zend\Db\Adapter\Adapter;
 use Zend\Db\ResultSet\ResultSet;
-use Zend\Db\Sql\Predicate\Predicate;
+use Zend\Db\Sql\Predicate\Expression;
 use Zend\Db\Sql\Predicate\IsNotNull;
+use Zend\Db\Sql\Predicate\Predicate;
+use Zend\Db\Sql\Sql as DbSql;
+use Zend\Math\Rand;
 
 class DbAdapter extends AbstractAdapter
 {
@@ -30,7 +34,7 @@ class DbAdapter extends AbstractAdapter
     protected $table;
 
     /**
-     * @var \Auth\Authentication\Adapter\Model\IdentityInterface
+     * @var IdentityInterface
      */
     protected $result;
 
@@ -70,9 +74,9 @@ class DbAdapter extends AbstractAdapter
     /**
      * Performs an authentication attempt.
      *
-     * @return \Zend\Authentication\Result
+     * @return Result
      *
-     * @throws \Zend\Authentication\Adapter\Exception\ExceptionInterface
+     * @throws ExceptionInterface
      */
     public function authenticate()
     {
@@ -94,7 +98,7 @@ class DbAdapter extends AbstractAdapter
                 ->where(['user.'.$this->identity_column.' = ? ' => $this->identity])
                 ->where(['user.deleted_date IS NULL']);
         } else {
-            throw new \Exception("error authentification");
+            throw new Exception("error authentification");
         }
         
         $statement = $sql->prepareStatementForSqlObject($select);
@@ -103,7 +107,7 @@ class DbAdapter extends AbstractAdapter
         if ($results->count() < 1) {
             $select = $sql->select();
             $select->from($this->table)
-                ->columns(['*'])
+                ->columns(['*','welcome_date' => new Expression('DATE_ADD(welcome_date, INTERVAL welcome_delay DAY)')])
                 ->where(['user.'.$this->identity_column.'' => $this->identity])
                 ->where(array('user.deleted_date IS NULL'));
             $statement = $sql->prepareStatementForSqlObject($select);
@@ -137,14 +141,14 @@ class DbAdapter extends AbstractAdapter
                 $statement->execute();
             }
         } else {
-            throw new \Exception("Error number result authentification");
+            throw new Exception("Error number result authentification");
         }
         
         return new Result($code, $identity, $message);
     }
 
     /**
-     * @return \Auth\Authentication\Adapter\Model\IdentityInterface
+     * @return IdentityInterface
      */
     public function getResult()
     {
