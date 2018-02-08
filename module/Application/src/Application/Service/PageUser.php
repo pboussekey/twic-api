@@ -40,9 +40,9 @@ class PageUser extends AbstractService
     public function add($page_id, $user_id, $role, $state, $email = null, $is_pinned = 0)
     {
         
-        if(!$this->getServiceUser()->isStudnetAdmin()  && !$this->getServicePage()->isAdmin($page_id)) {
-            throw new JrpcException('Unauthorized operation pageuser.add', -38003);
-        }
+        //if(!$this->getServiceUser()->isStudnetAdmin()  && !$this->getServicePage()->isAdmin($page_id)) {
+           // throw new JrpcException('Unauthorized operation pageuser.add', -38003);
+        //}
 
         return $this->_add($page_id, $user_id, $role, $state, $email, $is_pinned);
     }
