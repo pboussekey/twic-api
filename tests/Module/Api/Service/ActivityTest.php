@@ -332,15 +332,20 @@ class ActivityTest extends AbstractService
 
         $data = $this->jsonRpc(
             'activity.getVisitsPrc',
-            ['start_date'=> '2015-04-20' , 'end_date' => '2015-04-25', 'organization_id' => 1]
+            ['start_date'=> '2015-04-20' , 'end_date' => '2015-04-25', 'page_id' => 1]
         );
-        
+
         $this->assertEquals(count($data) , 3); 
         $this->assertEquals($data['id'] , 1); 
         $this->assertEquals(count($data['result']) , 1); 
-        $this->assertEquals(count($data['result'][0]) , 1); 
-        $this->assertEquals($data['result'][0]['prc'] , 25.0000); 
+        $this->assertEquals(count($data['result'][0]) , 2); 
+        $this->assertEquals(count($data['result'][0]['object_data']) , 2); 
+        $this->assertEquals($data['result'][0]['object_data']['visitors'] , 1); 
+        $this->assertEquals($data['result'][0]['object_data']['total'] , 3); 
+        $this->assertEquals($data['result'][0]['date'] , "2015-04-22"); 
         $this->assertEquals($data['jsonrpc'] , 2.0); 
+
+
 
     }
 }

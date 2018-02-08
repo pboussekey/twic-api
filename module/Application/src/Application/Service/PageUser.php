@@ -206,13 +206,13 @@ class PageUser extends AbstractService
                     $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
                     $m_organization->getLibelle() : null;
                     $url = sprintf("https://%s%s/page/course/%s/timeline", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl'], $m_page->getId());
-                    $this->getServiceMail()->sendTpl(
+                    /*$this->getServiceMail()->sendTpl(
                         'tpl_coursepublished', $m_user->getEmail(), [
                         'pagename' => $m_page->getTitle(),
                         'firstname' => $m_user->getFirstName(),
                         'pageurl' => $url,
                         ]
-                    );
+                    );*/
                     
                     $gcm_notification = new GcmNotification();
                     $gcm_notification->setTitle($m_page->getTitle())
@@ -375,8 +375,10 @@ class PageUser extends AbstractService
      * @param bool    $sent
      * @param int       $is_pinned
      * @param string    $search
+     * @param array    $order
      */
-    public function getListByPage($page_id, $role = null, $state = null, $sent = null, $is_pinned = null, $search = null)
+    public function getListByPage($page_id, $role = null, $state = null, 
+        $sent = null, $is_pinned = null, $search = null, $order = null)
     {
         
         $identity = $this->getServiceUser()->getIdentity();
@@ -390,7 +392,7 @@ class PageUser extends AbstractService
         }
         
         $is_admin = null === $identity || (in_array(ModelRole::ROLE_ADMIN_STR, $identity['roles']));
-        $res_page_user = $this->getMapper()->getList($page_id, null, $role, $state, null, $is_admin ? null : $identity['id'], $sent, $is_pinned, $search);
+        $res_page_user = $this->getMapper()->getList($page_id, null, $role, $state, null, $is_admin ? null : $identity['id'], $sent, $is_pinned, $search, $order);
         foreach ($res_page_user as $m_page_user) {
             $ret[$m_page_user->getPageId()][] = $m_page_user->getUserId();
         }

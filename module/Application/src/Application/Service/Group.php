@@ -61,6 +61,22 @@ class Group extends AbstractService
         return $ret;
     }
     
+     /**
+     * Add GRoup
+     *
+     * @invokable
+     *
+     * @param int $id
+     * @param string name 
+     *
+     * @return int
+     */
+    public function update($id, $name)
+    {
+       
+        return $this->getMapper()->update($this->getModel()->setId($id)->setName($name));
+    }
+    
     /**
      * Delete Group
      *

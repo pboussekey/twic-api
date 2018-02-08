@@ -9,6 +9,7 @@ namespace Application\Mapper;
 use Dal\Mapper\AbstractMapper;
 use Zend\Db\Sql\Predicate\Predicate;
 use Zend\Db\Sql\Expression;
+use Zend\Db\Sql\Select;
 use Application\Model\Role as ModelRole;
 
 /**
@@ -61,6 +62,40 @@ class User extends AbstractMapper
         
         return $this->selectWith($select);
     }
+    
+    public function getAffinitySelect($user_id){
+         
+        $page_affinity = new Select(['user_pages' => 'page_user']);
+        $page_affinity->columns([
+            'user_id' => new Expression('other_user.id'), 
+            'affinity' => new Expression('SUM(CASE page.type  WHEN "organization" THEN 4 WHEN "course" THEN 8 ELSE 2 END)')
+        ])
+        ->join('page', 'user_pages.page_id = page.id',[])
+        ->join(['page_users' => 'page_user'],'user_pages.page_id = page_users.page_id', [])  
+        ->join(['other_user' => 'user'],'page_users.user_id = other_user.id', [])   
+        ->where(['user_pages.user_id = ?' => $user_id]) 
+        ->where(['other_user.id <> ?' => $user_id])
+        ->group('other_user.id');
+        
+        
+        $contact_affinity = new Select(['user_contacts' => 'contact']);
+        $contact_affinity->columns([
+            'user_id' => new Expression(' CASE WHEN contact_users.contact_id = user_contacts.user_id THEN contact_users.user_id ELSE contact_users.contact_id END'), 
+            'affinity' => new Expression('SUM(CASE WHEN user_contacts.user_id = contact_users.contact_id  THEN 20 ELSE 1 END)')
+        ])
+        ->join(['contact_users' => 'contact'], 'user_contacts.contact_id = contact_users.user_id',[])
+        ->where(['user_contacts.user_id = ?' => $user_id]) 
+        ->where('user_contacts.accepted_date IS NOT NULL AND contact_users.accepted_date IS NOT NULL')
+        ->group('contact_users.user_id');
+        
+        $select = $this->tableGateway->getSql()->select();
+        $select->columns(['user_id' => 'id', 'affinity' => new Expression("COALESCE(page_affinity.affinity,0) + COALESCE(contact_affinity.affinity,0)")])
+               ->join(['page_affinity' => $page_affinity], 'page_affinity.user_id = user.id', [], $select::JOIN_LEFT)
+               ->join(['contact_affinity' => $contact_affinity], 'contact_affinity.user_id = user.id', [], $select::JOIN_LEFT);
+        
+        return $select;
+
+   }
 
     public function getList(
         $user_id,
@@ -112,11 +147,18 @@ class User extends AbstractMapper
 
         if (null !== $order) {
             switch ($order['type']) {
+            case 'name':
+                $select->order(new Expression('user.is_active DESC, COALESCE(NULLIF(user.nickname,""),TRIM(CONCAT_WS(" ",user.lastname,user.firstname, user.email)))'));
+                break;
             case 'firstname':
                 $select->order('user.firstname ASC');
                 break;
             case 'random':
                 $select->order(new Expression('RAND(?)', $order['seed']));
+                break;
+            case 'affinity':
+                $select->join(['affinity' => $this->getAffinitySelect($user_id)], 'user.id = affinity.user_id', [])
+                    ->order([new Expression('user.id = ?', $user_id), 'affinity DESC']);
                 break;
             default:
                 $select->order(['user.id' => 'DESC']);
@@ -175,11 +217,12 @@ class User extends AbstractMapper
             $select->where(['user.email_sent IS FALSE']);
         }
         if(!empty($email)) {
-            $select->where(['user.email' => $email]);
+            $select->where->in(new Expression('LOWER(user.email)'),$email);
         }
         else if($unsent !== true) {
             $select->where(['user.is_active' => 1]);
         }
+        
         return $this->selectWith($select);
     }
 
@@ -213,15 +256,22 @@ class User extends AbstractMapper
        * Check if an account token is valid
        *
        * @param string $token
+       * @param string $email
        *
        * @return \Zend\Db\Sql\Select
        */
-    public function checkAccountToken($token)
+    public function checkUser($token = null, $email = null)
     {
         $select = $this->tableGateway->getSql()->select();
-        $select->columns(['is_active'])
+        $select->columns(['firstname', 'lastname', 'avatar', 'nickname', 'is_active','email']);
+        if(null !== $token){
+            $select
             ->join('preregistration', 'preregistration.user_id = user.id', [])
             ->where(['preregistration.account_token' => $token]);
+        }
+        if(null !== $email){
+            $select->where(['user.email' => $email]);
+        }
         
         return $this->selectWith($select);
     }

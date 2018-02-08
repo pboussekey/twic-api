@@ -146,7 +146,7 @@ class Page extends AbstractMapper
         }
         $select->order(['page.start_date' => 'DESC'])
             ->group('page.id');
-
+        
         return $this->selectWith($select);
     }
 

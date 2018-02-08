@@ -221,7 +221,7 @@ class Page extends AbstractService
                 $ar_u['state'] = ModelPageUser::STATE_MEMBER;
             }
         }
-        if (! $is_present) {
+        if (! $is_present && (!$this->getServiceUser()->isStudnetAdmin() || $type !== ModelPage::TYPE_ORGANIZATION)) {
             $users[] = [
               'user_id' => $m_page->getOwnerId(),
               'role' => ModelPageUser::ROLE_ADMIN,
@@ -362,6 +362,7 @@ class Page extends AbstractService
      * @param string $custom
      * @param int    $circle_id
      * @param bool   $is_published
+     * @param int $confidentiality
      *
      *
      * @return int
@@ -388,7 +389,8 @@ class Page extends AbstractService
         $libelle = null,
         $custom = null,
         $circle_id = null,
-        $is_published = null
+        $is_published = null,
+        $confidentiality = null
     ) {
         if(!$this->getServiceUser()->isStudnetAdmin() &&  !$this->isAdmin($id)) {
             throw new JrpcException('Unauthorized operation page.update', -38003);
@@ -419,7 +421,8 @@ class Page extends AbstractService
             ->setLibelle($libelle)
             ->setWebsite($formattedWebsite)
             ->setPhone($phone)
-            ->setShortTitle($short_title);
+            ->setShortTitle($short_title)
+            ->setConfidentiality($confidentiality);
 
         if ($address !== null) {
             if($address === 0) {
@@ -495,13 +498,13 @@ class Page extends AbstractService
                         $m_organization->getLibelle() : null;
                         
                         $url = sprintf("https://%s%s/page/course/%s/timeline", ($prefix ? $prefix.'.':''),  $this->container->get('config')['app-conf']['uiurl'], $tmp_m_page->getId());
-                        $this->getServiceMail()->sendTpl(
+                        /*$this->getServiceMail()->sendTpl(
                             'tpl_coursepublished', $m_user->getEmail(), [
                             'pagename' => $tmp_m_page->getTitle(),
                             'firstname' => $m_user->getFirstName(),
                             'pageurl' => $url
                             ]
-                        );
+                        );*/
                         
                         $gcm_notification = new GcmNotification();
                         $gcm_notification->setTitle($tmp_m_page->getTitle())

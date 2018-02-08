@@ -548,10 +548,10 @@ class User extends AbstractService
             $this->getModel()
                 ->setEmail($email)
                 ->setSuspensionDate(new IsNull())
-                ->setDeletedDate(new IsNull())->setIsActive(1)
+                ->setDeletedDate(new IsNull())
         )->current();
         
-        if ($m_user !== false) {
+        if ($m_user !== false && $m_user->getIsActive() === 1) {
             $uniqid = uniqid($m_user->getId() . "_", true);
             $m_page = $this->getServicePage()->getLite($m_user->getOrganizationId());
             $this->getServicePreregistration()->add($uniqid, null, null, null, $m_user->getOrganizationId(), $m_user->getId());
@@ -573,7 +573,11 @@ class User extends AbstractService
             } catch (\Exception $e) {
                 syslog(1, 'Model name does not exist <> uniqid is : ' . $uniqid . ' <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode() . ' <URL> ' . $url . ' <Email> ' . $m_user->getEmail());
             }
-        } else {
+        }
+        else if($m_user !== false && $m_user->getIsActive() === 0){
+            $this->sendPassword($m_user->getId());
+        }
+        else {
             throw new \Exception("no account with email: ". $email);
         }
         
@@ -686,7 +690,21 @@ class User extends AbstractService
      */
     public function checkAccountToken($token)
     {
-        $res_user = $this->getMapper()->checkAccountToken($token);
+        $res_user = $this->getMapper()->checkUser($token);
+        
+        return $res_user->current();
+    }
+    
+    /**
+     * Check if an email is valid
+     * 
+     * @invokable
+     * @param     string $email
+     * @return    \Dal\Db\ResultSet\ResultSet|\Application\Model\User
+     */
+    public function checkEmail($email)
+    {
+        $res_user = $this->getMapper()->checkUser(null, $email);
         
         return $res_user->current();
     }
@@ -792,6 +810,9 @@ class User extends AbstractService
         
         if(count($email) === 0) {
             return null;
+        }
+        foreach($email as &$e){
+            $e = strtolower($e);
         }
         $identity = $this->getIdentity();
       

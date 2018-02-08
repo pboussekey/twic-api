@@ -95,19 +95,44 @@ class Activity extends AbstractMapper
         return $this->selectWith($select);
     }
     
-     public function getVisitsPrc($page_id, $start_date, $end_date)
-    {
+     public function getVisitsPrc($page_id, $start_date, $end_date, $interval)
+    { 
+        $sub_select = $this->tableGateway->getSql()->select();
+        $sub_select->columns([
+            'user_id' => 'user_id',
+            'date' => new Expression('SUBSTRING(MIN(activity.date),1,'.$interval.')')
+        ])
+        ->join('page_user', 'activity.user_id = page_user.user_id', [])
+        ->join('user_role', 'user_role.user_id = activity.user_id', [])
+        ->where(['user_role.role_id <> ? ' => ModelRole::ROLE_ADMIN_ID])
+        ->where(['page_user.role = ?' => ModelPageUser::ROLE_USER])
+        ->where(['page_user.state = ?' => ModelPageUser::STATE_MEMBER])
+        ->where('event = "navigation" AND object_name LIKE "lms.page%"')
+        ->group('activity.user_id')
+        ->where->in(new Expression('SUBSTRING_INDEX(SUBSTRING_INDEX(object_data, \'"id":"\', \'-1\'), \'"\', 1)'), $page_id)
+               ->in('page_user.page_id', $page_id);
+        
+        if (null != $start_date) {
+            $sub_select->where(['date >= ? ' => $start_date]);
+        }
+
+        if (null != $end_date) {
+            $sub_select->where(['date <= ? ' => $end_date]);
+        }
         $select = new Select('page_user');
-        $select->columns([ 
-            'activity$prc' => new Expression('100 * COUNT(DISTINCT activity.user_id) / COUNT(DISTINCT page_user.user_id)')])
-            ->join('activity', new Expression('page_user.user_id = activity.user_id AND 
-                    object_name is not NULL AND object_name LIKE \'lms.page%\' AND
-                    event = \'navigation\' AND SUBSTRING_INDEX(SUBSTRING_INDEX(object_data, \'"id":"\', \'-1\'), \'"\', 1) IN
-                    ('.join(",", $page_id).') AND date BETWEEN ? AND ?',
-            [$start_date, $end_date]),[], $select::JOIN_LEFT)
+        $select->columns(
+            [
+                'activity$date' => new Expression('SUBSTRING(dates.date,1,'.$interval.')'),
+                'activity$object_data' => new Expression('CONCAT("{ \"visitors\" : ",COUNT(DISTINCT dates.user_id),", \"total\" : ", COUNT(DISTINCT page_user.user_id), "}")')
+                      
+            ])
+            ->join(['dates' => $sub_select], new Expression('1'), [])
             ->where(['page_user.state = ?' => ModelPageUser::STATE_MEMBER])
+            ->where(['page_user.role = ?' => ModelPageUser::ROLE_USER])
             ->where->in('page_user.page_id', $page_id);
         
+          
+        $select->group([new Expression('SUBSTRING(dates.date,1,'.$interval.')')]);
         return $this->selectWith($select);
     }
     
@@ -120,11 +145,12 @@ class Activity extends AbstractMapper
                 'activity$count' => new Expression('COUNT(DISTINCT SUBSTRING(activity.date,1,10), activity.user_id)')]
              )
             ->join('user', 'activity.user_id = user.id', [])
-            ->join('user_role', 'user_role.user_id = user.id', [])
             ->group(
                 new Expression('SUBSTRING(activity.date,1,'.$interval.')')
             )
-            ->where(['user_role.role_id <> ? ' => ModelRole::ROLE_ADMIN_ID])
+            ->join('page_user', 'activity.user_id = page_user.user_id', [])
+            ->where(['page_user.role = ?' => ModelPageUser::ROLE_USER])
+            ->where(['page_user.state = ?' => ModelPageUser::STATE_MEMBER])
             ->where(['object_name is not NULL'])
             ->where(["object_name LIKE 'lms.page%'"])
             ->where(["event = 'navigation'"]);
@@ -141,7 +167,8 @@ class Activity extends AbstractMapper
         
         
         if(null !== $page_id){
-           $select->where->in(new Expression('SUBSTRING_INDEX(SUBSTRING_INDEX(object_data, \'"id":"\', \'-1\'), \'"\', 1)'), $page_id);
+           $select->where->in(new Expression('SUBSTRING_INDEX(SUBSTRING_INDEX(object_data, \'"id":"\', \'-1\'), \'"\', 1)'), $page_id)
+                ->in('page_user.page_id', $page_id);
         }
         return $this->selectWith($select);
     }
@@ -151,18 +178,17 @@ class Activity extends AbstractMapper
         $select = $this->tableGateway->getSql()->select();
      
             $select->columns([ 
-                'activity$date' => new Expression('SUBSTRING(activity.date,1,'.$interval.')'), 
-                'event', 
+                'activity$date' => new Expression('SUBSTRING(activity.date,1,10)'), 
                 'activity$count' => new Expression('COUNT(DISTINCT SUBSTRING(activity.date,1,10), library.id, activity.user_id, activity.event)')
                 ]
              )
-            ->join('user', 'activity.user_id = user.id', [])
-            ->join('user_role', 'user_role.user_id = user.id', [])
-            ->join('library', new Expression('activity.object_id = library.id'), ['activity$id' => 'id'])
+            ->join('library', new Expression('activity.object_id = library.id'), ['activity$id' => 'id', 'activity$object_name' => 'name'])
             ->group(
                 new Expression('event, library.id, SUBSTRING(activity.date,1,'.$interval.')')
             )
-            ->where(['user_role.role_id <> ? ' => ModelRole::ROLE_ADMIN_ID])
+             ->join('page_user', 'activity.user_id = page_user.user_id', [])
+            ->where(['page_user.role = ?' => ModelPageUser::ROLE_USER])
+            ->where(['page_user.state = ?' => ModelPageUser::STATE_MEMBER])
             ->where(["event IN ('document.open', 'document.download')"])
             ->order(['event']);
 
@@ -178,9 +204,52 @@ class Activity extends AbstractMapper
            $select->join('page_doc', 'library.id = page_doc.library_id',[], $select::JOIN_LEFT)
                   ->join('item', 'library.id = item.library_id',[], $select::JOIN_LEFT)
                   ->where->NEST->in('item.page_id',$page_id)->OR
+                  ->in('page_doc.page_id',$page_id)->UNNEST
+                  ->in('page_user.page_id', $page_id);
+        }
+        
+        return $this->selectWith($select);
+    }
+    
+     public function getDocumentsOpeningPrc( $start_date = null, $end_date = null,  $page_id = null, $library_id = null)
+    {
+        $users_select = new Select('page_user');
+        $users_select->columns(['count' => new Expression('COUNT(DISTINCT page_user.user_id)')])
+            ->where(['page_user.state = ?' => ModelPageUser::STATE_MEMBER])
+            ->where(['page_user.role = ?' => ModelPageUser::ROLE_USER])
+            ->where->in('page_user.page_id', $page_id);
+        
+        $select = $this->tableGateway->getSql()->select();
+        $select->columns([ 'activity$object_data' => 
+            new Expression('CONCAT("{ \"count\" : ", COUNT(DISTINCT SUBSTRING(activity.date,1, 10), activity.user_id),", \"visitors\" : ",COUNT(DISTINCT activity.user_id),", \"total\" : ", users.count, "}")'), 
+            'activity$target_name' => new Expression('IF(item.id IS NOT NULL, "MEDIA", "MATERIAL")')])
+            ->join(['users' => $users_select], new Expression('1'), [])
+            ->join('library', new Expression('activity.object_id = library.id'), ['activity$id' => 'id', 'activity$object_name' => 'name'], $select::JOIN_LEFT)
+            ->where('event IN ("document.open", "document.download")')
+            ->group('library.id');
+           
+       if (null != $start_date) {
+            $select->where(['date >= ? ' => $start_date]);
+        }
+
+        if (null != $end_date) {
+            $select->where(['date <= ? ' => $end_date]);
+        }
+        
+        if(null !== $page_id){
+           $select
+                  ->join('page_user', 'activity.user_id = page_user.user_id', [])
+                  ->join('page_doc', 'library.id = page_doc.library_id',[], $select::JOIN_LEFT)
+                  ->join('item', 'library.id = item.library_id',[], $select::JOIN_LEFT)
+                  ->where(['page_user.role = ?' => ModelPageUser::ROLE_USER])
+                  ->where
+                   ->in('page_user.page_id', $page_id)
+                   ->NEST->in('item.page_id',$page_id)->OR
                   ->in('page_doc.page_id',$page_id)->UNNEST;
         }
         
+        $select->order(new Expression('1 / (100 * COUNT(DISTINCT activity.user_id) / users.count)'));
+        syslog(1, $this->printSql($select));
         return $this->selectWith($select);
     }
 }

@@ -53,14 +53,14 @@ class Library extends AbstractService
         }
 
         $box_id = null;
-        if ((null !== $link || null !== $token) && null !== $type) {
+        /*if ((null !== $link || null !== $token) && null !== $type) {
             $urldms = $this->container->get('config')['app-conf']['urldms'];
             $u = (null !== $link) ? $link : $urldms . $token;
             $m_box = $this->getServiceBox()->addFile($u, $type);
             if ($m_box instanceof ModelDocument) {
                 $box_id = $m_box->getId();
             }
-        }
+        }*/
         if (null !== $text && null === $type) {
             $type = "text";
         }
@@ -196,14 +196,14 @@ class Library extends AbstractService
 
 
         $box_id = null;
-        if ((null !== $link || null !== $token) && null !== $type) {
+        /*if ((null !== $link || null !== $token) && null !== $type) {
             $urldms = $this->container->get('config')['app-conf']['urldms'];
             $u = (null !== $link) ? $link : $urldms . $token;
             $m_box = $this->getServiceBox()->addFile($u, $type);
             if ($m_box instanceof ModelDocument) {
                 $box_id = $m_box->getId();
             }
-        }
+        }*/
 
         $m_library = $this->getModel()
             ->setId($id)

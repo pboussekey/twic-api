@@ -14,7 +14,7 @@
 
 return [
     'version' => "2.0.4",
-    'build-commit' => 1033,
+    'build-commit' => 1059,
     'app-conf' => [
         'cache' => 'storage_memcached',
     ],
@@ -124,7 +124,6 @@ return [
         'headers' =>
             [
                 'Access-Control-Allow-Credentials' => 'false',
-                'Access-Control-Allow-Origin' => '*',
                 'Access-Control-Allow-Methods' => 'PUT, GET, POST, OPTIONS, DELETE',
                 'Access-Control-Allow-Headers' => 'Authorization, X-auth-token, Origin, X-Requested-With, Content-Type, Accept',
                 'Access-Control-Max-Age' => '600',
@@ -139,9 +138,9 @@ return [
             'adapter' => [
                 'name' => 'memcached',
                 'options' => [
-                    'namespace' => 'LMS1033',
+                    'namespace' => 'LMS1059',
                     'lib_options' => [
-                        ['option' => Memcached::OPT_PREFIX_KEY, 'value' => 'LMS1033'],
+                        ['option' => Memcached::OPT_PREFIX_KEY, 'value' => 'LMS1059'],
                  /*       ['option' => Memcached::OPT_LIBKETAMA_COMPATIBLE, 'value' => true],
                         ['option' => Memcached::OPT_SERIALIZER, 'value' => Memcached::SERIALIZER_IGBINARY],
                         ['option' => Memcached::OPT_DISTRIBUTION, 'value' => Memcached::DISTRIBUTION_CONSISTENT],*/

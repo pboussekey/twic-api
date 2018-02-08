@@ -170,7 +170,7 @@ class Item extends AbstractMapper
         $select = $this->tableGateway->getSql()->select();
         $select->columns(['id', 'is_grade_published'])
             ->join('page_user', 'page_user.page_id=item.page_id', ['user_id'])
-            ->join('item_user', 'item.id=item_user.item_id AND page_user.user_id=item_user.user_id', ['id', 'group_id', 'rate'], $select::JOIN_LEFT)
+            ->join('item_user', new Expression('item.id=item_user.item_id AND page_user.user_id=item_user.user_id AND item_user.deleted_date IS NULL'), ['id', 'group_id', 'rate'], $select::JOIN_LEFT)
             ->join('group', 'group.id=item_user.group_id', ['id', 'name'], $select::JOIN_LEFT)
             ->join(
                 'submission', 'submission.id=item_user.submission_id', ['id', 'post_id',

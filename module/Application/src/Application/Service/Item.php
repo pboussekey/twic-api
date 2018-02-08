@@ -213,6 +213,9 @@ class Item extends AbstractService
             $m_group = $this->getServiceGroup()->getOrCreate($group_name, $id);
             $group_id = $m_group->getId();
         }
+        else if(null !== $group_id && null !== $group_name){
+            $this->getServiceGroup()->update($group_id, $group_name);
+        }
 
         return $this->getServiceItemUser()->addUsers($id, $user_ids, $group_id);
     }
@@ -597,14 +600,14 @@ class Item extends AbstractService
                         $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
                         $m_organization->getLibelle() : null;
                         $url = sprintf("https://%s%s/page/course/%s/content", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl'], $m_page->getId());
-                        $this->getServiceMail()->sendTpl(
+                        /*$this->getServiceMail()->sendTpl(
                             'tpl_itempublished', $m_user->getEmail(), [
                             'itemtype' => ModelItem::type_relation[$m_item->getType()],
                             'itemtitle' => $m_item->getTitle(),
                             'firstname' => $m_user->getFirstName(),
                             'pageurl' => $url,
                             ]
-                        );
+                        );*/
 
 
                       
@@ -735,7 +738,7 @@ class Item extends AbstractService
                         $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
                         $m_organization->getLibelle() : null;
                         $url = sprintf("https://%s%s/page/course/%s/content", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl'], $m_page->getId());
-                        $this->getServiceMail()->sendTpl(
+                        /*$this->getServiceMail()->sendTpl(
                             'tpl_itemupdate', $m_user->getEmail(), [
                             'itemtype' => ModelItem::type_relation[$m_item->getType()],
                             'itemtitle' => $final_title,
@@ -743,7 +746,7 @@ class Item extends AbstractService
                             'pagename' => $m_page->getTitle(),
                             'pageurl' => $url,
                             ]
-                        );
+                        );*/
 
                     }
                     catch (\Exception $e) {

@@ -166,7 +166,6 @@ class Contact extends AbstractService
 
         $m_user = $this->getServiceUser()->getLite($user_id);
         $name = "";
-        syslog(1, "USER.ACCEPT : ".json_encode($m_user));
         if (!is_object($m_user->getNickname()) &&  null !== $m_user->getNickname()) {
             $name = $m_user->getNickname();
         } else {

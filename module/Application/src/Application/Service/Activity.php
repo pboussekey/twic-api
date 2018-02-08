@@ -267,18 +267,48 @@ class Activity extends AbstractService
      *
      * @invokable
      *
-     * @param int|array    $organization_id
+     * @param int|array $page_id
+     * @param string $interval_date
      * @param string $start_date
      * @param string $end_date
      *
      * @return array
      */
-    public function getVisitsPrc($organization_id, $start_date = null, $end_date = null)
+    public function getVisitsPrc($page_id, $interval_date = 'D', $start_date = null, $end_date = null)
     {
-        if(!is_array($organization_id)){
-            $organization_id = [$organization_id];
+        if(!is_array($page_id)) {
+            $page_id = [$page_id];
         }
-        return $this->getMapper()->getVisitsPrc($organization_id, $start_date, $end_date);
+        $interval = $this->interval($interval_date);
+        $res_activity = $this->getMapper()->getVisitsPrc($page_id, $start_date, $end_date, $interval);
+        foreach($res_activity as $m_activity){
+            $m_activity->setObjectData(json_decode($m_activity->getObjectData(), true));
+        }
+        return $res_activity;
+    }
+    
+     /**
+     * Get List connections.
+     *
+     * @invokable
+     *
+     * @param int|array $page_id
+     * @param int|array $library_id
+     * @param string $start_date
+     * @param string $end_date
+     *
+     * @return array
+     */
+    public function getDocumentsOpeningPrc($page_id, $library_id = null, $start_date = null, $end_date = null)
+    {
+        if(!is_array($page_id)){
+            $page_id = [$page_id];
+        }
+        $res_activity = $this->getMapper()->getDocumentsOpeningPrc($start_date, $end_date, $page_id, $library_id);
+        foreach($res_activity as $m_activity){
+            $m_activity->setObjectData(json_decode($m_activity->getObjectData(), true));
+        }
+        return $res_activity;
     }
 
     /**
