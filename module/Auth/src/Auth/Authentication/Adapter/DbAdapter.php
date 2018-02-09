@@ -107,7 +107,7 @@ class DbAdapter extends AbstractAdapter
         if ($results->count() < 1) {
             $select = $sql->select();
             $select->from($this->table)
-                ->columns(['*','welcome_date' => new Expression('DATE_ADD(welcome_date, INTERVAL welcome_delay DAY)')])
+                ->columns(['*'])
                 ->where(['user.'.$this->identity_column.'' => $this->identity])
                 ->where(array('user.deleted_date IS NULL'));
             $statement = $sql->prepareStatementForSqlObject($select);

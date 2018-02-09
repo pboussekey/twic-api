@@ -40,6 +40,9 @@ class User extends AbstractMapper
         ];
 
 
+        if($user_id === $me){
+            $columns['user$welcome_date'] = new Expression('DATE_FORMAT(DATE_ADD(welcome_date, INTERVAL welcome_delay DAY), "%Y-%m-%dT%TZ")');
+        }
         $select = $this->tableGateway->getSql()->select();
         $select->columns($columns)
             ->join(array('nationality' => 'country'), 'nationality.id=user.nationality', ['nationality!id' => 'id', 'short_name'], $select::JOIN_LEFT)

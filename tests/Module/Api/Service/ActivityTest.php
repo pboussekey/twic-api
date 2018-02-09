@@ -334,6 +334,7 @@ class ActivityTest extends AbstractService
             'activity.getVisitsPrc',
             ['start_date'=> '2015-04-20' , 'end_date' => '2015-04-25', 'page_id' => 1]
         );
+
         $this->assertEquals(count($data) , 3); 
         $this->assertEquals($data['id'] , 1); 
         $this->assertEquals(count($data['result']) , 1); 

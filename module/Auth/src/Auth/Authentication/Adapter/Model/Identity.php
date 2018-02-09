@@ -16,7 +16,6 @@ class Identity implements IdentityInterface
     protected $linkedin_id;
     protected $organization_id;
     protected $suspension_date;
-    protected $welcome_date;
     protected $suspension_reason;
     protected $has_linkedin;
 
@@ -171,18 +170,6 @@ class Identity implements IdentityInterface
         return $this;
     }
 
-    public function getWelcomeDate()
-    {
-        return $this->welcome_date;
-    }
-
-    public function setWelcomeDate($welcome_date)
-    {
-        $this->welcome_date = $welcome_date;
-
-        return $this;
-    }
-
     public function getSuspensionReason()
     {
         return $this->suspension_reason;
@@ -245,7 +232,6 @@ class Identity implements IdentityInterface
             'firstname' => $this->firstname,
             'lastname' => $this->lastname,
             'nickname' => $this->nickname,
-            'welcome_date' => $this->welcome_date,
             'suspension_date' => $this->suspension_date,
             'suspension_reason' => $this->suspension_reason,
             'organization_id' => $this->organization_id,

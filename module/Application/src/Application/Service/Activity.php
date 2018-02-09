@@ -276,7 +276,7 @@ class Activity extends AbstractService
      */
     public function getVisitsPrc($page_id, $interval_date = 'D', $start_date = null, $end_date = null)
     {
-        if(!is_array($page_id)){
+        if(!is_array($page_id)) {
             $page_id = [$page_id];
         }
         $interval = $this->interval($interval_date);
@@ -310,7 +310,6 @@ class Activity extends AbstractService
         }
         return $res_activity;
     }
-
 
     /**
      * Get Service User.
