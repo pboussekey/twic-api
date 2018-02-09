@@ -2,32 +2,32 @@
 
 namespace Box\Service;
 
-use Zend\ServiceManager\ServiceManager;
 use Zend\Http\Response;
 use JRpc\Json\Server\Exception\JrpcException;
 
 abstract class AbstractApi
 {
-    /**
-     * @var ServiceManager
-     */
-    protected $servicemanager;
-    protected $path;
+    protected $conf;
 
     /**
      * @var \Zend\http\Client
      */
     protected $http_client;
+    protected $api_key;
 
-    public function __construct(\Zend\Http\Client $client, $apikey, $url)
+    public function __construct(\Zend\Http\Client $client, $apikey, $conf)
     {
+        $this->api_key = $apikey;
         $this->http_client = $client;
-        $this->http_client->getRequest()->setUri($url);
-        $this->path = $this->http_client->getUri()->getPath();
-        $this->http_client->getRequest()->getHeaders()->addHeaderLine('Authorization', sprintf('Token %s', $apikey));
-        $this->http_client->getRequest()->getHeaders()->addHeaderLine('Content-Type', 'application/json');
+        $this->conf = $conf;
+        $this->http_client->getRequest()->getHeaders()->addHeaderLine('Authorization', sprintf('Bearer %s', $this->api_key));
     }
 
+    public function setUri($uri)
+    {
+        $this->http_client->getRequest()->setUri($uri);
+    }
+    
     public function setMethod($method)
     {
         $this->http_client->setMethod($method);
@@ -37,17 +37,26 @@ abstract class AbstractApi
     {
         $this->http_client->getUri()->setPath($this->path.$path);
     }
-
-    public function setParams($params)
+    
+    public function setContent($content)
     {
-        $this->http_client->getRequest()->setContent(json_encode($params));
+        $this->http_client->getRequest()->setContent($content);
+    }
+
+    public function setPost($post)
+    {
+        $this->http_client->getRequest()->getPost()->fromArray($post);
     }
 
     public function send()
     {
         $response = $this->http_client->send();
-        if (!$response->isSuccess()) {
-            $this->handleException($response);
+          if (!$response->isSuccess()) {
+            
+              print_r($this->http_client->getRequest()->toString());
+              
+              print_r($response->getStatusCode());
+            //$this->handleException($response->getReasonPhrase());
         }
 
         return $response;
@@ -57,7 +66,7 @@ abstract class AbstractApi
     {
         $data = json_decode($response->getBody(), true);
 
-        return  (is_array($data)) ? $data : array();
+        return  (is_array($data)) ? $data : [];
     }
 
     private function handleException(Response $resp)
@@ -75,7 +84,7 @@ abstract class AbstractApi
             }
         } elseif ($resp->isServerError()) {
             throw new \Exception(
-                'The API server responded with an error: '.$resp->getReasonPhrase().' Code: '.$resp->getStatusCode(),
+                'The API server responded with an error: '.$resp->getContent().' Code: '.$resp->getStatusCode(),
                 $resp->getStatusCode()
             );
         } else {

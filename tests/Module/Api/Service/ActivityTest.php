@@ -322,8 +322,6 @@ class ActivityTest extends AbstractService
         $this->assertEquals($data['result'][1]['count'] , 1); 
         $this->assertEquals($data['result'][1]['date'] , "2015-04-24"); 
         $this->assertEquals($data['jsonrpc'] , 2.0); 
-
-
     }
     
      public function testGetVisitsPrc()
@@ -344,8 +342,5 @@ class ActivityTest extends AbstractService
         $this->assertEquals($data['result'][0]['object_data']['total'] , 3); 
         $this->assertEquals($data['result'][0]['date'] , "2015-04-22"); 
         $this->assertEquals($data['jsonrpc'] , 2.0); 
-
-
-
     }
 }
