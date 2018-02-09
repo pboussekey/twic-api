@@ -36,13 +36,11 @@ class User extends AbstractMapper
             'ambassador',
             'email_sent',
             'user$contacts_count' => $this->getSelectContactCount(),
-            'user$contact_state' => $this->getSelectContactState($me)
+            'user$contact_state' => $this->getSelectContactState($me),
+            'user$welcome_date' =>  new Expression('DATE_FORMAT(DATE_ADD(user.welcome_date, INTERVAL user.welcome_delay DAY), "%Y-%m-%dT%TZ")')
         ];
 
 
-        if($user_id === $me){
-            $columns['user$welcome_date'] = new Expression('DATE_FORMAT(DATE_ADD(welcome_date, INTERVAL welcome_delay DAY), "%Y-%m-%dT%TZ")');
-        }
         $select = $this->tableGateway->getSql()->select();
         $select->columns($columns)
             ->join(array('nationality' => 'country'), 'nationality.id=user.nationality', ['nationality!id' => 'id', 'short_name'], $select::JOIN_LEFT)
@@ -63,6 +61,7 @@ class User extends AbstractMapper
             $select->where([' ( circle_organization_user.id = ? OR user_role.role_id = '.ModelRole::ROLE_ADMIN_ID . ') ' => $me]);
         }
         
+        syslog(1,$this->printSql($select));
         return $this->selectWith($select);
     }
     
