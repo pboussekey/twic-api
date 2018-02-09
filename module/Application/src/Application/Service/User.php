@@ -1085,6 +1085,29 @@ class User extends AbstractService
             throw new \Exception('Error linkedinLogIn >'. $linkedin_id);
         }
     }
+    
+    /**
+     * @invokable
+     *
+     * @param string $delay 
+     */
+    public function closeWelcome($delay = false)
+    {
+        $identity = $this->getIdentity();
+        $res_user = $this->getMapper()->select($this->getModel()->setId($identity['id']));
+        
+        $datetime = (new DateTime('now', new DateTimeZone('UTC')))->modify('-4 hours');
+        $welcome_delay = 1;
+        if ($res_user->count() > 0) {
+            $m_user = $res_user->current();
+            $welcome_delay = $delay && !$m_user->getWelcomeDelay() instanceof IsNull ? $m_user->getWelcomeDelay() * 2 : 1;
+            $this->getMapper()->update($this->getModel()
+                ->setId($identity['id'])
+                ->setWelcomeDate($datetime->format('Y-m-d H:i:s'))
+                ->setWelcomeDelay($welcome_delay));
+        }
+        return $datetime->modify('+'.$welcome_delay.' days')->format('Y-m-d H:i:s');
+    }
 
     /**
      * Get Service Preregistration
