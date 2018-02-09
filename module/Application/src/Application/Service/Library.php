@@ -53,9 +53,13 @@ class Library extends AbstractService
 
         $box_id = null;
         if ((null !== $link || null !== $token) && null !== $type) {
-            $urldms = $this->container->get('config')['app-conf']['urldms'];
-            $u = (null !== $link) ? $link : $urldms . $token;
-            $box_id = $this->getServiceBox()->addFile($u, $name, $type);
+            try {
+                $urldms = $this->container->get('config')['app-conf']['urldms'];
+                $u = (null !== $link) ? $link : $urldms . $token;
+                $box_id = $this->getServiceBox()->addFile($u, $name, $type);
+            } catch (\Exception $e) {
+                $box_id = null;
+            }
         }
         if (null !== $text && null === $type) {
             $type = "text";
@@ -283,6 +287,7 @@ class Library extends AbstractService
                     ->setId($id)
             );
 
+            
             if ($res_library->count() <= 0) {
                 throw new \Exception(); 
             }

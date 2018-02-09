@@ -1,5 +1,1 @@
-<<<<<<< HEAD
-{"method":"library.getSession","id":1,"params":{"id":92}}
-=======
-{"method":"library.update","id":1,"params":{"id":1,"type":"text","token":"token","name":"library title"}}
->>>>>>> b61acd0e1423f34410fe022c9de99b6ab29a0ed0
+{"method":"library.add","id":1,"params":{"name":"super.pdf","text":"super cool","folder_name":"folder","link":"yuiugfdf","type":"type","global":false}}

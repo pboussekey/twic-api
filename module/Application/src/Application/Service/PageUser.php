@@ -13,7 +13,6 @@ use Application\Model\Role as ModelRole;
 use Application\Model\PageRelation as ModelPageRelation;
 use ZendService\Google\Gcm\Notification as GcmNotification;
 use Zend\Db\Sql\Predicate\IsNull;
-use JRpc\Json\Server\Exception\JrpcException;
 
 
 /**

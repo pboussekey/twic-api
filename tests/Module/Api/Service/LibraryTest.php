@@ -54,7 +54,7 @@ class LibraryTest extends AbstractService
             'name' => 'super.pdf',
             'text' => 'super cool',
             'folder_name' => 'folder',
-            'link' => 'http://www.paul-boye.fr/medias/posts/sante_20160126105624.pdf',
+            'link' => 'yuiugfdf',
             'type' => 'type',
             'global' => false
             ]
