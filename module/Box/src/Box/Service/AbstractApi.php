@@ -52,11 +52,7 @@ abstract class AbstractApi
     {
         $response = $this->http_client->send();
           if (!$response->isSuccess()) {
-            
-              print_r($this->http_client->getRequest()->toString());
-              
-              print_r($response->getStatusCode());
-            //$this->handleException($response->getReasonPhrase());
+              $this->handleException($response);
         }
 
         return $response;
@@ -88,7 +84,7 @@ abstract class AbstractApi
                 $resp->getStatusCode()
             );
         } else {
-            throw new \Exception('An unexpected error occurred:'.$resp->getReasonPhrase());
+            throw new \Exception('An unexpected error occurred: '.$resp->getReasonPhrase());
         }
     }
 }
