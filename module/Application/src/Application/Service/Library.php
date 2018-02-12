@@ -86,6 +86,9 @@ class Library extends AbstractService
                     'name' => $name,
                     'id' => $id
                 ]);
+                if($resp->getResult()) {
+                    $this->updateStatus($m_library->getId(), 1);
+                }
             } catch (\Exception $e) {
                 $box_id = null;
             }
@@ -98,7 +101,19 @@ class Library extends AbstractService
     {
         $m_library = $this->getModel()
             ->setId($id)
-            ->setBoxId($box_id);
+            ->setBoxId($box_id)
+            ->setStatus(2);
+        
+        if ($this->getMapper()->update($m_library) < 0) {
+            throw new \Exception('Error update file');// @codeCoverageIgnore
+        }
+    }
+    
+    public function updateStatus($id, $status)
+    {
+        $m_library = $this->getModel()
+            ->setId($id)
+            ->setStatus($status);
         
         if ($this->getMapper()->update($m_library) < 0) {
             throw new \Exception('Error update file');// @codeCoverageIgnore
@@ -302,16 +317,18 @@ class Library extends AbstractService
                 $this->getModel()
                     ->setId($id)
             );
-
-            
             if ($res_library->count() <= 0) {
-                throw new \Exception(); 
+                throw new \Exception("no library with id: " . $id); 
             }
             
             /**
              * @var \Application\Model\Library $m_library
              */
             $m_library = $res_library->current();
+            
+            if($m_library->getStatus() === 1) {
+                throw new JrpcException('Box Id Uploading', -32101);
+            }
             $box_id = $m_library->getBoxId();
             if ($box_id instanceof IsNull) {
                 /**
@@ -328,7 +345,9 @@ class Library extends AbstractService
                         'name' => $name,
                         'id' => $id,
                     ]);
-                    
+                    if($resp->getResult()) {
+                        $this->updateStatus($m_library->getId(), 1);
+                    }
                     throw new JrpcException('Box Id Uploading', -32101);
                 } else {
                     throw new JrpcException('No Box Id', -32100);
