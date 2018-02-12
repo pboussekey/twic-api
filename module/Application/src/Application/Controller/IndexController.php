@@ -92,7 +92,7 @@ class IndexController extends AbstractActionController
             }
         }       
         else {  
-            throw new JrpcException('No authorization: notify', - 32029);
+            throw new JrpcException('No authorization: uptboxid', - 32029);
         }  
         
         return new JsonModel();

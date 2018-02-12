@@ -79,7 +79,6 @@ class Library extends AbstractService
 
         if ((null !== $link || null !== $token) && null !== $type) {
             try {
-                // $type
                 $urldms = $this->container->get('config')['app-conf']['urldms'];
                 $u = (null !== $link) ? $link : $urldms . $token;
                 $resp = $this->getServiceEvent()->nodeRequest('box.upload', [
@@ -308,10 +307,32 @@ class Library extends AbstractService
             if ($res_library->count() <= 0) {
                 throw new \Exception(); 
             }
+            
+            /**
+             * @var \Application\Model\Library $m_library
+             */
             $m_library = $res_library->current();
             $box_id = $m_library->getBoxId();
             if ($box_id instanceof IsNull) {
-                throw new JrpcException('No Box Id', 123456);
+                /**
+                 * On tente de le récuperer
+                 */
+                $link  = (is_object($m_library->getLink()))  ? null:$m_library->getLink();
+                $token = (is_object($m_library->getToken())) ? null:$m_library->getToken();
+                $type  = (is_object($m_library->getType()))  ? null:$m_library->getType();
+                if ((null !== $link || null !== $token) && null !== $type) {
+                    $urldms = $this->container->get('config')['app-conf']['urldms'];
+                    $u = (null !== $link) ? $link : $urldms . $token;
+                    $resp = $this->getServiceEvent()->nodeRequest('box.upload', [
+                        'url' => $u,
+                        'name' => $name,
+                        'id' => $id,
+                    ]);
+                    
+                    throw new JrpcException('Box Id Uploading', -32101);
+                } else {
+                    throw new JrpcException('No Box Id', -32100);
+                }
             }
         }
 
