@@ -7,8 +7,6 @@ use Application\Model\Item as ModelItem;
 use Application\Model\Role as ModelRole;
 use Dal\Db\ResultSet\ResultSet;
 use Application\Model\Conversation as ModelConversation;
-use Zend\Json\Server\Request;
-use Zend\Http\Client;
 use Zend\Db\Sql\Predicate\IsNull;
 use JRpc\Json\Server\Exception\JrpcException;
 

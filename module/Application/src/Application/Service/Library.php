@@ -8,7 +8,6 @@ namespace Application\Service;
 
 use Dal\Service\AbstractService;
 use Zend\Db\Sql\Predicate\IsNull;
-use Box\Model\Document as ModelDocument;
 use Application\Model\Role as ModelRole;
 use JRpc\Json\Server\Exception\JrpcException;
 
@@ -53,14 +52,15 @@ class Library extends AbstractService
         }
 
         $box_id = null;
-        /*if ((null !== $link || null !== $token) && null !== $type) {
-            $urldms = $this->container->get('config')['app-conf']['urldms'];
-            $u = (null !== $link) ? $link : $urldms . $token;
-            $m_box = $this->getServiceBox()->addFile($u, $type);
-            if ($m_box instanceof ModelDocument) {
-                $box_id = $m_box->getId();
+        if ((null !== $link || null !== $token) && null !== $type) {
+            try {
+                $urldms = $this->container->get('config')['app-conf']['urldms'];
+                $u = (null !== $link) ? $link : $urldms . $token;
+                $box_id = $this->getServiceBox()->addFile($u, $name, $type);
+            } catch (\Exception $e) {
+                $box_id = null;
             }
-        }*/
+        }
         if (null !== $text && null === $type) {
             $type = "text";
         }
@@ -287,6 +287,7 @@ class Library extends AbstractService
                     ->setId($id)
             );
 
+            
             if ($res_library->count() <= 0) {
                 throw new \Exception(); 
             }
@@ -317,8 +318,6 @@ class Library extends AbstractService
      */
     public function upload($url, $name)
     {
-        
-        
         $Client = new \Zend\Http\Client();
         $Client->setUri(str_replace('/data/', '/save/', $this->container->get('config')['app-conf']['urldms']));
         $Client->setMethod('POST');

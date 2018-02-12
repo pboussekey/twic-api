@@ -3,8 +3,6 @@
 namespace Application\Service;
 
 use Dal\Service\AbstractService;
-use Zend\Json\Server\Request;
-use Zend\Http\Client;
 
 class Submission extends AbstractService
 {
