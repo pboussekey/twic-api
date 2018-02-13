@@ -89,7 +89,7 @@ class IndexController extends AbstractActionController
         $params = -1;
         $content = -1;
         if ($request->getHeaders()->get('x-auth-token') !== false && $authorization === $request->getHeader('x-auth-token')->getFieldValue()) {
-            $content = $this->getRequest()->getContent();
+            $content = $request->getContent();
             $params = json_decode($content, true);
             if($params['id'] && is_numeric($params['id']) && $params['box_id'] && is_numeric($params['box_id'])) {
                 $ret = $this->library()->updateBoxId($params['id'], $params['box_id']);
