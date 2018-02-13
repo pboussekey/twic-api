@@ -104,9 +104,7 @@ class Library extends AbstractService
             ->setBoxId($box_id)
             ->setStatus(2);
         
-        if ($this->getMapper()->update($m_library) < 0) {
-            throw new \Exception('Error update file');// @codeCoverageIgnore
-        }
+        return $this->getMapper()->update($m_library);
     }
     
     public function updateStatus($id, $status)
@@ -114,10 +112,8 @@ class Library extends AbstractService
         $m_library = $this->getModel()
             ->setId($id)
             ->setStatus($status);
-        
-        if ($this->getMapper()->update($m_library) < 0) {
-            throw new \Exception('Error update file');// @codeCoverageIgnore
-        }
+
+        return $this->getMapper()->update($m_library);
     }
 
     /**
