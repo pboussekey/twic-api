@@ -337,6 +337,7 @@ class Library extends AbstractService
                 $link  = (is_object($m_library->getLink()))  ? null:$m_library->getLink();
                 $token = (is_object($m_library->getToken())) ? null:$m_library->getToken();
                 $type  = (is_object($m_library->getType()))  ? null:$m_library->getType();
+                $name  = (is_object($m_library->getName()))  ? null:$m_library->getName();
                 if ((null !== $link || null !== $token) && null !== $type) {
                     $urldms = $this->container->get('config')['app-conf']['urldms'];
                     $u = (null !== $link) ? $link : $urldms . $token;
@@ -380,8 +381,8 @@ class Library extends AbstractService
         $Client->setMethod('POST');
         $Client->setFileUpload($name, "data", file_get_contents($url));
         $r = $Client->send();
-        return json_decode($r->getBody(), 1)['data'];
         
+        return json_decode($r->getBody(), 1)['data'];
     }
 
     /**
