@@ -86,9 +86,9 @@ class Library extends AbstractService
                     'name' => $name,
                     'id' => $id
                 ]);
-                //if($resp->getResult()) {
+                if($resp->getResult()) {
                     $this->updateStatus($m_library->getId(), 1);
-                //}
+                }
             } catch (\Exception $e) {
                 $box_id = null;
             }
@@ -346,9 +346,9 @@ class Library extends AbstractService
                         'name' => $name,
                         'id' => $id,
                     ]);
-                    //if($resp->getResult()) {
+                    if($resp->getResult()) {
                         $this->updateStatus($m_library->getId(), 1);
-                    //}
+                    }
                     throw new JrpcException('Box Id Uploading', -32101);
                 } else {
                     throw new JrpcException('No Box Id', -32100);
