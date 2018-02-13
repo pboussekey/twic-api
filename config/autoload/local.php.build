@@ -73,7 +73,7 @@ return array(
 		),
 	),
 	'http-adapter' => [
-		'adapter' => 'Zend\Http\Client\Adapter\Socket',
+		'adapter' => 'Zend\Http\Client\Adapter\Curl',
 		'maxredirects' => 30,
 		'sslverifypeer' => false,
 		'timeout' => 100,
