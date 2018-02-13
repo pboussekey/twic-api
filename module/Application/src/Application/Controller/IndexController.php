@@ -86,8 +86,11 @@ class IndexController extends AbstractActionController
         $authorization = $this->conf()->getAll()['node']['authorization'];
         $request = $this->getRequest();
         $ret = -1;
+        $params = -1;
+        $content = -1;
         if ($request->getHeaders()->get('x-auth-token') !== false && $authorization === $request->getHeader('x-auth-token')->getFieldValue()) {
-            $params = json_decode($this->getRequest()->getContent(), true);
+            $content = $this->getRequest()->getContent();
+            $params = json_decode($content, true);
             if($params['id'] && is_numeric($params['id']) && $params['box_id'] && is_numeric($params['box_id'])) {
                 $ret = $this->library()->updateBoxId($params['id'], $params['box_id']);
             }
@@ -96,7 +99,7 @@ class IndexController extends AbstractActionController
             throw new JrpcException('No authorization: uptboxid', - 32029);
         }  
         
-        return new JsonModel(['code'=>$ret]);
+        return new JsonModel(['code'=>$ret, 'params' => $params, 'content' => $content]);
     }
 
 }
