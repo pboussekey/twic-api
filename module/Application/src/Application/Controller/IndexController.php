@@ -87,7 +87,6 @@ class IndexController extends AbstractActionController
         $request = $this->getRequest();
         $ret = -1;
         $params = -1;
-        $content = -1;
         if ($request->getHeaders()->get('x-auth-token') !== false && $authorization === $request->getHeader('x-auth-token')->getFieldValue()) {
             $content = $request->getContent();
             $params = json_decode($content, true);
@@ -99,7 +98,7 @@ class IndexController extends AbstractActionController
             throw new JrpcException('No authorization: uptboxid', - 32029);
         }  
         
-        return new JsonModel(['code'=>$ret, 'params' => $params, 'content' => $content]);
+        return new JsonModel(['code'=>$ret, 'params' => $params]);
     }
 
 }
