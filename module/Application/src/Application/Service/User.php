@@ -453,7 +453,7 @@ class User extends AbstractService
             ->setBirthDate(('null' === $birth_date) ? new IsNull('birth_date') : $birth_date)
             ->setPosition($position)
             ->setInterest($interest)
-            ->setAvatar($avatar)
+            ->setAvatar(('null' === $avatar) ? new IsNull('avatar') : $avatar)
             ->setHasEmailNotifier($has_email_notifier)
             ->setTimezone($timezone)
             ->setBackground($background)
