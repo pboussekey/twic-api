@@ -52,15 +52,6 @@ class Library extends AbstractService
         }
 
         $box_id = null;
-        if ((null !== $link || null !== $token) && null !== $type) {
-            try {
-                $urldms = $this->container->get('config')['app-conf']['urldms'];
-                $u = (null !== $link) ? $link : $urldms . $token;
-                $box_id = $this->getServiceBox()->addFile($u, $name, $type);
-            } catch (\Exception $e) {
-                $box_id = null;
-            }
-        }
         if (null !== $text && null === $type) {
             $type = "text";
         }
@@ -83,10 +74,46 @@ class Library extends AbstractService
         if ($this->getMapper()->insert($m_library) < 0) {
             throw new \Exception('Error insert file');// @codeCoverageIgnore
         }
-
+        
         $id = (int)$this->getMapper()->getLastInsertValue();
 
+        if ((null !== $link || null !== $token) && null !== $type) {
+            try {
+                $urldms = $this->container->get('config')['app-conf']['urldms'];
+                $u = (null !== $link) ? $link : $urldms . $token;
+                $resp = $this->getServiceEvent()->nodeRequest('box.upload', [
+                    'url' => $u,
+                    'name' => $name,
+                    'id' => $id
+                ]);
+                if($resp->getResult()) {
+                    $this->updateStatus($m_library->getId(), 1);
+                }
+            } catch (\Exception $e) {
+                $box_id = null;
+            }
+        }
+        
         return $this->get($id);
+    }
+    
+    public function updateBoxId($id, $box_id) 
+    {
+        $m_library = $this->getModel()
+            ->setId($id)
+            ->setBoxId($box_id)
+            ->setStatus(2);
+        
+        return $this->getMapper()->update($m_library);
+    }
+    
+    public function updateStatus($id, $status)
+    {
+        $m_library = $this->getModel()
+            ->setId($id)
+            ->setStatus($status);
+
+        return $this->getMapper()->update($m_library);
     }
 
     /**
@@ -286,15 +313,42 @@ class Library extends AbstractService
                 $this->getModel()
                     ->setId($id)
             );
-
-            
             if ($res_library->count() <= 0) {
-                throw new \Exception(); 
+                throw new \Exception("no library with id: " . $id); 
             }
+            
+            /**
+             * @var \Application\Model\Library $m_library
+             */
             $m_library = $res_library->current();
+            
+            if($m_library->getStatus() === 1) {
+                throw new JrpcException('Box Id Uploading', -32101);
+            }
             $box_id = $m_library->getBoxId();
             if ($box_id instanceof IsNull) {
-                throw new JrpcException('No Box Id', 123456);
+                /**
+                 * On tente de le récuperer
+                 */
+                $link  = (is_object($m_library->getLink()))  ? null:$m_library->getLink();
+                $token = (is_object($m_library->getToken())) ? null:$m_library->getToken();
+                $type  = (is_object($m_library->getType()))  ? null:$m_library->getType();
+                $name  = (is_object($m_library->getName()))  ? null:$m_library->getName();
+                if ((null !== $link || null !== $token) && null !== $type) {
+                    $urldms = $this->container->get('config')['app-conf']['urldms'];
+                    $u = (null !== $link) ? $link : $urldms . $token;
+                    $resp = $this->getServiceEvent()->nodeRequest('box.upload', [
+                        'url' => $u,
+                        'name' => $name,
+                        'id' => $id,
+                    ]);
+                    if($resp->getResult()) {
+                        $this->updateStatus($m_library->getId(), 1);
+                    }
+                    throw new JrpcException('Box Id Uploading', -32101);
+                } else {
+                    throw new JrpcException('No Box Id', -32100);
+                }
             }
         }
 
@@ -323,8 +377,8 @@ class Library extends AbstractService
         $Client->setMethod('POST');
         $Client->setFileUpload($name, "data", file_get_contents($url));
         $r = $Client->send();
-        return json_decode($r->getBody(), 1)['data'];
         
+        return json_decode($r->getBody(), 1)['data'];
     }
 
     /**
@@ -345,5 +399,15 @@ class Library extends AbstractService
     private function getServiceBox()
     {
         return $this->container->get('box.service');
+    }
+    
+    /**
+     * Get Service Box Api
+     *
+     * @return \Application\Service\Event
+     */
+    private function getServiceEvent()
+    {
+        return $this->container->get('app_service_event');
     }
 }

@@ -4,6 +4,7 @@ use \Application\Controller\Plugin\ConfFactory;
 use \Application\Controller\Plugin\videoArchive;
 use \Application\Controller\Plugin\item;
 use \Zend\Router\Http\Literal;
+use Application\Controller\Plugin\Library;
 
 /**
  * Zend Framework (http://framework.zend.com/).
@@ -24,6 +25,9 @@ return [
               },    
               'item' => function ($container) {
                   return new item($container->get('app_service_item'));
+              },
+              'library' => function ($container) {
+                  return new Library($container->get('app_service_library'));
               }
         ],
     ],
@@ -59,6 +63,16 @@ return [
                      ],
                      ],
              ],
+            'boxid' => [
+                'type' => Literal::class,
+                'options' => [
+                    'route' => '/uptboxid',
+                    'defaults' => [
+                        'controller' => 'Application\Controller\Index',
+                        'action' => 'uptboxid',
+                    ],
+                ],
+            ],
             'version' => [
                 'type' => Literal::class,
                 'options' => [

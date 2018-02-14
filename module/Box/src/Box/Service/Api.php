@@ -3,8 +3,6 @@
 namespace Box\Service;
 
 use Zend\Http\Request;
-use Box\Model\Session;
-use JRpc\Json\Server\Exception\JrpcException;
 
 class Api extends AbstractApi
 {

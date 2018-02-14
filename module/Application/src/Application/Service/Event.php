@@ -36,9 +36,16 @@ class Event extends AbstractService
         return new \Zend\Json\Server\Client($this->container->get('config')['node']['addr'], $client);
     }
 
-
-    public function nodeRequest($method, $params = null){
-
+    /**
+     * Env request nodeJs
+     * 
+     * @param string $method
+     * @param array $params
+     * 
+     * @return \Zend\Json\Server\Response
+     */
+    public function nodeRequest($method, $params = null)
+    {
         $request = new Request();
         $request->setMethod($method)
             ->setParams($params)

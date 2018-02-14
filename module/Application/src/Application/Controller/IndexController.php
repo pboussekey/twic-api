@@ -75,4 +75,30 @@ class IndexController extends AbstractActionController
         }
 
     }
+    
+    /**
+     * Check Status
+     *
+     * @return \Zend\View\Model\JsonModel
+     */
+    public function uptboxidAction()
+    {
+        $authorization = $this->conf()->getAll()['node']['authorization'];
+        $request = $this->getRequest();
+        $ret = -1;
+        $params = -1;
+        if ($request->getHeaders()->get('x-auth-token') !== false && $authorization === $request->getHeader('x-auth-token')->getFieldValue()) {
+            $content = $request->getContent();
+            $params = json_decode($content, true);
+            if($params['id'] && is_numeric($params['id']) && $params['box_id'] && is_numeric($params['box_id'])) {
+                $ret = $this->library()->updateBoxId($params['id'], $params['box_id']);
+            }
+        }       
+        else {  
+            throw new JrpcException('No authorization: uptboxid', - 32029);
+        }  
+        
+        return new JsonModel(['code'=>$ret, 'params' => $params]);
+    }
+
 }
