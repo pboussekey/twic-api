@@ -17,11 +17,12 @@ class Conversation extends AbstractMapper
         $select_nb_users->columns(['nbr_users' => new Expression('COUNT(true)')])->where(['conversation_user.conversation_id=conversation.id']);
 
         $subselect = new Select('message');
-        $colums  = ['conversation$id' => 'id','type','name','conversation_message$id' => $subselect, 'conversation$nb_users' => $select_nb_users];
+        $colums  = ['conversation$id' => 'id','type','name', 'conversation$nb_users' => $select_nb_users];
 
         $select = $this->tableGateway->getSql()->select();
         $select->columns($colums)
             ->join('item', 'item.conversation_id=conversation.id', ['conversation$item_id' => 'id'], $select::JOIN_LEFT)
+            ->join('message', new Expression('message.id = ?', [$subselect]), ['id', 'conversation_message$id' => 'id','text', 'library_id', 'type', 'created_date', 'user_id'], $select::JOIN_LEFT)
             ->join('page', new Expression("page.conversation_id=conversation.id OR (item.page_id=page.id AND item.participants = 'all')"), ['conversation$page_id' => 'id'], $select::JOIN_LEFT)
             ->where(['page.deleted_date IS NULL'])
             ->where(['( ( page.type = "course" AND page.is_published IS TRUE ) OR page.type <> "course" OR page.type IS NULL )'])
