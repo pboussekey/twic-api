@@ -60,8 +60,6 @@ class User extends AbstractMapper
             $select->join(['circle_organization_user' => 'user'], 'circle_organization_user.organization_id=circle_organization.organization_id', []);
             $select->where([' ( circle_organization_user.id = ? OR user_role.role_id = '.ModelRole::ROLE_ADMIN_ID . ') ' => $me]);
         }
-        
-        syslog(1,$this->printSql($select));
         return $this->selectWith($select);
     }
     
@@ -112,7 +110,8 @@ class User extends AbstractMapper
         $role = null,
         $conversation_id = null,
         $page_type = null,
-        $email = null
+        $email = null,
+        $is_pinned = null
     ) {
         $select = $this->tableGateway->getSql()->select();
         if ($is_admin) {
@@ -196,7 +195,7 @@ class User extends AbstractMapper
                 $select->having('user$contact_state IS NULL', Predicate::OP_OR);
             }
         }
-        if (!empty($role) || !empty($page_type) || !empty($page_id)) {
+        if (!empty($role) || !empty($page_type) || !empty($page_id) || null !== $is_pinned) {
             $select->join(['pu' => 'page_user'], 'pu.user_id=user.id', [])
                 ->join(['p' => 'page'], 'pu.page_id=p.id', []);
         }
@@ -211,6 +210,9 @@ class User extends AbstractMapper
             }*/
             $select->where(['pu.role' => $role]);
         }
+        if(null !== $is_pinned){
+            $select->where(['is_pinned' => $is_pinned]);
+        }
         if(!empty($page_type)) {
             $select->where(['p.type' => $page_type]);
         }
@@ -224,7 +226,6 @@ class User extends AbstractMapper
         else if($unsent !== true) {
             $select->where(['user.is_active' => 1]);
         }
-        
         return $this->selectWith($select);
     }
 
