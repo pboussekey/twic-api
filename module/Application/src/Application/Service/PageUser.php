@@ -6,13 +6,16 @@
  */
 namespace Application\Service;
 
-use Dal\Service\AbstractService;
-use Application\Model\PageUser as ModelPageUser;
 use Application\Model\Page as ModelPage;
-use Application\Model\Role as ModelRole;
 use Application\Model\PageRelation as ModelPageRelation;
-use ZendService\Google\Gcm\Notification as GcmNotification;
+use Application\Model\PageUser as ModelPageUser;
+use Application\Model\Role as ModelRole;
+use Dal\Service\AbstractService;
+use Exception;
+use JRpc\Json\Server\Exception\JrpcException;
+use Mail\Service\Mail;
 use Zend\Db\Sql\Predicate\IsNull;
+use ZendService\Google\Gcm\Notification as GcmNotification;
 
 
 /**
@@ -38,10 +41,12 @@ class PageUser extends AbstractService
      */
     public function add($page_id, $user_id, $role, $state, $email = null, $is_pinned = 0)
     {
-        
-        //if(!$this->getServiceUser()->isStudnetAdmin()  && !$this->getServicePage()->isAdmin($page_id)) {
-           // throw new JrpcException('Unauthorized operation pageuser.add', -38003);
-        //}
+        $identity = $this->getServiceUser()->getIdentity();
+        if(!$this->getServiceUser()->isStudnetAdmin()  
+            && !$this->getServicePage()->isAdmin($page_id) 
+            && $identity['id'] != $user_id) {
+            throw new JrpcException('Unauthorized operation pageuser.add', -38003);
+        }
 
         return $this->_add($page_id, $user_id, $role, $state, $email, $is_pinned);
     }
@@ -223,7 +228,7 @@ class PageUser extends AbstractService
                     
                     $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification);
                 }
-                catch (\Exception $e) {
+                catch (Exception $e) {
                     syslog(1, 'Model name does not exist <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode());
                 }
             }
@@ -305,7 +310,7 @@ class PageUser extends AbstractService
         if ($m_page_user->getRole() == 'admin' && $role !== 'admin' && $role !== null) {
             $ar_pu = $this->getListByPage($page_id, 'admin');
             if (count($ar_pu[$page_id]) === 1 && in_array($user_id, $ar_pu[$page_id])) {
-                throw new \Exception("Can't update the last administrator");
+                throw new Exception("Can't update the last administrator");
             }
         }
 
@@ -341,7 +346,7 @@ class PageUser extends AbstractService
         //si on suprime le dernier administrateur
         $ar_pu = $this->getListByPage($page_id, 'admin');
         if (count($ar_pu[$page_id]) === 1 && in_array($user_id, $ar_pu[$page_id])) {
-            throw new \Exception("On ne peut pas suprimer le dernier administrateur");
+            throw new Exception("On ne peut pas suprimer le dernier administrateur");
         }
 
         $ret =  $this->getMapper()->delete($m_page_user);
@@ -474,7 +479,7 @@ class PageUser extends AbstractService
     /**
      * Get Service Subscription
      *
-     * @return \Application\Service\Subscription
+     * @return Subscription
      */
     private function getServiceSubscription()
     {
@@ -484,7 +489,7 @@ class PageUser extends AbstractService
     /**
      * Get Service Post
      *
-     * @return \Application\Service\Post
+     * @return Post
      */
     private function getServicePost()
     {
@@ -494,7 +499,7 @@ class PageUser extends AbstractService
     /**
      * Get Service Page
      *
-     * @return \Application\Service\Page
+     * @return Page
      */
     private function getServicePage()
     {
@@ -504,7 +509,7 @@ class PageUser extends AbstractService
     /**
      * Get Service PageRelation
      *
-     * @return \Application\Service\PageRelation
+     * @return PageRelation
      */
     private function getServicePageRelation()
     {
@@ -514,7 +519,7 @@ class PageUser extends AbstractService
     /**
      * Get Service Conversation User
      *
-     * @return \Application\Service\ConversationUser
+     * @return ConversationUser
      */
     private function getServiceConversationUser()
     {
@@ -524,7 +529,7 @@ class PageUser extends AbstractService
     /**
      * Get Service User
      *
-     * @return \Application\Service\User
+     * @return User
      */
     private function getServiceUser()
     {
@@ -534,7 +539,7 @@ class PageUser extends AbstractService
     /**
      * Get Service Mail.
      *
-     * @return \Mail\Service\Mail
+     * @return Mail
      */
     private function getServiceMail()
     {
@@ -544,7 +549,7 @@ class PageUser extends AbstractService
     /**
      * Get Service Service Conversation User
      *
-     * @return \Application\Service\Fcm
+     * @return Fcm
      */
     private function getServiceFcm()
     {

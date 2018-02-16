@@ -1,1 +1,1 @@
-{"method":"conversation.getList","id":1,"params":{"type":[2,3]}}
+{"method":"library.add","id":1,"params":{"name":"super.pdf","text":"super cool","folder_name":"folder","link":"yuiugfdf","type":"type","global":false}}

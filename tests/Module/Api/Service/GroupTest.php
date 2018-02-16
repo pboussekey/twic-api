@@ -62,25 +62,33 @@ class GroupTest extends AbstractService
         $this->reset();
         $this->setIdentity(1);
         $data = $this->jsonRpc('conversation.get', [ 'id' => $data['result'][$id]['conversation_id'] ]);
-        $this->assertEquals(count($data), 3);
-        $this->assertEquals($data['id'], 1);
-        $this->assertEquals(count($data['result']), 9);
-        $this->assertEquals($data['result']['item_id'], null);
-        $this->assertEquals(count($data['result']['message']), 1);
-        $this->assertEquals($data['result']['message']['id'], null);
-        $this->assertEquals(count($data['result']['users']), 5);
-        $this->assertEquals($data['result']['users'][0], 1);
-        $this->assertEquals($data['result']['users'][1], 2);
-        $this->assertEquals($data['result']['users'][2], 3);
-        $this->assertEquals($data['result']['users'][3], 4);
-        $this->assertEquals($data['result']['users'][4], 5);
-        $this->assertEquals($data['result']['nb_users'], 5);
-        $this->assertEquals($data['result']['role'], "admin");
-        $this->assertEquals($data['result']['page_id'], 1);
-        $this->assertEquals($data['result']['id'], 1);
-        $this->assertEquals($data['result']['name'], "superTitle");
-        $this->assertEquals($data['result']['type'], 1);
-        $this->assertEquals($data['jsonrpc'], 2.0);
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals(count($data['result']) , 9); 
+        $this->assertEquals($data['result']['item_id'] , null); 
+        $this->assertEquals(count($data['result']['message']) , 6); 
+        $this->assertEquals($data['result']['message']['id'] , null); 
+        $this->assertEquals($data['result']['message']['text'] , null); 
+        $this->assertEquals($data['result']['message']['library_id'] , null); 
+        $this->assertEquals($data['result']['message']['type'] , null); 
+        $this->assertEquals($data['result']['message']['created_date'] , null); 
+        $this->assertEquals($data['result']['message']['user_id'] , null); 
+        $this->assertEquals(count($data['result']['users']) , 5); 
+        $this->assertEquals($data['result']['users'][0] , 1); 
+        $this->assertEquals($data['result']['users'][1] , 2); 
+        $this->assertEquals($data['result']['users'][2] , 3); 
+        $this->assertEquals($data['result']['users'][3] , 4); 
+        $this->assertEquals($data['result']['users'][4] , 5); 
+        $this->assertEquals($data['result']['nb_users'] , 5); 
+        $this->assertEquals($data['result']['role'] , "admin"); 
+        $this->assertEquals($data['result']['page_id'] , 1); 
+        $this->assertEquals($data['result']['id'] , 1); 
+        $this->assertEquals($data['result']['name'] , "superTitle"); 
+        $this->assertEquals($data['result']['type'] , 1); 
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
+
+        
+        
     }
     
     /**
@@ -107,8 +115,13 @@ class GroupTest extends AbstractService
         $this->assertEquals($data['id'], 1);
         $this->assertEquals(count($data['result']), 9);
         $this->assertEquals($data['result']['item_id'], null);
-        $this->assertEquals(count($data['result']['message']), 1);
-        $this->assertEquals($data['result']['message']['id'], null);
+        $this->assertEquals(count($data['result']['message']) , 6); 
+        $this->assertEquals($data['result']['message']['id'] , null); 
+        $this->assertEquals($data['result']['message']['text'] , null); 
+        $this->assertEquals($data['result']['message']['library_id'] , null); 
+        $this->assertEquals($data['result']['message']['type'] , null); 
+        $this->assertEquals($data['result']['message']['created_date'] , null); 
+        $this->assertEquals($data['result']['message']['user_id'] , null); 
         $this->assertEquals(count($data['result']['users']), 5);
         $this->assertEquals($data['result']['users'][0], 1);
         $this->assertEquals($data['result']['users'][1], 2);
@@ -223,8 +236,13 @@ class GroupTest extends AbstractService
         $this->assertEquals($data['id'] , 1); 
         $this->assertEquals(count($data['result']) , 9); 
         $this->assertEquals($data['result']['item_id'] , 4); 
-        $this->assertEquals(count($data['result']['message']) , 1); 
+        $this->assertEquals(count($data['result']['message']) , 6); 
         $this->assertEquals($data['result']['message']['id'] , null); 
+        $this->assertEquals($data['result']['message']['text'] , null); 
+        $this->assertEquals($data['result']['message']['library_id'] , null); 
+        $this->assertEquals($data['result']['message']['type'] , null); 
+        $this->assertEquals($data['result']['message']['created_date'] , null); 
+        $this->assertEquals($data['result']['message']['user_id'] , null); 
         $this->assertEquals(count($data['result']['users']) , 5); 
         $this->assertEquals($data['result']['users'][0] , 1); 
         $this->assertEquals($data['result']['users'][1] , 2); 

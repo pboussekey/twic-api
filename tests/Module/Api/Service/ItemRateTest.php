@@ -868,23 +868,26 @@ class ItemRateTest extends AbstractService
             ]
         );
 
-        $this->assertEquals(count($data), 3);
-        $this->assertEquals($data['id'], 1);
-        $this->assertEquals(count($data['result']), 13);
-        $this->assertEquals($data['result']['id'], 4);
-        $this->assertEquals($data['result']['name'], "super file");
-        $this->assertEquals($data['result']['link'], null);
-        $this->assertEquals($data['result']['token'], null);
-        $this->assertEquals($data['result']['type'], "text");
-        $this->assertEquals(!empty($data['result']['created_date']), true);
-        $this->assertEquals($data['result']['deleted_date'], null);
-        $this->assertEquals($data['result']['updated_date'], null);
-        $this->assertEquals($data['result']['folder_id'], null);
-        $this->assertEquals($data['result']['owner_id'], 1);
-        $this->assertEquals($data['result']['box_id'], null);
-        $this->assertEquals($data['result']['global'], 0);
-        $this->assertEquals($data['result']['text'], "super cool");
-        $this->assertEquals($data['jsonrpc'], 2.0);
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals(count($data['result']) , 15); 
+        $this->assertEquals($data['result']['id'] , 4); 
+        $this->assertEquals($data['result']['name'] , "super file"); 
+        $this->assertEquals($data['result']['link'] , null); 
+        $this->assertEquals($data['result']['token'] , null); 
+        $this->assertEquals($data['result']['type'] , "text"); 
+        $this->assertEquals(!empty($data['result']['created_date']) , true); 
+        $this->assertEquals($data['result']['deleted_date'] , null); 
+        $this->assertEquals($data['result']['updated_date'] , null); 
+        $this->assertEquals($data['result']['folder_id'] , null); 
+        $this->assertEquals($data['result']['owner_id'] , 1); 
+        $this->assertEquals($data['result']['box_id'] , null); 
+        $this->assertEquals($data['result']['global'] , 0); 
+        $this->assertEquals($data['result']['text'] , "super cool"); 
+        $this->assertEquals($data['result']['data'] , null); 
+        $this->assertEquals($data['result']['status'] , null); 
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
+
 
         return $data['id'];
     }

@@ -9,7 +9,7 @@ class LibraryTest extends AbstractService
 
     public static function setUpBeforeClass()
     {
-     //   system('phing -q reset-db deploy-db');
+        system('phing -q reset-db deploy-db');
         parent::setUpBeforeClass();
     }
 
@@ -27,8 +27,8 @@ class LibraryTest extends AbstractService
         
         $this->assertEquals(count($data) , 3); 
         $this->assertEquals($data['id'] , 1); 
-        $this->assertEquals(count($data['result']) , 13); 
-        $this->assertEquals(is_numeric($data['result']['id']) , true); 
+        $this->assertEquals(count($data['result']) , 15); 
+        $this->assertEquals($data['result']['id'] , 4); 
         $this->assertEquals($data['result']['name'] , "super file"); 
         $this->assertEquals($data['result']['link'] , null); 
         $this->assertEquals($data['result']['token'] , null); 
@@ -41,9 +41,9 @@ class LibraryTest extends AbstractService
         $this->assertEquals($data['result']['box_id'] , null); 
         $this->assertEquals($data['result']['global'] , 0); 
         $this->assertEquals($data['result']['text'] , "super cool"); 
+        $this->assertEquals($data['result']['data'] , null); 
+        $this->assertEquals($data['result']['status'] , null); 
         $this->assertEquals($data['jsonrpc'] , 2.0); 
-        
-
     }
     
     public function testLibraryAddadd()
@@ -62,10 +62,10 @@ class LibraryTest extends AbstractService
         
         $this->assertEquals(count($data) , 3); 
         $this->assertEquals($data['id'] , 1); 
-        $this->assertEquals(count($data['result']) , 13); 
-        $this->assertEquals(is_numeric($data['result']['id']) , true); 
+        $this->assertEquals(count($data['result']) , 15); 
+        $this->assertEquals($data['result']['id'] , 5); 
         $this->assertEquals($data['result']['name'] , "super.pdf"); 
-        $this->assertEquals($data['result']['link'] , "http://www.paul-boye.fr/medias/posts/sante_20160126105624.pdf"); 
+        $this->assertEquals($data['result']['link'] , "yuiugfdf"); 
         $this->assertEquals($data['result']['token'] , null); 
         $this->assertEquals($data['result']['type'] , "type"); 
         $this->assertEquals(!empty($data['result']['created_date']) , true); 
@@ -73,10 +73,13 @@ class LibraryTest extends AbstractService
         $this->assertEquals($data['result']['updated_date'] , null); 
         $this->assertEquals($data['result']['folder_id'] , null); 
         $this->assertEquals($data['result']['owner_id'] , 1); 
-        $this->assertEquals(is_numeric($data['result']['box_id']) , true); 
+        $this->assertEquals($data['result']['box_id'] , null); 
         $this->assertEquals($data['result']['global'] , 0); 
         $this->assertEquals($data['result']['text'] , "super cool"); 
+        $this->assertEquals($data['result']['data'] , null); 
+        $this->assertEquals($data['result']['status'] , null); 
         $this->assertEquals($data['jsonrpc'] , 2.0); 
+
 
         return $data['result']['id'];
     }
@@ -84,14 +87,13 @@ class LibraryTest extends AbstractService
     /**
      * @depends testLibraryAddadd
      */
-    public function testGetSession($id)
+    /*public function testGetSession($id)
     {
         $this->setIdentity(1, 1);
         $data = $this->jsonRpc('library.getSession', [
             'id' => $id
         ]);
         
-        print_r($data);
         $this->assertEquals(count($data) , 3);
         $this->assertEquals($data['id'] , 1);
         $this->assertEquals(count($data['result']) , 3);
@@ -99,7 +101,7 @@ class LibraryTest extends AbstractService
         $this->assertEquals($data['result']['id'] , "id");
         $this->assertEquals($data['result']['urls'] , null);
         $this->assertEquals($data['jsonrpc'] , 2.0);
-    }
+    }*/
 
      /**
      * @depends testLibraryAdd2
