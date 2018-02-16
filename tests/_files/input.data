@@ -1,1 +1,1 @@
-{"method":"library.add","id":1,"params":{"name":"super.pdf","text":"super cool","folder_name":"folder","link":"yuiugfdf","type":"type","global":false}}
+{"method":"post.add","id":1,"params":{"content":"Comment","parent_id":"7","data":["test"]}}
