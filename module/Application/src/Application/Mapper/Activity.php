@@ -249,7 +249,6 @@ class Activity extends AbstractMapper
         }
         
         $select->order(new Expression('1 / (100 * COUNT(DISTINCT activity.user_id) / users.count)'));
-        syslog(1, $this->printSql($select));
         return $this->selectWith($select);
     }
 }

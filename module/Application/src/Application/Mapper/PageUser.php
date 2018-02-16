@@ -79,7 +79,6 @@ class PageUser extends AbstractMapper
                 $select->order(['user.id' => 'DESC']);
             }
         }
-        syslog(1, $this->printSql($select)."\n\n\n\n\n\n\n\n\n\n\n\n");
         return $this->selectWith($select);
     }
 }
