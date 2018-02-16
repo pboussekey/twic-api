@@ -73,11 +73,14 @@ return array(
 		),
 	),
 	'http-adapter' => [
-		'adapter' => 'Zend\Http\Client\Adapter\Curl',
+		'adapter' => 'Zend\Http\Client\Adapter\Socket',
 		'maxredirects' => 30,
 		'sslverifypeer' => false,
 		'timeout' => 100,
 		'ssltransport' => 'tls',
+	    ],
+	'http-adapter-curl' => [
+		'adapter' => 'Zend\Http\Client\Adapter\Curl',
 	    ],
 	'caches' => array(
 		'storage_memcached' => array(

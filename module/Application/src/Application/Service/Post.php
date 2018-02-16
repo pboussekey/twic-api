@@ -170,16 +170,16 @@ class Post extends AbstractService
         }
 
         // if ce n'est pas un page privée
-        if (!$is_private_page &&  !$is_notif) {
+        //if (!$is_private_page &&  !$is_notif) {
             $pevent = array_merge($pevent, ['P'.$this->getOwner($m_post_base)]);
-        }
+        //}
 
         if ($parent_id && $origin_id) {
             // SI N'EST PAS PRIVATE ET QUE CE N'EST PAS UNE NOTIF -> ON NOTIFIE LES AMIES DES OWNER
             $m_post = $this->getLite($id);
-            if (!$is_private_page &&  !$is_notif) {
-                $pevent = array_merge($pevent, ['P'.$this->getOwner($m_post)]);
-            }
+            //if (!$is_private_page &&  !$is_notif) {
+            $pevent = array_merge($pevent, ['P'.$this->getOwner($m_post)]);
+            //}
             if(!$m_post_base->getUserId() instanceof IsNull){
                 $pevent = array_merge($pevent, ['M'.$m_post_base->getUserId()]);
             }
@@ -809,7 +809,7 @@ class Post extends AbstractService
     public function linkPreview($url)
     {
         $client = new Client();
-        $client->setOptions($this->container->get('Config')['http-adapter']);
+        $client->setOptions($this->container->get('Config')['http-adapter-curl']);
 
         $pc = $this->getServiceSimplePageCrawler();
         $page = $pc->setHttpClient($client)->get($url);

@@ -14,7 +14,7 @@
 
 return [
     'version' => "2.0.4",
-    'build-commit' => 1079,
+    'build-commit' => 1080,
     'app-conf' => [
         'cache' => 'storage_memcached',
     ],
@@ -122,12 +122,12 @@ return [
             ],
         ],
         'headers' =>
-            [
-                'Access-Control-Allow-Credentials' => 'false',
-                'Access-Control-Allow-Methods' => 'PUT, GET, POST, OPTIONS, DELETE',
-                'Access-Control-Allow-Headers' => 'Authorization, X-auth-token, Origin, X-Requested-With, Content-Type, Accept',
-                'Access-Control-Max-Age' => '600',
-            ],
+        [
+            'Access-Control-Allow-Credentials' => 'false',
+            'Access-Control-Allow-Methods' => 'PUT, GET, POST, OPTIONS, DELETE',
+            'Access-Control-Allow-Headers' => 'Authorization, X-auth-token, Origin, X-Requested-With, Content-Type, Accept',
+            'Access-Control-Max-Age' => '600',
+        ],
     ],
     'zopentok-conf' => [
         'expire_time' => 60 * 60 * 24 * 30,
@@ -138,9 +138,9 @@ return [
             'adapter' => [
                 'name' => 'memcached',
                 'options' => [
-                    'namespace' => 'LMS1079',
+                    'namespace' => 'LMS1080',
                     'lib_options' => [
-                        ['option' => Memcached::OPT_PREFIX_KEY, 'value' => 'LMS1079'],
+                        ['option' => Memcached::OPT_PREFIX_KEY, 'value' => 'LMS1080'],
                  /*       ['option' => Memcached::OPT_LIBKETAMA_COMPATIBLE, 'value' => true],
                         ['option' => Memcached::OPT_SERIALIZER, 'value' => Memcached::SERIALIZER_IGBINARY],
                         ['option' => Memcached::OPT_DISTRIBUTION, 'value' => Memcached::DISTRIBUTION_CONSISTENT],*/
