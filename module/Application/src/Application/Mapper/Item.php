@@ -156,7 +156,6 @@ class Item extends AbstractMapper
                 'item.id = children.parent_id', 
                 ['item$nb_children'=> new Expression('COUNT(DISTINCT children.id)')], $select::JOIN_LEFT);
         }
-        syslog(1,$this->printSql($select));
         return $this->selectWith($select);
     }
 
