@@ -43,6 +43,7 @@ class Item extends BaseItem
     protected $post_id;
     protected $quiz_id;
     protected $nb_total;
+    protected $nb_children;
     protected $nb_grade;
     protected $nb_submission;
     protected $item_user;
@@ -78,6 +79,31 @@ class Item extends BaseItem
     public function setPostId($post_id)
     {
         $this->post_id = $post_id;
+
+        return $this;
+    }
+
+
+    /**
+     * Get the value of Nb Children
+     *
+     * @return mixed
+     */
+    public function getNbChildren()
+    {
+        return $this->nb_children;
+    }
+
+    /**
+     * Set the value of Nb Children
+     *
+     * @param mixed nb_children
+     *
+     * @return self
+     */
+    public function setNbChildren($nb_children)
+    {
+        $this->nb_children = $nb_children;
 
         return $this;
     }
