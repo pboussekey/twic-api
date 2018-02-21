@@ -138,11 +138,24 @@ class Item extends AbstractMapper
             ->join('page_user', 'page_user.page_id=item.page_id', [])
             ->join('post', 'item.id=post.item_id', [], $select::JOIN_LEFT)
 	    ->join('quiz', 'item.id=quiz.item_id', [], $select::JOIN_LEFT)
-            ->where(['item.id' => $id]);
+            ->where(['item.id' => $id])
+            ->group('item.id');
 
 	if(!$is_admin) {
-	    $select->where(['page_user.user_id' => $me]);
+	    $select->where(['page_user.user_id' => $me])
+                ->join(['children'=> 'item'], 
+                new Expression('item.id = children.parent_id AND (children.is_published IS TRUE OR page_user.role = "admin")' ), 
+                [], $select::JOIN_LEFT)  
+                ->join(['children_user' => 'item_user'],
+                new Expression('children.id = children_user.item_id AND children_user.user_id = ?', $me), 
+                ['item$nb_children'=> new Expression('SUM(IF((children.is_published IS TRUE AND (children.participants = "all" OR children_user.user_id IS NOT NULL)) OR page_user.role = "admin", 1, 0))')], $select::JOIN_LEFT);
 	}
+        else{
+            
+            $select->join(['children'=> 'item'], 
+                'item.id = children.parent_id', 
+                ['item$nb_children'=> new Expression('COUNT(DISTINCT children.id)')], $select::JOIN_LEFT);
+        }
         return $this->selectWith($select);
     }
 

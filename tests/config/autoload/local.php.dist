@@ -70,6 +70,9 @@ return array(
 		'sslverifypeer'  => false,
 		'timeout'        => 10,
 	),
+	'http-adapter-curl' => [
+            'adapter' => 'Zend\Http\Client\Adapter\Curl',
+        ],
         'gcm-conf' => [
             'api_key' => 'azertyuiop',
             'adapter' => 'http-adapter',

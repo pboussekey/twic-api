@@ -25,8 +25,7 @@ class PageUser extends AbstractMapper
             if ($role !== ModelPageUser::ROLE_ADMIN) {
                 $select->where(['page_user.state' => ModelPageUser::STATE_MEMBER]);
             } else {
-                $select->where(['page_user.state <> ?' => ModelPageUser::STATE_REJECTED])
-                    ->order(new Expression('IF(page_user.state = "'.ModelPageUser::STATE_PENDING.'", 0, 1)'));
+                $select->where(['page_user.state <> ?' => ModelPageUser::STATE_REJECTED]);
             }
             $select->where(['page_user.role' => $role]);
         }
@@ -72,6 +71,9 @@ class PageUser extends AbstractMapper
             case 'firstname':
                 $select->order('user.firstname ASC');
                 break;
+            case 'admin':
+                $select->order([new Expression('IF(me.role = "admin", 0, 1)'), 'me.page_id DESC']);
+                break;
             case 'random':
                 $select->order(new Expression('RAND(?)', $order['seed']));
                 break;
@@ -79,6 +81,7 @@ class PageUser extends AbstractMapper
                 $select->order(['user.id' => 'DESC']);
             }
         }
+        syslog(1, $this->printSql($select));
         return $this->selectWith($select);
     }
 }

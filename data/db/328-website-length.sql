@@ -1,0 +1,1 @@
+ALTER TABLE `page` CHANGE COLUMN `website` `website` VARCHAR(255) NULL DEFAULT NULL ;
