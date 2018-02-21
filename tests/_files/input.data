@@ -1,1 +1,1 @@
-{"method":"post.add","id":1,"params":{"content":"Comment","parent_id":"7","data":["test"]}}
+{"method":"conversation.get","id":1,"params":{"id":[5,6,8]}}

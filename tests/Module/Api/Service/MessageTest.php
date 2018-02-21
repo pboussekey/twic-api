@@ -1061,7 +1061,7 @@ class MessageTest extends AbstractService
         $this->assertEquals($data['result']['status'], "stop");
         $this->assertEquals($data['result']['id'], 1234);
         $this->assertEquals($data['jsonrpc'], 2.0);
-    }
+    }    
     
     /**
      * @depends testCreateLC

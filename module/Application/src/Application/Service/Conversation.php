@@ -72,6 +72,7 @@ class Conversation extends AbstractService
 
         $res_conversation = $this->getMapper()->getId($user_id, null, null, null, null, $id);
         foreach ($res_conversation as $m_conversation) {
+            $cid = $m_conversation->getId();
             $message_id = $m_conversation->getMessage()->getId();
             if (is_numeric($message_id)) {
                 $m_conversation->setMessage($this->getServiceMessage()->get($message_id));
@@ -79,16 +80,16 @@ class Conversation extends AbstractService
 
             $ar_uid = null;
             if($m_conversation->getType() === ModelConversation::TYPE_LIVECLASS) {
-                $m_item = $this->getServiceItem()->getLite(null, $id)->current();
+                $m_item = $this->getServiceItem()->getLite(null, $cid)->current();
                 $ar_uid = ($m_item->getParticipants() === 'all') ?
                     $this->getServicePageUser()->getListByPage($m_item->getPageId())[$m_item->getPageId()] :
                     $this->getServiceItemUser()->getListUserId(null, $m_item->getId());
             } else {
-                $ar_uid = $this->getServiceConversationUser()->getListUserIdByConversation($id);
+                $ar_uid = $this->getServiceConversationUser()->getListUserIdByConversation($cid);
             }
             $m_conversation->setUsers($ar_uid);
             
-            $m_page = $this->getServicePage()->getByConversationId($id);
+            $m_page = $this->getServicePage()->getByConversationId($cid);
             if ($m_page) {
                 $role = $this->getServicePageUser()->getRole($m_page->getId());
                 if ($role) {
