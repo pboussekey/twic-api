@@ -1,1 +1,1 @@
-{"method":"conversation.get","id":1,"params":{"id":[5,6,8]}}
+{"method":"videoarchive.checkStatus","id":1,"params":{"json":{"id":1234,"status":"uploaded","link":"link"}}}

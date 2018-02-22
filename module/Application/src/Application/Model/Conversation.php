@@ -14,7 +14,7 @@ class Conversation extends BaseConversation
 
     protected $messages;
     protected $users;
-    protected $message_user;
+    protected $conversation_user;
     protected $nb_unread;
     protected $nb_users;
     protected $message;
@@ -26,6 +26,7 @@ class Conversation extends BaseConversation
     {
         parent::exchangeArray($data);
 
+        $this->conversation_user = $this->requireModel('app_model_conversation_user', $data);
         $this->message = $this->requireModel('app_model_message', $data);
     }
 
@@ -69,14 +70,14 @@ class Conversation extends BaseConversation
         return $this;
     }
 
-    public function getMessageUser()
+    public function getConversationUser()
     {
-        return $this->message_user;
+        return $this->conversation_user;
     }
 
-    public function setMessageUser($message_user)
+    public function setConversationUser($conversation_user)
     {
-        $this->message_user = $message_user;
+        $this->conversation_user = $conversation_user;
 
         return $this;
     }
