@@ -1,1 +1,1 @@
-{"method":"conversation.getList","id":1,"params":{"contact":false}}
+{"method":"message.send","id":1,"params":{"conversation_id":"6","text":"dernier message","library":{"token":"123456789","name":"super doc  "}}}

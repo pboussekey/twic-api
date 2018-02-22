@@ -361,6 +361,7 @@ class MessageTest extends AbstractService
             'conversation_id' => $item['conversation_id'], 'text' => 'dernier message', 'library' => ['token' => '123456789', 'name' => 'super doc  ']]
         );
 
+        $this->printCreateTest($data);
         $this->assertEquals(count($data), 3);
         $this->assertEquals($data['id'], 1);
         $this->assertEquals(count($data['result']), 3);
@@ -756,6 +757,7 @@ class MessageTest extends AbstractService
             ]
         );
 
+        $this->printCreateTest($data);
         $this->assertEquals(count($data) , 3); 
         $this->assertEquals($data['id'] , 1); 
         $this->assertEquals(count($data['result']) , 2); 
