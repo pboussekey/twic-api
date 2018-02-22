@@ -147,6 +147,35 @@ class Conversation extends AbstractService
             $res_conversation->current();
     }
 
+     /**
+     * Get Conversation
+     *
+     * @invokable
+     *
+     * @param int|array
+     */
+    public function getReadDates($id)
+    {
+        if(!is_array($id)){
+            $id = [$id];
+        }
+        $me = $this->getServiceUser()->getIdentity()['id'];
+        $res_conversation_user = $this->getServiceConversationUser()->getListByConversation($id);
+        $res = [];
+        foreach($id as $i){
+            $res[$i] = [];
+        }
+        foreach($res_conversation_user as $m_conversation_user){
+            if($me !== $m_conversation_user->getUserId()){
+                $res[$m_conversation_user->getConversationId()][$m_conversation_user->getUserId()] = 
+                    $m_conversation_user->getReadDate() instanceof IsNull ? 
+                        null : 
+                        $m_conversation_user->getReadDate();
+            }
+        }
+        return $res;        
+    }
+    
     /**
      * Get Conversation Unread
      *

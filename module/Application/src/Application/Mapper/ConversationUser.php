@@ -3,6 +3,9 @@
 namespace Application\Mapper;
 
 use Dal\Mapper\AbstractMapper;
+use Zend\Db\ResultSet\ResultSet;
+use Zend\Db\Sql\Having;
+use Zend\Db\Sql\Predicate\Expression;
 
 class ConversationUser extends AbstractMapper
 {
@@ -11,11 +14,11 @@ class ConversationUser extends AbstractMapper
      * @param int   $type
      * @param int   $submission_id
      *
-     * @return \Zend\Db\ResultSet\ResultSet
+     * @return ResultSet
      */
     public function getConversationIDByUser($users, $type = null)
     {
-        $having = new \Zend\Db\Sql\Having();
+        $having = new Having();
         $having->expression('COUNT(1) = ?', count($users));
 
         $select_sub = $this->tableGateway->getSql()->select();
@@ -36,6 +39,22 @@ class ConversationUser extends AbstractMapper
 
         return $this->selectWith($select);
     }
+    
+     public function getListByConversation($conversation_id)
+    {
+
+        $select = $this->tableGateway->getSql()->select();
+       
+        $select->columns([
+                'conversation_id', 
+                'user_id', 
+                'conversation_user$read_date' => new Expression('DATE_FORMAT(conversation_user.read_date, "%Y-%m-%dT%TZ")')
+            ])
+            ->where(['conversation_user.conversation_id' => $conversation_id ]);
+        
+        return $this->selectWith($select);
+    }
+
 
     public function add($conversation_id, $user)
     {
