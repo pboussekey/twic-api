@@ -1760,6 +1760,7 @@ class ItemRateTest extends AbstractService
             ]
         );
 
+        
         $this->assertEquals(count($data), 3);
         $this->assertEquals($data['id'], 1);
         $this->assertEquals(count($data['result']), 1);
@@ -1827,34 +1828,34 @@ class ItemRateTest extends AbstractService
              'id' => [$item_quiz['item_quiz']]
             ]
         );
-
-        $this->assertEquals(count($data), 3);
-        $this->assertEquals($data['id'], 1);
-        $this->assertEquals(count($data['result']), 1);
-        $this->assertEquals(count($data['result'][9]), 22);
-        $this->assertEquals($data['result'][9]['post_id'], null);
-        $this->assertEquals($data['result'][9]['quiz_id'], 1);
-        $this->assertEquals($data['result'][9]['id'], 9);
-        $this->assertEquals($data['result'][9]['title'], "Assignment");
-        $this->assertEquals($data['result'][9]['description'], "un super quiz");
-        $this->assertEquals($data['result'][9]['type'], "QUIZ");
-        $this->assertEquals($data['result'][9]['is_available'], 1);
-        $this->assertEquals($data['result'][9]['is_published'], 0);
-        $this->assertEquals($data['result'][9]['order'], 8);
-        $this->assertEquals($data['result'][9]['start_date'], null);
-        $this->assertEquals($data['result'][9]['end_date'], null);
-        $this->assertEquals(!empty($data['result'][9]['updated_date']), true);
-        $this->assertEquals(!empty($data['result'][9]['created_date']), true);
-        $this->assertEquals($data['result'][9]['parent_id'], 1);
-        $this->assertEquals($data['result'][9]['page_id'], 2);
-        $this->assertEquals($data['result'][9]['user_id'], 1);
-        $this->assertEquals($data['result'][9]['points'], 100);
-        $this->assertEquals($data['result'][9]['text'], null);
-        $this->assertEquals($data['result'][9]['library_id'], null);
-        $this->assertEquals($data['result'][9]['participants'], "all");
-        $this->assertEquals($data['result'][9]['is_grade_published'], 1);
-        $this->assertEquals($data['result'][9]['conversation_id'], null);
-        $this->assertEquals($data['jsonrpc'], 2.0);
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals(count($data['result']) , 1); 
+        $this->assertEquals(count($data['result'][9]) , 23); 
+        $this->assertEquals($data['result'][9]['post_id'] , null); 
+        $this->assertEquals($data['result'][9]['nb_children'] , 1); 
+        $this->assertEquals($data['result'][9]['quiz_id'] , 1); 
+        $this->assertEquals($data['result'][9]['id'] , 9); 
+        $this->assertEquals($data['result'][9]['title'] , "Assignment"); 
+        $this->assertEquals($data['result'][9]['description'] , "un super quiz"); 
+        $this->assertEquals($data['result'][9]['type'] , "QUIZ"); 
+        $this->assertEquals($data['result'][9]['is_available'] , 1); 
+        $this->assertEquals($data['result'][9]['is_published'] , 0); 
+        $this->assertEquals($data['result'][9]['order'] , 8); 
+        $this->assertEquals($data['result'][9]['start_date'] , null); 
+        $this->assertEquals($data['result'][9]['end_date'] , null); 
+        $this->assertEquals(!empty($data['result'][9]['updated_date']) , true); 
+        $this->assertEquals(!empty($data['result'][9]['created_date']) , true); 
+        $this->assertEquals($data['result'][9]['parent_id'] , 1); 
+        $this->assertEquals($data['result'][9]['page_id'] , 2); 
+        $this->assertEquals($data['result'][9]['user_id'] , 1); 
+        $this->assertEquals($data['result'][9]['points'] , 100); 
+        $this->assertEquals($data['result'][9]['text'] , null); 
+        $this->assertEquals($data['result'][9]['library_id'] , null); 
+        $this->assertEquals($data['result'][9]['participants'] , "all"); 
+        $this->assertEquals($data['result'][9]['is_grade_published'] , 1); 
+        $this->assertEquals($data['result'][9]['conversation_id'] , null); 
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
     }
 
     /**

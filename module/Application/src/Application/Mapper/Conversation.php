@@ -24,7 +24,7 @@ class Conversation extends AbstractMapper
             ->join('item', 'item.conversation_id=conversation.id', ['conversation$item_id' => 'id'], $select::JOIN_LEFT)
             ->join('message', new Expression('message.id = ?', [$subselect]), ['id', 'conversation_message$id' => 'id','text', 'library_id', 'type', 'created_date', 'user_id'], $select::JOIN_LEFT)
             ->join('page', new Expression("page.conversation_id=conversation.id OR (item.page_id=page.id AND item.participants = 'all')"), ['conversation$page_id' => 'id'], $select::JOIN_LEFT)
-            ->join('conversation_user', new Expression('conversation.id=conversation_user.conversation_id AND conversation_user.user_id = ?', [$user_id]), ['read_date'], $select::JOIN_LEFT)
+            ->join('conversation_user', new Expression('conversation.id=conversation_user.conversation_id AND conversation_user.user_id = ?', [$user_id]), [ new Expression('DATE_FORMAT(read_date, "%Y-%m-%dT%TZ")')], $select::JOIN_LEFT)
             ->where(['page.deleted_date IS NULL'])
             ->where(['( ( page.type = "course" AND page.is_published IS TRUE ) OR page.type <> "course" OR page.type IS NULL )'])
             ->where(['( conversation.type <> 3 OR  item.is_published IS TRUE )'])
@@ -90,7 +90,6 @@ class Conversation extends AbstractMapper
             $select->where(['conversation.type' => $type]);
         }
         
-        syslog(1, $this->printSql($select));
         return $this->selectWith($select);
     }
 }
