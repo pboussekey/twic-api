@@ -84,7 +84,7 @@ class ConversationUser extends AbstractService
     {
         $ret = $this->getMapper()->update(
             $this->getModel()->setReadDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s')),
-            ['conversation_id' => $conversation_id]
+            ['conversation_id' => $conversation_id, new IsNull('read_date')]
         );
 
         $this->read($conversation_id);
