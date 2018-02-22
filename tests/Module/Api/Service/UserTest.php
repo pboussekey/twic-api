@@ -934,7 +934,7 @@ class UserTest extends AbstractService
         $this->assertEquals(count($data) , 3); 
         $this->assertEquals($data['id'] , 1); 
         $this->assertEquals(count($data['result']) , 1); 
-        $this->assertEquals(count($data['result'][9]) , 21); 
+        $this->assertEquals(count($data['result'][9]) , 22); 
         $this->assertEquals(count($data['result'][9]['origin']) , 2); 
         $this->assertEquals($data['result'][9]['origin']['id'] , 1); 
         $this->assertEquals($data['result'][9]['origin']['short_name'] , "Afghanistan"); 
@@ -976,9 +976,12 @@ class UserTest extends AbstractService
         $this->assertEquals($data['result'][9]['background'] , null); 
         $this->assertEquals($data['result'][9]['ambassador'] , null); 
         $this->assertEquals($data['result'][9]['email_sent'] , 1); 
+        $this->assertEquals($data['result'][9]['welcome_date'] , null); 
         $this->assertEquals(count($data['result'][9]['roles']) , 1); 
         $this->assertEquals($data['result'][9]['roles'][0] , "user"); 
         $this->assertEquals($data['jsonrpc'] , 2.0); 
+
+
 
 
     }
@@ -989,10 +992,9 @@ class UserTest extends AbstractService
         $data = $this->jsonRpc(
             'user.get', []
         );
-        
         $this->assertEquals(count($data) , 3); 
         $this->assertEquals($data['id'] , 1); 
-        $this->assertEquals(count($data['result']) , 21); 
+        $this->assertEquals(count($data['result']) , 22); 
         $this->assertEquals($data['result']['origin'] , null); 
         $this->assertEquals($data['result']['nationality'] , null); 
         $this->assertEquals($data['result']['gender'] , null); 
@@ -1013,9 +1015,11 @@ class UserTest extends AbstractService
         $this->assertEquals($data['result']['background'] , null); 
         $this->assertEquals($data['result']['ambassador'] , null); 
         $this->assertEquals($data['result']['email_sent'] , 1); 
+        $this->assertEquals($data['result']['welcome_date'] , null); 
         $this->assertEquals(count($data['result']['roles']) , 1); 
         $this->assertEquals($data['result']['roles'][0] , "user"); 
         $this->assertEquals($data['jsonrpc'] , 2.0); 
+
 
 
     }

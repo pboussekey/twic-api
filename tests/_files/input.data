@@ -1,1 +1,1 @@
-{"method":"conversation.getList","id":1,"params":{"contact":true}}
+{"method":"user.get","id":1,"params":[]}
