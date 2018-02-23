@@ -48,7 +48,7 @@ class ConversationUser extends AbstractMapper
         $select->columns([
                 'conversation_id', 
                 'user_id', 
-                'conversation_user$read_date' => new Expression('DATE_FORMAT(conversation_user.read_date, "%Y-%m-%dT%TZ")')
+                'last_message'
             ])
             ->where(['conversation_user.conversation_id' => $conversation_id ]);
         

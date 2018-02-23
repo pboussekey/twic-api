@@ -6,45 +6,59 @@ use Dal\Model\AbstractModel;
 
 class ConversationUser extends AbstractModel
 {
-    protected $conversation_id;
-    protected $user_id;
-    protected $read_date;
+ 	protected $conversation_id;
+	protected $user_id;
+	protected $read_date;
+	protected $last_message;
 
-    protected $prefix = 'conversation_user';
+	protected $prefix = 'conversation_user';
 
-    public function getConversationId()
-    {
-        return $this->conversation_id;
-    }
+	public function getConversationId()
+	{
+		return $this->conversation_id;
+	}
 
-    public function setConversationId($conversation_id)
-    {
-        $this->conversation_id = $conversation_id;
+	public function setConversationId($conversation_id)
+	{
+		$this->conversation_id = $conversation_id;
 
-        return $this;
-    }
+		return $this;
+	}
 
-    public function getUserId()
-    {
-        return $this->user_id;
-    }
+	public function getUserId()
+	{
+		return $this->user_id;
+	}
 
-    public function setUserId($user_id)
-    {
-        $this->user_id = $user_id;
+	public function setUserId($user_id)
+	{
+		$this->user_id = $user_id;
 
-        return $this;
-    }
+		return $this;
+	}
 
-    public function getReadDate()
-    {
-        return $this->read_date;
-    }
+	public function getReadDate()
+	{
+		return $this->read_date;
+	}
 
-    public function setReadDate($read_date)
-    {
-        $this->read_date = $read_date;
+	public function setReadDate($read_date)
+	{
+		$this->read_date = $read_date;
 
-        return $this;
-    }
+		return $this;
+	}
+
+	public function getLastMessage()
+	{
+		return $this->last_message;
+	}
+
+	public function setLastMessage($last_message)
+	{
+		$this->last_message = $last_message;
+
+		return $this;
+	}
+
 }

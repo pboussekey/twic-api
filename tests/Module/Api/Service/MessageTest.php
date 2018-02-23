@@ -1115,6 +1115,7 @@ class MessageTest extends AbstractService
             'id' => [1,2,3,4,5]
         ]);
         
+        $this->printCreateTest($data);
         $this->assertEquals(count($data) , 3); 
         $this->assertEquals($data['id'] , 1); 
         $this->assertEquals(count($data['result']) , 5); 
