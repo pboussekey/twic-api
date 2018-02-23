@@ -168,9 +168,9 @@ class Conversation extends AbstractService
         foreach($res_conversation_user as $m_conversation_user){
             if($me !== $m_conversation_user->getUserId()){
                 $res[$m_conversation_user->getConversationId()][$m_conversation_user->getUserId()] = 
-                    $m_conversation_user->getReadDate() instanceof IsNull ? 
+                    $m_conversation_user->getLastMessage() instanceof IsNull ? 
                         null : 
-                        $m_conversation_user->getReadDate();
+                        $m_conversation_user->getLastMessage();
             }
         }
         return $res;        

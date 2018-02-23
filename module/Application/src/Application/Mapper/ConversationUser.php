@@ -52,6 +52,7 @@ class ConversationUser extends AbstractMapper
             ])
             ->where(['conversation_user.conversation_id' => $conversation_id ]);
         
+        syslog(1, $this->printSql($select));
         return $this->selectWith($select);
     }
 
