@@ -57,22 +57,19 @@ class PostLike extends AbstractService
 
             $origin_id = $m_post->getOriginId();
             $base_id = (is_numeric($origin_id)) ? $origin_id:$post_id;
-            $m_post_base = $this->getServicePost()->getLite($origin_id);
+            $m_post_base = !is_numeric($origin_id) ? $m_post :  $this->getServicePost()->getLite($origin_id);
             if (is_numeric($origin_id)) {
                 $sub_post = array_merge($sub_post, ['P'.$this->getServicePost()->getTarget($m_post_base)]);
             }
-
+            
             $is_private_page = ($m_post_base && is_numeric($m_post_base->getTPageId()) && ($this->getServicePage()->getLite($m_post_base->getTPageId())->getConfidentiality() === ModelPage::CONFIDENTIALITY_PRIVATE));
-            // si ce n'est pas privé on notifie les personne abonné au propriétaitre du like et du poste
-            if (!$is_private_page) {
-                $sub_post = array_merge(
-                    $sub_post,
-                    [
-                    'P'.$this->getServicePost()->getOwner($m_post),
-                    'P'.$this->getUserLike($m_post_like),
-                    ]
-                );
-            }
+            $sub_post = array_merge(
+                $sub_post,
+                [
+                'P'.$this->getServicePost()->getOwner($m_post),
+                'P'.$this->getUserLike($m_post_like),
+                ]
+            );
 
             $this->getServicePostSubscription()->add(
                 array_unique($sub_post),
@@ -81,7 +78,8 @@ class PostLike extends AbstractService
                 ModelPostSubscription::ACTION_LIKE,
                 $user_id,
                 null,
-                ['id' => $post_id, 'parent_id' => $m_post->getParentId(), 'origin_id' => $m_post->getOriginId()]
+                ['id' => $post_id, 'parent_id' => $m_post->getParentId(), 'origin_id' => $m_post->getOriginId()],
+                $is_private_page
             );
         }
 

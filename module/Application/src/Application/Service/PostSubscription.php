@@ -26,7 +26,7 @@ class PostSubscription extends AbstractService
      * @param  mixed  $data
      * @return bool
      */
-    public function add($libelle, $post_id, $last_date, $action, $user_id, $sub_post_id =null, $data = null)
+    public function add($libelle, $post_id, $last_date, $action, $user_id, $sub_post_id =null, $data = null, $is_private = false)
     {
         if (!is_array($libelle)) {
             $libelle = [$libelle];
@@ -48,9 +48,15 @@ class PostSubscription extends AbstractService
             $m_post_subscription->setLibelle($l);
             $this->getMapper()->insert($m_post_subscription);
         }
-
+        
         $m_post = $this->getServicePost()->getLite($post_id);
-
+        if($is_private){
+            for($i = 0; $i < count($libelle); $i++){
+                if(strcmp(substr($libelle[$i], 0, 2), 'PU') === 0){
+                    unset($libelle[$i]);
+                }
+            }
+        }
         $this->getServiceEvent()->userPublication($libelle, ($sub_post_id !== null) ? $sub_post_id : $m_post->getId(), $m_post->getType(), $action);
 
         return true;

@@ -79,7 +79,7 @@ class Post extends AbstractMapper
         if (null !== $page_id) {
             $select->where(['post.t_page_id' => $page_id]);
         }
-
+        
         return $this->selectWith($select);
     }
 

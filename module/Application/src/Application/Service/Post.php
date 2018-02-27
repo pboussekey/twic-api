@@ -201,7 +201,8 @@ class Post extends AbstractService
                 $ev,
                 ((!$is_notif) ? $user_id:null),
                 (($base_id!==$id) ? $id:null),
-                $data
+                $data,
+                $is_private_page
             );
         }
         
