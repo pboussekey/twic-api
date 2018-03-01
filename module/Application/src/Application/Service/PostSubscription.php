@@ -26,7 +26,7 @@ class PostSubscription extends AbstractService
      * @param  mixed  $data
      * @return bool
      */
-    public function add($libelle, $post_id, $last_date, $action, $user_id, $sub_post_id =null, $data = null, $is_private = false)
+    public function add($libelle, $post_id, $last_date, $action, $user_id, $sub_post_id =null, $data = null, $is_not_public = false)
     {
         if (!is_array($libelle)) {
             $libelle = [$libelle];
@@ -50,7 +50,7 @@ class PostSubscription extends AbstractService
         }
         
         $m_post = $this->getServicePost()->getLite($post_id);
-        if($is_private){
+        if($is_not_public){
             for($i = 0; $i < count($libelle); $i++){
                 if(strcmp(substr($libelle[$i], 0, 2), 'PU') === 0){
                     unset($libelle[$i]);

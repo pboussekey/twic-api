@@ -62,7 +62,7 @@ class PostLike extends AbstractService
                 $sub_post = array_merge($sub_post, ['P'.$this->getServicePost()->getTarget($m_post_base)]);
             }
             
-            $is_private_page = ($m_post_base && is_numeric($m_post_base->getTPageId()) && ($this->getServicePage()->getLite($m_post_base->getTPageId())->getConfidentiality() === ModelPage::CONFIDENTIALITY_PRIVATE));
+            $is_not_public = ($m_post_base && is_numeric($m_post_base->getTPageId()) && ($this->getServicePage()->getLite($m_post_base->getTPageId())->getConfidentiality() !== ModelPage::CONFIDENTIALITY_PUBLIC));
             $sub_post = array_merge(
                 $sub_post,
                 [
@@ -79,7 +79,7 @@ class PostLike extends AbstractService
                 $user_id,
                 null,
                 ['id' => $post_id, 'parent_id' => $m_post->getParentId(), 'origin_id' => $m_post->getOriginId()],
-                $is_private_page
+                $is_not_public
             );
         }
 

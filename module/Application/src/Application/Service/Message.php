@@ -110,20 +110,8 @@ class Message extends AbstractService
         $res_user = $this->getServiceUser()->getLite($to);
         $ar_name = [];
         foreach ($res_user as $m_user) {
-            $name = "";
-            if (!is_object($m_user->getNickname()) &&  null !== $m_user->getNickname()) {
-                $name = $m_user->getNickname();
-            } else {
-                if (!is_object($m_user->getFirstname()) &&  null !== $m_user->getFirstname()) {
-                    $name = $m_user->getFirstname();
-                }
-                if (!is_object($m_user->getLastname()) &&  null !== $m_user->getLastname()) {
-                    $name .= ' '.$m_user->getLastname();
-                }
-            }
-            $ar_name[$m_user->getId()] = $name;
+            $ar_name[$m_user->getId()] = substr($m_user->getFirstname(),0,1).'. '.$m_user->getLastname();
         }
-        
         foreach ($to as $user) {
             ////////////////////// DOCUMENT /////////////////////////////
             $docs = [];
@@ -145,7 +133,8 @@ class Message extends AbstractService
                         'type' => 'message',
                         'data' => ['users' => $to,
                             'from' => $user_id,
-                            'conversation' => $conversation_id,
+                            'conversation' => (int)$conversation_id,
+                            'message' =>  (int)$id,
                             'text' => $text,
                             'doc' => 'document'
                         ],

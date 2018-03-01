@@ -145,7 +145,7 @@ class Post extends AbstractService
 
         $base_id = ($origin_id) ? $origin_id:$id;
         $m_post_base = $this->getLite($base_id);
-        $is_private_page = (is_numeric($m_post_base->getTPageId()) && ($this->getServicePage()->getLite($m_post_base->getTPageId())->getConfidentiality() === ModelPage::CONFIDENTIALITY_PRIVATE));
+        $is_not_public_page = (is_numeric($m_post_base->getTPageId()) && ($this->getServicePage()->getLite($m_post_base->getTPageId())->getConfidentiality() !== ModelPage::CONFIDENTIALITY_PUBLIC));
         $pevent = [];
 
         // si c pas une notification on gére les hastags
@@ -202,7 +202,7 @@ class Post extends AbstractService
                 ((!$is_notif) ? $user_id:null),
                 (($base_id!==$id) ? $id:null),
                 $data,
-                $is_private_page
+                $is_not_public_page
             );
         }
         
