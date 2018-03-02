@@ -148,14 +148,15 @@ class Item extends AbstractMapper
                 [], $select::JOIN_LEFT)  
                 ->join(['children_user' => 'item_user'],
                 new Expression('children.id = children_user.item_id AND children_user.user_id = ?', $me), 
-                ['item$nb_children'=> new Expression('SUM(IF((children.is_published IS TRUE AND (children.participants = "all" OR children_user.user_id IS NOT NULL)) OR page_user.role = "admin", 1, 0))')], $select::JOIN_LEFT);
+                ['item$nb_children'=> new Expression('SUM(IF(children.id IS NOT NULL AND ((children.is_published IS TRUE AND (children.participants = "all" OR children_user.user_id IS NOT NULL)) OR page_user.role = "admin"), 1, 0))')], $select::JOIN_LEFT);
 	}
         else{
             
             $select->join(['children'=> 'item'], 
                 'item.id = children.parent_id', 
-                ['item$nb_children'=> new Expression('COUNT(DISTINCT children.id)')], $select::JOIN_LEFT);
+                ['item$nb_children'=> new Expression('SUM(IF(children.id IS NOT NULL, 1 , 0))')], $select::JOIN_LEFT);
         }
+        syslog(1, $this->printSql($select));
         return $this->selectWith($select);
     }
 

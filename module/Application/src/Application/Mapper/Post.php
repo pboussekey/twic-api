@@ -28,9 +28,6 @@ class Post extends AbstractMapper
             ->join('post_user', 'post_user.post_id=post.id', [], $select::JOIN_LEFT)
             ->where(['(post_user.user_id = ? AND post_user.hidden = 0' => $me_id])
             ->where(['  post_user.user_id IS NULL ) '], Predicate::OP_OR)
-            ->where(['( page.id IS NULL '])
-            ->where([' page.confidentiality = 0 '], Predicate::OP_OR)
-            ->where([' page_user.user_id IS NOT NULL )'], Predicate::OP_OR)
             ->where(['post.deleted_date IS NULL'])
             ->where(['page.deleted_date IS NULL'])
             ->where(['post.type <> "submission"'])
@@ -62,7 +59,10 @@ class Post extends AbstractMapper
             $select->join('subscription', 'subscription.libelle=post_subscription.libelle', [], $select::JOIN_LEFT)
                 ->where(['(subscription.user_id = ? ' => $me_id])
                 ->where(['  post_subscription.libelle = ? ) ' => 'M'.$me_id], Predicate::OP_OR)
-                ->where(['post.parent_id IS NULL']);
+                ->where(['post.parent_id IS NULL'])
+                ->where(['( page.id IS NULL '])
+                ->where([' page.confidentiality = 0 '], Predicate::OP_OR)
+                ->where([' page_user.user_id IS NOT NULL )'], Predicate::OP_OR);
         }
         
         // si c un admin studnet on enleve les type notifs les notif on tous des uid
