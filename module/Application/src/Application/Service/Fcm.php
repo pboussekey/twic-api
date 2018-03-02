@@ -58,6 +58,7 @@ class Fcm extends AbstractService
         syslog(1, 'REGISTER PHONE '.$uuid);
         foreach ($res_session as $m_session) {
             // if c un autre uuid que moi on suprime la session puis le champ bdd
+            syslog(1, $this->token." != ".$m_session->getToken()." ???");
             if ($this->token !== $m_session->getToken()) {
                 syslog(1, 'DELETE SESSIONS WITH TOKEN '.$m_session->getToken());
                 $this->session->delete(null, $m_session->getToken());
