@@ -55,9 +55,11 @@ class Fcm extends AbstractService
     public function register($uuid, $registration_id, $package = null)
     {
         $res_session = $this->session->get($uuid);
+        syslog(1, 'REGISTER PHONE '.$uuid);
         foreach ($res_session as $m_session) {
             // if c un autre uuid que moi on suprime la session puis le champ bdd
             if ($this->token !== $m_session->getToken()) {
+                syslog(1, 'DELETE SESSIONS WITH TOKEN '.$m_session->getToken());
                 $this->session->delete(null, $m_session->getToken());
             }
         }
