@@ -251,4 +251,72 @@ class Activity extends AbstractMapper
         $select->order(new Expression('1 / (100 * COUNT(DISTINCT activity.user_id) / users.count)'));
         return $this->selectWith($select);
     }
+    
+    
+    
+     public function getUsersActivities( $start_date = null, $end_date = null)
+    {
+     
+         
+        $like_select = new Select('post_like');
+        $like_select->columns(['user_id','count' => new Expression('COUNT(DISTINCT id)')])
+            ->where('is_like IS TRUE')
+            ->group('user_id');
+        if (null != $start_date) {
+            $like_select->where(['created_date >= ? ' => $start_date]);
+        }
+
+        if (null != $end_date) {
+            $like_select->where(['created_date <= ? ' => $end_date]);
+        }
+        
+        $post_select = new Select('post');
+        $post_select->columns(['user_id','count' => new Expression('COUNT(DISTINCT id)')])
+            ->where('deleted_date IS NULL')
+            ->where('uid IS NULL')
+            ->where('parent_id IS NULL')
+            ->group('user_id');
+        if (null != $start_date) {
+            $post_select->where(['created_date >= ? ' => $start_date]);
+        }
+
+        if (null != $end_date) {
+            $post_select->where(['created_date <= ? ' => $end_date]);
+        }
+        
+        $comments_select = new Select('post');
+        $comments_select->columns(['user_id','count' => new Expression('COUNT(DISTINCT id)')])
+            ->where('deleted_date IS NULL')
+            ->where('uid IS NULL')
+            ->where('parent_id IS NOT NULL')
+            ->group('user_id');
+        if (null != $start_date) {
+            $comments_select->where(['created_date >= ? ' => $start_date]);
+        }
+
+        if (null != $end_date) {
+            $comments_select->where(['created_date <= ? ' => $end_date]);
+        }
+        
+        
+        $select = $this->tableGateway->getSql()->select();
+        $select->columns(['user_id', 'activity$object_data' => 
+            new Expression('CONCAT("{ \"page_visited\" : ", COUNT(DISTINCT activity.id),", \"like\" : ",COALESCE(post_like.count,0),", \"posts\" : ",COALESCE(posts.count,0),", \"comments\" : ", COALESCE(comments.count,0), "}")')])
+            ->join(['post_like' => $like_select],'post_like.user_id = activity.user_id' , [], $select::JOIN_LEFT)
+            ->join(['posts' => $post_select],'posts.user_id = activity.user_id' , [], $select::JOIN_LEFT)
+            ->join(['comments' => $comments_select],'comments.user_id = activity.user_id' , [], $select::JOIN_LEFT)
+            ->where('event = "navigation"')
+            ->order(new Expression('COUNT(DISTINCT activity.id) + COALESCE(post_like.count,0) + COALESCE(posts.count,0) + COALESCE(comments.count,0)  DESC'))
+            ->group('activity.user_id');
+           
+       if (null != $start_date) {
+            $select->where(['date >= ? ' => $start_date]);
+        }
+
+        if (null != $end_date) {
+            $select->where(['date <= ? ' => $end_date]);
+        }
+        
+        return $this->selectWith($select);
+    }
 }

@@ -310,6 +310,27 @@ class Activity extends AbstractService
         }
         return $res_activity;
     }
+    
+    
+    
+     
+     /**
+     *
+     * @invokable
+     *
+     * @param string $start_date
+     * @param string $end_date
+     *
+     * @return array
+     */
+    public function getUsersActivities($start_date = null, $end_date = null)
+    {
+        $res_activity = $this->getMapper()->getUsersActivities($start_date, $end_date);
+        foreach($res_activity as $m_activity){
+            $m_activity->setObjectData(json_decode($m_activity->getObjectData(), true));
+        }
+        return $res_activity;
+    }
 
     /**
      * Get Service User.
