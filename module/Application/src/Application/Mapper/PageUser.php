@@ -71,6 +71,11 @@ class PageUser extends AbstractMapper
             case 'firstname':
                 $select->order('user.firstname ASC');
                 break;
+            case 'organization':
+                $select
+                    ->join(['organization' => 'page'], 'organization.id = user.organization_id', [])
+                    ->order( new Expression('organization.title ASC, user.is_active DESC, COALESCE(NULLIF(user.nickname,""),TRIM(CONCAT_WS(" ",user.lastname,user.firstname, user.email)))'));
+                break;
             case 'admin':
                 $select->order([new Expression('IF(me.role = "admin", 0, 1)'), 'me.page_id DESC']);
                 break;

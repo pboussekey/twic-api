@@ -77,6 +77,7 @@ class Contact extends AbstractService
         }
 
         $m_user = $this->getServiceUser()->getLite($user_id);
+        $m_contact = $this->getServiceUser()->getLite($user);
         $name = "";
         if (!is_object($m_user->getNickname()) &&  null !== $m_user->getNickname()) {
             $name = $m_user->getNickname();
@@ -120,6 +121,14 @@ class Contact extends AbstractService
             null,
             null,
             'connection'
+        );
+        
+        $this->getServiceMail()->sendTpl(
+            'tpl_newrequest', $m_user->getEmail(), [
+            'firstname' =>$m_contact->getFirstname() instanceof IsNull ? $m_contact->getEmail() : $m_contact->getFirstname(),
+            'contactfirstname' => $m_user->getFirstname(),
+            'contactlastname' => $m_user->getLastName()
+            ]
         );
         return $ret;
     }
@@ -176,6 +185,7 @@ class Contact extends AbstractService
                 $name .= ' '.$m_user->getLastname();
             }
         }
+        
         /*
                 $gcm_notification = new GcmNotification();
                 $gcm_notification->setTitle($name)
