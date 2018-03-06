@@ -122,7 +122,7 @@ class Contact extends AbstractService
             null,
             'connection'
         );
-        
+        syslog(1, $m_contact->getFirstname() instanceof IsNull ? $m_contact->getEmail() : $m_contact->getFirstname().' - '.$m_user->getFirstname().' - '. $m_user->getLastName());
         $this->getServiceMail()->sendTpl(
             'tpl_newrequest', $m_user->getEmail(), [
             'firstname' =>$m_contact->getFirstname() instanceof IsNull ? $m_contact->getEmail() : $m_contact->getFirstname(),
