@@ -99,6 +99,20 @@ class User extends AbstractService
         
         return $identity;
     }
+    
+    
+    
+    /**
+     * Accept CGU
+     *
+     * @invokable
+     *
+     * @return int
+     */
+    public function acceptCgu()
+    {
+        return $this->getMapper()->update($this->getModel()->setId($this->getIdentity()['id'])->setCguAccepted(1));
+    }
 
     // //////////////// EXTERNAL METHODE ///////////////////
     

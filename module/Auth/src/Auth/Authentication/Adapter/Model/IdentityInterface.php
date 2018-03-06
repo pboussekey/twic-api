@@ -21,6 +21,8 @@ interface IdentityInterface extends \JsonSerializable
     public function getSuspensionDate();
     
     public function getSuspensionReason();
+    
+    public function getCguAccepted();
 
     public function exchangeArray(array $datas);
 }

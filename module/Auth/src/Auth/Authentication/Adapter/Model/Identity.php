@@ -18,6 +18,7 @@ class Identity implements IdentityInterface
     protected $suspension_date;
     protected $suspension_reason;
     protected $has_linkedin;
+    protected $cgu_accepted;
 
     /**
      * @return string $has_linkedin
@@ -222,6 +223,18 @@ class Identity implements IdentityInterface
         
         return $this;
     }
+
+    public function getCguAccepted()
+    {
+        return $this->cgu_accepted;
+    }
+    
+    public function setCguAccepted($cgu_accepted)
+    {
+        $this->cgu_accepted = $cgu_accepted;
+        
+        return $this;
+    }
     
     public function toArray()
     {
@@ -239,6 +252,7 @@ class Identity implements IdentityInterface
             'avatar' => $this->avatar,
             'expiration_date' => $this->expiration_date,
             'has_linkedin' => ($this->linkedin_id !== null),
+            'cgu_accepted' => $this->cgu_accepted,
         ];
     }
 }

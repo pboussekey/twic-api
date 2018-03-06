@@ -77,7 +77,23 @@ class UserTest extends AbstractService
         return $page_id;
     }
     
-       /**
+    
+    public function testAcceptCgu()
+    {
+        $this->setIdentity(1, 1);
+        $data = $this->jsonRpc(
+            'user.acceptCgu', []
+        );
+        
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals($data['result'] , 1); 
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
+
+
+    }
+    
+    /**
      * @depends testInit
      **/
     public function testCanAddUserError($page_id)

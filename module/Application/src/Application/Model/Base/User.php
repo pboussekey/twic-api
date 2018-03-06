@@ -37,6 +37,7 @@ class User extends AbstractModel
 	protected $is_active;
 	protected $welcome_date;
 	protected $welcome_delay;
+	protected $cgu_accepted;
 
 	protected $prefix = 'user';
 
@@ -408,6 +409,18 @@ class User extends AbstractModel
 	public function setWelcomeDelay($welcome_delay)
 	{
 		$this->welcome_delay = $welcome_delay;
+
+		return $this;
+	}
+
+	public function getCguAccepted()
+	{
+		return $this->cgu_accepted;
+	}
+
+	public function setCguAccepted($cgu_accepted)
+	{
+		$this->cgu_accepted = $cgu_accepted;
 
 		return $this;
 	}

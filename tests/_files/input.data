@@ -1,1 +1,1 @@
-{"method":"conversation.getReadDates","id":1,"params":{"id":[1,2,3,4,5]}}
+{"method":"user.acceptCgu","id":1,"params":[]}
