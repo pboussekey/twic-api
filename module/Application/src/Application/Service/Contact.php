@@ -467,6 +467,16 @@ class Contact extends AbstractService
     {
         return $this->container->get('app_service_post');
     }
+
+    /**
+     * Get Service Page
+     *
+     * @return \Application\Service\Page
+     */
+    private function getServicePage()
+    {
+        return $this->container->get('app_service_page');
+    }
     
     
     /**
