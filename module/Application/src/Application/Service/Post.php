@@ -214,7 +214,7 @@ class Post extends AbstractService
                     $res_user = $this->getServiceUser()->getLite($this->getServiceSubscription()->getListUserId('PP'.$t_page_id));
                     if($res_user !== null) {
                         foreach($res_user as $m_user){
-                            if($m_user->getId() == $user_id) {
+                            if($m_user->getId() == $user_id || $m_user->getHasEmailNotifier() === 0) {
                                 continue;
                             }
                             $m_organization = false;
@@ -230,13 +230,13 @@ class Post extends AbstractService
                                 $m_organization->getLibelle() : null;
                                
                                 $url = sprintf("https://%s%s/page/course/%s/timeline", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl'], $m_page->getId());
-                                /*$this->getServiceMail()->sendTpl(
+                                $this->getServiceMail()->sendTpl(
                                     'tpl_coursepost', $m_user->getEmail(), [
                                     'pagename' => $m_page->getTitle(),
                                     'pageurl' => $url,
                                     'firstname' => $m_user->getFirstName()
                                     ]
-                                );*/
+                                );
                                 
                                 $gcm_notification = new GcmNotification();
                                 $gcm_notification->setTitle($m_page->getTitle())
