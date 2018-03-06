@@ -481,7 +481,7 @@ class Page extends AbstractService
                 $ar_pages = [];
                 $res_user = $this->getServiceUser()->getLite($this->getServicePageUser()->getListByPage($id)[$id]);
                 foreach($res_user as $m_user){
-                    if($m_user->getId() == $user_id) {
+                    if($m_user->getId() == $user_id || $m_user->getHasEmailNotifier() === 0) {
                         continue;
                     }
                     $m_organization = false;
@@ -498,13 +498,13 @@ class Page extends AbstractService
                         $m_organization->getLibelle() : null;
                         
                         $url = sprintf("https://%s%s/page/course/%s/timeline", ($prefix ? $prefix.'.':''),  $this->container->get('config')['app-conf']['uiurl'], $tmp_m_page->getId());
-                        /*$this->getServiceMail()->sendTpl(
+                        $this->getServiceMail()->sendTpl(
                             'tpl_coursepublished', $m_user->getEmail(), [
                             'pagename' => $tmp_m_page->getTitle(),
                             'firstname' => $m_user->getFirstName(),
                             'pageurl' => $url
                             ]
-                        );*/
+                        );
                         
                         $gcm_notification = new GcmNotification();
                         $gcm_notification->setTitle($tmp_m_page->getTitle())
