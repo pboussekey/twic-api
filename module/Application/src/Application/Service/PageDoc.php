@@ -36,7 +36,7 @@ class PageDoc extends AbstractService
             $res_user = $this->getServiceUser()->getLite($this->getServicePageUser()->getListByPage($page_id)[$page_id]);
             if($res_user !== null) {
                 foreach($res_user as $m_user){
-                    if($m_user->getId() == $identity['id'] || $m_user->getHasEmailNotifier() === 0) {
+                    if($m_user->getId() == $identity['id'] || $m_user->getHasEmailNotifier() === 0 || true) {
                         continue;
                     }
                     $m_organization = false;

@@ -214,7 +214,7 @@ class Post extends AbstractService
                     $res_user = $this->getServiceUser()->getLite($this->getServiceSubscription()->getListUserId('PP'.$t_page_id));
                     if($res_user !== null) {
                         foreach($res_user as $m_user){
-                            if($m_user->getId() == $user_id || $m_user->getHasEmailNotifier() === 0) {
+                            if($m_user->getId() == $user_id || $m_user->getHasEmailNotifier() === 0 || true) {
                                 continue;
                             }
                             $m_organization = false;
