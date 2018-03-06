@@ -1,0 +1,1 @@
+UPDATE page SET confidentiality = 2 WHERE confidentiality = 1;

@@ -17,7 +17,8 @@ class Page extends BasePage
     const ADMISSION_INVITATION='invitation';
     
     const CONFIDENTIALITY_PUBLIC=0;
-    const CONFIDENTIALITY_PRIVATE=1;
+    const CONFIDENTIALITY_CLOSED=1;
+    const CONFIDENTIALITY_PRIVATE=2;
 
     protected $state;
     protected $role;

@@ -272,24 +272,22 @@ class PageUser extends AbstractService
                         $this->getServiceSubscription()->add("PP".$m_page_relation->getParentId(), $user_id);
                     }
                 }
-                if ($m_page->getConfidentiality() == ModelPage::CONFIDENTIALITY_PUBLIC) {
-                    $this->getServicePost()->addSys(
-                        'PPM'.$page_id.'_'.$user_id,
-                        '',
-                        [
-                        'state' => 'member',
-                        'user' => $user_id,
-                        'page' => $page_id,
-                        'type' => $m_page->getType(),
-                        ],
-                        'member',
-                        ['M'.$user_id], /*sub ['M'.$user_id, 'PU'.$user_id] */
-                        null/*parent*/,
-                        null/*page*/,
-                        $user_id/*user*/,
-                        'page'
-                    );
-                }
+                $this->getServicePost()->addSys(
+                    'PPM'.$page_id.'_'.$user_id,
+                    '',
+                    [
+                    'state' => 'member',
+                    'user' => $user_id,
+                    'page' => $page_id,
+                    'type' => $m_page->getType(),
+                    ],
+                    'member',
+                    ['M'.$user_id], /*sub ['M'.$user_id, 'PU'.$user_id] */
+                    null/*parent*/,
+                    null/*page*/,
+                    $user_id/*user*/,
+                    'page'
+                );
             }
         }
         /*
