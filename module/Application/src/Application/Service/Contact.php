@@ -471,5 +471,15 @@ class Contact extends AbstractService
     private function getServiceActivity()
     {
         return $this->container->get('app_service_activity');
+    }    
+
+    /**
+     * Get Service Mail.
+     *
+     * @return \Mail\Service\Mail
+     */
+    private function getServiceMail()
+    {
+        return $this->container->get('mail.service');
     }
 }
