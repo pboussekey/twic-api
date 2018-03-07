@@ -11,15 +11,16 @@ class Report extends AbstractService
      *
      * @invokable
      *
+     * @param string $reason
+     * @param string $description
      * @param int    $user_id
      * @param int    $post_id
      * @param int    $comment_id
-     * @param string $reason
-     * @param string $description
+     * @param int    $conversation_id
      *
      * @return int
      */
-    public function add($reason, $description = null, $user_id = null, $post_id = null, $page_id = null)
+    public function add($reason, $description = null, $user_id = null, $post_id = null, $page_id = null, $conversation_id = null)
     {
         $identity = $this->getServiceUser()->getIdentity();
 
@@ -27,7 +28,8 @@ class Report extends AbstractService
             ->setReporterId($identity['id'])
             ->setUserId($user_id)
             ->setPostId($post_id)
-            ->setPageId($page_id);
+            ->setPageId($page_id)
+            ->setConversation($conversation_id);
 
         if ($this->getMapper()->select($m_report)->count() > 0) {
             throw new \Exception('Duplicate report');
