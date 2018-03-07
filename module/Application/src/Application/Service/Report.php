@@ -15,7 +15,7 @@ class Report extends AbstractService
      * @param string $description
      * @param int    $user_id
      * @param int    $post_id
-     * @param int    $comment_id
+     * @param int    $page_id
      * @param int    $conversation_id
      *
      * @return int
