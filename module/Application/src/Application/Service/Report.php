@@ -29,7 +29,7 @@ class Report extends AbstractService
             ->setUserId($user_id)
             ->setPostId($post_id)
             ->setPageId($page_id)
-            ->setConversation($conversation_id);
+            ->setConversationId($conversation_id);
 
         if ($this->getMapper()->select($m_report)->count() > 0) {
             throw new \Exception('Duplicate report');
