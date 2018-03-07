@@ -6,7 +6,9 @@
  */
 namespace Application\Mapper;
 
+use Dal\Db\ResultSet\ResultSet;
 use Dal\Mapper\AbstractMapper;
+use Zend\Db\Sql\Predicate\Expression;
 
 /**
  * Class Library
@@ -17,7 +19,7 @@ class Library extends AbstractMapper
     /**
      * Get List Library By Page id
      *
-     * @return \Dal\Db\ResultSet\ResultSet
+     * @return ResultSet
      */
     public function getList($folder_id = null, $user_id = null, $page_id = null, $is_admin = false)
     {
@@ -34,7 +36,10 @@ class Library extends AbstractMapper
             $select->join('page_doc', 'page_doc.library_id=library.id', [])
                 ->where(['page_doc.page_id' => $page_id]);
             if (null !== $user_id && $is_admin === false) {
-                $select->join('page_user', 'page_user.page_id=page_doc.page_id', [])->where(['page_user.user_id' => $user_id]);
+                $select
+                    ->join('page', 'page.id = page_doc.page_id')
+                    ->join('page_user', 'page_user.page_id=page_doc.page_id', [], $select::JOIN_LEFT)
+                        ->where(new Expression('(page.confidentiality = 0 OR (page_user.user_id = ? AND page_user.state = "member"))',$user_id));
             }
         }
         if (null !== $folder_id) {
@@ -43,8 +48,6 @@ class Library extends AbstractMapper
             $select->where(['library.folder_id IS NULL']);
         }
 
-
-
         return $this->selectWith($select);
     }
 
@@ -52,7 +55,7 @@ class Library extends AbstractMapper
      * Get List Library By Post id
      *
      * @param  int $page_id
-     * @return \Dal\Db\ResultSet\ResultSet
+     * @return ResultSet
      */
     public function getListByPost($post_id)
     {
