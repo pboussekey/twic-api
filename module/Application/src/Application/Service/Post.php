@@ -147,7 +147,7 @@ class Post extends AbstractService
         $m_post_base = $this->getLite($base_id);
         $is_not_public_page = (is_numeric($m_post_base->getTPageId()) && ($this->getServicePage()->getLite($m_post_base->getTPageId())->getConfidentiality() !== ModelPage::CONFIDENTIALITY_PUBLIC));
         $pevent = [];
-
+        syslog(1, "IS NOT PUBLIC PAGE ? ".json_encode($is_not_public_page));
         // si c pas une notification on gére les hastags
         if (!$is_notif) {
             $ar = array_filter(
@@ -169,17 +169,16 @@ class Post extends AbstractService
             $pevent = array_merge($pevent, ['P'.$et]);
         }
 
-        // if ce n'est pas un page privée
-        //if (!$is_private_page &&  !$is_notif) {
+        if (!$is_notif) {
             $pevent = array_merge($pevent, ['P'.$this->getOwner($m_post_base)]);
-        //}
+        }
 
         if ($parent_id && $origin_id) {
             // SI N'EST PAS PRIVATE ET QUE CE N'EST PAS UNE NOTIF -> ON NOTIFIE LES AMIES DES OWNER
             $m_post = $this->getLite($id);
-            //if (!$is_private_page &&  !$is_notif) {
-            $pevent = array_merge($pevent, ['P'.$this->getOwner($m_post)]);
-            //}
+            if (!$is_notif) {
+                $pevent = array_merge($pevent, ['P'.$this->getOwner($m_post)]);
+            }
             if(!$m_post_base->getUserId() instanceof IsNull){
                 $pevent = array_merge($pevent, ['M'.$m_post_base->getUserId()]);
             }
@@ -463,7 +462,7 @@ class Post extends AbstractService
 
         $ret = $this->getMapper()->update($m_post, $w);
         if ($ret > 0) {
-            $is_private_page = (is_numeric($m_post_base->getTPageId()) && ($this->getServicePage()->getLite($m_post_base->getTPageId())->getConfidentiality() === ModelPage::CONFIDENTIALITY_PRIVATE));
+            $is_not_public_page = (is_numeric($m_post_base->getTPageId()) && ($this->getServicePage()->getLite($m_post_base->getTPageId())->getConfidentiality() !== ModelPage::CONFIDENTIALITY_PUBLIC));
 
             // si c pas une notification on gére les hastags
             if (!$is_notif) {
@@ -485,7 +484,7 @@ class Post extends AbstractService
                 $pevent = array_merge($pevent, ['P'.$et]);
             }
             // if ce n'est pas un page privée
-            if (!$is_private_page &&  !$is_notif) {
+            if (!$is_notif) {
                 $pevent = array_merge($pevent, ['P'.$this->getOwner($m_post_base)]);
             }
             if (!empty($sub)) {
@@ -498,7 +497,8 @@ class Post extends AbstractService
                 (!empty($event)? $event:ModelPostSubscription::ACTION_UPDATE),
                 $user_id,
                 null,
-                $data
+                $data,
+                $is_not_public_page
             );
         }
 

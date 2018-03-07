@@ -22,7 +22,7 @@ class Post extends AbstractMapper
         }
 
         $select->columns($columns);
-        $select->join('page', 'page.id = post.t_page_id', [], $select::JOIN_LEFT)
+        $select->join('page', new Expression('page.id = post.t_page_id OR post.uid = CONCAT("PP", page.id)'), [], $select::JOIN_LEFT)
             ->join('page_user', new Expression('page.id = page_user.page_id AND page_user.user_id = ? ', $me_id), [], $select::JOIN_LEFT)
             ->join('post_subscription', 'post_subscription.post_id=post.id', [], $select::JOIN_LEFT)
             ->join('post_user', 'post_user.post_id=post.id', [], $select::JOIN_LEFT)
@@ -36,6 +36,7 @@ class Post extends AbstractMapper
 
         // @TODO on part du principe que si il n'y a pas de page_id donc c pour un mur donc on récupére que les post des page publish de type course
         // sinon si on donne la page_id on considére qui a pu récupérer l'id donc c accéssible (normalement que pour les admins de la page et les admins studnet)
+        // => 06/03/2018 PBO : +1
         if (null === $page_id) {
             $select->where(['( page.is_published IS TRUE OR page.type <> "course" OR page.type IS NULL)']);
         }

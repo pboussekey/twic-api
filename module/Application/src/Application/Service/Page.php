@@ -129,7 +129,7 @@ class Page extends AbstractService
         $formattedWebsite = $this->getFormattedWebsite($website);
 
         if (null === $confidentiality) {
-            $confidentiality = ModelPage::CONFIDENTIALITY_PRIVATE;
+            $confidentiality = ModelPage::CONFIDENTIALITY_SECRET;
         }
         if(!is_array($address)){
             $address = null;
@@ -238,7 +238,7 @@ class Page extends AbstractService
             $this->getServicePageDoc()->_add($id, $docs);
         }
 
-        if ($confidentiality === ModelPage::CONFIDENTIALITY_PUBLIC  && $type !== ModelPage::TYPE_ORGANIZATION) {
+        if ($type !== ModelPage::TYPE_ORGANIZATION) {
             $sub=[];
             if (null !== $page_id) {
                 $sub[] = 'EP'.$page_id;

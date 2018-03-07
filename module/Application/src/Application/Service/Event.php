@@ -183,7 +183,6 @@ class Event extends AbstractService
         if (is_string($ev)) {
             $event .= '.'.$ev;
         }
-
         return $this->create($event, $this->getDataUser(), $data_post, $sub, self::TARGET_TYPE_USER, $user_id);
     }
 

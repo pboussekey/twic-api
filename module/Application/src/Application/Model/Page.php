@@ -18,7 +18,7 @@ class Page extends BasePage
     
     const CONFIDENTIALITY_PUBLIC=0;
     const CONFIDENTIALITY_CLOSED=1;
-    const CONFIDENTIALITY_PRIVATE=2;
+    const CONFIDENTIALITY_SECRET=2;
 
     protected $state;
     protected $role;
