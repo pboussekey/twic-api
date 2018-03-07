@@ -308,6 +308,10 @@ class Page extends AbstractService
      **/
     public function addDocument($id, $library)
     {
+
+        if(!$this->isAdmin($id)) {
+            throw new JrpcException('Unauthorized operation page.addDocument', -38003);
+        }
         return $this->getServicePageDoc()->add($id, $library);
     }
 
@@ -316,10 +320,14 @@ class Page extends AbstractService
      *
      * @invokable
      *
+     * @param $id
      * @param $library_id
      **/
-    public function deleteDocument($library_id)
+    public function deleteDocument($id, $library_id)
     {
+        if(!$this->isAdmin($id)) {
+            throw new JrpcException('Unauthorized operation page.addDocument', -38003);
+        }
         return $this->getServicePageDoc()->delete($library_id);
     }
 
