@@ -59,7 +59,7 @@ class PageUser extends AbstractMapper
         if (null !== $me) {
             $select->join(['me' => 'page_user'], new Expression('me.page_id = page.id AND me.user_id = ?',$me), [], $select::JOIN_LEFT)
                 ->where(['( page_user.state NOT IN ("pending", "invited") OR me.role = "admin" OR page_user.user_id = me.user_id)'])
-                ->where(['( me.role IS NOT NULL OR page.confidentiality=0 ) '])
+                ->where(['( me.role IS NOT NULL OR page.confidentiality<>2 ) '])
                 ->where(['(me.role = "admin" OR user.is_active = 1)'])
                 ->where(['( page.is_published IS TRUE OR page.type <> "course" OR me.role = "admin" )']);
         }

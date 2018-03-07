@@ -131,7 +131,7 @@ class Page extends AbstractMapper
         }
         if ($is_admin === false) {
             $select->join('page_user', 'page_user.page_id = page.id', [], $select::JOIN_LEFT)
-                ->where(["( page.confidentiality = 0 "])
+                ->where(["( page.confidentiality <> 2 "])
                 ->where([" page_user.user_id = ? )" => $me], Predicate::OP_OR);
 
             $select->join(['pu' => 'page_user'], new Expression("pu.page_id = page.id AND pu.role = 'admin'"), [])
@@ -193,7 +193,7 @@ class Page extends AbstractMapper
         }
         if ($is_admin === false) {
             $select->join('page_user', 'page_user.page_id = page.id', [], $select::JOIN_LEFT)
-                ->where(["( page.confidentiality = 0 "])
+                ->where(["( page.confidentiality <> 2 "])
                 ->where([" page_user.user_id = ? )" => $me], Predicate::OP_OR);
 
             $select->join(['pu' => 'page_user'], new Expression("pu.page_id = page.id AND pu.role = 'admin'"), []);

@@ -62,7 +62,7 @@ class Post extends AbstractMapper
                 ->where(['  post_subscription.libelle = ? ) ' => 'M'.$me_id], Predicate::OP_OR)
                 ->where(['post.parent_id IS NULL'])
                 ->where(['( page.id IS NULL '])
-                ->where([' page.confidentiality = 0 '], Predicate::OP_OR)
+                ->where([' page.confidentiality <> 2 '], Predicate::OP_OR)
                 ->where([' page_user.user_id IS NOT NULL )'], Predicate::OP_OR);
         }
         
