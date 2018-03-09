@@ -490,7 +490,7 @@ class Page extends AbstractService
                 $ar_pages = [];
                 $res_user = $this->getServiceUser()->getLite($this->getServicePageUser()->getListByPage($id)[$id]);
                 foreach($res_user as $m_user){
-                    if($m_user->getId() == $user_id || $m_user->getHasEmailNotifier() === 0  || true) {
+                    if($m_user->getId() == $user_id || $m_user->getHasEmailNotifier() === 0) {
                         continue;
                     }
                     $m_organization = false;

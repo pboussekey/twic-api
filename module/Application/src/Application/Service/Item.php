@@ -583,7 +583,7 @@ class Item extends AbstractService
                 $ar_pages = [];
                 $res_user = $this->getServiceUser()->getLite($this->getServicePageUser()->getListByPage($page_id)[$page_id]);
                 foreach($res_user as $m_user){
-                    if($m_user->getId() == $identity['id'] || $m_user->getHasEmailNotifier() === 0 || true) {
+                    if($m_user->getId() == $identity['id'] || $m_user->getHasEmailNotifier() === 0) {
                         continue;
                     }
                     $m_organization = false;
@@ -718,7 +718,7 @@ class Item extends AbstractService
                 $m_item = $this->getLite($id)->current();
                 $res_user = $this->getServiceUser()->getLite($this->getServicePageUser()->getListByPage($m_item->getPageId())[$m_item->getPageId()]);
                 foreach($res_user as $m_user){
-                    if($m_user->getId() == $identity['id'] || $m_user->getHasEmailNotifier() === 0 || true) {
+                    if($m_user->getId() == $identity['id'] || $m_user->getHasEmailNotifier() === 0) {
                         continue;
                     }
                     $m_organization = false;
