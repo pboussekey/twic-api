@@ -38,7 +38,7 @@ class Conversation extends AbstractMapper
                 ->join('page_user', new Expression('page.id=page_user.page_id AND page_user.user_id = ?', [$user_id]), [], $select::JOIN_LEFT)
                 ->join('item_user', new Expression('item.id=item_user.item_id AND item_user.user_id = ?', [$user_id]), [], $select::JOIN_LEFT)
                 ->where([' ( conversation_user.user_id = ? ' => $user_id])
-                ->where(['page_user.user_id = ? ' => $user_id],  Predicate::OP_OR)
+                ->where(['(page_user.user_id = ? AND page_user.state = "member")'  => $user_id],  Predicate::OP_OR)
                 ->where(['item_user.user_id = ? )' => $user_id], Predicate::OP_OR);
         }
         $subselect->columns(['conversation_message$id' => new Expression('MAX(message.id)')])
