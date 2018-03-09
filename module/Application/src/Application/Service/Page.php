@@ -430,7 +430,8 @@ class Page extends AbstractService
             ->setWebsite($formattedWebsite)
             ->setPhone($phone)
             ->setShortTitle($short_title)
-            ->setConfidentiality($confidentiality);
+            ->setConfidentiality($confidentiality)
+            ->setAdmission($admission);
 
         if ($address !== null) {
             if($address === 0) {
@@ -458,13 +459,6 @@ class Page extends AbstractService
                 }
             }
             $this->getServicePageUser()->replace($id, $users);
-        }
-        if(null === $admission) {
-            if(null === $confidentiality){
-                $confidentiality = $tmp_m_page->getConfidentiality();
-            }
-            $admission = $confidentiality === ModelPage::CONFIDENTIALITY_PUBLIC ? ModelPage::ADMISSION_FREE : ModelPage::ADMISSION_OPEN;
-            $m_page->setAdmission($admission);
         }
         if (null !== $page_id) {
             $this->getServicePageRelation()->add($id, $page_id, ModelPageRelation::TYPE_OWNER);
