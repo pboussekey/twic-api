@@ -106,7 +106,7 @@ class User extends AbstractMapper
         $order = null,
         array $exclude = null,
         $contact_state = null,
-        $unsent = null,
+        $unsent = false,
         $role = null,
         $conversation_id = null,
         $page_type = null,
@@ -223,7 +223,10 @@ class User extends AbstractMapper
         if(!empty($email)) {
             $select->where->in(new Expression('LOWER(user.email)'),$email);
         }
-        else if($unsent !== true) {
+        else if($unsent === true) {
+            $select->where(['user.is_active' => 0]);
+        }
+        else if(!$is_admin){
             $select->where(['user.is_active' => 1]);
         }
         return $this->selectWith($select);

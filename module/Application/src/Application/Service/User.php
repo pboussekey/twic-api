@@ -793,7 +793,7 @@ class User extends AbstractService
             $exclude = [$exclude];
         }
         
-        $is_admin = (in_array(ModelRole::ROLE_ADMIN_STR, $identity['roles']));
+        $is_admin = $this->isStudnetAdmin();
         $mapper = $this->getMapper();
         $res_user = $mapper->usePaginator($filter)->getList($identity['id'], $is_admin, $post_id, $search, $page_id, $order, $exclude, $contact_state, $unsent, $role, $conversation_id, $page_type, null, $is_pinned);
         
