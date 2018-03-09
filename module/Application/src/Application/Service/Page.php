@@ -85,7 +85,7 @@ class Page extends AbstractService
         $title,
         $description,
         $type,
-        $confidentiality = null,
+        $confidentiality = 2,
         $logo = null,
         $admission = null,
         $background = null,
@@ -108,10 +108,6 @@ class Page extends AbstractService
         $is_published = null
     ) {
         
-        if(null === $admission) {
-            $admission = ModelPage::ADMISSION_INVITATION;
-        }
-        
         $identity = $this->getServiceUser()->getIdentity();
 
         //Si un non admin esaye de créer une organization
@@ -131,6 +127,11 @@ class Page extends AbstractService
         if (null === $confidentiality) {
             $confidentiality = ModelPage::CONFIDENTIALITY_SECRET;
         }
+        
+        if(null === $admission) {
+            $admission = $confidentiality === ModelPage::CONFIDENTIALITY_PUBLIC ? ModelPage::ADMISSION_FREE : ModelPage::ADMISSION_OPEN;
+        }
+        
         if(!is_array($address)){
             $address = null;
         }
@@ -418,7 +419,6 @@ class Page extends AbstractService
             ->setLogo($logo)
             ->setBackground($background)
             ->setDescription($description)
-            ->setAdmission($admission)
             ->setStartDate($start_date)
             ->setEndDate($end_date)
             ->setLocation($location)
@@ -458,6 +458,13 @@ class Page extends AbstractService
                 }
             }
             $this->getServicePageUser()->replace($id, $users);
+        }
+        if(null === $admission) {
+            if(null === $confidentiality){
+                $confidentiality = $tmp_m_page->getConfidentiality();
+            }
+            $admission = $confidentiality === ModelPage::CONFIDENTIALITY_PUBLIC ? ModelPage::ADMISSION_FREE : ModelPage::ADMISSION_OPEN;
+            $m_page->setAdmission($admission);
         }
         if (null !== $page_id) {
             $this->getServicePageRelation()->add($id, $page_id, ModelPageRelation::TYPE_OWNER);

@@ -1,1 +1,1 @@
-UPDATE page SET confidentiality = 2 WHERE confidentiality = 1;
+UPDATE page SET confidentiality = 2, admission = 'open'  WHERE confidentiality = 1;
