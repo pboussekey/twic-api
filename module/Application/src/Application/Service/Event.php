@@ -198,8 +198,9 @@ class Event extends AbstractService
     private function getDataPost($post_id)
     {
         $ar_post = $this->getServicePost()->getLite($post_id)->toArray();
-
-        return [
+       
+        
+        $ar_data = [
             'id' => $ar_post['id'],
             'name' => 'post',
             'data' => [
@@ -215,6 +216,13 @@ class Event extends AbstractService
                 'type' => $ar_post['type'],
             ]
         ];
+        
+        if(null !== $ar_post['t_page_id']){
+            $ar_page = $this->getServicePage()->getLite($ar_post['t_page_id']);
+            $ar_data['data']['page'] = $ar_page;
+        }
+
+        return $ar_data;
     }
 
     /**
@@ -275,6 +283,16 @@ class Event extends AbstractService
     private function getServicePost()
     {
         return $this->container->get('app_service_post');
+    }
+
+    /**
+     * Get Service Post
+     *
+     * @return \Application\Service\Page
+     */
+    private function getServicePage()
+    {
+        return $this->container->get('app_service_page');
     }
 
     /**
