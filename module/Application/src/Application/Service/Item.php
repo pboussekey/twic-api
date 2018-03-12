@@ -560,10 +560,10 @@ class Item extends AbstractService
             }
         }*/
 
-        if($publish == true && $notify === true) {
+        $m_item = $this->getLite($id)->current();
+        if(($publish == true || $publish === null && $m_item->getIsPublished() == true) && $notify == true) {
             $m_page = $this->getServicePage()->getLite($page_id);
             if($m_page->getIsPublished() == true) {
-                $m_item = $this->getLite($id)->current();
                 // SI il y a un parent
                 if(is_numeric($m_item->getParentId())) {
                     // SI SONT PARENT IS PAS PUBLIER ON SORT
@@ -578,6 +578,13 @@ class Item extends AbstractService
                             return true;
                         }
                     }*/
+                }
+                if($m_item->getType() === ModelItem::TYPE_SECTION){
+                    $res_children= $this->getListId(null, $m_item->getId(), true)[$m_item->getId()];
+                    foreach($res_children as $child){
+                        $this->publish($child, null, null, $m_item->getId(), true);
+                    }
+                    return true;
                 }
 
                 $ar_pages = [];
@@ -597,10 +604,12 @@ class Item extends AbstractService
 
                         $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
                         $m_organization->getLibelle() : null;
-                        $url = sprintf("https://%s%s/page/course/%s/content", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl'], $m_page->getId());
+                        $url = sprintf("https://%s%s/page/course/%s/content/%s", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl'], $m_page->getId(), $m_item->getId());
+                        syslog(1, "Send email notification for email ".$m_item->getId());
                         $this->getServiceMail()->sendTpl(
                             'tpl_itempublished', $m_user->getEmail(), [
                             'itemtype' => ModelItem::type_relation[$m_item->getType()],
+                            'pagetitle' => $m_page->getTitle(),
                             'itemtitle' => $m_item->getTitle(),
                             'firstname' => $m_user->getFirstName(),
                             'pageurl' => $url,

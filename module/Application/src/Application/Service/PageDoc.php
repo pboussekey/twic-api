@@ -56,13 +56,13 @@ class PageDoc extends AbstractService
                             $this->container->get('config')['app-conf']['uiurl'],
                             $m_page->getId()
                         );
-                        /*$this->getServiceMail()->sendTpl(
+                        $this->getServiceMail()->sendTpl(
                             'tpl_coursedoc', $m_user->getEmail(), [
                             'pagename' => $m_page->getTitle(),
                             'firstname' => $m_user->getFirstName(),
                             'pageurl' => $url
                             ]
-                        );*/
+                        );
                         
                         $gcm_notification = new GcmNotification();
                         $gcm_notification->setTitle($m_page->getTitle())
