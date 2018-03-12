@@ -207,7 +207,7 @@ class Post extends AbstractService
         if($parent_id == null) {
             if($t_page_id != null && $this->getServicePage()->isAdmin($t_page_id)) {
                 $m_page = $this->getServicePage()->getLite($t_page_id);
-                if($m_page->getType() == ModelPage::TYPE_COURSE && $type === 'post' && $m_page->getIsPublished()) {
+                if($m_page->getType() == ModelPage::TYPE_COURSE && $type === 'post' && $m_page->getIsPublished() && !$is_notif) {
                     $ar_pages = [];
                     $res_user = $this->getServiceUser()->getLite($this->getServiceSubscription()->getListUserId('PP'.$t_page_id));
                     if($res_user !== null) {

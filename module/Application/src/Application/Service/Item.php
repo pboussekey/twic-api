@@ -744,7 +744,7 @@ class Item extends AbstractService
 
                         $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
                         $m_organization->getLibelle() : null;
-                        $url = sprintf("https://%s%s/page/course/%s/content", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl'], $m_page->getId());
+                        $url = sprintf("https://%s%s/page/course/%s/content/%s", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl'], $m_page->getId(), $m_item->getId());
                         $this->getServiceMail()->sendTpl(
                             'tpl_itemupdate', $m_user->getEmail(), [
                             'itemtype' => ModelItem::type_relation[$m_item->getType()],
