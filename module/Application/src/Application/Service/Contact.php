@@ -125,7 +125,7 @@ class Contact extends AbstractService
         if($m_contact->getHasEmailNotifier() === 1){
             $m_page = $this->getServicePage()->getLite($m_contact->getOrganizationId());
             $prefix = ($m_page !== false && is_string($m_page->getLibelle()) && !empty($m_page->getLibelle())) ?  $m_page->getLibelle() : null;
-            $url = sprintf("https://%s%s/", ($prefix ? $prefix.'.':''),  $this->container->get('config')['app-conf']['uiurl']);
+            $url = sprintf("https://%s%s/profile/%s", ($prefix ? $prefix.'.':''),  $this->container->get('config')['app-conf']['uiurl'],$m_user->getId());
             $this->getServiceMail()->sendTpl(
                 'tpl_newrequest', $m_contact->getEmail(), [
                 'firstname' =>$m_contact->getFirstname() instanceof IsNull ? $m_contact->getEmail() : $m_contact->getFirstname(),
