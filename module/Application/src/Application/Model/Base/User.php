@@ -38,6 +38,9 @@ class User extends AbstractModel
 	protected $welcome_date;
 	protected $welcome_delay;
 	protected $cgu_accepted;
+	protected $swap_email;
+	protected $swap_token;
+	protected $initial_email;
 
 	protected $prefix = 'user';
 
@@ -421,6 +424,42 @@ class User extends AbstractModel
 	public function setCguAccepted($cgu_accepted)
 	{
 		$this->cgu_accepted = $cgu_accepted;
+
+		return $this;
+	}
+
+	public function getSwapEmail()
+	{
+		return $this->swap_email;
+	}
+
+	public function setSwapEmail($swap_email)
+	{
+		$this->swap_email = $swap_email;
+
+		return $this;
+	}
+
+	public function getSwapToken()
+	{
+		return $this->swap_token;
+	}
+
+	public function setSwapToken($swap_token)
+	{
+		$this->swap_token = $swap_token;
+
+		return $this;
+	}
+
+	public function getInitialEmail()
+	{
+		return $this->initial_email;
+	}
+
+	public function setInitialEmail($initial_email)
+	{
+		$this->initial_email = $initial_email;
 
 		return $this;
 	}
