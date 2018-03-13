@@ -374,71 +374,72 @@ class PageTest extends AbstractService
     {
         $this->setIdentity(1);
         $data = $this->jsonRpc('page.get', ['id' => $page_id, 'type' => 'organization']);
-
-        $this->assertEquals(count($data), 3);
-        $this->assertEquals($data['id'], 1);
-        $this->assertEquals(count($data['result']), 22);
-        $this->assertEquals(count($data['result']['address']), 14);
-        $this->assertEquals(count($data['result']['address']['city']), 1);
-        $this->assertEquals($data['result']['address']['city']['name'], "Villefontaine");
-        $this->assertEquals(count($data['result']['address']['division']), 2);
-        $this->assertEquals($data['result']['address']['division']['id'], 54);
-        $this->assertEquals($data['result']['address']['division']['name'], "Auvergne-Rhône-Alpes");
-        $this->assertEquals($data['result']['address']['country'], null);
-        $this->assertEquals($data['result']['address']['id'], 1);
-        $this->assertEquals($data['result']['address']['street_no'], 11);
-        $this->assertEquals($data['result']['address']['street_type'], null);
-        $this->assertEquals($data['result']['address']['street_name'], "Allée des Chênes");
-        $this->assertEquals($data['result']['address']['longitude'], 5.1787445);
-        $this->assertEquals($data['result']['address']['latitude'], 45.601569);
-        $this->assertEquals($data['result']['address']['door'], null);
-        $this->assertEquals($data['result']['address']['building'], null);
-        $this->assertEquals($data['result']['address']['apartment'], null);
-        $this->assertEquals($data['result']['address']['floor'], null);
-        $this->assertEquals($data['result']['address']['timezone'], "Europe/Paris");
-        $this->assertEquals(count($data['result']['owner']), 4);
-        $this->assertEquals($data['result']['owner']['id'], 1);
-        $this->assertEquals($data['result']['owner']['text'], "Paul Boussekey");
-        $this->assertEquals($data['result']['owner']['img'], null);
-        $this->assertEquals($data['result']['owner']['type'], "user");
-        $this->assertEquals(count($data['result']['user']), 5);
-        $this->assertEquals($data['result']['user']['id'], 1);
-        $this->assertEquals($data['result']['user']['firstname'], "Paul");
-        $this->assertEquals($data['result']['user']['lastname'], "Boussekey");
-        $this->assertEquals($data['result']['user']['avatar'], null);
-        $this->assertEquals($data['result']['user']['ambassador'], null);
-        $this->assertEquals(count($data['result']['tags']), 3);
-        $this->assertEquals(count($data['result']['tags'][0]), 3);
-        $this->assertEquals($data['result']['tags'][0]['id'], 1);
-        $this->assertEquals($data['result']['tags'][0]['name'], "toto");
-        $this->assertEquals($data['result']['tags'][0]['weight'], 2);
-        $this->assertEquals(count($data['result']['tags'][1]), 3);
-        $this->assertEquals($data['result']['tags'][1]['id'], 2);
-        $this->assertEquals($data['result']['tags'][1]['name'], "tata");
-        $this->assertEquals($data['result']['tags'][1]['weight'], 2);
-        $this->assertEquals(count($data['result']['tags'][2]), 3);
-        $this->assertEquals($data['result']['tags'][2]['id'], 3);
-        $this->assertEquals($data['result']['tags'][2]['name'], "tutu");
-        $this->assertEquals($data['result']['tags'][2]['weight'], 2);
-        $this->assertEquals($data['result']['role'], "admin");
-        $this->assertEquals($data['result']['state'], "member");
-        $this->assertEquals($data['result']['id'], 1);
-        $this->assertEquals($data['result']['title'], "super title");
-        $this->assertEquals($data['result']['logo'], "logo");
-        $this->assertEquals($data['result']['background'], "background");
-        $this->assertEquals($data['result']['description'], "description");
-        $this->assertEquals($data['result']['confidentiality'], 0);
-        $this->assertEquals($data['result']['admission'], "free");
-        $this->assertEquals(!empty($data['result']['start_date']), true);
-        $this->assertEquals(!empty($data['result']['end_date']), true);
-        $this->assertEquals($data['result']['location'], "location");
-        $this->assertEquals($data['result']['type'], "organization");
-        $this->assertEquals($data['result']['user_id'], 1);
-        $this->assertEquals($data['result']['owner_id'], 1);
-        $this->assertEquals($data['result']['website'], null);
-        $this->assertEquals($data['result']['conversation_id'], null);
-        $this->assertEquals($data['result']['is_published'], 0);
-        $this->assertEquals($data['jsonrpc'], 2.0);
+        
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals(count($data['result']) , 22); 
+        $this->assertEquals(count($data['result']['owner']) , 4); 
+        $this->assertEquals($data['result']['owner']['id'] , 1); 
+        $this->assertEquals($data['result']['owner']['text'] , "Paul Boussekey"); 
+        $this->assertEquals($data['result']['owner']['img'] , null); 
+        $this->assertEquals($data['result']['owner']['type'] , "user"); 
+        $this->assertEquals(count($data['result']['address']) , 15); 
+        $this->assertEquals(count($data['result']['address']['city']) , 1); 
+        $this->assertEquals($data['result']['address']['city']['name'] , "Villefontaine"); 
+        $this->assertEquals(count($data['result']['address']['division']) , 2); 
+        $this->assertEquals($data['result']['address']['division']['id'] , 54); 
+        $this->assertEquals($data['result']['address']['division']['name'] , "Auvergne-Rhône-Alpes"); 
+        $this->assertEquals($data['result']['address']['country'] , null); 
+        $this->assertEquals($data['result']['address']['id'] , 1); 
+        $this->assertEquals($data['result']['address']['street_no'] , 11); 
+        $this->assertEquals($data['result']['address']['street_type'] , null); 
+        $this->assertEquals($data['result']['address']['street_name'] , "Allée des Chênes"); 
+        $this->assertEquals($data['result']['address']['longitude'] , 5.1787445); 
+        $this->assertEquals($data['result']['address']['latitude'] , 45.601569); 
+        $this->assertEquals($data['result']['address']['door'] , null); 
+        $this->assertEquals($data['result']['address']['building'] , null); 
+        $this->assertEquals($data['result']['address']['apartment'] , null); 
+        $this->assertEquals($data['result']['address']['floor'] , null); 
+        $this->assertEquals($data['result']['address']['timezone'] , "Europe/Paris"); 
+        $this->assertEquals($data['result']['address']['full_address'] , null); 
+        $this->assertEquals(count($data['result']['user']) , 5); 
+        $this->assertEquals($data['result']['user']['id'] , 1); 
+        $this->assertEquals($data['result']['user']['firstname'] , "Paul"); 
+        $this->assertEquals($data['result']['user']['lastname'] , "Boussekey"); 
+        $this->assertEquals($data['result']['user']['avatar'] , null); 
+        $this->assertEquals($data['result']['user']['ambassador'] , null); 
+        $this->assertEquals(count($data['result']['tags']) , 3); 
+        $this->assertEquals(count($data['result']['tags'][0]) , 3); 
+        $this->assertEquals($data['result']['tags'][0]['id'] , 1); 
+        $this->assertEquals($data['result']['tags'][0]['name'] , "toto"); 
+        $this->assertEquals($data['result']['tags'][0]['weight'] , 2); 
+        $this->assertEquals(count($data['result']['tags'][1]) , 3); 
+        $this->assertEquals($data['result']['tags'][1]['id'] , 2); 
+        $this->assertEquals($data['result']['tags'][1]['name'] , "tata"); 
+        $this->assertEquals($data['result']['tags'][1]['weight'] , 2); 
+        $this->assertEquals(count($data['result']['tags'][2]) , 3); 
+        $this->assertEquals($data['result']['tags'][2]['id'] , 3); 
+        $this->assertEquals($data['result']['tags'][2]['name'] , "tutu"); 
+        $this->assertEquals($data['result']['tags'][2]['weight'] , 2); 
+        $this->assertEquals($data['result']['role'] , "admin"); 
+        $this->assertEquals($data['result']['state'] , "member"); 
+        $this->assertEquals($data['result']['id'] , 1); 
+        $this->assertEquals($data['result']['title'] , "super title"); 
+        $this->assertEquals($data['result']['logo'] , "logo"); 
+        $this->assertEquals($data['result']['background'] , "background"); 
+        $this->assertEquals($data['result']['description'] , "description"); 
+        $this->assertEquals($data['result']['confidentiality'] , 0); 
+        $this->assertEquals($data['result']['admission'] , "free"); 
+        $this->assertEquals(!empty($data['result']['start_date']) , true); 
+        $this->assertEquals(!empty($data['result']['end_date']) , true); 
+        $this->assertEquals($data['result']['location'] , "location"); 
+        $this->assertEquals($data['result']['type'] , "organization"); 
+        $this->assertEquals($data['result']['user_id'] , 1); 
+        $this->assertEquals($data['result']['owner_id'] , 1); 
+        $this->assertEquals($data['result']['website'] , null); 
+        $this->assertEquals($data['result']['conversation_id'] , null); 
+        $this->assertEquals($data['result']['is_published'] , 0); 
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
     }
        /**
      * @depends testPageAdd
@@ -453,7 +454,12 @@ class PageTest extends AbstractService
         $this->assertEquals($data['id'] , 1); 
         $this->assertEquals(count($data['result']) , 2); 
         $this->assertEquals(count($data['result'][1]) , 22); 
-        $this->assertEquals(count($data['result'][1]['address']) , 14); 
+        $this->assertEquals(count($data['result'][1]['owner']) , 4); 
+        $this->assertEquals($data['result'][1]['owner']['id'] , 1); 
+        $this->assertEquals($data['result'][1]['owner']['text'] , "Paul Boussekey"); 
+        $this->assertEquals($data['result'][1]['owner']['img'] , null); 
+        $this->assertEquals($data['result'][1]['owner']['type'] , "user"); 
+        $this->assertEquals(count($data['result'][1]['address']) , 15); 
         $this->assertEquals(count($data['result'][1]['address']['city']) , 1); 
         $this->assertEquals($data['result'][1]['address']['city']['name'] , "Villefontaine"); 
         $this->assertEquals(count($data['result'][1]['address']['division']) , 2); 
@@ -471,11 +477,7 @@ class PageTest extends AbstractService
         $this->assertEquals($data['result'][1]['address']['apartment'] , null); 
         $this->assertEquals($data['result'][1]['address']['floor'] , null); 
         $this->assertEquals($data['result'][1]['address']['timezone'] , "Europe/Paris"); 
-        $this->assertEquals(count($data['result'][1]['owner']) , 4); 
-        $this->assertEquals($data['result'][1]['owner']['id'] , 1); 
-        $this->assertEquals($data['result'][1]['owner']['text'] , "Paul Boussekey"); 
-        $this->assertEquals($data['result'][1]['owner']['img'] , null); 
-        $this->assertEquals($data['result'][1]['owner']['type'] , "user"); 
+        $this->assertEquals($data['result'][1]['address']['full_address'] , null); 
         $this->assertEquals(count($data['result'][1]['user']) , 5); 
         $this->assertEquals($data['result'][1]['user']['id'] , 1); 
         $this->assertEquals($data['result'][1]['user']['firstname'] , "Paul"); 
@@ -514,12 +516,12 @@ class PageTest extends AbstractService
         $this->assertEquals($data['result'][1]['conversation_id'] , null); 
         $this->assertEquals($data['result'][1]['is_published'] , 0); 
         $this->assertEquals(count($data['result'][3]) , 22); 
-        $this->assertEquals($data['result'][3]['address'] , null); 
         $this->assertEquals(count($data['result'][3]['owner']) , 4); 
         $this->assertEquals($data['result'][3]['owner']['id'] , 1); 
         $this->assertEquals($data['result'][3]['owner']['text'] , "super title"); 
         $this->assertEquals($data['result'][3]['owner']['img'] , "logo"); 
         $this->assertEquals($data['result'][3]['owner']['type'] , "organization"); 
+        $this->assertEquals($data['result'][3]['address'] , null); 
         $this->assertEquals(count($data['result'][3]['user']) , 5); 
         $this->assertEquals($data['result'][3]['user']['id'] , 1); 
         $this->assertEquals($data['result'][3]['user']['firstname'] , "Paul"); 
@@ -558,6 +560,8 @@ class PageTest extends AbstractService
         $this->assertEquals($data['result'][3]['conversation_id'] , 1); 
         $this->assertEquals($data['result'][3]['is_published'] , 0); 
         $this->assertEquals($data['jsonrpc'] , 2.0); 
+
+
 
 
 
@@ -1050,10 +1054,10 @@ class PageTest extends AbstractService
         $this->setIdentity(1);
         $data = $this->jsonRpc(
             'page.deleteDocument', [
+            'id' => $id,
             'library_id' => 6,
             ]
         );
-
         $this->assertEquals(count($data), 3);
         $this->assertEquals($data['id'], 1);
         $this->assertEquals($data['result'], 1);

@@ -287,27 +287,29 @@ class UserTest extends AbstractService
 
 
         $data = $this->jsonRpc('user.login', ['user' => 'crobert@thestudnet.com','password' => 'thestudnet']);
-        $this->assertEquals(count($data), 3);
-        $this->assertEquals($data['id'], 1);
-        $this->assertEquals(count($data['result']), 16);
-        $this->assertEquals($data['result']['id'], 3);
-        $this->assertEquals(!empty($data['result']['token']), true);
-        $this->assertEquals($data['result']['created_date'], null);
-        $this->assertEquals($data['result']['firstname'], "Christophe");
-        $this->assertEquals($data['result']['lastname'], "Robert");
-        $this->assertEquals($data['result']['nickname'], null);
-        $this->assertEquals($data['result']['suspension_date'], null);
-        $this->assertEquals($data['result']['suspension_reason'], null);
-        $this->assertEquals($data['result']['organization_id'], 1);
-        $this->assertEquals($data['result']['email'], "crobert@thestudnet.com");
-        $this->assertEquals($data['result']['avatar'], null);
-        $this->assertEquals($data['result']['expiration_date'], null);
-        $this->assertEquals($data['result']['has_linkedin'], false);
-        $this->assertEquals(count($data['result']['roles']), 1);
-        $this->assertEquals($data['result']['roles'][2], "user");
-        $this->assertEquals(!empty($data['result']['wstoken']), true);
-        $this->assertEquals(!empty($data['result']['fbtoken']), true);
-        $this->assertEquals($data['jsonrpc'], 2.0);
+        $this->assertEquals(count($data) , 3); 
+        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals(count($data['result']) , 17); 
+        $this->assertEquals($data['result']['id'] , 3); 
+        $this->assertEquals(!empty($data['result']['token']) , true); 
+        $this->assertEquals($data['result']['created_date'] , null); 
+        $this->assertEquals($data['result']['firstname'] , "Christophe"); 
+        $this->assertEquals($data['result']['lastname'] , "Robert"); 
+        $this->assertEquals($data['result']['nickname'] , null); 
+        $this->assertEquals($data['result']['suspension_date'] , null); 
+        $this->assertEquals($data['result']['suspension_reason'] , null); 
+        $this->assertEquals($data['result']['organization_id'] , 1); 
+        $this->assertEquals($data['result']['email'] , "crobert@thestudnet.com"); 
+        $this->assertEquals($data['result']['avatar'] , null); 
+        $this->assertEquals($data['result']['expiration_date'] , null); 
+        $this->assertEquals($data['result']['has_linkedin'] , false); 
+        $this->assertEquals($data['result']['cgu_accepted'] , 0); 
+        $this->assertEquals(count($data['result']['roles']) , 1); 
+        $this->assertEquals($data['result']['roles'][2] , "user"); 
+        $this->assertEquals(!empty($data['result']['wstoken']) , true); 
+        $this->assertEquals(!empty($data['result']['fbtoken']) , true); 
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
+
 
         return $data['result']['token'];
     }
@@ -501,7 +503,7 @@ class UserTest extends AbstractService
         
         $this->assertEquals(count($data) , 3); 
         $this->assertEquals($data['id'] , 1); 
-        $this->assertEquals(count($data['result']) , 16); 
+        $this->assertEquals(count($data['result']) , 17); 
         $this->assertEquals($data['result']['id'] , 11); 
         $this->assertEquals(!empty($data['result']['token']) , true); 
         $this->assertEquals(!empty($data['result']['created_date']) , true); 
@@ -515,11 +517,13 @@ class UserTest extends AbstractService
         $this->assertEquals($data['result']['avatar'] , null); 
         $this->assertEquals($data['result']['expiration_date'] , null); 
         $this->assertEquals($data['result']['has_linkedin'] , false); 
+        $this->assertEquals($data['result']['cgu_accepted'] , 0); 
         $this->assertEquals(count($data['result']['roles']) , 1); 
         $this->assertEquals($data['result']['roles'][2] , "user"); 
         $this->assertEquals(!empty($data['result']['wstoken']) , true); 
         $this->assertEquals(!empty($data['result']['fbtoken']) , true); 
         $this->assertEquals($data['jsonrpc'] , 2.0); 
+
 
     }
      
@@ -1579,7 +1583,7 @@ class UserTest extends AbstractService
         
         $this->assertEquals(count($data) , 3); 
         $this->assertEquals($data['id'] , 1); 
-        $this->assertEquals(count($data['result']) , 16); 
+        $this->assertEquals(count($data['result']) , 17); 
         $this->assertEquals($data['result']['id'] , 8); 
         $this->assertEquals(!empty($data['result']['token']) , true); 
         $this->assertEquals(!empty($data['result']['created_date']) , true); 
@@ -1593,11 +1597,13 @@ class UserTest extends AbstractService
         $this->assertEquals($data['result']['avatar'] , "token"); 
         $this->assertEquals($data['result']['expiration_date'] , null); 
         $this->assertEquals($data['result']['has_linkedin'] , true); 
+        $this->assertEquals($data['result']['cgu_accepted'] , 0); 
         $this->assertEquals(count($data['result']['roles']) , 1); 
         $this->assertEquals($data['result']['roles'][2] , "user"); 
         $this->assertEquals(!empty($data['result']['wstoken']) , true); 
         $this->assertEquals(!empty($data['result']['fbtoken']) , true); 
         $this->assertEquals($data['jsonrpc'] , 2.0); 
+
 
 
 
@@ -1617,7 +1623,7 @@ class UserTest extends AbstractService
         
         $this->assertEquals(count($data) , 3); 
         $this->assertEquals($data['id'] , 1); 
-        $this->assertEquals(count($data['result']) , 16); 
+        $this->assertEquals(count($data['result']) , 17); 
         $this->assertEquals($data['result']['id'] , 8); 
         $this->assertEquals(!empty($data['result']['token']) , true); 
         $this->assertEquals(!empty($data['result']['created_date']) , true); 
@@ -1631,11 +1637,13 @@ class UserTest extends AbstractService
         $this->assertEquals($data['result']['avatar'] , "token"); 
         $this->assertEquals($data['result']['expiration_date'] , null); 
         $this->assertEquals($data['result']['has_linkedin'] , true); 
+        $this->assertEquals($data['result']['cgu_accepted'] , 0); 
         $this->assertEquals(count($data['result']['roles']) , 1); 
         $this->assertEquals($data['result']['roles'][2] , "user"); 
         $this->assertEquals(!empty($data['result']['wstoken']) , true); 
         $this->assertEquals(!empty($data['result']['fbtoken']) , true); 
         $this->assertEquals($data['jsonrpc'] , 2.0); 
+
  
 
 
@@ -1738,7 +1746,7 @@ class UserTest extends AbstractService
         
         $this->assertEquals(count($data) , 3); 
         $this->assertEquals($data['id'] , 1); 
-        $this->assertEquals(count($data['result']) , 16); 
+        $this->assertEquals(count($data['result']) , 17); 
         $this->assertEquals($data['result']['id'] , 12); 
         $this->assertEquals(!empty($data['result']['token']) , true); 
         $this->assertEquals(!empty($data['result']['created_date']) , true); 
@@ -1752,11 +1760,13 @@ class UserTest extends AbstractService
         $this->assertEquals($data['result']['avatar'] , null); 
         $this->assertEquals($data['result']['expiration_date'] , null); 
         $this->assertEquals($data['result']['has_linkedin'] , true); 
+        $this->assertEquals($data['result']['cgu_accepted'] , 0); 
         $this->assertEquals(count($data['result']['roles']) , 1); 
         $this->assertEquals($data['result']['roles'][2] , "user"); 
         $this->assertEquals(!empty($data['result']['wstoken']) , true); 
         $this->assertEquals(!empty($data['result']['fbtoken']) , true); 
         $this->assertEquals($data['jsonrpc'] , 2.0); 
+
 
     }
     

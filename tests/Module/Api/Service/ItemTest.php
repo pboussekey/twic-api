@@ -521,7 +521,7 @@ class ItemTest extends AbstractService
         $this->assertEquals($data['result'][1]['conversation_id'] , null); 
         $this->assertEquals(count($data['result'][2]) , 23); 
         $this->assertEquals($data['result'][2]['post_id'] , null); 
-        $this->assertEquals($data['result'][2]['nb_children'] , 1); 
+        $this->assertEquals($data['result'][2]['nb_children'] , 0); 
         $this->assertEquals($data['result'][2]['quiz_id'] , null); 
         $this->assertEquals($data['result'][2]['id'] , 2); 
         $this->assertEquals($data['result'][2]['title'] , "Ma Section 2"); 
@@ -545,7 +545,7 @@ class ItemTest extends AbstractService
         $this->assertEquals($data['result'][2]['conversation_id'] , null); 
         $this->assertEquals(count($data['result'][3]) , 23); 
         $this->assertEquals($data['result'][3]['post_id'] , null); 
-        $this->assertEquals($data['result'][3]['nb_children'] , 1); 
+        $this->assertEquals($data['result'][3]['nb_children'] , 0); 
         $this->assertEquals($data['result'][3]['quiz_id'] , null); 
         $this->assertEquals($data['result'][3]['id'] , 3); 
         $this->assertEquals($data['result'][3]['title'] , "Ma Section 3"); 
@@ -569,7 +569,7 @@ class ItemTest extends AbstractService
         $this->assertEquals($data['result'][3]['conversation_id'] , null); 
         $this->assertEquals(count($data['result'][4]) , 23); 
         $this->assertEquals($data['result'][4]['post_id'] , null); 
-        $this->assertEquals($data['result'][4]['nb_children'] , 1); 
+        $this->assertEquals($data['result'][4]['nb_children'] , 0); 
         $this->assertEquals($data['result'][4]['quiz_id'] , null); 
         $this->assertEquals($data['result'][4]['id'] , 4); 
         $this->assertEquals($data['result'][4]['title'] , "Ma Section 3"); 
@@ -592,8 +592,8 @@ class ItemTest extends AbstractService
         $this->assertEquals($data['result'][4]['is_grade_published'] , null); 
         $this->assertEquals($data['result'][4]['conversation_id'] , null); 
         $this->assertEquals(count($data['result'][5]) , 23); 
-        $this->assertEquals($data['result'][5]['post_id'] , 9); 
-        $this->assertEquals($data['result'][5]['nb_children'] , 1); 
+        $this->assertEquals($data['result'][5]['post_id'] , 10); 
+        $this->assertEquals($data['result'][5]['nb_children'] , 0); 
         $this->assertEquals($data['result'][5]['quiz_id'] , 1); 
         $this->assertEquals($data['result'][5]['id'] , 5); 
         $this->assertEquals($data['result'][5]['title'] , "Updated liveclass 2"); 
@@ -616,6 +616,7 @@ class ItemTest extends AbstractService
         $this->assertEquals($data['result'][5]['is_grade_published'] , null); 
         $this->assertEquals($data['result'][5]['conversation_id'] , 2); 
         $this->assertEquals($data['jsonrpc'] , 2.0); 
+
 
     }
 
