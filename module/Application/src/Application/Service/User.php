@@ -281,9 +281,6 @@ class User extends AbstractService
      */
     public function add($firstname, $lastname, $email, $gender = null, $origin = null, $nationality = null, $sis = null, $password = null, $birth_date = null, $position = null, $organization_id = null, $interest = null, $avatar = null, $roles = null, $timezone = null, $background = null, $nickname = null, $ambassador = null, $address = null)
     {
-        if ($this->getNbrEmailUnique($email) > 0) {
-            throw new JrpcException('duplicate email', - 38001);
-        }
         
         if (! empty($sis)) {
             if ($this->getNbrSisUnique($sis) > 0) {
@@ -459,7 +456,6 @@ class User extends AbstractService
         $m_user->setId($id)
             ->setFirstname($firstname)
             ->setLastname($lastname)
-            ->setEmail($email)
             ->setOrigin(('null' === $origin) ? new IsNull('origin') : $origin)
             ->setGender($gender)
             ->setNationality(('null' === $nationality) ? new IsNull('nationality') : $nationality)
@@ -496,8 +492,25 @@ class User extends AbstractService
                 );
             }
         }
+        if(null !== $email){
+            $tmp_user = $this->getLite($id);
+            if($tmp_user->getInitialEmail() instanceof IsNull){
+                $m_user->setInitialEmail($tmp_user->getEmail());
+            }
+            if($m_user->getEmail() !== $email){
+                $m_user->setSwapEmail($email);
+                $m_user->setSwapToken(uniqid($m_user->getId() . "_", true));
+            }
+            else{
+                $m_user->setSwapEmail(new IsNull('swap_email'));
+                $m_user->setSwapToken(new IsNull('swap_token'));
+            }
+        }
         
         $ret = $this->getMapper()->update($m_user);
+        if(!$m_user->getSwapToken() instanceof IsNull){
+            $this->sendEmailUpdateConf();
+        }
         if ($resetpassword) {
             $this->lostPassword($this->get($id)['email']);
         }
@@ -514,6 +527,67 @@ class User extends AbstractService
         );
         
         return $ret;
+    }
+    
+    /**
+     * Send email for confirm the update of an email address
+     *
+     * @invokable
+     *
+     */
+    public function sendEmailUpdateConf(){
+        
+        $identity = $this->getIdentity();
+        $m_user = $this->getLite($identity['id']);
+        $m_organization = !$m_user->getOrganizationId() instanceof IsNull ? $this->getServicePage()->getLite($m_user->getOrganizationId()) : false;
+        
+        $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
+        $m_organization->getLibelle() : null;
+        $url = sprintf("https://%s%s/confirm-email/%s/%s", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl'], $m_user->getId(), $m_user->getSwapToken());
+        if(!($m_user->getSwapEmail() instanceof IsNull)){
+            try{
+                $this->getServiceMail()->sendTpl(
+                    'tpl_emailupdate', $m_user->getSwapEmail(), [
+                    'firstname' => $m_user->getFirstname(),
+                    'pageurl' => $url
+                    ]
+                );
+            }
+            catch (\Exception $e) {
+                syslog(1, 'Model name does not exist tpl_emailupdate <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode());
+            }
+            return true;
+        }
+        return false;
+    }
+     /**
+     * Confirm the update of an email address
+     *
+     * @invokable
+     *
+     * @param int $id
+     * @param string $token
+     */
+    public function confirmEmailUpdate($id, $token){
+        $m_user = $this->getLite($id);
+        if($token === $m_user->getSwapToken()){
+            $this->getMapper()->update(
+                $this->getModel()
+                   ->setId($id)
+                    ->setEmail($m_user->getSwapEmail())
+                    ->setSwapEmail(new IsNull('swap_email'))
+                    ->setSwapToken(new IsNull('swap_token'))
+            );   
+            $this->deleteCachedIdentityOfUser($id);
+            $this->getServiceEvent()->sendData(
+                $id, 'user.update', [
+                'PU' . $id
+                ]
+            );
+            $this->logout();
+            return true;
+        }
+        return false;
     }
 
     /**

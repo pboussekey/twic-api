@@ -184,6 +184,7 @@ class User extends AbstractMapper
             $select->where(['( CONCAT_WS(" ", user.firstname, user.lastname) LIKE ? ' => ''.$search.'%'])
                 ->where(['CONCAT_WS(" ", user.lastname, user.firstname) LIKE ? ' => ''.$search.'%'], Predicate::OP_OR)
                 ->where(['user.email LIKE ? ' => '%'.$search.'%'], Predicate::OP_OR)
+                ->where(['user.initial_email LIKE ? ' => '%'.$search.'%'], Predicate::OP_OR)
                 ->where(['user.nickname LIKE ? )' => ''.$search.'%'], Predicate::OP_OR);
         }
         if (null !== $contact_state) {
@@ -236,7 +237,8 @@ class User extends AbstractMapper
     {
         $select = $this->tableGateway->getSql()->select();
         $select->columns(array('user$nb_user' => new Expression('COUNT(true)')))
-            ->where(array('user.email' => $email))
+            ->where(array('( user.email = ? ' =>  $email))
+            ->where(array(' user.initial_email = ? ) ' =>  $email), Predicate::OP_OR)
             ->where(array('user.deleted_date IS NULL'));
 
         if (null !== $user) {

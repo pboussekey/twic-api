@@ -19,6 +19,8 @@ class Identity implements IdentityInterface
     protected $suspension_reason;
     protected $has_linkedin;
     protected $cgu_accepted;
+    protected $swap_email;
+
 
     /**
      * @return string $has_linkedin
@@ -235,6 +237,18 @@ class Identity implements IdentityInterface
         
         return $this;
     }
+
+    public function getSwapEmail()
+    {
+        return $this->swap_email;
+    }
+    
+    public function setSwapEmail($swap_email)
+    {
+        $this->swap_email = $swap_email;
+        
+        return $this;
+    }
     
     public function toArray()
     {
@@ -253,6 +267,7 @@ class Identity implements IdentityInterface
             'expiration_date' => $this->expiration_date,
             'has_linkedin' => ($this->linkedin_id !== null),
             'cgu_accepted' => $this->cgu_accepted,
+            'swap_email' => $this->swap_email,
         ];
     }
 }
