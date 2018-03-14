@@ -22,8 +22,10 @@ class Post extends AbstractMapper
         }
 
         $select->columns($columns);
-        $select->join('page', new Expression('page.id = post.t_page_id OR post.uid = CONCAT("PP", page.id)'), [], $select::JOIN_LEFT)
+        $select->join('page', new Expression('page.id = post.t_page_id'), [], $select::JOIN_LEFT)
             ->join('page_user', new Expression('page.id = page_user.page_id AND page_user.user_id = ? ', $me_id), [], $select::JOIN_LEFT)
+            ->join(['uid' => 'page'], new Expression('post.uid = CONCAT("PP", uid.id)'), [], $select::JOIN_LEFT)
+            ->join(['uid_user' => 'page_user'], new Expression('uid.id = uid_user.page_id AND uid_user.user_id = ? ', $me_id), [], $select::JOIN_LEFT)
             ->join('post_subscription', 'post_subscription.post_id=post.id', [], $select::JOIN_LEFT)
             ->join('post_user', 'post_user.post_id=post.id', [], $select::JOIN_LEFT)
             ->where(['(post_user.user_id = ? AND post_user.hidden = 0' => $me_id])
@@ -34,12 +36,6 @@ class Post extends AbstractMapper
             ->group('post.id')
             ->quantifier('DISTINCT');
 
-        // @TODO on part du principe que si il n'y a pas de page_id donc c pour un mur donc on récupére que les post des page publish de type course
-        // sinon si on donne la page_id on considére qui a pu récupérer l'id donc c accéssible (normalement que pour les admins de la page et les admins studnet)
-        // => 06/03/2018 PBO : +1
-        if (null === $page_id) {
-            $select->where(['( page.is_published IS TRUE OR page.type <> "course" OR page.type IS NULL)']);
-        }
 
         $select->join('item', 'post.item_id = item.id', [], $select::JOIN_LEFT)
             ->where(
@@ -63,7 +59,10 @@ class Post extends AbstractMapper
                 ->where(['post.parent_id IS NULL'])
                 ->where(['( page.id IS NULL '])
                 ->where([' page.confidentiality = 0 '], Predicate::OP_OR)
-                ->where([' ((page.type <> "course" OR page.is_published = 1) AND page_user.user_id IS NOT NULL AND page_user.state <> "pending"))'], Predicate::OP_OR);
+                ->where([' ((page.type <> "course" OR page.is_published IS TRUE) AND page_user.user_id IS NOT NULL AND page_user.state <> "pending"))'], Predicate::OP_OR)
+                ->where(['( uid.id IS NULL '])
+                ->where([' uid.confidentiality = 0 '], Predicate::OP_OR)
+                ->where([' ((uid.type <> "course" OR uid.is_published IS TRUE) AND uid_user.user_id IS NOT NULL AND uid_user.state <> "pending"))'], Predicate::OP_OR);
         }
         
         // si c un admin studnet on enleve les type notifs les notif on tous des uid
