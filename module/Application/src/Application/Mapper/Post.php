@@ -63,7 +63,7 @@ class Post extends AbstractMapper
                 ->where(['post.parent_id IS NULL'])
                 ->where(['( page.id IS NULL '])
                 ->where([' page.confidentiality = 0 '], Predicate::OP_OR)
-                ->where([' (page_user.user_id IS NOT NULL AND page_user.state <> "pending"))'], Predicate::OP_OR);
+                ->where([' ((page.type <> "course" OR page.is_published = 1) AND page_user.user_id IS NOT NULL AND page_user.state <> "pending"))'], Predicate::OP_OR);
         }
         
         // si c un admin studnet on enleve les type notifs les notif on tous des uid
@@ -80,7 +80,6 @@ class Post extends AbstractMapper
         if (null !== $page_id) {
             $select->where(['post.t_page_id' => $page_id]);
         }
-        
         return $this->selectWith($select);
     }
 
