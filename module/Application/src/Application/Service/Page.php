@@ -239,7 +239,7 @@ class Page extends AbstractService
             $this->getServicePageDoc()->_add($id, $docs);
         }
 
-        if ($type !== ModelPage::TYPE_ORGANIZATION) {
+        if ($type !== ModelPage::TYPE_ORGANIZATION && $type !== ModelPage::TYPE_COURSE) {
             $sub=[];
             if (null !== $page_id) {
                 $sub[] = 'EP'.$page_id;
