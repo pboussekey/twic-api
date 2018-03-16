@@ -59,10 +59,10 @@ class Post extends AbstractMapper
                 ->where(['post.parent_id IS NULL'])
                 ->where(['( page.id IS NULL '])
                 ->where([' page.confidentiality = 0 '], Predicate::OP_OR)
-                ->where([' ((page.type <> "course" OR page.is_published IS TRUE) AND page_user.user_id IS NOT NULL AND page_user.state <> "pending"))'], Predicate::OP_OR)
+                ->where([' ((page.type <> "course" OR page.is_published IS TRUE OR page_user.role = "admin") AND page_user.user_id IS NOT NULL AND page_user.state <> "pending"))'], Predicate::OP_OR)
                 ->where(['( uid.id IS NULL '])
                 ->where([' uid.confidentiality = 0 '], Predicate::OP_OR)
-                ->where([' ((uid.type <> "course" OR uid.is_published IS TRUE) AND uid_user.user_id IS NOT NULL AND uid_user.state <> "pending"))'], Predicate::OP_OR);
+                ->where([' ((uid.type <> "course" OR uid.is_published IS TRUE OR uid_user.role = "admin") AND uid_user.user_id IS NOT NULL AND uid_user.state <> "pending"))'], Predicate::OP_OR);
         }
         
         // si c un admin studnet on enleve les type notifs les notif on tous des uid
