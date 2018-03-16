@@ -63,7 +63,8 @@ class Page extends AbstractMapper
         $children_id = null,
         $is_member_admin = null,
         $relation_type = null,
-        $exclude = null
+        $exclude = null,
+        $is_published = null
     ) {
         $select = $this->tableGateway->getSql()->select();
         $select->columns(['id', 'title'])
@@ -98,6 +99,12 @@ class Page extends AbstractMapper
             if ($is_member_admin === true) {
                 $select->where(['member.role' => 'admin']);
             }
+        }
+        if(true === $is_published){
+            $select->where('page.is_published IS TRUE');
+        }
+        else if( false === $is_published){
+            $select->where('page.is_published IS FALSE');
         }
 
         if (null !== $search) {
