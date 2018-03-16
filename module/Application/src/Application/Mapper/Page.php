@@ -67,6 +67,7 @@ class Page extends AbstractMapper
     ) {
         $select = $this->tableGateway->getSql()->select();
         $select->columns(['id', 'title'])
+            ->join('post',new Expression('post.t_page_id =  page.id AND post.user_id = ?' , $me), ['page$last_post' => new Expression('MAX(post.created_date)')], $select::JOIN_LEFT)
             ->where(['page.deleted_date IS NULL'])
             ->quantifier('DISTINCT');
 
@@ -144,8 +145,7 @@ class Page extends AbstractMapper
             // retourne que les couses publié ou tous le reste
             $select->where(['( page.is_published IS TRUE OR page.type <> "course" OR ( page_user.role = "admin" AND page_user.user_id = ? ) )' => $me]);
         }
-        $select->order(['page.start_date' => 'DESC'])
-            ->group('page.id');
+        $select->group('page.id');
         
         return $this->selectWith($select);
     }
@@ -170,7 +170,8 @@ class Page extends AbstractMapper
                 'is_published',
                 'website',
                 'page$start_date' => new Expression('DATE_FORMAT(page.start_date, "%Y-%m-%dT%TZ")'),
-                'page$end_date' => new Expression('DATE_FORMAT(page.end_date, "%Y-%m-%dT%TZ")')
+                'page$end_date' => new Expression('DATE_FORMAT(page.end_date, "%Y-%m-%dT%TZ")'),
+                'page$nb_followers' => new Expression('COUNT(DISTINCT subscription.user_id)')
             ]
         )->join(
             ['state' => $this->getPageStatus($me)], 'state.page_id = page.id', [
@@ -179,6 +180,7 @@ class Page extends AbstractMapper
             ], $select::JOIN_LEFT
         )
             ->join(['p_user' => 'user'], 'p_user.id = page.owner_id', ['id', 'firstname', 'lastname', 'avatar', 'ambassador'], $select::JOIN_LEFT)
+            ->join('subscription', new Expression('subscription.libelle = CONCAT("PP", page.id)'), [], $select::JOIN_LEFT)
             ->join(['page_address' => 'address'], 'page.address_id = page_address.id', ['page_address!id' => 'id','street_no','street_type','street_name','floor','door','apartment','building','longitude','latitude','timezone', 'full_address'], $select::JOIN_LEFT)
             ->join(['page_address_division' => 'division'], 'page_address_division.id=page_address.division_id', ['page_address_division!id' => 'id','name'], $select::JOIN_LEFT)
             ->join(['page_address_city' => 'city'], 'page_address_city.id=page_address.city_id', ['school_address_city!id' => 'id','name'], $select::JOIN_LEFT)
@@ -395,5 +397,6 @@ class Page extends AbstractMapper
         
         return $this->selectWith($select);
     }
+    
 
 }

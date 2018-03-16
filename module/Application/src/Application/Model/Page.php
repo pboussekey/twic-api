@@ -33,6 +33,8 @@ class Page extends BasePage
     protected $median;
     protected $percentile;
     protected $count;
+    protected $last_post;
+    protected $nb_followers;
 
     public function exchangeArray(array &$data)
     {
@@ -197,6 +199,55 @@ class Page extends BasePage
     public function setCount($count)
     {
         $this->count = $count;
+
+        return $this;
+    }
+    
+
+    /**
+     * Get last post date
+     *
+     * @return date
+     */
+    public function getLastPost()
+    {
+        return $this->last_post;
+    }
+
+    /**
+     * Set the value of last post date
+     *
+     * @param date count
+     *
+     * @return self
+     */
+    public function setLastPost($last_post)
+    {
+        $this->last_post = $last_post;
+
+        return $this;
+    }
+    
+    /**
+     * Get last nb followers
+     *
+     * @return int
+     */
+    public function getNbFollowers()
+    {
+        return $this->nb_followers;
+    }
+
+    /**
+     * Set number of followers
+     *
+     * @param nb_followers
+     *
+     * @return self
+     */
+    public function setNbFollowers($nb_followers)
+    {
+        $this->nb_followers = $nb_followers;
 
         return $this;
     }

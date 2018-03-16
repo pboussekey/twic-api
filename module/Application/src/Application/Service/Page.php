@@ -917,9 +917,6 @@ class Page extends AbstractService
         return $this->getMapper()->getCount($identity['id'], $interval, $start_date, $end_date, $page_id, $type);
     }
 
-
-
-
     public function getByConversationId($conversation_id)
     {
         return $this->getMapper()->select($this->getModel()->setConversationId($conversation_id))->current();
