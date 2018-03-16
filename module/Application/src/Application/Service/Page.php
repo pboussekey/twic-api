@@ -27,7 +27,7 @@ class Page extends AbstractService
     {
         $identity = $this->getServiceUser()->getIdentity();
         $ar_pu = $this->getServicePageUser()->getListByPage($id, ModelPageUser::ROLE_ADMIN);
-        return (in_array($identity['id'], $ar_pu[$id]));
+        return (in_array($identity['id'], $ar_pu[$id]) || $this->getServiceUser()->isStudnetAdmin());
     }
     
     /**
