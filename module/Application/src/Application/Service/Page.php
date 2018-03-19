@@ -25,9 +25,12 @@ class Page extends AbstractService
     
     public function isAdmin($id)
     {
+        if($this->getServiceUser()->isStudnetAdmin()){
+            return true;
+        }
         $identity = $this->getServiceUser()->getIdentity();
         $ar_pu = $this->getServicePageUser()->getListByPage($id, ModelPageUser::ROLE_ADMIN);
-        return (in_array($identity['id'], $ar_pu[$id]) || $this->getServiceUser()->isStudnetAdmin());
+        return (in_array($identity['id'], $ar_pu[$id]));
     }
     
     /**
@@ -641,14 +644,14 @@ class Page extends AbstractService
         return $this->getMapper()->select($this->getModel()->setId($id)->setConversationId($conversation_id))->current();
     }
     
-      /**
-       * Get list suscribed users
-       *
-       * @invokable
-       *
-       * @param  int $id
-       * @return array
-       */
+    /**
+    * Get list suscribed users
+    *
+    * @invokable
+    *
+    * @param  int $id
+    * @return array
+    */
     public function getListSuscribersId($id, $filter = null)
     {
         return $this->getServiceSubscription()->getListUserId('PP'.$id, $filter);
