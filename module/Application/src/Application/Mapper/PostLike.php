@@ -10,11 +10,12 @@ use Zend\Db\Sql\Predicate\Predicate;
 class PostLike extends AbstractMapper
 {
     
-    public function getCount($me, $interval, $start_date = null, $end_date = null, $page_id = null)
+    public function getCount($me, $interval, $start_date = null, $end_date = null, $page_id = null, $date_offset = 0)
     {
         $select = $this->tableGateway->getSql()->select();
-        $select->columns([ 'post_like$created_date' => new Expression('SUBSTRING(post_like.created_date,1,'.$interval.')'), 'post_like$count' => new Expression('COUNT(DISTINCT post_like.id)')])
-            ->group(new Expression('SUBSTRING(post_like.created_date,1,'.$interval.')'));
+        $select->columns([ 'post_like$created_date' => new Expression('SUBSTRING(DATE_SUB(post_like.created_date, INTERVAL '.(-$date_offset). ' HOUR) ,1,'.$interval.')'), 
+            'post_like$count' => new Expression('COUNT(DISTINCT post_like.id)')])
+            ->group(new Expression('SUBSTRING(DATE_SUB(post_like.created_date, INTERVAL '.(-$date_offset). ' HOUR) ,1,'.$interval.')'));
 
         if (null != $start_date) {
             $select->where(['post_like.created_date >= ? ' => $start_date]);

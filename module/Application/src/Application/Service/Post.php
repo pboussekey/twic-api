@@ -840,10 +840,11 @@ class Post extends AbstractService
       * @param string $interval_date
       * @param int $parent
       * @param int|array $page_id
+      * @param int $date_offset
       *
       * @return array
       */
-    public function getCount( $start_date = null, $end_date = null, $interval_date = 'D', $parent = null, $page_id  = null)
+    public function getCount( $start_date = null, $end_date = null, $interval_date = 'D', $parent = null, $page_id  = null, $date_offset = 0)
     {
         
         if(null !== $page_id && !is_array($page_id)){
@@ -852,7 +853,7 @@ class Post extends AbstractService
         $interval = $this->getServiceActivity()->interval($interval_date);
         $identity = $this->getServiceUser()->getIdentity();
         
-        return $this->getMapper()->getCount($identity['id'], $interval, $start_date, $end_date, $page_id, $parent);
+        return $this->getMapper()->getCount($identity['id'], $interval, $start_date, $end_date, $page_id, $parent, $date_offset);
     }
 
     /**
