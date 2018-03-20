@@ -139,7 +139,8 @@ class Message extends AbstractService
                             'doc' => 'document'
                         ],
                     ]],
-                    $gcm_notification
+                    $gcm_notification,
+                    Fcm::PACKAGE_TWIC_MESSENGER
                 );
             }
         }

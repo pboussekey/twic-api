@@ -244,7 +244,7 @@ class Post extends AbstractService
                                     ->setTag("PAGEPOST".$t_page_id)
                                     ->setBody("Someone posted on the course ". $m_page->getTitle());
                                 
-                                $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification);
+                                $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification, Fcm::PACKAGE_TWIC_APP);
                             }
                             catch (\Exception $e) {
                                 syslog(1, 'Model name does not exist Post<MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode());
@@ -286,7 +286,7 @@ class Post extends AbstractService
                                     ->setTag("PAGEPOST".$t_page_id)
                                     ->setBody("Someone posted in ". $m_page->getTitle());
                                 
-                                $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification);
+                                $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification, Fcm::PACKAGE_TWIC_APP);
                             }
                             catch (\Exception $e) {
                                 syslog(1, 'Model name does not exist Post<MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode());
@@ -325,7 +325,7 @@ class Post extends AbstractService
                         ->setTag("PAGECOMMENT".$t_page_id)
                         ->setBody("Someone commented on your post");
                     
-                    $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification);
+                    $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification, Fcm::PACKAGE_TWIC_APP);
                 }
                 catch (\Exception $e) {
                     syslog(1, 'Model name does not exist post comment <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode());
@@ -616,7 +616,7 @@ class Post extends AbstractService
                         ->setTag("PAGECOMMENT".$m_page->getId())
                         ->setBody("Someone liked your post");
 
-                    $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification);
+                    $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification, Fcm::PACKAGE_TWIC_APP);
                 }
             }
             catch (\Exception $e) {
