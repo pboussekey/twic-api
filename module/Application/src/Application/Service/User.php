@@ -867,11 +867,12 @@ class User extends AbstractService
                 $id
             );
         }
-        $m_user = $this->getLite($id);
-        if(!$this->getServicePage()->isAdmin($m_user->getOrganizationId())) {
-            throw new JrpcException('Unauthorized operation user.delete', -38003);
-        }
         foreach ($id as $i) {
+            
+            $tmp_user = $this->getLite($i);
+            if(!$this->getServicePage()->isAdmin($tmp_user->getOrganizationId())) {
+                throw new JrpcException('Unauthorized operation user.delete', -38003);
+            }
             $m_user = $this->getModel();
             $m_user->setId($i)->setDeletedDate((new DateTime('now', new DateTimeZone('UTC')))->format('Y-m-d H:i:s'))->setIsActive(0)->setLinkedinId(new IsNull());
             
