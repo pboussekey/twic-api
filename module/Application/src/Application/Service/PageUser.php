@@ -92,6 +92,29 @@ class PageUser extends AbstractService
             if (($state === ModelPageUser::STATE_MEMBER || $state === ModelPageUser::STATE_PENDING) && ModelPage::TYPE_ORGANIZATION === $m_page->getType() && $m_user->getOrganizationId() instanceof IsNull) {
                 $this->getServiceUser()->_update($uid, null, null, null, null, null, null, null, null, null, $page_id);
             }
+            if ($state === ModelPageUser::STATE_PENDING && ModelPage::TYPE_ORGANIZATION !== $m_page->getType()) {
+                $arr_user = $this->getListByPage($page_id, ModelPageUser::ROLE_ADMIN)[$page_id];
+                $sub = [];
+                foreach($arr_user as $user){
+                    $sub[] = 'M'.$user;
+                }
+                $this->getServicePost()->addSys(
+                    'PPM'.$page_id.'_'.$uid,
+                    '',
+                    [
+                    'state' => 'pending',
+                    'user' => $uid,
+                    'page' => $page_id,
+                    'type' => $m_page->getType(),
+                    ],
+                    'pending',
+                    $sub,
+                    null,
+                    $page_id,
+                    null,
+                    'page'
+                );
+            }
             // inviter only event
             if ($state === ModelPageUser::STATE_INVITED) {
                 $this->getServicePost()->addSys(

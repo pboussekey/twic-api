@@ -160,7 +160,6 @@ class Post extends AbstractMapper
         else if(1 === $parent) {
             $select->where('post.parent_id IS NOT NULL');
         }
-        syslog(1, $this->printSql($select));
         return $this->selectWith($select);
     }
 }
