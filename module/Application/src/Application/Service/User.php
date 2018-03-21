@@ -867,8 +867,8 @@ class User extends AbstractService
                 $id
             );
         }
-        
-        if(!$this->isStudnetAdmin()) {
+        $m_user = $this->getLite($id);
+        if(!$this->getServicePage()->isAdmin($m_user->getOrganizationId())) {
             throw new JrpcException('Unauthorized operation user.delete', -38003);
         }
         foreach ($id as $i) {
