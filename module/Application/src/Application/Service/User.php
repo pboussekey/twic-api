@@ -522,6 +522,7 @@ class User extends AbstractService
         $this->deleteCachedIdentityOfUser($id);
         $this->getServiceEvent()->sendData(
             $id, 'user.update', [
+            'M'.$id,
             'PU' . $id
             ]
         );
@@ -583,10 +584,9 @@ class User extends AbstractService
             $this->deleteCachedIdentityOfUser($id);
             $this->getServiceEvent()->sendData(
                 $id, 'user.update', [
-                'PU' . $id
+                    'M' . $id
                 ]
             );
-            $this->logout();
             return true;
         }
         return false;

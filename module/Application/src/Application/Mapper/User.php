@@ -39,6 +39,10 @@ class User extends AbstractMapper
             'user$contact_state' => $this->getSelectContactState($me),
             'user$welcome_date' =>  new Expression('DATE_FORMAT(DATE_ADD(user.welcome_date, INTERVAL user.welcome_delay DAY), "%Y-%m-%dT%TZ")')
         ];
+        
+        if($user_id === $me || (is_array($user_id) && count($user_id) === 1 && in_array($me, $user_id))){
+            $columns[] = 'swap_email';
+        }
 
 
         $select = $this->tableGateway->getSql()->select();
