@@ -560,6 +560,8 @@ class User extends AbstractService
         }
         return false;
     }
+    
+    
      /**
      * Confirm the update of an email address
      *
@@ -588,6 +590,22 @@ class User extends AbstractService
             return true;
         }
         return false;
+    }
+    
+       /**
+     * Cancel the update of an email address
+     *
+     * @invokable
+     */
+    public function cancelEmailUpdate(){
+        $identity = $this->getIdentity();
+        $this->getMapper()->update(
+            $this->getModel()
+               ->setId($identity['id'])
+                ->setSwapEmail(new IsNull('swap_email'))
+                ->setSwapToken(new IsNull('swap_token'))
+        );   
+        return true;
     }
 
     /**
