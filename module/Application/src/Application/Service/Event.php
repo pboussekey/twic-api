@@ -174,7 +174,7 @@ class Event extends AbstractService
      * @param  array $sub
      * @return number
      */
-    public function userPublication($sub, $post_id, $type = 'user', $ev = 'publication')
+    public function userPublication($sub, $post_id, $type = 'user', $ev = 'publication', $src = null)
     {
         $user_id = $this->getServiceUser()->getIdentity()['id'];
         $data_post = $this->getDataPost($post_id);
@@ -183,7 +183,7 @@ class Event extends AbstractService
         if (is_string($ev)) {
             $event .= '.'.$ev;
         }
-        return $this->create($event, $this->getDataUser(), $data_post, $sub, self::TARGET_TYPE_USER, $user_id);
+        return $this->create($event, $this->getDataUser($src), $data_post, $sub, self::TARGET_TYPE_USER, $user_id);
     }
 
 

@@ -129,20 +129,21 @@ class Item extends AbstractMapper
             'participants',
             'conversation_id',
             'is_grade_published',
-            'item$library_id' => new Expression("IF(`page_user`.`role`='admin' OR `item`.`is_grade_published`=true OR (`item`.`is_available`=1 OR (`item`.`is_available` = 3 AND (( `item`.`start_date` IS NULL AND `item`.`end_date` IS NULL )OR( `item`.`start_date` < UTC_TIMESTAMP() AND `item`.`end_date` IS NULL )OR( `item`.`start_date` IS NULL AND `item`.`end_date` > UTC_TIMESTAMP()) OR (UTC_TIMESTAMP() BETWEEN `item`.`start_date` AND `item`.`end_date` )))), `item`.`library_id`, NULL)"),
-            'item$post_id' =>    new Expression("IF(`page_user`.`role`='admin' OR `item`.`is_grade_published`=true OR (`item`.`is_available`=1 OR (`item`.`is_available` = 3 AND (( `item`.`start_date` IS NULL AND `item`.`end_date` IS NULL )OR( `item`.`start_date` < UTC_TIMESTAMP() AND `item`.`end_date` IS NULL )OR( `item`.`start_date` IS NULL AND `item`.`end_date` > UTC_TIMESTAMP()) OR (UTC_TIMESTAMP() BETWEEN `item`.`start_date` AND `item`.`end_date` )))), `post`.`id`, NULL)"),
-            'item$quiz_id' =>    new Expression("IF(`page_user`.`role`='admin' OR `item`.`is_grade_published`=true OR (`item`.`is_available`=1 OR (`item`.`is_available` = 3 AND (( `item`.`start_date` IS NULL AND `item`.`end_date` IS NULL )OR( `item`.`start_date` < UTC_TIMESTAMP() AND `item`.`end_date` IS NULL )OR( `item`.`start_date` IS NULL AND `item`.`end_date` > UTC_TIMESTAMP()) OR (UTC_TIMESTAMP() BETWEEN `item`.`start_date` AND `item`.`end_date` )))), `quiz`.`id`, NULL)"),
-            'item$text' =>       new Expression("IF(`page_user`.`role`='admin' OR `item`.`is_grade_published`=true OR (`item`.`is_available`=1 OR (`item`.`is_available` = 3 AND (( `item`.`start_date` IS NULL AND `item`.`end_date` IS NULL )OR( `item`.`start_date` < UTC_TIMESTAMP() AND `item`.`end_date` IS NULL )OR( `item`.`start_date` IS NULL AND `item`.`end_date` > UTC_TIMESTAMP()) OR (UTC_TIMESTAMP() BETWEEN `item`.`start_date` AND `item`.`end_date` )))), `item`.`text`, NULL)")
+            'item$library_id' => $is_admin ? new Expression('item.library_id') : new Expression("IF(`page_user`.`role`='admin' OR `item`.`is_grade_published`=true OR (`item`.`is_available`=1 OR (`item`.`is_available` = 3 AND (( `item`.`start_date` IS NULL AND `item`.`end_date` IS NULL )OR( `item`.`start_date` < UTC_TIMESTAMP() AND `item`.`end_date` IS NULL )OR( `item`.`start_date` IS NULL AND `item`.`end_date` > UTC_TIMESTAMP()) OR (UTC_TIMESTAMP() BETWEEN `item`.`start_date` AND `item`.`end_date` )))), `item`.`library_id`, NULL)"),
+            'item$post_id' =>    $is_admin ? new Expression('post.id') : new Expression("IF(`page_user`.`role`='admin' OR `item`.`is_grade_published`=true OR (`item`.`is_available`=1 OR (`item`.`is_available` = 3 AND (( `item`.`start_date` IS NULL AND `item`.`end_date` IS NULL )OR( `item`.`start_date` < UTC_TIMESTAMP() AND `item`.`end_date` IS NULL )OR( `item`.`start_date` IS NULL AND `item`.`end_date` > UTC_TIMESTAMP()) OR (UTC_TIMESTAMP() BETWEEN `item`.`start_date` AND `item`.`end_date` )))), `post`.`id`, NULL)"),
+            'item$quiz_id' =>    $is_admin ? new Expression('quiz.id') : new Expression("IF(`page_user`.`role`='admin' OR `item`.`is_grade_published`=true OR (`item`.`is_available`=1 OR (`item`.`is_available` = 3 AND (( `item`.`start_date` IS NULL AND `item`.`end_date` IS NULL )OR( `item`.`start_date` < UTC_TIMESTAMP() AND `item`.`end_date` IS NULL )OR( `item`.`start_date` IS NULL AND `item`.`end_date` > UTC_TIMESTAMP()) OR (UTC_TIMESTAMP() BETWEEN `item`.`start_date` AND `item`.`end_date` )))), `quiz`.`id`, NULL)"),
+            'item$text' =>       $is_admin ? new Expression('item.text') : new Expression("IF(`page_user`.`role`='admin' OR `item`.`is_grade_published`=true OR (`item`.`is_available`=1 OR (`item`.`is_available` = 3 AND (( `item`.`start_date` IS NULL AND `item`.`end_date` IS NULL )OR( `item`.`start_date` < UTC_TIMESTAMP() AND `item`.`end_date` IS NULL )OR( `item`.`start_date` IS NULL AND `item`.`end_date` > UTC_TIMESTAMP()) OR (UTC_TIMESTAMP() BETWEEN `item`.`start_date` AND `item`.`end_date` )))), `item`.`text`, NULL)")
             ]
         )
-            ->join('page_user', 'page_user.page_id=item.page_id', [])
             ->join('post', 'item.id=post.item_id', [], $select::JOIN_LEFT)
 	    ->join('quiz', 'item.id=quiz.item_id', [], $select::JOIN_LEFT)
             ->where(['item.id' => $id])
             ->group('item.id');
 
 	if(!$is_admin) {
-	    $select->where(['page_user.user_id' => $me])
+	    $select
+                ->join('page_user', 'page_user.page_id=item.page_id', [])
+                ->where(['page_user.user_id' => $me])
                 ->join(['children'=> 'item'], 
                 new Expression('item.id = children.parent_id AND (children.is_published IS TRUE OR page_user.role = "admin")' ), 
                 [], $select::JOIN_LEFT)  
