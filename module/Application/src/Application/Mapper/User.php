@@ -81,11 +81,12 @@ class User extends AbstractMapper
         $contact_affinity = new Select(['user_contacts' => 'contact']);
         $contact_affinity->columns([
             'user_id' => new Expression(' CASE WHEN contact_users.contact_id = user_contacts.user_id THEN contact_users.user_id ELSE contact_users.contact_id END'), 
-            'affinity' => new Expression('SUM(CASE WHEN user_contacts.user_id = contact_users.contact_id  THEN 20 ELSE 1 END)')
+            'affinity' => new Expression('SUM(CASE WHEN user_contacts.user_id = contact_users.contact_id THEN 1000 ELSE 1 END)')
         ])
         ->join(['contact_users' => 'contact'], 'user_contacts.contact_id = contact_users.user_id',[])
         ->where(['user_contacts.user_id = ?' => $user_id]) 
         ->where('user_contacts.accepted_date IS NOT NULL AND contact_users.accepted_date IS NOT NULL')
+        ->where('user_contacts.deleted_date IS NULL AND contact_users.deleted_date IS NULL')
         ->group('contact_users.user_id');
         
         $select = $this->tableGateway->getSql()->select();

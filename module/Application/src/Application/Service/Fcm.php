@@ -17,6 +17,7 @@ class Fcm extends AbstractService
     const PREFIX='sess_';
     const ACTIVITY='FCM_PLUGIN_ACTIVITY';
     const PACKAGE_TWIC_MESSENGER='com.twic.messenger';
+    const PACKAGE_TWIC_APP='com.thestudnet.app';
 
     /**
      * Fcm Client
@@ -55,12 +56,9 @@ class Fcm extends AbstractService
     public function register($uuid, $registration_id, $package = null)
     {
         $res_session = $this->session->get($uuid);
-        syslog(1, 'REGISTER PHONE '.$uuid);
         foreach ($res_session as $m_session) {
             // if c un autre uuid que moi on suprime la session puis le champ bdd
-            syslog(1, $this->token." != ".$m_session->getToken()." ???");
             if ($this->token !== $m_session->getToken()) {
-                syslog(1, 'DELETE SESSIONS WITH TOKEN '.$m_session->getToken());
                 $this->session->delete(null, $m_session->getToken());
             }
         }
@@ -101,7 +99,6 @@ class Fcm extends AbstractService
                 // LOG FUKING FCM ERROR ... HELPING FUTURE DEBUG...
                 foreach ( $response->getResults() as $token => $result ){
                     if(!empty($result['error']) ) {
-                        syslog(1, "FCM ERROR::".$result['error'].'#TOKEN::'.$token);
                     }
                 }
                 return $response;

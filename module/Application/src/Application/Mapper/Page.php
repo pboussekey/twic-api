@@ -63,10 +63,12 @@ class Page extends AbstractMapper
         $children_id = null,
         $is_member_admin = null,
         $relation_type = null,
-        $exclude = null
+        $exclude = null,
+        $is_published = null
     ) {
         $select = $this->tableGateway->getSql()->select();
         $select->columns(['id', 'title'])
+            ->join('post',new Expression('post.t_page_id = page.id AND post.user_id = ?' , $me), ['page$last_post' => new Expression('MAX(post.created_date)')], $select::JOIN_LEFT)
             ->where(['page.deleted_date IS NULL'])
             ->quantifier('DISTINCT');
 
@@ -97,6 +99,12 @@ class Page extends AbstractMapper
             if ($is_member_admin === true) {
                 $select->where(['member.role' => 'admin']);
             }
+        }
+        if(true === $is_published){
+            $select->where('page.is_published IS TRUE');
+        }
+        else if( false === $is_published){
+            $select->where('page.is_published IS FALSE');
         }
 
         if (null !== $search) {
@@ -144,8 +152,7 @@ class Page extends AbstractMapper
             // retourne que les couses publié ou tous le reste
             $select->where(['( page.is_published IS TRUE OR page.type <> "course" OR ( page_user.role = "admin" AND page_user.user_id = ? ) )' => $me]);
         }
-        $select->order(['page.start_date' => 'DESC'])
-            ->group('page.id');
+        $select->group('page.id');
         
         return $this->selectWith($select);
     }
@@ -364,12 +371,12 @@ class Page extends AbstractMapper
         return $this->selectWith($select);
     }
     
-    public function getCount($me, $interval, $start_date = null, $end_date = null, $page_id = null, $type = null)
+    public function getCount($me, $interval, $start_date = null, $end_date = null, $page_id = null, $type = null, $date_offset = 0)
     {
         $select = $this->tableGateway->getSql()->select();
-        $select->columns([ 'page$created_date' => new Expression('SUBSTRING(page.created_date,1,'.$interval.')'), 'page$count' => new Expression('COUNT(DISTINCT page.id)'), 'type'])
+        $select->columns([ 'page$created_date' => new Expression('SUBSTRING(DATE_SUB(page.created_date, INTERVAL '.(-$date_offset). ' HOUR ),1,'.$interval.')'), 'page$count' => new Expression('COUNT(DISTINCT page.id)'), 'type'])
             ->where('page.deleted_date IS NULL')
-            ->group([new Expression('SUBSTRING(created_date,1,'.$interval.')'), 'page.type']);
+            ->group([ new Expression('SUBSTRING(DATE_SUB(page.created_date, INTERVAL '.(-$date_offset). ' HOUR ),1,'.$interval.')'), 'page.type']);
 
         if (null != $start_date) {
             $select->where(['page.created_date >= ? ' => $start_date]);
@@ -392,8 +399,8 @@ class Page extends AbstractMapper
                 ->literal(' page_relation.parent_id IS NULL')->UNNEST->OR
                 ->in(' page_relation.parent_id',$page_id)->UNNEST;
         }
-        
         return $this->selectWith($select);
     }
+    
 
 }

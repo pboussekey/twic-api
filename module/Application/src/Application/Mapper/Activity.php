@@ -54,7 +54,6 @@ class Activity extends AbstractMapper
         if (null != $user_id) {
             $select->where(['user_id' => $user_id]);
         } 
-
         return $this->selectWith($select);
     }
 
@@ -136,17 +135,17 @@ class Activity extends AbstractMapper
         return $this->selectWith($select);
     }
     
-    public function getVisitsCount($me, $interval, $start_date = null, $end_date = null, $page_id = null)
+    public function getVisitsCount($me, $interval, $start_date = null, $end_date = null, $page_id = null, $date_offset = 0)
     {
         $select = $this->tableGateway->getSql()->select();
      
             $select->columns([ 
-                'activity$date' => new Expression('SUBSTRING(activity.date,1,'.$interval.')'), 
+                'activity$date' => new Expression('SUBSTRING(DATE_SUB(activity.date, INTERVAL '.(-$date_offset).' HOUR),1,'.$interval.')'), 
                 'activity$count' => new Expression('COUNT(DISTINCT SUBSTRING(activity.date,1,10), activity.user_id)')]
              )
             ->join('user', 'activity.user_id = user.id', [])
             ->group(
-                new Expression('SUBSTRING(activity.date,1,'.$interval.')')
+                new Expression('SUBSTRING(DATE_SUB(activity.date, INTERVAL '.(-$date_offset).' HOUR),1,'.$interval.')')
             )
             ->join('page_user', 'activity.user_id = page_user.user_id', [])
             ->where(['page_user.role = ?' => ModelPageUser::ROLE_USER])
@@ -173,18 +172,18 @@ class Activity extends AbstractMapper
         return $this->selectWith($select);
     }
     
-     public function getDocumentsOpeningCount($me, $interval, $start_date = null, $end_date = null, $page_id = null)
+     public function getDocumentsOpeningCount($me, $interval, $start_date = null, $end_date = null, $page_id = null, $date_offset = 0)
     {
         $select = $this->tableGateway->getSql()->select();
      
             $select->columns([ 
                 'activity$date' => new Expression('SUBSTRING(activity.date,1,10)'), 
-                'activity$count' => new Expression('COUNT(DISTINCT SUBSTRING(activity.date,1,10), library.id, activity.user_id, activity.event)')
+                'activity$count' => new Expression('COUNT(DISTINCT SUBSTRING(DATE_SUB(activity.date, INTERVAL '.(-$date_offset).' HOUR),1,10), library.id, activity.user_id, activity.event)')
                 ]
              )
             ->join('library', new Expression('activity.object_id = library.id'), ['activity$id' => 'id', 'activity$object_name' => 'name'])
             ->group(
-                new Expression('event, library.id, SUBSTRING(activity.date,1,'.$interval.')')
+                new Expression('event, library.id, SUBSTRING(DATE_SUB(activity.date, INTERVAL '.(-$date_offset).' HOUR),1,'.$interval.')')
             )
              ->join('page_user', 'activity.user_id = page_user.user_id', [])
             ->where(['page_user.role = ?' => ModelPageUser::ROLE_USER])
@@ -211,7 +210,7 @@ class Activity extends AbstractMapper
         return $this->selectWith($select);
     }
     
-     public function getDocumentsOpeningPrc( $start_date = null, $end_date = null,  $page_id = null, $library_id = null)
+     public function getDocumentsOpeningPrc( $start_date = null, $end_date = null,  $page_id = null, $library_id = null, $date_offset = 0)
     {
         $users_select = new Select('page_user');
         $users_select->columns(['count' => new Expression('COUNT(DISTINCT page_user.user_id)')])
@@ -221,7 +220,7 @@ class Activity extends AbstractMapper
         
         $select = $this->tableGateway->getSql()->select();
         $select->columns([ 'activity$object_data' => 
-            new Expression('CONCAT("{ \"count\" : ", COUNT(DISTINCT SUBSTRING(activity.date,1, 10), activity.user_id),", \"visitors\" : ",COUNT(DISTINCT activity.user_id),", \"total\" : ", users.count, "}")'), 
+            new Expression('CONCAT("{ \"count\" : ", COUNT(DISTINCT SUBSTRING(DATE_SUB(activity.date, INTERVAL '.(-$date_offset).' HOUR),1, 10), activity.user_id),", \"visitors\" : ",COUNT(DISTINCT activity.user_id),", \"total\" : ", users.count, "}")'), 
             'activity$target_name' => new Expression('IF(item.id IS NOT NULL, "MEDIA", "MATERIAL")')])
             ->join(['users' => $users_select], new Expression('1'), [])
             ->join('library', new Expression('activity.object_id = library.id'), ['activity$id' => 'id', 'activity$object_name' => 'name'], $select::JOIN_LEFT)

@@ -25,6 +25,9 @@ class Page extends AbstractService
     
     public function isAdmin($id)
     {
+        if($this->getServiceUser()->isStudnetAdmin()){
+            return true;
+        }
         $identity = $this->getServiceUser()->getIdentity();
         $ar_pu = $this->getServicePageUser()->getListByPage($id, ModelPageUser::ROLE_ADMIN);
         return (in_array($identity['id'], $ar_pu[$id]));
@@ -239,7 +242,7 @@ class Page extends AbstractService
             $this->getServicePageDoc()->_add($id, $docs);
         }
 
-        if ($type !== ModelPage::TYPE_ORGANIZATION) {
+        if ($type !== ModelPage::TYPE_ORGANIZATION && $type !== ModelPage::TYPE_COURSE) {
             $sub=[];
             if (null !== $page_id) {
                 $sub[] = 'EP'.$page_id;
@@ -523,7 +526,7 @@ class Page extends AbstractService
                             ->setTag("PAGECOMMENT".$t_page_id)
                             ->setBody("You have just been added to the course " . $tmp_m_page->getTitle());
                         
-                        $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification);
+                        $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification, Fcm::PACKAGE_TWIC_APP);
                     }
                     catch (\Exception $e) {
                         syslog(1, 'Model name does not exist Page publish <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode());
@@ -641,14 +644,14 @@ class Page extends AbstractService
         return $this->getMapper()->select($this->getModel()->setId($id)->setConversationId($conversation_id))->current();
     }
     
-      /**
-       * Get list suscribed users
-       *
-       * @invokable
-       *
-       * @param  int $id
-       * @return array
-       */
+    /**
+    * Get list suscribed users
+    *
+    * @invokable
+    *
+    * @param  int $id
+    * @return array
+    */
     public function getListSuscribersId($id, $filter = null)
     {
         return $this->getServiceSubscription()->getListUserId('PP'.$id, $filter);
@@ -770,7 +773,8 @@ class Page extends AbstractService
         $tags = null,
         $children_id = null,
         $is_member_admin = null, // get only les meber admin true/false
-        $exclude = null
+        $exclude = null, 
+        $is_published = null
     ) {
         if (empty($tags)) {
             $tags = null;
@@ -779,7 +783,7 @@ class Page extends AbstractService
         $is_admin = (in_array(ModelRole::ROLE_ADMIN_STR, $identity['roles']));
 
         $mapper = $this->getMapper()->usePaginator($filter);
-        $res_page = $mapper->getListId($identity['id'], $parent_id, $type, $start_date, $end_date, $member_id, $strict_dates, $is_admin, $search, $tags, $children_id, $is_member_admin, null, $exclude);
+        $res_page = $mapper->getListId($identity['id'], $parent_id, $type, $start_date, $end_date, $member_id, $strict_dates, $is_admin, $search, $tags, $children_id, $is_member_admin, null, $exclude, $is_published);
 
         $ar_page = [];
         foreach ($res_page as $m_page) {
@@ -902,10 +906,11 @@ class Page extends AbstractService
       * @param string       $interval_date
       * @param array|string $type
       * @param int|array $page_id
+      * @param int $date_offset
       *
       * @return array
       */
-    public function getCount( $start_date = null, $end_date = null, $interval_date = 'D', $type = null, $page_id  = null)
+    public function getCount( $start_date = null, $end_date = null, $interval_date = 'D', $type = null, $page_id  = null, $date_offset = 0)
     {
         
         if(null !== $page_id && !is_array($page_id)){
@@ -914,11 +919,8 @@ class Page extends AbstractService
         $interval = $this->getServiceActivity()->interval($interval_date);
         $identity = $this->getServiceUser()->getIdentity();
         
-        return $this->getMapper()->getCount($identity['id'], $interval, $start_date, $end_date, $page_id, $type);
+        return $this->getMapper()->getCount($identity['id'], $interval, $start_date, $end_date, $page_id, $type, $date_offset);
     }
-
-
-
 
     public function getByConversationId($conversation_id)
     {

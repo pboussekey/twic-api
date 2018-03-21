@@ -139,7 +139,8 @@ class Message extends AbstractService
                             'doc' => 'document'
                         ],
                     ]],
-                    $gcm_notification
+                    $gcm_notification,
+                    Fcm::PACKAGE_TWIC_MESSENGER
                 );
             }
         }
@@ -217,10 +218,11 @@ class Message extends AbstractService
       * @param string       $interval_date
       * @param array|string $type
       * @param int|array $page_id
+      * @param int $date_offset
       *
       * @return array
       */
-    public function getCount( $start_date = null, $end_date = null, $interval_date = 'D', $type = null, $page_id  = null)
+    public function getCount( $start_date = null, $end_date = null, $interval_date = 'D', $type = null, $page_id  = null, $date_offset = 0)
     {
         
         if(null !== $page_id && !is_array($page_id)){
@@ -229,7 +231,7 @@ class Message extends AbstractService
         $interval = $this->getServiceActivity()->interval($interval_date);
         $identity = $this->getServiceUser()->getIdentity();
         
-        return $this->getMapper()->getCount($identity['id'], $interval, $start_date, $end_date, $page_id, $type);
+        return $this->getMapper()->getCount($identity['id'], $interval, $start_date, $end_date, $page_id, $type, $date_offset);
     }
     
     /**

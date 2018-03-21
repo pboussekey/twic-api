@@ -22,7 +22,7 @@ class Post extends AbstractMapper
         }
 
         $select->columns($columns);
-        $select->join('page', new Expression('page.id = post.t_page_id OR post.uid = CONCAT("PP", page.id)'), [], $select::JOIN_LEFT)
+        $select->join('page', new Expression('page.id = post.t_page_id'), [], $select::JOIN_LEFT)
             ->join('page_user', new Expression('page.id = page_user.page_id AND page_user.user_id = ? ', $me_id), [], $select::JOIN_LEFT)
             ->join('post_subscription', 'post_subscription.post_id=post.id', [], $select::JOIN_LEFT)
             ->join('post_user', 'post_user.post_id=post.id', [], $select::JOIN_LEFT)
@@ -34,12 +34,6 @@ class Post extends AbstractMapper
             ->group('post.id')
             ->quantifier('DISTINCT');
 
-        // @TODO on part du principe que si il n'y a pas de page_id donc c pour un mur donc on récupére que les post des page publish de type course
-        // sinon si on donne la page_id on considére qui a pu récupérer l'id donc c accéssible (normalement que pour les admins de la page et les admins studnet)
-        // => 06/03/2018 PBO : +1
-        if (null === $page_id) {
-            $select->where(['( page.is_published IS TRUE OR page.type <> "course" OR page.type IS NULL)']);
-        }
 
         $select->join('item', 'post.item_id = item.id', [], $select::JOIN_LEFT)
             ->where(
@@ -63,7 +57,7 @@ class Post extends AbstractMapper
                 ->where(['post.parent_id IS NULL'])
                 ->where(['( page.id IS NULL '])
                 ->where([' page.confidentiality = 0 '], Predicate::OP_OR)
-                ->where([' (page_user.user_id IS NOT NULL AND page_user.state <> "pending"))'], Predicate::OP_OR);
+                ->where([' ((page.type <> "course" OR page.is_published IS TRUE OR page_user.role = "admin") AND page_user.user_id IS NOT NULL AND page_user.state <> "pending"))'], Predicate::OP_OR);
         }
         
         // si c un admin studnet on enleve les type notifs les notif on tous des uid
@@ -80,7 +74,6 @@ class Post extends AbstractMapper
         if (null !== $page_id) {
             $select->where(['post.t_page_id' => $page_id]);
         }
-        
         return $this->selectWith($select);
     }
 
@@ -135,13 +128,13 @@ class Post extends AbstractMapper
     
     
     
-    public function getCount($me, $interval, $start_date = null, $end_date = null, $page_id = null, $parent = null)
+    public function getCount($me, $interval, $start_date = null, $end_date = null, $page_id = null, $parent = null, $date_offset = 0)
     {
         $select = $this->tableGateway->getSql()->select();
-        $select->columns([ 'post$created_date' => new Expression('SUBSTRING(post.created_date,1,'.$interval.')'), 'post$count' => new Expression('COUNT(DISTINCT post.id)'), 'post$parent_id' => new Expression('IF(post.parent_id IS NOT NULL,1,0)')])
+        $select->columns([ 'post$created_date' => new Expression('SUBSTRING(DATE_SUB(post.created_date, INTERVAL '.(-$date_offset).' HOUR) ,1,'.$interval.')'), 'post$count' => new Expression('COUNT(DISTINCT post.id)'), 'post$parent_id' => new Expression('IF(post.parent_id IS NOT NULL,1,0)')])
             ->where('post.deleted_date IS NULL')
             ->where('post.uid IS NULL')
-            ->group([new Expression('SUBSTRING(post.created_date,1,'.$interval.')'),  new Expression('IF(post.parent_id IS NOT NULL,1,0)') ]);
+            ->group([new Expression('SUBSTRING(DATE_SUB(post.created_date, INTERVAL '.(-$date_offset).' HOUR) ,1,'.$interval.')'),  new Expression('IF(post.parent_id IS NOT NULL,1,0)') ]);
 
         if (null != $start_date) {
             $select->where(['post.created_date >= ? ' => $start_date]);
@@ -167,6 +160,7 @@ class Post extends AbstractMapper
         else if(1 === $parent) {
             $select->where('post.parent_id IS NOT NULL');
         }
+        syslog(1, $this->printSql($select));
         return $this->selectWith($select);
     }
 }

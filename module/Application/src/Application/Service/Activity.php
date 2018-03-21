@@ -125,16 +125,17 @@ class Activity extends AbstractService
      * @param int    $page_id
      * @param string $interval_date
      * @param int    $user_id
+     *@param int $date_offset
      *
      * @return array
      */
-    public function getConnections($start_date = null, $end_date = null, $page_id = null, $interval_date = 'D', $user_id = null)
+    public function getConnections($start_date = null, $end_date = null, $page_id = null, $interval_date = 'D', $user_id = null, $date_offset = 0)
     {
         if(null !== $page_id && !is_array($page_id)){
             $page_id = [$page_id];
         }
         $mapper = $this->getMapper();
-        $res_activity = $mapper->getList(null, $start_date, $end_date, $page_id, $user_id);
+        $res_activity = $mapper->getList(null, $start_date, $end_date, $page_id, $user_id, $date_offset);
         $arrayUser = [];
         $connections = [];
         $interval = $this->interval($interval_date);
@@ -222,10 +223,11 @@ class Activity extends AbstractService
      * @param int    $page_id
      * @param string $interval_date
      * @param int    $user_id
+     *@param int $date_offset
      *
      * @return array
      */
-    public function getVisitsCount($start_date = null, $end_date = null, $page_id = null, $interval_date = 'D', $user_id = null)
+    public function getVisitsCount($start_date = null, $end_date = null, $page_id = null, $interval_date = 'D', $user_id = null, $date_offset = 0)
     {
         if(null !== $page_id && !is_array($page_id)){
             $page_id = [$page_id];
@@ -233,7 +235,7 @@ class Activity extends AbstractService
         $interval = $this->interval($interval_date);
         $identity = $this->getServiceUser()->getIdentity();
         
-        return $this->getMapper()->getVisitsCount($identity['id'], $interval, $start_date, $end_date, $page_id);
+        return $this->getMapper()->getVisitsCount($identity['id'], $interval, $start_date, $end_date, $page_id, $date_offset);
       
     }
     
@@ -247,17 +249,18 @@ class Activity extends AbstractService
      * @param int    $page_id
      * @param string $interval_date
      * @param int    $user_id
+     *@param int $date_offset
      *
      * @return array
      */
-    public function getDocumentsOpeningCount($start_date = null, $end_date = null, $page_id = null, $interval_date = 'D', $user_id = null)
+    public function getDocumentsOpeningCount($start_date = null, $end_date = null, $page_id = null, $interval_date = 'D', $user_id = null, $date_offset = 0)
     {
         if(null !== $page_id && !is_array($page_id)){
             $page_id = [$page_id];
         }
         $interval = $this->interval($interval_date);
         $identity = $this->getServiceUser()->getIdentity();
-        return $this->getMapper()->getDocumentsOpeningCount($identity['id'], $interval, $start_date, $end_date, $page_id);
+        return $this->getMapper()->getDocumentsOpeningCount($identity['id'], $interval, $start_date, $end_date, $page_id, $date_offset);
       
     }
     
@@ -271,16 +274,17 @@ class Activity extends AbstractService
      * @param string $interval_date
      * @param string $start_date
      * @param string $end_date
+     *@param int $date_offset
      *
      * @return array
      */
-    public function getVisitsPrc($page_id, $interval_date = 'D', $start_date = null, $end_date = null)
+    public function getVisitsPrc($page_id, $interval_date = 'D', $start_date = null, $end_date = null, $date_offset = 0)
     {
         if(!is_array($page_id)) {
             $page_id = [$page_id];
         }
         $interval = $this->interval($interval_date);
-        $res_activity = $this->getMapper()->getVisitsPrc($page_id, $start_date, $end_date, $interval);
+        $res_activity = $this->getMapper()->getVisitsPrc($page_id, $start_date, $end_date, $interval, $date_offset);
         foreach($res_activity as $m_activity){
             $m_activity->setObjectData(json_decode($m_activity->getObjectData(), true));
         }

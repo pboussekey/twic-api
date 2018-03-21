@@ -1,0 +1,6 @@
+ALTER TABLE `user` ADD COLUMN
+  `swap_email` VARCHAR(128) NULL;
+ALTER TABLE `user` ADD COLUMN
+  `swap_token` VARCHAR(128) NULL;
+ALTER TABLE `user` ADD COLUMN
+  `initial_email` VARCHAR(128) NULL;

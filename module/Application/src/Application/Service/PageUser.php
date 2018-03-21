@@ -226,7 +226,7 @@ class PageUser extends AbstractService
                         ->setTag("PAGECOMMENT".$t_page_id)
                         ->setBody("You have just been added to the course " . $m_page->getTitle());
                     
-                    $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification);
+                    $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification, Fcm::PACKAGE_TWIC_APP);
                 }
                 catch (Exception $e) {
                     syslog(1, 'Model name does not exist <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode());

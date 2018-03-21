@@ -632,7 +632,7 @@ class Item extends AbstractService
                             ->setTag("PAGECOMMENT".$t_page_id)
                             ->setBody("A new " . ModelItem::type_relation[$m_item->getType()] . " has been added to the course " . $m_page->getTitle());
 
-                        $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification);
+                        $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification, Fcm::PACKAGE_TWIC_APP );
                     }
                     catch (\Exception $e) {
                         syslog(1, 'Error sending FCM notification');
@@ -769,7 +769,7 @@ class Item extends AbstractService
                             ->setTag("ITEM".$m_item->getId())
                             ->setBody("The " . ModelItem::type_relation[$m_item->getType()] ." " . $final_title . " of course " . $m_page->getTitle(). " hes been update");
 
-                        $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification);
+                        $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification, Fcm::PACKAGE_TWIC_APP);
                     }
                     catch (\Exception $e) {
                         syslog(1, 'Error when sending GCM notification');
@@ -931,7 +931,7 @@ class Item extends AbstractService
                     ]
                 ],
                 $gcm_notification,
-                $fcm_service::PACKAGE_TWIC_MESSENGER
+                $fcm_service::PACKAGE_TWIC_APP
             );
         }
     }
