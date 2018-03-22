@@ -497,13 +497,9 @@ class User extends AbstractService
             if($tmp_user->getInitialEmail() instanceof IsNull){
                 $m_user->setInitialEmail($tmp_user->getEmail());
             }
-            if($m_user->getEmail() !== $email){
+            if($tmp_user->getEmail() !== $email){
                 $m_user->setSwapEmail($email);
                 $m_user->setSwapToken(uniqid($m_user->getId() . "_", true));
-            }
-            else{
-                $m_user->setSwapEmail(new IsNull('swap_email'));
-                $m_user->setSwapToken(new IsNull('swap_token'));
             }
         }
         
@@ -550,6 +546,7 @@ class User extends AbstractService
                 $this->getServiceMail()->sendTpl(
                     'tpl_emailupdate', $m_user->getSwapEmail(), [
                     'firstname' => $m_user->getFirstname(),
+                    'newemail' => $m_user->getSwapEmail(),
                     'pageurl' => $url
                     ]
                 );
