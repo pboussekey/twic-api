@@ -540,6 +540,9 @@ class User extends AbstractService
         
         $identity = $this->getIdentity();
         $m_user = $this->getLite($identity['id']);
+        if($m_user->getSwapToken() instanceof IsNull){
+            return false;
+        }
         $m_organization = !$m_user->getOrganizationId() instanceof IsNull ? $this->getServicePage()->getLite($m_user->getOrganizationId()) : false;
         
         $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
