@@ -540,15 +540,12 @@ class User extends AbstractService
         
         $identity = $this->getIdentity();
         $m_user = $this->getLite($identity['id']);
-        if($m_user->getSwapToken() instanceof IsNull){
-            return false;
-        }
         $m_organization = !$m_user->getOrganizationId() instanceof IsNull ? $this->getServicePage()->getLite($m_user->getOrganizationId()) : false;
         
         $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
         $m_organization->getLibelle() : null;
-        $url = sprintf("https://%s%s/confirm-email/%s/%s", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl'], $m_user->getId(), $m_user->getSwapToken());
         if(!($m_user->getSwapEmail() instanceof IsNull)){
+            $url = sprintf("https://%s%s/confirm-email/%s/%s", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl'], $m_user->getId(), $m_user->getSwapToken());
             try{
                 $this->getServiceMail()->sendTpl(
                     'tpl_emailupdate', $m_user->getSwapEmail(), [
