@@ -916,8 +916,8 @@ class User extends AbstractService
         if(count($email) === 0) {
             return null;
         }
-        foreach($email as &$e){
-            $e = strtolower($e);
+        foreach($email as $key => $e){
+            $email[$key] = strtolower($e);
         }
         $identity = $this->getIdentity();
       
