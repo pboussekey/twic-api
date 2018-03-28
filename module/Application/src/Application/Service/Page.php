@@ -219,7 +219,7 @@ class Page extends AbstractService
                 $ar_u['user_email'] = null;
                  
             }
-            if ($ar_u['user_id'] === $m_page->getOwnerId()) {
+            if (isset($ar_u['user_id']) && $ar_u['user_id'] === $m_page->getOwnerId()) {
                 $is_present = true;
                 $ar_u['role'] = ModelPageUser::ROLE_ADMIN;
                 $ar_u['state'] = ModelPageUser::STATE_MEMBER;

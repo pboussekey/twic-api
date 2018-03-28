@@ -371,7 +371,7 @@ class PageUser extends AbstractService
         }
 
         $ret =  $this->getMapper()->delete($m_page_user);
-        if ($ret) {
+        if ($ret > 0) {
             $this->getServiceSubscription()->delete('PP'.$page_id, $user_id);
             $res_page_relation = $this->getServicePageRelation()->getList($page_id, ModelPageRelation::TYPE_MEMBER);
             foreach ($res_page_relation as $m_page_relation) {
