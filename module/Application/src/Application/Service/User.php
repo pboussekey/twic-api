@@ -497,7 +497,7 @@ class User extends AbstractService
             if($tmp_user->getInitialEmail() instanceof IsNull){
                 $m_user->setInitialEmail($tmp_user->getEmail());
             }
-            if($tmp_user->getEmail() !== $email){
+            if(strcmp($tmp_user->getEmail(),$email) !== 0){
                 $m_user->setSwapEmail($email);
                 $m_user->setSwapToken(uniqid($m_user->getId() . "_", true));
             }
