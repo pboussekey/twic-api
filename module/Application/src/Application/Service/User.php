@@ -504,7 +504,7 @@ class User extends AbstractService
         }
         
         $ret = $this->getMapper()->update($m_user);
-        if(!$m_user->getSwapToken() instanceof IsNull){
+        if($m_user->getSwapToken() !== null){
             $this->sendEmailUpdateConf();
         }
         if ($resetpassword) {
