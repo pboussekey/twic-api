@@ -360,14 +360,23 @@ class PageUser extends AbstractService
      */
     public function delete($page_id, $user_id)
     {
+        if(!is_array($user_id)){
+            $user_id = [$user_id];
+        }
         $m_page_user = $this->getModel()
             ->setPageId($page_id)
             ->setUserId($user_id);
 
         //si on suprime le dernier administrateur
         $ar_pu = $this->getListByPage($page_id, 'admin');
-        if (count($ar_pu[$page_id]) === 1 && in_array($user_id, $ar_pu[$page_id])) {
-            throw new Exception("On ne peut pas suprimer le dernier administrateur");
+        if (count($ar_pu[$page_id]) <= count($user_id)){
+            $all_admin_removed = true;
+            foreach($ar_pu[$page_id] as $u){
+                $all_admin_removed &= in_array($u, $user_id);
+            }
+            if($all_admin_removed){
+                throw new Exception("On ne peut pas suprimer le dernier administrateur");
+            }
         }
 
         $ret =  $this->getMapper()->delete($m_page_user);
@@ -377,8 +386,9 @@ class PageUser extends AbstractService
             foreach ($res_page_relation as $m_page_relation) {
                 $this->getServiceSubscription()->delete("PP".$m_page_relation->getParentId(), $user_id);
             }
-            
-            $this->getServicePost()->hardDelete('PPM'.$page_id.'_'.$user_id);
+            foreach($user_id as $u){
+                $this->getServicePost()->hardDelete('PPM'.$page_id.'_'.$u);
+            }
             // ON DELETE LES USER DANS LA CONVERSATION SI ELLE EXISTE
             $m_page = $this->getServicePage()->getLite($page_id);
             if (is_numeric($m_page->getConversationId())) {

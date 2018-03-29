@@ -54,6 +54,7 @@ class Activity extends AbstractMapper
         if (null != $user_id) {
             $select->where(['user_id' => $user_id]);
         } 
+        $select->order('activity.date');
         return $this->selectWith($select);
     }
 
