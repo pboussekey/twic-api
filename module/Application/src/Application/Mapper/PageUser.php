@@ -94,14 +94,11 @@ class PageUser extends AbstractMapper
             case 'admin':
                 $select->order([new Expression('IF(me.role = "admin", 0, 1)'), 'me.page_id DESC']);
                 break;
-            case 'invitation_date':
-                $select->order(['user.invitation_date' => 'DESC']);
-                break;
             case 'created_date':
                 $select->order(['user.created_date' => 'DESC']);
                 break;
             case 'date':
-                $select->order(['page_user.created_date' => 'DESC']);
+                $select->order([new Expression('IF(page.type = "organization", user.invitation_date, 0) DESC,  page_user.created_date DESC')]);
                 break;
             case 'random':
                 $select->order(new Expression('RAND(?)', $order['seed']));

@@ -713,6 +713,7 @@ class User extends AbstractService
         }
 
         $nb = 0;
+        $invitation_date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
         foreach ($id as $uid) {
             $res_user = $this->getMapper()->select($this->getModel()->setId($uid));
             if ($res_user->count() <= 0) {
@@ -741,7 +742,7 @@ class User extends AbstractService
                 $this->getMapper()->update(
                         $this->getModel()
                         ->setEmailSent(true)
-                        ->setInvitationDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s')), ['id' => $uid]);
+                        ->setInvitationDate($invitation_date), ['id' => $uid]);
                 $nb++;
             } catch (\Exception $e) {
                 syslog(1, 'Model name does not exist <> uniqid is : ' . $uniqid . ' <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode() . ' <URL> ' . $url . ' <Email> ' . $m_user->getEmail());
