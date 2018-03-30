@@ -349,7 +349,7 @@ class User extends AbstractService
         
         
         if ($organization_id !== null) {
-            $this->getServicePageUser()->_add($organization_id, $id, ModelPageUser::ROLE_USER, ModelPageUser::STATE_PENDING);
+            $this->getServicePageUser()->_add($organization_id, $id, ModelPageUser::ROLE_USER, ModelPageUser::STATE_INVITED);
         }
         
         $this->getServiceSubscription()->add('SU' . $id, $id);
@@ -695,12 +695,13 @@ class User extends AbstractService
      * @param array|int $id
      * @param int       $page_id
      */
-    public function sendPassword($id = null, $page_id = null)
+    public function sendPassword($id = null, $page_id = null, $unsent = true)
     {
         if (null !== $page_id) {
             $identity = $this->getIdentity();
             $is_admin = (in_array(ModelRole::ROLE_ADMIN_STR, $identity['roles']));
-            $res_user = $this->getMapper()->getList($identity['id'], $is_admin, null, null, $page_id, null, null, null, true);
+            $res_user = $this->getMapper()->getList($identity['id'], $is_admin, null, null, $page_id, null, null, null, $unsent, null, null, null, null, null, ModelPageUser::STATE_INVITED);
+            syslog(1, json_encode($res_user));
             $id = [];
             foreach ($res_user as $m_user) {
                 $id[] = $m_user->getId();
@@ -737,7 +738,10 @@ class User extends AbstractService
                     'firstname' => $m_user->getFirstname() instanceof IsNull ? "" : $m_user->getFirstname()
                     ]
                 );
-                $this->getMapper()->update($this->getModel()->setEmailSent(true), ['id' => $uid]);
+                $this->getMapper()->update(
+                        $this->getModel()
+                        ->setEmailSent(true)
+                        ->setInvitationDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s')), ['id' => $uid]);
                 $nb++;
             } catch (\Exception $e) {
                 syslog(1, 'Model name does not exist <> uniqid is : ' . $uniqid . ' <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode() . ' <URL> ' . $url . ' <Email> ' . $m_user->getEmail());

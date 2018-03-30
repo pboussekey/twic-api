@@ -8,7 +8,22 @@ use Zend\Db\Sql\Predicate\Expression;
 use Zend\Db\Sql\Predicate\Predicate;
 
 class PageUser extends AbstractMapper
-{
+{  
+    
+    public function get($page_id = null, $user_id = null, $state = null){
+        $select = $this->tableGateway->getSql()->select();
+        $select->columns(['page_id','user_id','state','role', 'page_user$created_date' => new Expression('DATE_FORMAT(page_user.created_date, "%Y-%m-%dT%TZ")')]);
+        if(null !== $page_id){
+            $select->where(['page_id' => $page_id]);
+        }
+        if(null !== $user_id){
+            $select->where(['user_id' => $user_id]);
+        }
+        
+        return $this->selectWith($select);
+               
+    }
+    
     public function getList($page_id = null, $user_id = null, $role = null, 
         $state = null, $type = null, $me = null, $sent = null, $is_pinned = null, 
         $search = null, $order = null)
@@ -78,6 +93,15 @@ class PageUser extends AbstractMapper
                 break;
             case 'admin':
                 $select->order([new Expression('IF(me.role = "admin", 0, 1)'), 'me.page_id DESC']);
+                break;
+            case 'invitation_date':
+                $select->order(['user.invitation_date' => 'DESC']);
+                break;
+            case 'created_date':
+                $select->order(['user.created_date' => 'DESC']);
+                break;
+            case 'date':
+                $select->order(['page_user.created_date' => 'DESC']);
                 break;
             case 'random':
                 $select->order(new Expression('RAND(?)', $order['seed']));

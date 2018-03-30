@@ -73,7 +73,8 @@ class PageUser extends AbstractService
             ->setPageId($page_id)
             ->setRole($role)
             ->setState($state)
-            ->setIsPinned($is_pinned);
+            ->setIsPinned($is_pinned)
+            ->setCreatedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'));
         $ret = 0;
 
         $m_page = $this->getServicePage()->getLite($page_id);
@@ -89,12 +90,14 @@ class PageUser extends AbstractService
             $identity = $this->getServiceUser()->getIdentity();
             $is_admin = $this->getServiceUser()->isStudnetAdmin();
             $m_user = $this->getServiceUser()->getLite($uid);
-            if (($state === ModelPageUser::STATE_MEMBER || $state === ModelPageUser::STATE_PENDING) && ModelPage::TYPE_ORGANIZATION === $m_page->getType() && $m_user->getOrganizationId() instanceof IsNull) {
+            if (($state === ModelPageUser::STATE_MEMBER || $state === ModelPageUser::STATE_INVITED) 
+                    && ModelPage::TYPE_ORGANIZATION === $m_page->getType() && $m_user->getOrganizationId() instanceof IsNull) {
                 $this->getServiceUser()->_update($uid, null, null, null, null, null, null, null, null, null, $page_id);
             }
             if ($state === ModelPageUser::STATE_PENDING && ModelPage::TYPE_ORGANIZATION !== $m_page->getType()) {
                 $arr_user = $this->getListByPage($page_id, ModelPageUser::ROLE_ADMIN)[$page_id];
                 $sub = [];
+            syslog(1, $state. ' - ' . $m_page->getType());
                 foreach($arr_user as $user){
                     $sub[] = 'M'.$user;
                 }
@@ -115,8 +118,7 @@ class PageUser extends AbstractService
                     'page'
                 );
             }
-            // inviter only event
-            if ($state === ModelPageUser::STATE_INVITED) {
+            if ($state === ModelPageUser::STATE_INVITED && ModelPage::TYPE_ORGANIZATION !== $m_page->getType()) {
                 $this->getServicePost()->addSys(
                     'PPM'.$page_id.'_'.$uid,
                     '',
@@ -375,7 +377,7 @@ class PageUser extends AbstractService
                 $all_admin_removed &= in_array($u, $user_id);
             }
             if($all_admin_removed){
-                throw new Exception("On ne peut pas suprimer le dernier administrateur");
+                throw new Exception("Can't delete last administrator");
             }
         }
 
@@ -505,6 +507,35 @@ class PageUser extends AbstractService
         $this->getMapper()->delete($this->getModel()->setPageId($page_id));
 
         return $this->addFromArray($page_id, $data);
+    }
+    
+      /**
+     * Get page user created dates for a page
+     *
+     * @invokable
+     *
+     * @param $page_id int
+     * @param $user_id int|array
+     */
+    public function getCreatedDates($page_id, $user_id = null)
+    {
+        if(!$this->getServicePage()->isAdmin($page_id)) {
+            throw new JrpcException('Unauthorized operation pageuser.getCreatedDates', -38003);
+        }
+        $res = [];
+        if(null !== $user_id && !is_array($user_id)){
+            $user_id = [$user_id];
+            foreach($id as $i){
+                $res[$i] = null;
+            }
+        }
+        $res_page_user = $this->getMapper()->get($page_id, $user_id);
+        foreach($res_page_user as $m_page_user){
+            if(!$m_page_user->getCreatedDate() instanceof IsNull){
+                $res[$m_page_user->getUserId()] = $m_page_user->getCreatedDate();
+            }
+        }
+        return $res;        
     }
 
     /**

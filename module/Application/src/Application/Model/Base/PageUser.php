@@ -6,72 +6,85 @@ use Dal\Model\AbstractModel;
 
 class PageUser extends AbstractModel
 {
-    protected $page_id;
-    protected $user_id;
-    protected $role;
-    protected $state;
-    protected $is_pinned;
+ 	protected $page_id;
+	protected $user_id;
+	protected $role;
+	protected $state;
+	protected $is_pinned;
+	protected $created_date;
 
-    protected $prefix = 'page_user';
+	protected $prefix = 'page_user';
 
-    public function getPageId()
-    {
-        return $this->page_id;
-    }
+	public function getPageId()
+	{
+		return $this->page_id;
+	}
 
-    public function setPageId($page_id)
-    {
-        $this->page_id = $page_id;
+	public function setPageId($page_id)
+	{
+		$this->page_id = $page_id;
 
-        return $this;
-    }
+		return $this;
+	}
 
-    public function getUserId()
-    {
-        return $this->user_id;
-    }
+	public function getUserId()
+	{
+		return $this->user_id;
+	}
 
-    public function setUserId($user_id)
-    {
-        $this->user_id = $user_id;
+	public function setUserId($user_id)
+	{
+		$this->user_id = $user_id;
 
-        return $this;
-    }
+		return $this;
+	}
 
-    public function getRole()
-    {
-        return $this->role;
-    }
+	public function getRole()
+	{
+		return $this->role;
+	}
 
-    public function setRole($role)
-    {
-        $this->role = $role;
+	public function setRole($role)
+	{
+		$this->role = $role;
 
-        return $this;
-    }
+		return $this;
+	}
 
-    public function getState()
-    {
-        return $this->state;
-    }
+	public function getState()
+	{
+		return $this->state;
+	}
 
-    public function setState($state)
-    {
-        $this->state = $state;
+	public function setState($state)
+	{
+		$this->state = $state;
 
-        return $this;
-    }
+		return $this;
+	}
 
-    public function getIsPinned()
-    {
-        return $this->is_pinned;
-    }
+	public function getIsPinned()
+	{
+		return $this->is_pinned;
+	}
 
-    public function setIsPinned($is_pinned)
-    {
-        $this->is_pinned = $is_pinned;
+	public function setIsPinned($is_pinned)
+	{
+		$this->is_pinned = $is_pinned;
 
-        return $this;
-    }
+		return $this;
+	}
+
+	public function getCreatedDate()
+	{
+		return $this->created_date;
+	}
+
+	public function setCreatedDate($created_date)
+	{
+		$this->created_date = $created_date;
+
+		return $this;
+	}
 
 }

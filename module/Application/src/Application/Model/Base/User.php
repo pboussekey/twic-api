@@ -41,6 +41,7 @@ class User extends AbstractModel
 	protected $swap_email;
 	protected $swap_token;
 	protected $initial_email;
+	protected $invitation_date;
 
 	protected $prefix = 'user';
 
@@ -460,6 +461,18 @@ class User extends AbstractModel
 	public function setInitialEmail($initial_email)
 	{
 		$this->initial_email = $initial_email;
+
+		return $this;
+	}
+
+	public function getInvitationDate()
+	{
+		return $this->invitation_date;
+	}
+
+	public function setInvitationDate($invitation_date)
+	{
+		$this->invitation_date = $invitation_date;
 
 		return $this;
 	}

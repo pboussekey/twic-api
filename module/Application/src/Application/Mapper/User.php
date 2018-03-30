@@ -35,6 +35,8 @@ class User extends AbstractMapper
             'organization_id',
             'ambassador',
             'email_sent',
+            'user$created_date' => new Expression('DATE_FORMAT(user.created_date, "%Y-%m-%dT%TZ")'),
+            'user$invitation_date' => new Expression('DATE_FORMAT(user.invitation_date, "%Y-%m-%dT%TZ")'),
             'user$contacts_count' => $this->getSelectContactCount(),
             'user$contact_state' => $this->getSelectContactState($me),
             'user$welcome_date' =>  new Expression('DATE_FORMAT(DATE_ADD(user.welcome_date, INTERVAL user.welcome_delay DAY), "%Y-%m-%dT%TZ")')
@@ -116,7 +118,8 @@ class User extends AbstractMapper
         $conversation_id = null,
         $page_type = null,
         $email = null,
-        $is_pinned = null
+        $is_pinned = null,
+        $state = null
     ) {
         $select = $this->tableGateway->getSql()->select();
         if ($is_admin) {
@@ -201,7 +204,7 @@ class User extends AbstractMapper
                 $select->having('user$contact_state IS NULL', Predicate::OP_OR);
             }
         }
-        if (!empty($role) || !empty($page_type) || !empty($page_id) || null !== $is_pinned) {
+        if (!empty($state) || !empty($role) || !empty($page_type) || !empty($page_id) || null !== $is_pinned) {
             $select->join(['pu' => 'page_user'], 'pu.user_id=user.id', [])
                 ->join(['p' => 'page'], 'pu.page_id=p.id', []);
         }
@@ -210,11 +213,10 @@ class User extends AbstractMapper
             $select->where(['pu.page_id' => $page_id]);
         }
         if (!empty($role)) {
-            //JE NE SAIS PAS POURQUOI
-            /*if(null === $page_type){
-                $page_type = 'course';
-            }*/
             $select->where(['pu.role' => $role]);
+        }
+        if (!empty($state)) {
+            $select->where(['pu.state' => $state]);
         }
         if(null !== $is_pinned){
             $select->where(['is_pinned' => $is_pinned]);
@@ -226,13 +228,13 @@ class User extends AbstractMapper
         if ($unsent === true) {
             $select->where(['user.email_sent IS FALSE']);
         }
+        else if ($unsent === false){
+            $select->where(['user.email_sent IS TRUE']);
+        }
         if(!empty($email)) {
             $select->where->in(new Expression('LOWER(user.email)'),$email);
         }
-        else if($unsent === true) {
-            $select->where(['user.is_active' => 0]);
-        }
-        else if(!$is_admin){
+        if(!$is_admin && $unsent === null){
             $select->where(['user.is_active' => 1]);
         }
         return $this->selectWith($select);
