@@ -122,19 +122,18 @@ class User extends AbstractMapper
         $state = null
     ) {
         $select = $this->tableGateway->getSql()->select();
+        
         if ($is_admin) {
-            $select->columns(
-                [
+            $columns =  [
                 'user$id' => new Expression('user.id'),
                 'firstname', 'lastname', 'email', 'nickname', 'ambassador', 'email_sent',
                 'user$birth_date' => new Expression('DATE_FORMAT(user.birth_date, "%Y-%m-%dT%TZ")'),
                 'position', 'interest', 'avatar', 'suspension_date', 'suspension_reason',
                 'user$contact_state' => $this->getSelectContactState($user_id),
                 'user$contacts_count' => $this->getSelectContactCount()
-                ]
-            );
+                ];
         } else {
-            $select->columns(
+             $columns = 
                 [
                 'user$id' => new Expression('user.id'),
                 'firstname', 'lastname', 'email', 'nickname','ambassador',
@@ -142,14 +141,19 @@ class User extends AbstractMapper
                 'position', 'interest', 'avatar',
                 'user$contact_state' => $this->getSelectContactState($user_id),
                 'user$contacts_count' => $this->getSelectContactCount()
-                ]
-            );
+                ];
 
             $select->join(['co' => 'circle_organization'], 'co.organization_id=user.organization_id', []);
             $select->join('circle_organization', 'circle_organization.circle_id=co.circle_id', []);
             $select->join(['circle_organization_user' => 'user'], 'circle_organization_user.organization_id=circle_organization.organization_id', []);
             $select->where(['circle_organization_user.id' => $user_id]);
         }
+        if(null !== $email){
+            $columns[] = 'initial_email';
+        }
+        $select->columns(
+           $columns
+        );
         $select->where('user.deleted_date IS NULL')
             ->group('user.id')
             ->quantifier('DISTINCT');
@@ -232,7 +236,11 @@ class User extends AbstractMapper
             $select->where(['user.email_sent IS TRUE']);
         }
         if(!empty($email)) {
-            $select->where->in(new Expression('LOWER(user.email)'),$email);
+            $select->where->NEST
+                ->in(new Expression('LOWER(user.email)'),$email)
+                ->OR
+                ->in(new Expression('LOWER(user.initial_email)'),$email)
+            ->UNNEST;
         }
         if(!$is_admin && $unsent === null){
             $select->where(['user.is_active' => 1]);

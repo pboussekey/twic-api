@@ -921,23 +921,22 @@ class User extends AbstractService
         if(count($email) === 0) {
             return null;
         }
+        $users = [];
         foreach($email as $key => $e){
             $email[$key] = strtolower($e);
+            $users[$e] = null; 
         }
         $identity = $this->getIdentity();
-      
-        
         $is_admin = (in_array(ModelRole::ROLE_ADMIN_STR, $identity['roles']));
         $mapper = $this->getMapper();
         $res_user = $mapper->getList($identity['id'], $is_admin, null, null, null, null, null, null, null, null, null, null, $email);
-        
-        $users = [];
         foreach ($res_user as $m_user) {
-            $users[trim($m_user->getEmail())] = $m_user->getId();
-        }
-        foreach($email as $e){
-            if(!isset($users[$e])) {
-                $users[$e] = null;
+            if(array_key_exists(trim($m_user->getEmail()), $users)){
+                $users[trim($m_user->getEmail())] = $m_user->getId();
+            }
+            if(!$m_user->getInitialEmail() instanceof IsNull 
+                && array_key_exists(trim($m_user->getInitialEmail()), $users)){
+                $users[trim($m_user->getInitialEmail())] = $m_user->getId();
             }
         }
         
