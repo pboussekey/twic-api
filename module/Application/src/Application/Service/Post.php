@@ -251,7 +251,7 @@ class Post extends AbstractService
                             }
                         }
                     }
-                } elseif($m_page->getType() == ModelPage::TYPE_ORGANIZATION &&  $type === 'post') {
+                } elseif($m_page->getType() == ModelPage::TYPE_ORGANIZATION &&  $type === 'post' && !$is_notif) {
                     $ar_pages = [];
                     $res_user = $this->getServiceUser()->getLite($this->getServiceSubscription()->getListUserId('PP'.$t_page_id));
                     if($res_user !== null) {
@@ -295,7 +295,7 @@ class Post extends AbstractService
                     }
                 }
             }
-        } else {
+        } else if(null !== $parent_id) {
             $m_post = $this->getLite($parent_id);
             if(!$m_post->getUserId() instanceof IsNull && $user_id != $m_post->getUserId()) {
                 $m_user = $this->getServiceUser()->getLite($m_post->getUserId());
