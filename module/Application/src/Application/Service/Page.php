@@ -565,9 +565,9 @@ class Page extends AbstractService
             ->setDeletedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'));
         
         $ret = $this->getMapper()->update($m_page);
-       
         foreach ($id as $i) {
             $this->getServicePost()->hardDelete('PP'.$i);
+            $this->getServiceEvent()->sendData($i, 'page.delete', ['PP'.$i]);
             $m_tmp_page = $this->getLite($i);
             if ($m_tmp_page->getType() === ModelPage::TYPE_ORGANIZATION) {
                 $this->getServiceUser()->removeOrganizationId($i);
@@ -926,6 +926,18 @@ class Page extends AbstractService
     {
         return $this->getMapper()->select($this->getModel()->setConversationId($conversation_id))->current();
     }
+    
+
+    /**
+     * Get Service Event
+     *
+     * @return Event
+     */
+    private function getServiceEvent()
+    {
+        return $this->container->get('app_service_event');
+    }
+    
 
     /**
      * Get Service User

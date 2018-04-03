@@ -97,7 +97,6 @@ class PageUser extends AbstractService
             if ($state === ModelPageUser::STATE_PENDING && ModelPage::TYPE_ORGANIZATION !== $m_page->getType()) {
                 $arr_user = $this->getListByPage($page_id, ModelPageUser::ROLE_ADMIN)[$page_id];
                 $sub = [];
-            syslog(1, $state. ' - ' . $m_page->getType());
                 foreach($arr_user as $user){
                     $sub[] = 'M'.$user;
                 }
@@ -362,6 +361,7 @@ class PageUser extends AbstractService
      */
     public function delete($page_id, $user_id)
     {
+        $me = $this->getServiceUser()->getIdentity()['id'];
         if(!is_array($user_id)){
             $user_id = [$user_id];
         }
@@ -389,6 +389,17 @@ class PageUser extends AbstractService
                 $this->getServiceSubscription()->delete("PP".$m_page_relation->getParentId(), $user_id);
             }
             foreach($user_id as $u){
+                if($u === $me){
+                    $arr_user = $this->getListByPage($page_id, ModelPageUser::ROLE_ADMIN)[$page_id];
+                    $sub = [];
+                    foreach($arr_user as $user){
+                        $sub[] = 'M'.$user;
+                    }
+                    $this->getServiceEvent()->sendData($page_id, 'pageuser.delete', $sub);
+                }
+                else{
+                    $this->getServiceEvent()->sendData($page_id, 'pageuser.delete', ['M'.$u]);                    
+                }
                 $this->getServicePost()->hardDelete('PPM'.$page_id.'_'.$u);
             }
             // ON DELETE LES USER DANS LA CONVERSATION SI ELLE EXISTE
@@ -547,6 +558,19 @@ class PageUser extends AbstractService
     {
         return $this->container->get('app_service_subscription');
     }
+    
+    
+
+    /**
+     * Get Service Event
+     *
+     * @return Event
+     */
+    private function getServiceEvent()
+    {
+        return $this->container->get('app_service_event');
+    }
+
 
     /**
      * Get Service Post
