@@ -388,7 +388,13 @@ class PageUser extends AbstractService
             foreach ($res_page_relation as $m_page_relation) {
                 $this->getServiceSubscription()->delete("PP".$m_page_relation->getParentId(), $user_id);
             }
+            // ON DELETE LES USER DANS LA CONVERSATION SI ELLE EXISTE
+            $m_page = $this->getServicePage()->getLite($page_id);
+            if (is_numeric($m_page->getConversationId())) {
+                $this->getServiceConversationUser()->delete($m_page->getConversationId(), $user_id);
+            }
             foreach($user_id as $u){
+                $this->getServicePost()->hardDelete('PPM'.$page_id.'_'.$u);
                 if($u === $me){
                     $arr_user = $this->getListByPage($page_id, ModelPageUser::ROLE_ADMIN)[$page_id];
                     $sub = [];
@@ -400,12 +406,6 @@ class PageUser extends AbstractService
                 else{
                     $this->getServiceEvent()->sendData($page_id, 'pageuser.delete', ['M'.$u]);                    
                 }
-                $this->getServicePost()->hardDelete('PPM'.$page_id.'_'.$u);
-            }
-            // ON DELETE LES USER DANS LA CONVERSATION SI ELLE EXISTE
-            $m_page = $this->getServicePage()->getLite($page_id);
-            if (is_numeric($m_page->getConversationId())) {
-                $this->getServiceConversationUser()->delete($m_page->getConversationId(), $user_id);
             }
         }
 
