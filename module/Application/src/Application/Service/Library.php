@@ -33,6 +33,9 @@ class Library extends AbstractService
      */
     public function add($name, $link = null, $token = null, $type = null, $folder_id = null, $global = null, $folder_name = null, $text = null)
     {
+        if(empty($link) && empty($token) && empty($text)) {
+            throw new JrpcException("Error library add : invalid params : link and token and text are empty");
+        }
         $user_id = $this->getServiceUser()->getIdentity()['id'];
 
         if (null !== $folder_name && null === $folder_id) {
