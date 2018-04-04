@@ -131,10 +131,10 @@ class Post extends AbstractMapper
     public function getCount($me, $interval, $start_date = null, $end_date = null, $page_id = null, $parent = null, $date_offset = 0)
     {
         $select = $this->tableGateway->getSql()->select();
-        $select->columns([ 'post$created_date' => new Expression('SUBSTRING(DATE_SUB(post.created_date, INTERVAL '.(-$date_offset).' HOUR) ,1,'.$interval.')'), 'post$count' => new Expression('COUNT(DISTINCT post.id)'), 'post$parent_id' => new Expression('IF(post.parent_id IS NOT NULL,1,0)')])
+        $select->columns([ 'post$created_date' => new Expression('SUBSTRING(DATE_SUB(post.created_date, INTERVAL '.$date_offset.' HOUR) ,1,'.$interval.')'), 'post$count' => new Expression('COUNT(DISTINCT post.id)'), 'post$parent_id' => new Expression('IF(post.parent_id IS NOT NULL,1,0)')])
             ->where('post.deleted_date IS NULL')
             ->where('post.uid IS NULL')
-            ->group([new Expression('SUBSTRING(DATE_SUB(post.created_date, INTERVAL '.(-$date_offset).' HOUR) ,1,'.$interval.')'),  new Expression('IF(post.parent_id IS NOT NULL,1,0)') ]);
+            ->group([new Expression('SUBSTRING(DATE_SUB(post.created_date, INTERVAL '.$date_offset.' HOUR) ,1,'.$interval.')'),  new Expression('IF(post.parent_id IS NOT NULL,1,0)') ]);
 
         if (null != $start_date) {
             $select->where(['post.created_date >= ? ' => $start_date]);

@@ -68,12 +68,12 @@ class Contact extends AbstractMapper
     {
         $select = $this->tableGateway->getSql()->select();
         $select->columns(
-            [ 'contact$accepted_date' => new Expression('SUBSTRING(DATE_SUB(contact.accepted_date, INTERVAL '.(-$date_offset). ' HOUR ),1,'.$interval.')'), 
+            [ 'contact$accepted_date' => new Expression('SUBSTRING(DATE_SUB(contact.accepted_date, INTERVAL '.$date_offset. ' HOUR ),1,'.$interval.')'), 
             'contact$accepted' => new Expression('COUNT(DISTINCT contact.id)')]
         )
             ->where('contact.deleted_date IS NULL')
             ->where('contact.accepted IS TRUE')
-            ->group(new Expression('SUBSTRING(DATE_SUB(contact.accepted_date, INTERVAL '.(-$date_offset). ' HOUR ),1,'.$interval.')'));
+            ->group(new Expression('SUBSTRING(DATE_SUB(contact.accepted_date, INTERVAL '.$date_offset. ' HOUR ),1,'.$interval.')'));
         
         if (null != $organization_id) {
             $select->join('user', 'contact.contact_id = user.id', [])
@@ -86,6 +86,8 @@ class Contact extends AbstractMapper
         if(null !== $end_date) {
             $select->where(['contact.accepted_date < ? ' => $end_date]);
         }
+        
+        syslog(1, $this->printSql($select));
         return $this->selectWith($select);
         
       
@@ -95,12 +97,12 @@ class Contact extends AbstractMapper
     {
         $select = $this->tableGateway->getSql()->select();
         $select->columns(
-            [ 'contact$request_date' => new Expression(' SUBSTRING(DATE_SUB(contact.request_date, INTERVAL '.(-$date_offset). ' HOUR ),1,'.$interval.')'), 
+            [ 'contact$request_date' => new Expression(' SUBSTRING(DATE_SUB(contact.request_date, INTERVAL '.$date_offset. ' HOUR ),1,'.$interval.')'), 
                           'contact$requested' => new Expression('COUNT(DISTINCT contact.id)')]
         )
             ->where('contact.deleted_date IS NULL')
             ->where('contact.requested IS TRUE')
-            ->group(new Expression(' SUBSTRING(DATE_SUB(contact.request_date, INTERVAL '.(-$date_offset). ' HOUR ),1,'.$interval.')'));
+            ->group(new Expression(' SUBSTRING(DATE_SUB(contact.request_date, INTERVAL '.$date_offset. ' HOUR ),1,'.$interval.')'));
         
         if (null != $organization_id) {
             $select->join('user', 'contact.user_id = user.id', [])

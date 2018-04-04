@@ -32,9 +32,9 @@ class Message extends AbstractMapper
     public function getCount($me, $interval, $start_date = null, $end_date = null, $page_id = null, $type = null, $date_offset = 0)
     {
         $select = $this->tableGateway->getSql()->select();
-        $select->columns([ 'message$created_date' => new Expression('SUBSTRING(DATE_SUB(message.created_date, INTERVAL '.(-$date_offset). ' HOUR ),1,'.$interval.')'), 'message$count' => new Expression('COUNT(DISTINCT message.id)')])
+        $select->columns([ 'message$created_date' => new Expression('SUBSTRING(DATE_SUB(message.created_date, INTERVAL '.$date_offset. ' HOUR ),1,'.$interval.')'), 'message$count' => new Expression('COUNT(DISTINCT message.id)')])
             ->join('conversation', 'message.conversation_id = conversation.id', ['message$type' => 'type'])
-            ->group([new Expression('SUBSTRING(DATE_SUB(message.created_date, INTERVAL '.(-$date_offset). ' HOUR ),1,'.$interval.')'), 'conversation.type']);
+            ->group([new Expression('SUBSTRING(DATE_SUB(message.created_date, INTERVAL '.$date_offset. ' HOUR ),1,'.$interval.')'), 'conversation.type']);
 
         if (null != $start_date) {
             $select->where(['message.created_date >= ? ' => $start_date]);
