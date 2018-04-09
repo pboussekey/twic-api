@@ -26,11 +26,13 @@ class Post extends AbstractMapper
             ->join('page_user', new Expression('page.id = page_user.page_id AND page_user.user_id = ? ', $me_id), [], $select::JOIN_LEFT)
             ->join('post_subscription', 'post_subscription.post_id=post.id', [], $select::JOIN_LEFT)
             ->join('post_user', 'post_user.post_id=post.id', [], $select::JOIN_LEFT)
+            ->join('user','post.user_id = user.id', [], $select::JOIN_LEFT)
             ->where(['(post_user.user_id = ? AND post_user.hidden = 0' => $me_id])
             ->where(['  post_user.user_id IS NULL ) '], Predicate::OP_OR)
             ->where(['post.deleted_date IS NULL'])
             ->where(['page.deleted_date IS NULL'])
             ->where(['post.type <> "submission"'])
+            ->where(['(user.id IS NULL or user.deleted_date IS NULL)'])
             ->group('post.id')
             ->quantifier('DISTINCT');
 
