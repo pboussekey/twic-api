@@ -242,9 +242,7 @@ class User extends AbstractMapper
                 ->in(new Expression('LOWER(user.initial_email)'),$email)
             ->UNNEST;
         }
-        if(!$is_admin && $unsent === null){
-            $select->where(['user.is_active' => 1]);
-        }
+        
         return $this->selectWith($select);
     }
 

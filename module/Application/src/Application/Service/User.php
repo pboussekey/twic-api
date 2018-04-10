@@ -701,7 +701,6 @@ class User extends AbstractService
             $identity = $this->getIdentity();
             $is_admin = (in_array(ModelRole::ROLE_ADMIN_STR, $identity['roles']));
             $res_user = $this->getMapper()->getList($identity['id'], $is_admin, null, null, $page_id, null, null, null, $unsent, null, null, null, null, null, ModelPageUser::STATE_INVITED);
-            syslog(1, json_encode($res_user));
             $id = [];
             foreach ($res_user as $m_user) {
                 $id[] = $m_user->getId();
