@@ -15,10 +15,10 @@ class Activity extends AbstractMapper
   
 
 
-    public function getList($search, $start_date, $end_date, $page_id = null, $user_id = null)
+    public function getList($search, $start_date, $end_date, $page_id = null, $user_id = null, $date_offset = 0)
     {
         $select = $this->tableGateway->getSql()->select();
-        $select->columns(['id', 'user_id', 'event', 'object_name', 'object_data', 'activity$date' => new Expression('DATE_FORMAT(activity.date, "%Y-%m-%dT%TZ")')])
+        $select->columns(['id', 'user_id', 'event', 'object_name', 'object_data', 'activity$date' => new Expression('DATE_FORMAT(DATE_SUB(activity.date, INTERVAL '.$date_offset.' HOUR), "%Y-%m-%dT%TZ")')])
             ->join('user', 'user.id = activity.user_id', ['firstname',  'lastname', 'nickname', 'avatar', 'organization_id']);
         $array = explode(" ", $search);
         if (null != $array) {

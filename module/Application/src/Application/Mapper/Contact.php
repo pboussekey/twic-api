@@ -87,7 +87,6 @@ class Contact extends AbstractMapper
             $select->where(['contact.accepted_date < ? ' => $end_date]);
         }
         
-        syslog(1, $this->printSql($select));
         return $this->selectWith($select);
         
       

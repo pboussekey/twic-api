@@ -107,10 +107,10 @@ class Activity extends AbstractService
      *
      * @return array
      */
-    public function getList($filter = [], $search = null, $start_date = null, $end_date = null, $user_id = null)
+    public function getList($filter = [], $search = null, $start_date = null, $end_date = null, $user_id = null, $date_offset = 0)
     {
         $mapper = $this->getMapper();
-        $res_activity = $mapper->usePaginator($filter)->getList($search, $start_date, $end_date, null, $user_id);
+        $res_activity = $mapper->usePaginator($filter)->getList($search, $start_date, $end_date, null, $user_id, $date_offset);
 
         return ['count' => $mapper->count(), 'list' => $res_activity];
     }
