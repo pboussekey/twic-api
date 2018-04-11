@@ -25,7 +25,7 @@ class Post extends AbstractMapper
         $select->join('page', new Expression('page.id = post.t_page_id'), [], $select::JOIN_LEFT)
             ->join('page_user', new Expression('page.id = page_user.page_id AND page_user.user_id = ? ', $me_id), [], $select::JOIN_LEFT)
             ->join('post_subscription', 'post_subscription.post_id=post.id', [], $select::JOIN_LEFT)
-            ->join('post_user', 'post_user.post_id=post.id', [], $select::JOIN_LEFT)
+            ->join('post_user', new Expression('post_user.post_id=post.id AND post_user.user_id = ?', $me_id), [], $select::JOIN_LEFT)
             ->join('user','post.user_id = user.id', [], $select::JOIN_LEFT)
             ->where(['(post_user.user_id = ? AND post_user.hidden = 0' => $me_id])
             ->where(['  post_user.user_id IS NULL ) '], Predicate::OP_OR)
