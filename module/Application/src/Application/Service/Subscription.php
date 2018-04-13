@@ -32,9 +32,10 @@ class Subscription extends AbstractService
      * @param  string $libelle
      * @param  array  $filter 
      * @param  string $search
+     * @param  array $order
      * @return array
      */
-    public function getListUserId($libelle, $filter = null, $search = null)
+    public function getListUserId($libelle, $filter = null, $search = null, $order = null)
     {
         if (!is_array($libelle)) {
             $libelle = [$libelle];
@@ -45,10 +46,10 @@ class Subscription extends AbstractService
                 $u[] = (int)substr($l, 1);
             } else {
                 if(null != $filter) {
-                    $res_subscription = $this->getMapper()->usePaginator($filter)->getListUserId($l);
+                    $res_subscription = $this->getMapper()->usePaginator($filter)->getListUserId($l, $search, $order);
                 }
                 else{
-                    $res_subscription = $this->getMapper()->getListUserId($l);
+                    $res_subscription = $this->getMapper()->getListUserId($l, $search);
                 }
                 foreach ($res_subscription as $m_subscription) {
                     $u[] = $m_subscription->getUserId();

@@ -649,12 +649,15 @@ class Page extends AbstractService
     *
     * @invokable
     *
-    * @param  int $id
+    *  @param  int $id
+     * @param  array  $filter 
+     * @param  string $search
+     * @param  array $order
     * @return array
     */
-    public function getListSuscribersId($id, $filter = null)
+    public function getListSuscribersId($id, $filter = null, $search = null, $order = null)
     {
-        return $this->getServiceSubscription()->getListUserId('PP'.$id, $filter);
+        return $this->getServiceSubscription()->getListUserId('PP'.$id, $filter, $search, $order);
     }
 
     
