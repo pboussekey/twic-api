@@ -12,7 +12,7 @@ class Subscription extends AbstractMapper
     public function getListUserId($libelle, $search = null, $order = null){
         $select = $this->tableGateway->getSql()->select();
         $select->columns(['user_id'])
-            ->where(['libelle' => $libelle])
+            ->where(['subscription.libelle' => $libelle])
             ->quantifier('DISTINCT');
         
         if(null !== $search || null !== $order){
