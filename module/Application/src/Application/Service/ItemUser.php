@@ -3,7 +3,6 @@ namespace Application\Service;
 
 use Dal\Service\AbstractService;
 use Zend\Db\Sql\Predicate\IsNull;
-use Application\Model\ItemUser;
 
 class ItemUser extends AbstractService
 {
