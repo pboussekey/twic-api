@@ -78,10 +78,11 @@ class Submission extends AbstractService
      *
      * @param int $item_id
      * @param int $user_id
+     * @param int $group_id
      **/
-    public function getPostId($item_id, $user_id = null)
+    public function getPostId($item_id, $user_id = null, $group_id = null)
     {
-        return $this->getOrCreate($item_id, $user_id)->getPostId();
+        return $this->getOrCreate($item_id, $user_id, $group_id)->getPostId();
     }
 
     /**
