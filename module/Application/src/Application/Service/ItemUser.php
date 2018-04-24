@@ -156,8 +156,11 @@ class ItemUser extends AbstractService
             /**
              * @var \Application\Model\ItemUser $m_item_user
              */
-            $m_item_user = $this->getMapper()->select($this->getModel()->setGroupId($group_id))->current();
-            $ubmission_id = $m_item_user->getSubmissionId();
+            $res_item_user = $this->getMapper()->select($this->getModel()->setGroupId($group_id));
+            if($res_item_user->count() > 1) {
+                $m_item_user = $res_item_user->current();
+                $ubmission_id = $m_item_user->getSubmissionId();
+            }
         }
         
         if(count($user_id) > 0){

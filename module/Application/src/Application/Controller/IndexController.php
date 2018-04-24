@@ -93,6 +93,10 @@ class IndexController extends AbstractActionController
             if($params['id'] && is_numeric($params['id']) && $params['box_id'] && is_numeric($params['box_id'])) {
                 $ret = $this->library()->updateBoxId($params['id'], $params['box_id']);
             }
+            
+            if(isset($params['err'])) {
+                syslog(1, "ERROR BOX: " . json_encode($params['err']));
+            }
         }       
         else {  
             throw new JrpcException('No authorization: uptboxid', - 32029);
