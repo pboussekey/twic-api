@@ -151,6 +151,18 @@ class ItemUser extends AbstractService
             ];
         }
         
+        $ubmission_id = new IsNull('submission_id');
+        if($group_id !== null) {
+            /**
+             * @var \Application\Model\ItemUser $m_item_user
+             */
+            $res_item_user = $this->getMapper()->select($this->getModel()->setGroupId($group_id));
+            if($res_item_user->count() > 1) {
+                $m_item_user = $res_item_user->current();
+                $ubmission_id = $m_item_user->getSubmissionId();
+            }
+        }
+        
         if(count($user_id) > 0){
             $res_item_user = $this->getMapper()->select(
                 $this->getModel()
@@ -158,14 +170,11 @@ class ItemUser extends AbstractService
                     ->setItemId($item_id)
             );
             foreach ($res_item_user as $m_item_user) {
-                //@TODO update submission_id
                 $this->getMapper()->update(
                     $this->getModel()
                         ->setGroupId($group_id)
-                        ->setDeletedDate(new IsNull('deleted_date')), [
-                    'id' => $m_item_user->getId()
-                        ]
-                );
+                        ->setSubmissionId($ubmission_id)
+                        ->setDeletedDate(new IsNull('deleted_date')), ['id' => $m_item_user->getId()]);
                 unset($user_id[array_search($m_item_user->getUserId(), $user_id)]);
             }
         }
@@ -175,6 +184,7 @@ class ItemUser extends AbstractService
                 $this->getModel()
                     ->setUserId($user)
                     ->setGroupId($group_id)
+                    ->setSubmissionId($ubmission_id)
                     ->setItemId($item_id)
             );
         }
