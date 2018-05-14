@@ -147,20 +147,7 @@ class Post extends AbstractService
         $m_post_base = $this->getLite($base_id);
         $is_not_public_page = (is_numeric($m_post_base->getTPageId()) && ($this->getServicePage()->getLite($m_post_base->getTPageId())->getConfidentiality() !== ModelPage::CONFIDENTIALITY_PUBLIC));
         $pevent = [];
-        // si c pas une notification on gére les hastags
-        if (!$is_notif) {
-            $ar = array_filter(
-                explode(' ', str_replace(["\r\n","\n","\r"], ' ', $content)),
-                function ($v) {
-                    return (strpos($v, '#') !== false) || (strpos($v, '@') !== false);
-                }
-            );
-
-            $this->getServiceHashtag()->add($ar, $id);
-            $this->getServicePostSubscription()->addHashtag($ar, $id, $date);
-
-            $pevent = array_merge($pevent, ['M'.$m_post_base->getUserId()]);
-        }
+      
 
         $et = $this->getTarget($m_post_base);
         // S'IL Y A UNE CIBLE A LA BASE ET que l'on a pas definie d'abonnement ON NOTIFIE  P{target}nbr
@@ -169,7 +156,7 @@ class Post extends AbstractService
         }
 
         if (!$is_notif) {
-            $pevent = array_merge($pevent, ['P'.$this->getOwner($m_post_base)]);
+            $pevent = array_merge($pevent, ['P'.$this->getOwner($m_post_base),'M'.$m_post_base->getUserId()]);
         }
 
         if ($parent_id && $origin_id) {
@@ -203,7 +190,31 @@ class Post extends AbstractService
                 $is_not_public_page
             );
         }
-        
+
+          // si c pas une notification on gére les hastags
+        if (!$is_notif) {
+            $mentions = [];
+            preg_match_all ( '/@{user:(\d+)}/', $content, $mentions );
+            if(count($mentions[0]) > 0){
+                $ar_users = $this->getServiceHashtag()->addMentions($id, $mentions);
+                if(count($ar_users) > 0){
+                    $date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
+                    foreach($ar_users as $uid){
+                        $this->getServicePostSubscription()->add(
+                            'M'.$uid, 
+                            $id,
+                            $date, 
+                            ModelPostSubscription::ACTION_TAG, 
+                            $user_id,
+                            (($base_id!==$id) ? $id:null),
+                            $data,
+                            $is_not_public_page
+                        );
+                    }
+                }
+            }
+          
+        }
         if($parent_id == null) {
             if($t_page_id != null && $this->getServicePage()->isAdmin($t_page_id)) {
                 $m_page = $this->getServicePage()->getLite($t_page_id);
@@ -333,6 +344,8 @@ class Post extends AbstractService
             }
 
         }
+        
+                
 
         return $id;
     }
@@ -463,17 +476,28 @@ class Post extends AbstractService
         if ($ret > 0) {
             $is_not_public_page = (is_numeric($m_post_base->getTPageId()) && ($this->getServicePage()->getLite($m_post_base->getTPageId())->getConfidentiality() !== ModelPage::CONFIDENTIALITY_PUBLIC));
 
-            // si c pas une notification on gére les hastags
+            
+           // si c pas une notification on gére les hastags
             if (!$is_notif) {
-                $ar = array_filter(
-                    explode(' ', str_replace(["\r\n","\n","\r"], ' ', $content)),
-                    function ($v) {
-                        return (strpos($v, '#') !== false) || (strpos($v, '@') !== false);
-                    }
-                );
 
-                $this->getServiceHashtag()->add($ar, $id);
-                $this->getServicePostSubscription()->addHashtag($ar, $id, $date, ModelPostSubscription::ACTION_UPDATE);
+                $mentions = [];
+                preg_match_all ( '/@{user:(\d+)}/', $content, $mentions );
+                if(count($mentions[0]) > 0){
+                    $ar_users = $this->getServiceHashtag()->addMentions($id, $mentions);
+                    if(count($ar_users) > 0){
+                        $date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
+                        foreach($ar_users as $uid){
+                            $this->getServicePostSubscription()->add(
+                                'M'.$uid, 
+                                $id,
+                                $date, 
+                                ModelPostSubscription::ACTION_TAG, 
+                                $user_id
+                            );
+                        }
+                    }
+                }
+
             }
 
             $pevent = [];

@@ -25,6 +25,24 @@ class Hashtag extends AbstractService
 
         return true;
     }
+    
+    public function addMentions($id, $mentions)
+    {
+        
+        $m_hashtag = $this->getModel()->setPostId($id);
+        $user_id = [];
+        for ($i = 0; $i < count($mentions[0]); $i++) {
+            $m_hashtag->setName($mentions[0][$i])
+                ->setType('@')->setUserId($mentions[1][$i]);
+            if ($this->getMapper()->select($m_hashtag)->count() <= 0) {
+                $m_hashtag->setCreatedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'));
+                $this->getMapper()->insert($m_hashtag);
+                $user_id[] = $mentions[1][$i];
+            }
+        }
+
+        return $user_id;
+    }
 
     public function getList($filter = [], $search)
     {
