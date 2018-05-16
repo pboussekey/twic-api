@@ -190,13 +190,22 @@ class Post extends AbstractService
                 $is_not_public_page
             );
         }
-
           // si c pas une notification on gére les hastags
         if (!$is_notif) {
             $mentions = [];
             preg_match_all ( '/@{user:(\d+)}/', $content, $mentions );
             if(count($mentions[0]) > 0){
                 $ar_users = $this->getServiceHashtag()->addMentions($id, $mentions);
+                if($is_not_public_page){
+                    $ar_buffer = [];
+                    $ar_subscribers = $this->getServicePage()->getListSuscribersId($m_post_base->getTPageId());
+                    foreach($ar_users as $user_id){
+                        if(in_array($user_id, $ar_subscribers)){
+                            $ar_buffer[] = $user_id;
+                        }
+                    }
+                    $ar_users = $ar_buffer;
+                }
                 if(count($ar_users) > 0){
                     $date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
                     foreach($ar_users as $uid){
@@ -508,6 +517,16 @@ class Post extends AbstractService
                 preg_match_all ( '/@{user:(\d+)}/', $content, $mentions );
                 if(count($mentions[0]) > 0){
                     $ar_users = $this->getServiceHashtag()->addMentions($id, $mentions);
+                    if($is_not_public_page){
+                        $ar_buffer = [];
+                        $ar_subscribers = $this->getServicePage()->getListSuscribersId($m_post_base->getTPageId());
+                        foreach($ar_users as $user_id){
+                            if(in_array($user_id, $ar_subscribers)){
+                                $ar_buffer[] = $user_id;
+                            }
+                        }
+                        $ar_users = $ar_buffer;
+                    }
                     if(count($ar_users) > 0){
                         $date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
                         foreach($ar_users as $uid){
