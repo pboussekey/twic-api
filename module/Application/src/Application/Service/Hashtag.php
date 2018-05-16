@@ -28,9 +28,9 @@ class Hashtag extends AbstractService
     
     public function addMentions($id, $mentions)
     {
-        
         $m_hashtag = $this->getModel()->setPostId($id);
         $user_id = [];
+        $users = [];
         for ($i = 0; $i < count($mentions[0]); $i++) {
             $m_hashtag->setName($mentions[0][$i])
                 ->setType('@')->setUserId($mentions[1][$i]);
@@ -39,9 +39,23 @@ class Hashtag extends AbstractService
                 $this->getMapper()->insert($m_hashtag);
                 $user_id[] = $mentions[1][$i];
             }
+            $users[] = $mentions[1][$i];
         }
-
+        $this->getMapper()->keepMentions($id, $users);
         return $user_id;
+    }
+    
+    
+    
+    public function getListMentions($id)
+    {
+        $m_hashtag = $this->getModel()->setPostId($id)->setType('@');
+        $res_hashtag = $this->getMapper()->select($m_hashtag);
+        $ar_user = [];
+        foreach($res_hashtag as $m_hashtag){
+            $ar_user[] = $m_hashtag->getUserId();
+        }
+        return $ar_user;
     }
 
     public function getList($filter = [], $search)
@@ -52,8 +66,8 @@ class Hashtag extends AbstractService
 
         $mapper = $this->getMapper();
 
-        $res_account = $mapper->usePaginator($filter)->getList($search);
+        $res_hashtag = $mapper->usePaginator($filter)->getList($search);
 
-        return ['count' => $mapper->count(), 'list' => $res_account];
+        return ['count' => $mapper->count(), 'list' => $res_hashtag];
     }
 }

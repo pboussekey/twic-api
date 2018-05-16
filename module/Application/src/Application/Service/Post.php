@@ -476,30 +476,8 @@ class Post extends AbstractService
         if ($ret > 0) {
             $is_not_public_page = (is_numeric($m_post_base->getTPageId()) && ($this->getServicePage()->getLite($m_post_base->getTPageId())->getConfidentiality() !== ModelPage::CONFIDENTIALITY_PUBLIC));
 
-            
            // si c pas une notification on gére les hastags
-            if (!$is_notif) {
-
-                $mentions = [];
-                preg_match_all ( '/@{user:(\d+)}/', $content, $mentions );
-                if(count($mentions[0]) > 0){
-                    $ar_users = $this->getServiceHashtag()->addMentions($id, $mentions);
-                    if(count($ar_users) > 0){
-                        $date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
-                        foreach($ar_users as $uid){
-                            $this->getServicePostSubscription()->add(
-                                'M'.$uid, 
-                                $id,
-                                $date, 
-                                ModelPostSubscription::ACTION_TAG, 
-                                $user_id
-                            );
-                        }
-                    }
-                }
-
-            }
-
+           
             $pevent = [];
             // S'IL Y A UNE CIBLE A LA BASE ON NOTIFIE
             $et = $this->getTarget($m_post_base);
@@ -523,6 +501,29 @@ class Post extends AbstractService
                 $data,
                 $is_not_public_page
             );
+            
+            if (!$is_notif) {
+
+                $mentions = [];
+                preg_match_all ( '/@{user:(\d+)}/', $content, $mentions );
+                if(count($mentions[0]) > 0){
+                    $ar_users = $this->getServiceHashtag()->addMentions($id, $mentions);
+                    if(count($ar_users) > 0){
+                        $date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
+                        foreach($ar_users as $uid){
+                            $this->getServicePostSubscription()->add(
+                                'M'.$uid, 
+                                $id,
+                                $date, 
+                                ModelPostSubscription::ACTION_TAG, 
+                                $user_id
+                            );
+                        }
+                    }
+                }
+
+            }
+
         }
 
         return $ret;
@@ -544,7 +545,7 @@ class Post extends AbstractService
         foreach ($res_post as $m_post) {
             $m_post->setDocs($this->getServicePostDoc()->getList($m_post->getId()));
             $m_post->setSubscription($this->getServicePostSubscription()->getLastLite($m_post->getId()));
-
+            $m_post->setMentions($this->getServiceHashtag()->getListMentions($m_post->getId()));
             if (is_string($m_post->getData())) {
                 $m_post->setData(json_decode($m_post->getData(), true));
             }

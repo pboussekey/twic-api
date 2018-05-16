@@ -9,6 +9,7 @@ class Post extends BasePost
     protected $docs;
     protected $last_date;
     protected $comments;
+    protected $mentions;
     protected $nbr_comments;
     protected $is_liked;
     protected $nbr_likes;
@@ -73,6 +74,18 @@ class Post extends BasePost
     public function getNbrComments()
     {
         return $this->nbr_comments;
+    } 
+    
+    public function setMentions($mentions)
+    {
+        $this->mentions = $mentions;
+
+        return $this;
+    }
+
+    public function getMentions()
+    {
+        return $this->mentions;
     }
 
     public function setComments($comments)
