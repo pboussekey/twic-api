@@ -119,7 +119,8 @@ class User extends AbstractMapper
         $page_type = null,
         $email = null,
         $is_pinned = null,
-        $state = null
+        $state = null,
+        $is_active = null
     ) {
         $select = $this->tableGateway->getSql()->select();
         
@@ -242,7 +243,12 @@ class User extends AbstractMapper
                 ->in(new Expression('LOWER(user.initial_email)'),$email)
             ->UNNEST;
         }
-        
+        if ($is_active === true) {
+            $select->where(['user.is_active IS TRUE']);
+        }
+        else if ($is_active === false){
+            $select->where(['user.is_active IS FALSE']);
+        }
         return $this->selectWith($select);
     }
 

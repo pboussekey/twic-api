@@ -876,10 +876,11 @@ class User extends AbstractService
      * @param string $page_type
      * @param int $unsent
      * @param string $is_pinned
+     * @param bool $is_active
      *
      * @return array
      */
-    public function getListId($search = null, $exclude = null, $filter = null, $contact_state = null, $page_id = null, $post_id = null, $order = null, $role = null, $conversation_id = null, $page_type = null, $unsent = null, $is_pinned = null)
+    public function getListId($search = null, $exclude = null, $filter = null, $contact_state = null, $page_id = null, $post_id = null, $order = null, $role = null, $conversation_id = null, $page_type = null, $unsent = null, $is_pinned = null, $is_active = null)
     {
         $identity = $this->getIdentity();
         if (null !== $exclude && ! is_array($exclude)) {
@@ -888,7 +889,7 @@ class User extends AbstractService
         
         $is_admin = $this->isStudnetAdmin();
         $mapper = $this->getMapper();
-        $res_user = $mapper->usePaginator($filter)->getList($identity['id'], $is_admin, $post_id, $search, $page_id, $order, $exclude, $contact_state, $unsent, $role, $conversation_id, $page_type, null, $is_pinned);
+        $res_user = $mapper->usePaginator($filter)->getList($identity['id'], $is_admin, $post_id, $search, $page_id, $order, $exclude, $contact_state, $unsent, $role, $conversation_id, $page_type, null, $is_pinned, null, $is_active);
         
         $users = [];
         foreach ($res_user as $m_user) {
