@@ -8,25 +8,35 @@ use Zend\Db\Sql\Predicate\Expression;
 
 class Subscription extends AbstractMapper
 {
-    
+
     public function getListUserId($libelle, $search = null, $order = null){
         $select = $this->tableGateway->getSql()->select();
         $select->columns(['user_id'])
             ->where(['subscription.libelle' => $libelle])
             ->quantifier('DISTINCT');
-        
+
         if(null !== $search || null !== $order){
             $select
-                ->join('user', 'subscription.user_id = user.id', []);
+                ->join('user', 'subscription.user_id = user.id', ['firstname', 'lastname', 'email', 'initial_email']);
         }
         if (null !== $search) {
-            $select->where(['( CONCAT_WS(" ", user.firstname, user.lastname) LIKE ? ' => ''.$search.'%'])
-                ->where(['CONCAT_WS(" ", user.lastname, user.firstname) LIKE ? ' => ''.$search.'%'], Predicate::OP_OR)
-                ->where(['user.email LIKE ? ' => '%'.$search.'%'], Predicate::OP_OR)
-                ->where(['user.initial_email LIKE ? ' => '%'.$search.'%'], Predicate::OP_OR)
-                ->where(['user.nickname LIKE ? )' => ''.$search.'%'], Predicate::OP_OR);
+          $tags = explode(' ', $search);
+          $select->join('user_tag', 'user_tag.user_id = subscription.user_id', [], $select::JOIN_LEFT)
+              ->join('tag', 'user_tag.tag_id = tag.id', [], $select::JOIN_LEFT)
+              ->where(['( CONCAT_WS(" ", user.lastname, user.firstname) LIKE ? ' =>  $search . '%'])
+              ->where(['CONCAT_WS(" ", user.lastname, user.firstname) LIKE ? ' => $search.'%'], Predicate::OP_OR)
+              ->where(['user.email LIKE ? ' => $search.'%'], Predicate::OP_OR)
+              ->where(['user.initial_email LIKE ? ' => $search.'%'], Predicate::OP_OR)
+              ->where(['tag.name'   => $tags], Predicate::OP_OR)
+              ->where(['1)'])
+              ->having(['( COUNT(DISTINCT tag.id) = ? OR COUNT(DISTINCT tag.id) = 0 ' => count($tags)])
+              ->having([' CONCAT_WS(" ", user.lastname, user.firstname) LIKE ? ' => $search . '%'], Predicate::OP_OR)
+              ->having(['CONCAT_WS(" ", user.lastname, user.firstname) LIKE ? ' => $search.'%'], Predicate::OP_OR)
+              ->having(['user.email LIKE ? ' => $search.'%'], Predicate::OP_OR)
+              ->having(['user.initial_email LIKE ? )' => $search.'%'], Predicate::OP_OR)
+              ->group('subscription.user_id');
         }
-        
+
         if (null !== $order && isset($order['type'])) {
             switch ($order['type']) {
             case 'name':
