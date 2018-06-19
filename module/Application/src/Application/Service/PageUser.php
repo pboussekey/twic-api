@@ -42,8 +42,8 @@ class PageUser extends AbstractService
     public function add($page_id, $user_id, $role, $state, $email = null, $is_pinned = 0)
     {
         $identity = $this->getServiceUser()->getIdentity();
-        if(!$this->getServiceUser()->isStudnetAdmin()  
-            && !$this->getServicePage()->isAdmin($page_id) 
+        if(!$this->getServiceUser()->isStudnetAdmin()
+            && !$this->getServicePage()->isAdmin($page_id)
             && $identity['id'] != $user_id) {
             throw new JrpcException('Unauthorized operation pageuser.add', -38003);
         }
@@ -51,14 +51,14 @@ class PageUser extends AbstractService
         return $this->_add($page_id, $user_id, $role, $state, $email, $is_pinned);
     }
 
-    
+
     public function _add($page_id, $user_id, $role, $state, $email = null, $is_pinned = 0)
     {
-        
+
         if (!is_array($user_id)) {
             $user_id = [$user_id];
         }
-        
+
         if(null !== $email) {
             if (!is_array($email)) {
                 $email = [$email];
@@ -84,13 +84,13 @@ class PageUser extends AbstractService
                 $this->getServiceConversationUser()->add($m_page->getConversationId(), $user_id);
             }
         }
-      
+
         foreach ($user_id as $uid) {
             $ret +=  $this->getMapper()->insert($m_page_user->setUserId($uid));
             $identity = $this->getServiceUser()->getIdentity();
             $is_admin = $this->getServiceUser()->isStudnetAdmin();
             $m_user = $this->getServiceUser()->getLite($uid);
-            if (($state === ModelPageUser::STATE_MEMBER || $state === ModelPageUser::STATE_INVITED) 
+            if (($state === ModelPageUser::STATE_MEMBER || $state === ModelPageUser::STATE_INVITED)
                     && ModelPage::TYPE_ORGANIZATION === $m_page->getType() && $m_user->getOrganizationId() instanceof IsNull) {
                 $this->getServiceUser()->_update($uid, null, null, null, null, null, null, null, null, null, $page_id);
             }
@@ -154,7 +154,7 @@ class PageUser extends AbstractService
                 */
                 // member only group
             } elseif ($state === ModelPageUser::STATE_MEMBER) {
-              
+
 
                 $this->getServiceSubscription()->add('PP'.$page_id, $uid);
                 if(ModelPage::TYPE_ORGANIZATION == $m_page->getType()) {
@@ -163,7 +163,7 @@ class PageUser extends AbstractService
                         $this->getServiceSubscription()->add("PP".$m_page_relation->getParentId(), $uid);
                     }
                 }
-                
+
                 // Si il n'est pas le propriétaire on lui envoie une notification
                 if ($m_page->getUserId() !== $uid) {
                     $this->getServicePost()->addSys(
@@ -182,7 +182,7 @@ class PageUser extends AbstractService
                         $uid/*user*/,
                         'page'
                     );
-                    
+
                     /*
                                         $this->getServiceFcm()->send(
                                             $uid, [
@@ -212,8 +212,8 @@ class PageUser extends AbstractService
                     */
             }
         }
-        
-        if ($m_page->getIsPublished() && $m_page->getType() == ModelPage::TYPE_COURSE) {   
+
+        if ($m_page->getIsPublished() && $m_page->getType() == ModelPage::TYPE_COURSE) {
             $identity = $this->getServiceUser()->getIdentity();
             $ar_pages = [];
             $ar_user = $this->getServiceUser()->getLite($user_id);
@@ -230,7 +230,7 @@ class PageUser extends AbstractService
                 }
 
                 try{
-                    
+
                     $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
                     $m_organization->getLibelle() : null;
                     $url = sprintf("https://%s%s/page/course/%s/timeline", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl'], $m_page->getId());
@@ -241,7 +241,7 @@ class PageUser extends AbstractService
                         'pageurl' => $url,
                         ]
                     );
-                    
+
                     $gcm_notification = new GcmNotification();
                     $gcm_notification->setTitle($m_page->getTitle())
                         ->setSound("default")
@@ -249,14 +249,14 @@ class PageUser extends AbstractService
                         ->setIcon("icon")
                         ->setTag("PAGECOMMENT".$t_page_id)
                         ->setBody("You have just been added to the course " . $m_page->getTitle());
-                    
+
                     $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification, Fcm::PACKAGE_TWIC_APP);
                 }
                 catch (Exception $e) {
                     syslog(1, 'Model name does not exist <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode());
                 }
             }
-            
+
         }
 
 
@@ -404,7 +404,7 @@ class PageUser extends AbstractService
                     $this->getServiceEvent()->sendData($page_id, 'pageuser.delete', $sub);
                 }
                 else{
-                    $this->getServiceEvent()->sendData($page_id, 'pageuser.delete', ['M'.$u]);                    
+                    $this->getServiceEvent()->sendData($page_id, 'pageuser.delete', ['M'.$u]);
                 }
             }
         }
@@ -425,10 +425,10 @@ class PageUser extends AbstractService
      * @param string    $search
      * @param array    $order
      */
-    public function getListByPage($page_id, $role = null, $state = null, 
+    public function getListByPage($page_id, $role = null, $state = null,
         $sent = null, $is_pinned = null, $search = null, $order = null)
     {
-        
+
         $identity = $this->getServiceUser()->getIdentity();
         if (!is_array($page_id)) {
             $page_id = [$page_id];
@@ -438,7 +438,7 @@ class PageUser extends AbstractService
         foreach ($page_id as $page) {
             $ret[$page] = [];
         }
-        
+
         $is_admin = null === $identity || (in_array(ModelRole::ROLE_ADMIN_STR, $identity['roles']));
         $res_page_user = $this->getMapper()->getList($page_id, null, $role, $state, null, $is_admin ? null : $identity['id'], $sent, $is_pinned, $search, $order);
         foreach ($res_page_user as $m_page_user) {
@@ -519,7 +519,7 @@ class PageUser extends AbstractService
 
         return $this->addFromArray($page_id, $data);
     }
-    
+
       /**
      * Get page user created dates for a page
      *
@@ -546,7 +546,7 @@ class PageUser extends AbstractService
                 $res[$m_page_user->getUserId()] = $m_page_user->getCreatedDate();
             }
         }
-        return $res;        
+        return $res;
     }
 
     /**
@@ -558,8 +558,8 @@ class PageUser extends AbstractService
     {
         return $this->container->get('app_service_subscription');
     }
-    
-    
+
+
 
     /**
      * Get Service Event
@@ -591,7 +591,7 @@ class PageUser extends AbstractService
     {
         return $this->container->get('app_service_page');
     }
-    
+
     /**
      * Get Service PageRelation
      *
