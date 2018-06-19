@@ -56,6 +56,19 @@ class User extends AbstractService
     }
 
     /**
+     * Get description of an user
+     *
+     * @invokable
+     *
+     * @param  int $id
+     * @return string
+     */
+    public function getDescription($id){
+        $ar_user = $this->getMapper()->select($this->getModel()->setId($id))->current()->toArray();
+        return array_key_exists('description', $ar_user) && $ar_user['description'] !== null ? $ar_user['description'] : "";
+    }
+
+    /**
      * Log user
      *
      * @invokable
@@ -384,10 +397,11 @@ class User extends AbstractService
      * @param bool   $ambassador
      * @param string $password
      * @param array  $address
+     * @param string $description
      *
      * @return int
      */
-    public function update($id = null, $gender = null, $origin = null, $nationality = null, $firstname = null, $lastname = null, $sis = null, $email = null, $birth_date = null, $position = null, $organization_id = null, $interest = null, $avatar = null, $roles = null, $resetpassword = null, $has_email_notifier = null, $timezone = null, $background = null, $nickname = null, $suspend = null, $suspension_reason = null, $ambassador = null, $password = null, $address = null)
+    public function update($id = null, $gender = null, $origin = null, $nationality = null, $firstname = null, $lastname = null, $sis = null, $email = null, $birth_date = null, $position = null, $organization_id = null, $interest = null, $avatar = null, $roles = null, $resetpassword = null, $has_email_notifier = null, $timezone = null, $background = null, $nickname = null, $suspend = null, $suspension_reason = null, $ambassador = null, $password = null, $address = null, $description = null)
     {
         if ($this->getNbrEmailUnique($email, $id) > 0) {
             throw new JrpcException('duplicate email', - 38001);
@@ -420,10 +434,10 @@ class User extends AbstractService
          * }
          */
 
-        return $this->_update($id, $gender, $origin, $nationality, $firstname, $lastname, $sis, $email, $birth_date, $position, $organization_id, $interest, $avatar, $roles, $resetpassword, $has_email_notifier, $timezone, $background, $nickname, $suspend, $suspension_reason, $ambassador, $password, $address);
+        return $this->_update($id, $gender, $origin, $nationality, $firstname, $lastname, $sis, $email, $birth_date, $position, $organization_id, $interest, $avatar, $roles, $resetpassword, $has_email_notifier, $timezone, $background, $nickname, $suspend, $suspension_reason, $ambassador, $password, $address, $description);
     }
 
-    public function _update($id = null, $gender = null, $origin = null, $nationality = null, $firstname = null, $lastname = null, $sis = null, $email = null, $birth_date = null, $position = null, $organization_id = null, $interest = null, $avatar = null, $roles = null, $resetpassword = null, $has_email_notifier = null, $timezone = null, $background = null, $nickname = null, $suspend = null, $suspension_reason = null, $ambassador = null, $password = null, $address = null)
+    public function _update($id = null, $gender = null, $origin = null, $nationality = null, $firstname = null, $lastname = null, $sis = null, $email = null, $birth_date = null, $position = null, $organization_id = null, $interest = null, $avatar = null, $roles = null, $resetpassword = null, $has_email_notifier = null, $timezone = null, $background = null, $nickname = null, $suspend = null, $suspension_reason = null, $ambassador = null, $password = null, $address = null, $description = null)
     {
          $m_user = $this->getModel();
 
@@ -468,7 +482,8 @@ class User extends AbstractService
             ->setTimezone($timezone)
             ->setBackground($background)
             ->setNickname($nickname)
-            ->setAmbassador($ambassador);
+            ->setAmbassador($ambassador)
+            ->setDescription($description);
 
         // @TODO secu school_id
         if ($organization_id !== null) {
@@ -1229,12 +1244,13 @@ class User extends AbstractService
      *
      * @param int    $id
      * @param string $tag
+     * @param string $category
      *
      * @return int
      */
-    public function addTag($id, $tag)
+    public function addTag($id, $tag, $category)
     {
-        return $this->getServiceUserTag()->add($id, $tag);
+        return $this->getServiceUserTag()->add($id, $tag, $category);
     }
 
     /**

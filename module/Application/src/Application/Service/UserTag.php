@@ -19,12 +19,14 @@ class UserTag extends AbstractService
    *
    * @param  int    $user_id
    * @param  string $tag
+   * @param  string $category
    * @return int
    */
-  public function add($user_id, $tag)
+  public function add($user_id, $tag, $category)
   {
       $m_user_tag = $this->getModel()
           ->setUserId($user_id)
+          ->setCategory($category)
           ->setTagId($this->getServiceTag()->add($tag));
 
       $this->getMapper()->insert($m_user_tag);

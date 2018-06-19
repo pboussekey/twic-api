@@ -33,11 +33,17 @@ class Tag extends AbstractService
      *
      * @invokable
      * @param string $search
+     * @param string $category
      * @param array|string $exclude
+     * @param array $filter
      */
-    public function getList($search, $exclude = null)
+    public function getList($search, $category = null, $exclude = null, $filter = null)
     {
-        return $this->getMapper()->getList($search, $exclude);
+        $mapper = $this->getMapper();
+        if(null !== $filter){
+          $mapper->usePaginator($filter);
+        }
+        return $mapper->getList($search, $category, $exclude);
     }
 
     /**

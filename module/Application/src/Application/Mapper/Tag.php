@@ -25,17 +25,22 @@ class Tag extends AbstractMapper
      * Get List
      *
      * @param string $search
+     * @param string $category
+     * @param array|string $exclude
      */
-    public function getList($search, $exclude = null)
+    public function getList($search, $category = null,  $exclude = null)
     {
         $select = $this->tableGateway->getSql()->select();
         $select->columns(['id', 'name', 'weight'])
           ->where(['name LIKE ? ' => $search . '%'])
-          ->order(['weight' => 'DESC']);
-        if(null !== $exclude){
+          ->quantifier('DISTINCT');
+        if(null !== $category){
+          $select->join('user_tag', 'tag.id = user_tag.tag_id')
+                 ->where(['user_tag.category' => $category]);
+        }
+        if(null !== $exclude && count($exclude) > 0){
           $select->where->notIn('name', $exclude);
         }
-        syslog(1, json_encode($select));
         return $this->selectWith($select);
     }
 
@@ -48,7 +53,7 @@ class Tag extends AbstractMapper
     {
         $select = $this->tableGateway->getSql()->select();
         $select->columns(['id', 'name', 'weight'])
-            ->join('user_tag', 'user_tag.tag_id=tag.id', [])
+            ->join('user_tag', 'user_tag.tag_id=tag.id', ['tag$category' => 'category'])
             ->where(['user_tag.user_id' => $user_id]);
 
         return $this->selectWith($select);

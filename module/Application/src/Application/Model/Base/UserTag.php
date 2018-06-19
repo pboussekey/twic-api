@@ -8,6 +8,7 @@ class UserTag extends AbstractModel
 {
  	protected $user_id;
 	protected $tag_id;
+	protected $category;
 
 	protected $prefix = 'user_tag';
 
@@ -31,6 +32,18 @@ class UserTag extends AbstractModel
 	public function setTagId($tag_id)
 	{
 		$this->tag_id = $tag_id;
+
+		return $this;
+	}
+
+	public function getCategory()
+	{
+		return $this->category;
+	}
+
+	public function setCategory($category)
+	{
+		$this->category = $category;
 
 		return $this;
 	}
