@@ -14,6 +14,7 @@ use Application\Model\Role as ModelRole;
 use Firebase\JWT\JWT;
 use Zend\Db\Sql\Predicate\IsNull;
 use Application\Model\PageUser as ModelPageUser;
+use Zend\Mail\Message;
 
 /**
  * Class User.

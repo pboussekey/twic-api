@@ -21,10 +21,10 @@ return array(
 	'uiurl' => '${ui.url}',
         'secret_key' => '${node.key}'
     ],
-    'gcm' => [
-        'api_key' => '${firebase.key}',
-        'adapter' => 'http-adapter',
-    ],
+    'gcm-conf' => [
+       'api_key' => '${firebase.key}',
+       'adapter' => 'http-adapter',
+   ],    
     'linkedin-conf' => [
         'redirect_uri' => '${linkedin.redirect_uri}',
 	'client_id' => '${linkedin.client_id}',
@@ -34,7 +34,7 @@ return array(
     	'adapters' => array(
     	  'db-adapter' => array(
         		'driver' => '${db.driver}',
-        		'dsn' => 'mysql:dbname=${db.database};host=${db.host};charset=utf8mb4',
+        		'dsn' => '${db.dsn}',
         		'username' =>  '${db.user}',
         		'password' =>  '${db.password}',
         		'driver_options' => array(
@@ -83,45 +83,25 @@ return array(
 		'adapter' => 'Zend\Http\Client\Adapter\Curl',
 	    ],
 	'caches' => array(
-		'storage_memcached' => array(
-			'adapter' => array(
-				'name' => 'memcached',
-				'options' => array(
-					'servers' => array(
-						array('host' => '${memcached.host}' , 'port' => '${memcached.port}', 'weight' => 100),
-					),
-					'lib_options' => array(
-						array('option' => Memcached::OPT_LIBKETAMA_COMPATIBLE, 'value' => true),
-						array('option' => Memcached::OPT_SERIALIZER, 'value' => Memcached::SERIALIZER_IGBINARY),
-						array('option' => Memcached::OPT_DISTRIBUTION, 'value' => Memcached::DISTRIBUTION_CONSISTENT),
-					),
-				),
-			),
-			'plugins' => array(
-				'exception_handler' => array('throw_exceptions' => true),
-			),
-		),
+		'storage_memcached' => ${cache.adapter},
 	),
-	'mail-conf' => [
-    'cache' => 'storage_memcached',
-    'storage' => [
-        'active' => false,
-     ],
-     'transport' => ${mail.transport},
-     'template' => [
-        'storage' => ${mail.template.storage},
-     ],
-  ],
-  'dms-conf' => [
-    'storage' => ${dms.storage},
-  ],
+    'mail-conf' => [
+        'cache' => 'storage_memcached',
+        'storage' => [
+            'active' => false,
+         ],
+         'transport' => ${mail.transport},
+         'template' => [
+             'storage' => ${mail.template.storage},
+         ],
+    ],
+    'demo-conf' => ${demo.conf},
+    'dms-conf' => [
+        'storage' => ${dms.storage},
+    ],
     'box-conf' => [
        'apikey' => '${box.apikey}',
        'url' => '${box.url}',
-       'adapter' => 'http-adapter',
-   ],
-   'gcm-conf' => [
-       'api_key' => '${firebase.key}',
        'adapter' => 'http-adapter',
    ],
 );

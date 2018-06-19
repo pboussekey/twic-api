@@ -13,7 +13,6 @@ class MailTest extends AbstractService
         parent::setUpBeforeClass();
        
     }
-
    
     public function testAddTpl()
     {

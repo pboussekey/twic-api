@@ -119,8 +119,8 @@ class Item extends AbstractMapper
             'is_available',
             'is_published',
             'order',
-            'item$start_date' => new Expression('DATE_FORMAT(item.start_date, "%Y-%m-%dT%TZ")'),
-            'item$end_date' => new Expression('DATE_FORMAT(item.end_date, "%Y-%m-%dT%TZ")'),
+            'item$start_date' =>   new Expression('DATE_FORMAT(item.start_date, "%Y-%m-%dT%TZ")'),
+            'item$end_date' =>     new Expression('DATE_FORMAT(item.end_date, "%Y-%m-%dT%TZ")'),
             'item$updated_date' => new Expression('DATE_FORMAT(item.updated_date, "%Y-%m-%dT%TZ")'),
             'item$created_date' => new Expression('DATE_FORMAT(item.created_date, "%Y-%m-%dT%TZ")'),
             'parent_id',
@@ -136,26 +136,17 @@ class Item extends AbstractMapper
             ]
         )
             ->join('post', 'item.id=post.item_id', [], $select::JOIN_LEFT)
-	    ->join('quiz', 'item.id=quiz.item_id', [], $select::JOIN_LEFT)
+	        ->join('quiz', 'item.id=quiz.item_id', [], $select::JOIN_LEFT)
             ->where(['item.id' => $id])
             ->group('item.id');
 
-	if(!$is_admin) {
-	    $select
-                ->join('page_user', 'page_user.page_id=item.page_id', [])
-                ->where(['page_user.user_id' => $me])
-                ->join(['children'=> 'item'], 
-                new Expression('item.id = children.parent_id AND (children.is_published IS TRUE OR page_user.role = "admin")' ), 
-                [], $select::JOIN_LEFT)  
-                ->join(['children_user' => 'item_user'],
-                new Expression('children.id = children_user.item_id AND children_user.user_id = ?', $me), 
-                ['item$nb_children'=> new Expression('SUM(IF(children.id IS NOT NULL AND ((children.is_published IS TRUE AND (children.participants = "all" OR children_user.user_id IS NOT NULL)) OR page_user.role = "admin"), 1, 0))')], $select::JOIN_LEFT);
-	}
-        else{
-            
-            $select->join(['children'=> 'item'], 
-                'item.id = children.parent_id', 
-                ['item$nb_children'=> new Expression('SUM(IF(children.id IS NOT NULL, 1 , 0))')], $select::JOIN_LEFT);
+    	if(!$is_admin) {
+    	    $select->join('page_user', 'page_user.page_id=item.page_id', [])
+                   ->join(['children'=> 'item'], new Expression('item.id = children.parent_id AND (children.is_published IS TRUE OR page_user.role = "admin")' ), [], $select::JOIN_LEFT)  
+                   ->join(['children_user' => 'item_user'], new Expression('children.id = children_user.item_id AND children_user.user_id = ?', $me),  ['item$nb_children'=> new Expression('SUM(IF(children.id IS NOT NULL AND ((children.is_published IS TRUE AND (children.participants = "all" OR children_user.user_id IS NOT NULL)) OR page_user.role = "admin"), 1, 0))')], $select::JOIN_LEFT)
+                   ->where(['page_user.user_id' => $me]);
+    	} else {
+            $select->join(['children'=> 'item'], 'item.id = children.parent_id', ['item$nb_children'=> new Expression('SUM(IF(children.id IS NOT NULL, 1 , 0))')], $select::JOIN_LEFT);
         }
         return $this->selectWith($select);
     }

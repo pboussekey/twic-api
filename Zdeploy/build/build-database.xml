@@ -3,7 +3,37 @@
 	            schematypens="http://relaxng.org/ns/structure/1.0" ?>
 
 <project default="database">
+	<target name="cloudsql-connect">
+		<echo msg="Connect proxy..." />
+		<exec
+			command="${project.basedir}/cloudsqlproxy.sh
+			-c ${project.basedir}/${proxy.credential}
+			-i ${proxy.instance}
+			-p ${ga.port} "
+		    dir="${project.basedir}" />
+		<echo msg="Connecter: 127.0.0.7:${ga.port} " />
+	</target>
+
+	<target name="cloudsql-disconnect">
+		<exec command="kill -15 `pgrep cloud_sql_proxy`" checkreturn="true" />
+	</target>
+
     <target name="database">
+    	<if>
+    		<and>
+    			<isset property="proxy.instance" />
+    	        <not><equals arg1="${proxy.instance}" arg2="" /></not>
+    		</and>
+			<then>
+				<echo msg="Connect proxy..." />
+				<exec
+					command="${project.basedir}/cloudsqlproxy.sh
+					-c ${project.basedir}/${proxy.credential}
+					-i ${proxy.instance}
+					-p ${ga.port} "
+				    dir="${project.basedir}" />
+			</then>
+    	</if>
         <echo msg="Deploying database..." />
         <tstamp/>
         <property name="build.dbdeploy.deployfile" value="${project.basedir}/deploy-db-${DSTAMP}${TSTAMP}.sql" />
@@ -15,19 +45,29 @@
             	<property name="db.passwordParam" value="" override="yes" />
             </then>
         </if>
+    	
+    	<property name="db.urlport" value=";port=${db.port}" override="yes" />
+    	<property name="db.port" value="-P${db.port}" override="yes" />
+        <if>
+            <equals arg1="${db.port}" arg2="-P" />
+            <then>
+                <property name="db.port" value="" override="yes" />
+            	<property name="db.urlport" value="" override="yes" />
+            </then>
+    	</if>
 
         <echo message="Database undo file ${build.dbdeploy.undofile}" />
         <dbdeploy
-            url="mysql:host=${db.host};dbname=${db.database}"
+            url="mysql:host=${db.host};dbname=${db.database}${db.urlport}"
             userid="${db.user}"
             password="${db.password}"
             dir="${project.basedir}/data/db/"
             outputfile="${build.dbdeploy.deployfile}"
             undooutputfile="${build.dbdeploy.undofile}" />
 
-    	<echo message="mysql --default-character-set=utf8 -h${db.host} -u${db.user} ${db.passwordParam} ${db.database} &lt; ${build.dbdeploy.deployfile}" />
+    	<echo message="mysql --default-character-set=utf8 -h${db.host} -u${db.user} ${db.passwordParam} ${db.port} ${db.database} &lt; ${build.dbdeploy.deployfile}" />
         	<exec
-            	command="mysql --default-character-set=utf8 -h${db.host} -u${db.user} ${db.passwordParam} ${db.database} &lt; ${build.dbdeploy.deployfile}"
+            	command="mysql --default-character-set=utf8 -h${db.host} -u${db.user} ${db.passwordParam} ${db.port} ${db.database} &lt; ${build.dbdeploy.deployfile}"
             	dir="${project.basedir}"
             	checkreturn="true" />
             <delete>
@@ -36,34 +76,77 @@
             	    <include name="undo-db-*" />
             	</fileset>
             </delete>
+    	<if>
+    		<and>
+    			<isset property="proxy.instance" />
+    	        <not><equals arg1="${proxy.instance}" arg2="" /></not>
+    		</and>
+			<then>
+				<exec command="kill -15 `pgrep cloud_sql_proxy`" checkreturn="true" />
+    		</then>
+    	</if>
     </target>
 
     <target name="database-reset">
+    	<if>
+			<and>
+				<isset property="proxy.instance" />
+		        <not><equals arg1="${proxy.instance}" arg2="" /></not>
+			</and>
+			<then>
+				<echo msg="Connect proxy..." />
+				<exec
+					command="${project.basedir}/cloudsqlproxy.sh
+					-c ${project.basedir}/${proxy.credential}
+					-i ${proxy.instance}
+					-p ${ga.port} "
+				    dir="${project.basedir}" />
+			</then>
+    	</if>
         <echo msg="Drop database..." />
-	    <property name="db.passwordParam" value="-p${db.password}" override="yes" />
+	    
+    	<property name="db.passwordParam" value="-p${db.password}" override="yes" />
         <if>
             <equals arg1="${db.passwordParam}" arg2="-p" />
             <then>
                 <property name="db.passwordParam" value="" override="yes" />
             </then>
         </if>
+    	
+    	<property name="db.port" value="-P${db.port}" override="yes" />
+        <if>
+            <equals arg1="${db.port}" arg2="-P" />
+            <then>
+                <property name="db.port" value="" override="yes" />
+            </then>
+    	</if>
+
     	<exec
-    	    command="echo 'DROP DATABASE IF EXISTS ${db.database}' | mysql -h ${db.host} -u'${db.user}' ${db.passwordParam}"
+    	    command="echo 'DROP DATABASE IF EXISTS ${db.database}' | mysql -h ${db.host} -u'${db.user}' ${db.passwordParam} ${db.port}"
     	    dir="${project.basedir}"
     	    checkreturn="true" />
     	<exec
-    	    command="echo 'CREATE DATABASE ${db.database}' | mysql -h ${db.host} -u'${db.user}' ${db.passwordParam}"
+    	    command="echo 'CREATE DATABASE ${db.database}' | mysql -h ${db.host} -u'${db.user}' ${db.passwordParam} ${db.port}"
     	    dir="${project.basedir}"
     	    checkreturn="true" />
         <exec
-            command="echo 'DROP TABLE IF EXISTS ${db.database}.changelog' | mysql -h ${db.host} -u'${db.user}' ${db.passwordParam}"
+            command="echo 'DROP TABLE IF EXISTS ${db.database}.changelog' | mysql -h ${db.host} -u'${db.user}' ${db.passwordParam} ${db.port}"
             dir="${project.basedir}"
             checkreturn="true" />
 
         <echo msg="Initialising database..." />
         <exec
-            command="mysql --default-character-set=utf8 -h${db.host} -u${db.user} ${db.passwordParam} ${db.database} &lt; ${project.basedir}/Zdeploy/build/database.sql"
+            command="mysql --default-character-set=utf8 -h${db.host} -u${db.user} ${db.passwordParam} ${db.port} ${db.database} &lt; ${project.basedir}/Zdeploy/build/database.sql"
             dir="${project.basedir}"
             checkreturn="true" />
+    	<if>
+    		<and>
+    			<isset property="proxy.instance" />
+    	        <not><equals arg1="${proxy.instance}" arg2="" /></not>
+    		</and>
+			<then>
+				<exec command="kill -15 `pgrep cloud_sql_proxy`" checkreturn="true" />
+    		</then>
+    	</if>
     </target>
 </project>

@@ -65,6 +65,12 @@
 	    		<property name="tmp.basedir" value="${tmp.basedir}/${git.rev}" override="true" />
 	        </then>
 	    </if>
+		<if>
+			    <equals arg1="${app.ga}" arg2="true" />
+		    	<then>
+		    		<property name="tmp.basedir" value="${tmp.basedir}/${git.rev}" override="true" />
+		        </then>
+		    </if>
 		
 		<php expression='preg_replace("/([^:])(\/{2,})/", "$1/", "${tmp.basedir}/")' returnProperty="tmp.basedir" />
 	
@@ -99,11 +105,19 @@
 		
 		<phingcall target="numbuild" />
 	</target>
+	
 	<target name="numbuild">
 		<exec 
 		command='sed -i "s/$(cat config/autoload/global.php | grep "version")/ \"version\" => \"${git.rev}\",/" config/autoload/global.php'
 		passthru="true"
 	    dir="${tmp.basedir}" />
+	</target>
+
+	<target name="cloudsql-connect">
+		<phing phingfile="${project.basedir}/Zdeploy/build/build-database.xml" target="cloudsql-connect" />
+	</target>
+	<target name="cloudsql-disconnect">
+		<phing phingfile="${project.basedir}/Zdeploy/build/build-database.xml" target="cloudsql-disconnect" />
 	</target>
 	<target name="configuration">
 		<phing phingfile="${project.basedir}/Zdeploy/build/build-configuration.xml" target="configuration" />

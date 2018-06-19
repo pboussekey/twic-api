@@ -76,6 +76,31 @@ class IndexController extends AbstractActionController
 
     }
     
+    public function demorequestAction()
+    {
+        $conf = $this->conf()->getAll()['demo-conf'];
+        $to = $conf['to'];
+        $request = $this->getRequest();
+        $content = $request->getContent();
+        $params = json_decode($content, true);
+
+        $ret = $this->mail()->send($to,
+            "<br><span style=\"font-weight:bold;\">First name</span> : ".$params['firstName'].
+            "<br><span style=\"font-weight:bold;\">Last name</span> : ".$params['lastName'].
+            "<br><span style=\"font-weight:bold;\">Institution</span> : ".$params['institution'].
+            "<br><span style=\"font-weight:bold;\">Email</span> : ".$params['email'], 'Demo request', 'request@twicapp.io');
+        
+        $headers = $this->getResponse()->getHeaders();
+        $headers->addHeaderLine('Content-Type', 'application/json');
+        if (isset($conf['headers'])) {
+            foreach ($conf['headers'] as $key => $value) {
+                $headers->addHeaderLine($key, $value);
+            }
+        }
+        
+        return $this->getResponse()->setContent(json_encode(['code'=>true]));
+    }
+    
     /**
      * Check Status
      *
