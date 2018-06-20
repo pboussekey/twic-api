@@ -147,7 +147,7 @@ class Post extends AbstractService
         $m_post_base = $this->getLite($base_id);
         $is_not_public_page = (is_numeric($m_post_base->getTPageId()) && ($this->getServicePage()->getLite($m_post_base->getTPageId())->getConfidentiality() !== ModelPage::CONFIDENTIALITY_PUBLIC));
         $pevent = [];
-      
+
 
         $et = $this->getTarget($m_post_base);
         // S'IL Y A UNE CIBLE A LA BASE ET que l'on a pas definie d'abonnement ON NOTIFIE  P{target}nbr
@@ -190,7 +190,6 @@ class Post extends AbstractService
                 $is_not_public_page
             );
         }
-<<<<<<< HEAD
           // si c pas une notification on gére les hastags
         if (!$is_notif) {
             $mentions = [];
@@ -211,10 +210,10 @@ class Post extends AbstractService
                     $date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
                     foreach($ar_users as $uid){
                         $this->getServicePostSubscription()->add(
-                            'M'.$uid, 
+                            'M'.$uid,
                             $id,
-                            $date, 
-                            ModelPostSubscription::ACTION_TAG, 
+                            $date,
+                            ModelPostSubscription::ACTION_TAG,
                             $user_id,
                             (($base_id!==$id) ? $id:null),
                             $data,
@@ -223,11 +222,8 @@ class Post extends AbstractService
                     }
                 }
             }
-          
-        }
-=======
 
->>>>>>> 9f6dba4ed7ba4392ab4fca6f5c0de4e98835ce97
+        }
         if($parent_id == null) {
             if($t_page_id != null && $this->getServicePage()->isAdmin($t_page_id)) {
                 $m_page = $this->getServicePage()->getLite($t_page_id);
@@ -357,8 +353,8 @@ class Post extends AbstractService
             }
 
         }
-        
-                
+
+
 
         return $id;
     }
@@ -490,7 +486,7 @@ class Post extends AbstractService
             $is_not_public_page = (is_numeric($m_post_base->getTPageId()) && ($this->getServicePage()->getLite($m_post_base->getTPageId())->getConfidentiality() !== ModelPage::CONFIDENTIALITY_PUBLIC));
 
            // si c pas une notification on gére les hastags
-           
+
             $pevent = [];
             // S'IL Y A UNE CIBLE A LA BASE ON NOTIFIE
             $et = $this->getTarget($m_post_base);
@@ -514,7 +510,7 @@ class Post extends AbstractService
                 $data,
                 $is_not_public_page
             );
-            
+
             if (!$is_notif) {
 
                 $mentions = [];
@@ -535,10 +531,10 @@ class Post extends AbstractService
                         $date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
                         foreach($ar_users as $uid){
                             $this->getServicePostSubscription()->add(
-                                'M'.$uid, 
+                                'M'.$uid,
                                 $id,
-                                $date, 
-                                ModelPostSubscription::ACTION_TAG, 
+                                $date,
+                                ModelPostSubscription::ACTION_TAG,
                                 $user_id
                             );
                         }

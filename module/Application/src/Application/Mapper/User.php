@@ -264,15 +264,12 @@ class User extends AbstractMapper
                 ->in(new Expression('LOWER(user.initial_email)'),$email)
             ->UNNEST;
         }
-<<<<<<< HEAD
         if ($is_active === true) {
             $select->where(['user.is_active IS TRUE']);
         }
         else if ($is_active === false){
             $select->where(['user.is_active IS FALSE']);
         }
-=======
->>>>>>> 9f6dba4ed7ba4392ab4fca6f5c0de4e98835ce97
         return $this->selectWith($select);
     }
 

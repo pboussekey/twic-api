@@ -907,13 +907,8 @@ class User extends AbstractService
 
         $is_admin = $this->isStudnetAdmin();
         $mapper = $this->getMapper();
-<<<<<<< HEAD
         $res_user = $mapper->usePaginator($filter)->getList($identity['id'], $is_admin, $post_id, $search, $page_id, $order, $exclude, $contact_state, $unsent, $role, $conversation_id, $page_type, null, $is_pinned, null, $is_active);
         
-=======
-        $res_user = $mapper->usePaginator($filter)->getList($identity['id'], $is_admin, $post_id, $search, $page_id, $order, $exclude, $contact_state, $unsent, $role, $conversation_id, $page_type, null, $is_pinned);
-
->>>>>>> 9f6dba4ed7ba4392ab4fca6f5c0de4e98835ce97
         $users = [];
         foreach ($res_user as $m_user) {
             $users[] = $m_user->getId();
