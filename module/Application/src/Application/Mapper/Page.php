@@ -117,12 +117,6 @@ class Page extends AbstractMapper
                 ->having(['( COUNT(DISTINCT tag.id) = ? OR COUNT(DISTINCT tag.id) = 0 ' => count($tags)])
                 ->having([' page.title LIKE ? ) ' => '%' . $search . '%'], Predicate::OP_OR);
         }
-        if (!empty($tags)) {
-            /*  $select->join('page_tag', 'page_tag.page_id = page.id')
-                  ->join('tag', 'tag.id = page_tag.tag_id')
-                  ->where(['tag.name' => $tags])
-                  ->having(['COUNT(DISTINCT tag.id) = ?' => count($tags)]);*/
-        }
         if (null !== $start_date && null !== $end_date) {
             $select->where(['( page.start_date BETWEEN ? AND ? ' => [$start_date,$end_date]])
                 ->where(['page.end_date BETWEEN ? AND ?  ' => [$start_date,$end_date]], Predicate::OP_OR)
@@ -153,7 +147,7 @@ class Page extends AbstractMapper
             $select->where(['( page.is_published IS TRUE OR page.type <> "course" OR ( page_user.role = "admin" AND page_user.user_id = ? ) )' => $me]);
         }
         $select->group('page.id');
-        
+
         return $this->selectWith($select);
     }
 
@@ -242,7 +236,7 @@ class Page extends AbstractMapper
             ->where(['user.organization_id' => $id])
             ->group(['item.page_id', 'item_user.user_id'])
             ->order([new Expression('ROUND(SUM(item_user.rate) / SUM(item.points) * 100) DESC')]);
-        
+
         return $select;
     }
 
@@ -299,7 +293,7 @@ class Page extends AbstractMapper
 
         return $this->selectWith($select);
     }
-    
+
     /**
      * Execute Request Get users avgs for an organization
      *
@@ -317,10 +311,10 @@ class Page extends AbstractMapper
             ->join(['t1' => $sub_select], new Expression('1'), ['page$user_id' => 'user_id'])
             ->join(['r' => new Expression('(SELECT @rownum:=0)')], new Expression('1'), ['row_number' => new Expression('@rownum:=@rownum+1')])
             ->where(['page.id' => $id]);
-        
+
         return $this->selectWith($select);
     }
-    
+
      /**
       * Execute Request Get users avgs for an organization
       *
@@ -339,10 +333,10 @@ class Page extends AbstractMapper
             ->join(['t1' => $sub_select], new Expression('1'), [])
             ->join(['r' => new Expression('(SELECT @rownum:=0)')], new Expression('1'), ['row_number' => new Expression('@rownum:=@rownum+1')])
             ->where(['page.id' => $id]);
-        
+
         return $this->selectWith($select);
     }
-    
+
     /**
      * Execute Request Get users percentiles for an organization
      *
@@ -370,7 +364,7 @@ class Page extends AbstractMapper
 
         return $this->selectWith($select);
     }
-    
+
     public function getCount($me, $interval, $start_date = null, $end_date = null, $page_id = null, $type = null, $date_offset = 0)
     {
         $select = $this->tableGateway->getSql()->select();
@@ -389,11 +383,11 @@ class Page extends AbstractMapper
         if (null != $type) {
             $select->where(['page.type' => $type]);
         }
-        
+
         if (null != $page_id) {
             $select
-                ->join('user', 'page.owner_id = user.id', [], $select::JOIN_LEFT) 
-                ->join('page_relation', new Expression('page_relation.page_id = page.id AND page_relation.type = ?', [ModelPageRelation::TYPE_OWNER]), [], $select::JOIN_LEFT) 
+                ->join('user', 'page.owner_id = user.id', [], $select::JOIN_LEFT)
+                ->join('page_relation', new Expression('page_relation.page_id = page.id AND page_relation.type = ?', [ModelPageRelation::TYPE_OWNER]), [], $select::JOIN_LEFT)
                 ->where->NEST->NEST
                 ->in('user.organization_id', $page_id)->AND
                 ->literal(' page_relation.parent_id IS NULL')->UNNEST->OR
@@ -401,6 +395,6 @@ class Page extends AbstractMapper
         }
         return $this->selectWith($select);
     }
-    
+
 
 }

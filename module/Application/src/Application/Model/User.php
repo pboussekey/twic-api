@@ -19,6 +19,7 @@ class User extends BaseUser
     protected $nb_user;
     protected $role_id;
     protected $address;
+    protected $tags;
 
     public function exchangeArray(array &$data)
     {
@@ -134,6 +135,18 @@ class User extends BaseUser
     public function getRoles()
     {
         return $this->roles;
+    }
+
+    public function setTags($tags)
+    {
+        $this->tags = $tags;
+
+        return $this;
+    }
+
+    public function getTags()
+    {
+        return $this->tags;
     }
 
     public function setAvailable($available)

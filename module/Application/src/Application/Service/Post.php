@@ -20,7 +20,7 @@ use JRpc\Json\Server\Exception\JrpcException;
  */
 class Post extends AbstractService
 {
-    
+
     public function isMine($id)
     {
         $m_post = $this->getLite($id);
@@ -89,7 +89,7 @@ class Post extends AbstractService
             $type = 'post';
         }
         $uid = (($uid) && is_string($uid) && !empty($uid)) ? $uid:null;
-        $is_notif = !!$uid; 
+        $is_notif = !!$uid;
         $date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
         if (!$is_notif && null === $parent_id && null === $t_page_id && null === $t_user_id) {
             $t_user_id = $user_id;
@@ -102,7 +102,7 @@ class Post extends AbstractService
         if (null !== $parent_id) {
             $uid = null;
         }
-        
+
         $m_post = $this->getModel()
             ->setContent($content)
             ->setPicture($picture)
@@ -190,6 +190,7 @@ class Post extends AbstractService
                 $is_not_public_page
             );
         }
+<<<<<<< HEAD
           // si c pas une notification on gére les hastags
         if (!$is_notif) {
             $mentions = [];
@@ -224,6 +225,9 @@ class Post extends AbstractService
             }
           
         }
+=======
+
+>>>>>>> 9f6dba4ed7ba4392ab4fca6f5c0de4e98835ce97
         if($parent_id == null) {
             if($t_page_id != null && $this->getServicePage()->isAdmin($t_page_id)) {
                 $m_page = $this->getServicePage()->getLite($t_page_id);
@@ -243,10 +247,10 @@ class Post extends AbstractService
                                 $m_organization = $ar_pages[$m_user->getOrganizationId()];
                             }
                             try {
-                                
+
                                 $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
                                 $m_organization->getLibelle() : null;
-                               
+
                                 $url = sprintf("https://%s%s/page/course/%s/timeline", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl'], $m_page->getId());
                                 $this->getServiceMail()->sendTpl(
                                     'tpl_coursepost', $m_user->getEmail(), [
@@ -255,7 +259,7 @@ class Post extends AbstractService
                                     'firstname' => $m_user->getFirstName()
                                     ]
                                 );
-                                
+
                                 $gcm_notification = new GcmNotification();
                                 $gcm_notification->setTitle($m_page->getTitle())
                                     ->setSound("default")
@@ -263,7 +267,7 @@ class Post extends AbstractService
                                     ->setIcon("icon")
                                     ->setTag("PAGEPOST".$t_page_id)
                                     ->setBody("Someone posted on the course ". $m_page->getTitle());
-                                
+
                                 $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification, Fcm::PACKAGE_TWIC_APP);
                             }
                             catch (\Exception $e) {
@@ -297,7 +301,7 @@ class Post extends AbstractService
                                     'firstname' => $m_user->getFirstName()
                                     ]
                                 );*/
-                                
+
                                 $gcm_notification = new GcmNotification();
                                 $gcm_notification->setTitle($m_page->getTitle())
                                     ->setSound("default")
@@ -305,7 +309,7 @@ class Post extends AbstractService
                                     ->setIcon("icon")
                                     ->setTag("PAGEPOST".$t_page_id)
                                     ->setBody("Someone posted in ". $m_page->getTitle());
-                                
+
                                 $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification, Fcm::PACKAGE_TWIC_APP);
                             }
                             catch (\Exception $e) {
@@ -325,7 +329,7 @@ class Post extends AbstractService
                     $m_page =  $this->getServicePage()->getLite($m_user->getOrganizationId());
                 }
                 try{
-                    
+
                     $prefix = ($m_page !== false && is_string($m_page->getLibelle()) && !empty($m_page->getLibelle())) ?
                     $m_page->getLibelle() : null;
                     $url = sprintf("https://%s%s/", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl']);
@@ -336,7 +340,7 @@ class Post extends AbstractService
                         'someone' => $m_me->getFirstname()
                         ]
                     );*/
-                    
+
                     $gcm_notification = new GcmNotification();
                     $gcm_notification->setTitle($m_page->getTitle())
                         ->setSound("default")
@@ -344,7 +348,7 @@ class Post extends AbstractService
                         ->setIcon("icon")
                         ->setTag("PAGECOMMENT".$t_page_id)
                         ->setBody("Someone commented on your post");
-                    
+
                     $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification, Fcm::PACKAGE_TWIC_APP);
                 }
                 catch (\Exception $e) {
@@ -406,7 +410,7 @@ class Post extends AbstractService
         if (!$this->getServiceUser()->isStudnetAdmin() && !$this->isMine($id)) {
             throw new JrpcException('Unauthorized operation post.update', -38003);
         }
-      
+
 
         return $this->_update(
             $id,
@@ -426,7 +430,7 @@ class Post extends AbstractService
             $item_id
         );
     }
-    
+
     public function _update(
         $id = null,
         $content = null,
@@ -444,7 +448,7 @@ class Post extends AbstractService
         $sub = null,
         $item_id = null
     ) {
-      
+
         $user_id = $this->getServiceUser()->getIdentity()['id'];
         $date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
 
@@ -608,7 +612,7 @@ class Post extends AbstractService
             ['count' => $mapper->count(), 'list' => $res_posts] :
             $res_posts;
     }
-    
+
     /**
      * Hide post
      *
@@ -642,7 +646,7 @@ class Post extends AbstractService
             try{
                 $prefix = ($m_page !== false && is_string($m_page->getLibelle()) && !empty($m_page->getLibelle())) ?
                 $m_page->getLibelle() : null;
-                
+
                 $url = sprintf("https://%s%s/", ($prefix ? $prefix.'.':''),  $this->container->get('config')['app-conf']['uiurl']);
                 /*$this->getServiceMail()->sendTpl(
                     'tpl_postlike', $m_user->getEmail(), [
@@ -679,7 +683,7 @@ class Post extends AbstractService
      */
     public function unlike($id)
     {
-        
+
         return $this->getServicePostLike()->delete($id);
     }
 
@@ -802,28 +806,33 @@ class Post extends AbstractService
     {
         $res_post = $this->getMapper()->select($this->getModel()->setUid($uid));
 
-        return ($res_post->count() > 0) ?
-            $this->_update(null, $content, null, null, null, null, null, null, null, null, $data, $event, $uid, $sub) :
-            $this->add(
-                $content,
-                null,
-                null,
-                null,
-                null,
-                null,
-                $parent_id,
-                $t_page_id,
-                $t_user_id,
-                null,
-                null,
-                null,
-                null,
-                $data,
-                $event,
-                $uid,
-                $sub,
-                $type
-            );
+        if($res_post->count() > 0){
+            $this->getServicePostUser()->show(null, $uid);
+            return $this->_update(null, $content, null, null, null, null, null, null, null, null, $data, $event, $uid, $sub);
+        }
+        else{
+           return   $this->add(
+                 $content,
+                 null,
+                 null,
+                 null,
+                 null,
+                 null,
+                 $parent_id,
+                 $t_page_id,
+                 $t_user_id,
+                 null,
+                 null,
+                 null,
+                 null,
+                 $data,
+                 $event,
+                 $uid,
+                 $sub,
+                 $type
+             );
+        }
+
     }
 
     /**
@@ -873,7 +882,7 @@ class Post extends AbstractService
 
         return $return;
     }
-    
+
      /**
       * Get page counts.
       *
@@ -890,13 +899,13 @@ class Post extends AbstractService
       */
     public function getCount( $start_date = null, $end_date = null, $interval_date = 'D', $parent = null, $page_id  = null, $date_offset = 0)
     {
-        
+
         if(null !== $page_id && !is_array($page_id)){
             $page_id = [$page_id];
         }
         $interval = $this->getServiceActivity()->interval($interval_date);
         $identity = $this->getServiceUser()->getIdentity();
-        
+
         return $this->getMapper()->getCount($identity['id'], $interval, $start_date, $end_date, $page_id, $parent, $date_offset);
     }
 
@@ -989,7 +998,7 @@ class Post extends AbstractService
     {
         return $this->container->get('app_service_subscription');
     }
-    
+
     /**
      * Get Service Activity
      *
@@ -998,9 +1007,9 @@ class Post extends AbstractService
     private function getServiceActivity()
     {
         return $this->container->get('app_service_activity');
-    }      
-    
-    
+    }
+
+
     /**
      * Get Service Mail.
      *
@@ -1010,7 +1019,7 @@ class Post extends AbstractService
     {
         return $this->container->get('mail.service');
     }
-    
+
     /**
      * Get Service Service Conversation User.
      *
@@ -1020,7 +1029,7 @@ class Post extends AbstractService
     {
         return $this->container->get('fcm');
     }
-    
+
     /**
      * Get Service Service Post User.
      *

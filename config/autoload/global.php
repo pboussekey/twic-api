@@ -14,7 +14,11 @@
 
 return [
     'version' => "2.0.4",
+<<<<<<< HEAD
     'build-commit' => 1183,
+=======
+    'build-commit' => 1182,
+>>>>>>> 9f6dba4ed7ba4392ab4fca6f5c0de4e98835ce97
     'app-conf' => [
         'cache' => 'storage_memcached',
     ],
@@ -89,6 +93,7 @@ return [
             'app_service_group',
             'app_service_preregistration',
             'app_service_video_archive',
+            'app_service_tag',
             'mail.service',
             'rbac_service_permission',
             'rbac_service_role_permission',
@@ -138,9 +143,15 @@ return [
             'adapter' => [
                 'name' => 'memcached',
                 'options' => [
+<<<<<<< HEAD
                     'namespace' => 'LMS1183',
                     'lib_options' => [
                         ['option' => Memcached::OPT_PREFIX_KEY, 'value' => 'LMS1183'],
+=======
+                    'namespace' => 'LMS1182',
+                    'lib_options' => [
+                        ['option' => Memcached::OPT_PREFIX_KEY, 'value' => 'LMS1182'],
+>>>>>>> 9f6dba4ed7ba4392ab4fca6f5c0de4e98835ce97
                  /*       ['option' => Memcached::OPT_LIBKETAMA_COMPATIBLE, 'value' => true],
                         ['option' => Memcached::OPT_SERIALIZER, 'value' => Memcached::SERIALIZER_IGBINARY],
                         ['option' => Memcached::OPT_DISTRIBUTION, 'value' => Memcached::DISTRIBUTION_CONSISTENT],*/
