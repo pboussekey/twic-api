@@ -165,7 +165,8 @@ class PageUser extends AbstractService
                 }
 
                 // Si il n'est pas le propriétaire on lui envoie une notification
-                if ($m_page->getUserId() !== $uid) {
+                if ($m_page->getUserId() !== $uid && ($m_page->getIsPublished()
+                  || $m_page->getType() !== ModelPage::TYPE_COURSE || $role === ModelPageUser::ROLE_ADMIN)) {
                     $this->getServicePost()->addSys(
                         'PPM'.$page_id.'_'.$uid,
                         '',
@@ -288,7 +289,8 @@ class PageUser extends AbstractService
                 $this->getServiceConversationUser()->add($m_page->getConversationId(), $user_id);
             }
 
-            if ($m_page_user->getState() === ModelPageUser::STATE_PENDING || $m_page_user->getState() === ModelPageUser::STATE_INVITED) {
+            if ($m_page_user->getState() === ModelPageUser::STATE_PENDING || $m_page_user->getState() === ModelPageUser::STATE_INVITED
+                || ($m_page_user->getRole() === ModelPageUser::ROLE_USER && $role=== ModelPageUser::ROLE_ADMIN && !$m_page->getIsPublished())) {
                 $this->getServiceSubscription()->add('PP'.$page_id, $user_id);
                 if(ModelPage::TYPE_ORGANIZATION == $m_page->getType()) {
                     $res_page_relation = $this->getServicePageRelation()->getList($page_id, ModelPageRelation::TYPE_MEMBER);
@@ -296,22 +298,25 @@ class PageUser extends AbstractService
                         $this->getServiceSubscription()->add("PP".$m_page_relation->getParentId(), $user_id);
                     }
                 }
-                $this->getServicePost()->addSys(
-                    'PPM'.$page_id.'_'.$user_id,
-                    '',
-                    [
-                    'state' => 'member',
-                    'user' => $user_id,
-                    'page' => $page_id,
-                    'type' => $m_page->getType(),
-                    ],
-                    'member',
-                    ['M'.$user_id], /*sub ['M'.$user_id, 'PU'.$user_id] */
-                    null/*parent*/,
-                    null/*page*/,
-                    $user_id/*user*/,
-                    'page'
-                );
+                if ($m_page->getUserId() !== $user_id && ($m_page->getIsPublished()
+                  || $m_page->getType() !== ModelPage::TYPE_COURSE || $role === ModelPageUser::ROLE_ADMIN)) {
+                    $this->getServicePost()->addSys(
+                        'PPM'.$page_id.'_'.$user_id,
+                        '',
+                        [
+                        'state' => 'member',
+                        'user' => $user_id,
+                        'page' => $page_id,
+                        'type' => $m_page->getType(),
+                        ],
+                        'member',
+                        ['M'.$user_id], /*sub ['M'.$user_id, 'PU'.$user_id] */
+                        null/*parent*/,
+                        null/*page*/,
+                        $user_id/*user*/,
+                        'page'
+                    );
+                }
             }
         }
         /*
