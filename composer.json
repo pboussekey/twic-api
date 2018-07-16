@@ -20,16 +20,18 @@
 		"aws/aws-sdk-php" : "^3.19",
 		"firebase/php-jwt" : "^4.0",
 		"buse974/dms" : "dev-master",
-		"google/cloud" : "^0.22.0",
+		"google/cloud" : "^0.69.1",
+		"google/cloud-error-reporting" : "^0.11.0",
+		"google/cloud-logging" : "^1.12",
 		"phing/phing" : "*",
-		"mailgun/mailgun-php": "^2.5",
-		"php-http/guzzle6-adapter": "^1.1",
-		"php-http/message": "^1.6"
+		"mailgun/mailgun-php" : "^2.5",
+		"php-http/guzzle6-adapter" : "^1.1",
+		"php-http/message" : "^1.6"
 	},
 	"require-dev" : {
 		"friendsofphp/php-cs-fixer" : "*",
 		"phpunit/phpunit" : "*",
-                "php-coveralls/php-coveralls": "*"
+		"php-coveralls/php-coveralls" : "*"
 	},
 	"autoload" : {
 		"psr-4" : {
@@ -51,7 +53,7 @@
 		"serve" : "php -S 0.0.0.0:8081 -t public/ public/routing.php",
 		"test" : "phpunit"
 	},
-        "config" : {
-            "bin-dir" : "bin/"
-        }
+	"config" : {
+		"bin-dir" : "bin/"
+	}
 }
