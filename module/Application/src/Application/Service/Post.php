@@ -162,10 +162,10 @@ class Post extends AbstractService
         if ($parent_id && $origin_id) {
             // SI N'EST PAS PRIVATE ET QUE CE N'EST PAS UNE NOTIF -> ON NOTIFIE LES AMIES DES OWNER
             $m_post = $this->getLite($id);
-            if (!$is_notif) {
+            if (!$is_notif && null === $page_id) {
                 $pevent = array_merge($pevent, ['P'.$this->getOwner($m_post)]);
             }
-            if(!$m_post_base->getUserId() instanceof IsNull){
+            if(!$m_post_base->getUserId() instanceof IsNull&& null === $page_id){
                 $pevent = array_merge($pevent, ['M'.$m_post_base->getUserId()]);
             }
             // SI NOTIF ET QUE LE PARENT N'A PAS DE TARGET ON RECUPERE TTES LES SUBSCRIPTIONS
@@ -353,8 +353,6 @@ class Post extends AbstractService
             }
 
         }
-
-
 
         return $id;
     }

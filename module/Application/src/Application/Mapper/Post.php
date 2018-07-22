@@ -61,7 +61,7 @@ class Post extends AbstractMapper
                 ->where([' page.confidentiality = 0 '], Predicate::OP_OR)
                 ->where([' ((page.type <> "course" OR page.is_published IS TRUE OR page_user.role = "admin") AND page_user.user_id IS NOT NULL AND page_user.state NOT IN ("pending", "invited")))'], Predicate::OP_OR);
         }
-        
+
         // si c un admin studnet on enleve les type notifs les notif on tous des uid
         if($is_admin === true && null === $parent_id) {
             $select->join('subscription', 'subscription.libelle=post_subscription.libelle', [], $select::JOIN_LEFT)
@@ -72,7 +72,7 @@ class Post extends AbstractMapper
         if (null !== $user_id) {
             $select->where(['post.t_user_id' => $user_id]);
         }
-        
+
         if (null !== $page_id) {
             $select->where(['post.t_page_id' => $page_id]);
         }
@@ -127,9 +127,9 @@ class Post extends AbstractMapper
 
         return $this->selectWith($select);
     }
-    
-    
-    
+
+
+
     public function getCount($me, $interval, $start_date = null, $end_date = null, $page_id = null, $parent = null, $date_offset = 0)
     {
         $select = $this->tableGateway->getSql()->select();
@@ -155,7 +155,7 @@ class Post extends AbstractMapper
                 ->notEqualTo(' page.type',ModelPage::TYPE_ORGANIZATION )->UNNEST->OR
                 ->in(' user.organization_id', $page_id)->UNNEST;
         }
-        
+
         if(0 === $parent) {
             $select->where('post.parent_id IS NULL');
         }
