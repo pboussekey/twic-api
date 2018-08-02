@@ -152,7 +152,7 @@ class Post extends AbstractService
             $ar = array_filter(
                 explode(' ', str_replace(["\r\n","\n","\r"], ' ', $content)),
                 function ($v) {
-                    return (strpos($v, '#') !== false) || (strpos($v, '@') !== false);
+                    return (strpos($v, '#') === 0) || (strpos($v, '@') === 0);
                 }
             );
 

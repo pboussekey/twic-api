@@ -25,7 +25,7 @@
     	        <not><equals arg1="${proxy.instance}" arg2="" /></not>
     		</and>
 			<then>
-				<echo msg="Connect proxy..." />
+				<echo msg="Connect proxy... ${project.basedir}/${proxy.credential}" />
 				<exec
 					command="${project.basedir}/cloudsqlproxy.sh
 					-c ${project.basedir}/${proxy.credential}
@@ -56,13 +56,13 @@
             </then>
     	</if>
 
-        <echo message="Database undo file ${build.dbdeploy.undofile}" />
+        <echo message="Database undo file ${build.dbdeploy.undofile} mysql:host=${db.host};dbname=${db.database}${db.urlport} ${build.dbdeploy.deployfile}" />
         <dbdeploy
             url="mysql:host=${db.host};dbname=${db.database}${db.urlport}"
             userid="${db.user}"
             password="${db.password}"
             dir="${project.basedir}/data/db/"
-            outputfile="${build.dbdeploy.deployfile}"
+            outputfile="${build.dbdeploy.deployfile}" 
             undooutputfile="${build.dbdeploy.undofile}" />
 
     	<echo message="mysql --default-character-set=utf8 -h${db.host} -u${db.user} ${db.passwordParam} ${db.port} ${db.database} &lt; ${build.dbdeploy.deployfile}" />
