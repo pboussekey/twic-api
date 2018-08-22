@@ -296,7 +296,7 @@ class User extends AbstractService
         return $this->_add($firstname, $lastname, $email, $gender, $origin, $nationality, $sis, $password, $birth_date, $position, $organization_id, $interest, $avatar, $roles, $timezone, $background, $nickname, $ambassador, $address);
     }
     
-    public function _add($firstname, $lastname, $email, $gender = null, $origin = null, $nationality = null, $sis = null, $password = null, $birth_date = null, $position = null, $organization_id = null, $interest = null, $avatar = null, $roles = null, $timezone = null, $background = null, $nickname = null, $ambassador = null, $address = null)
+    public function _add($firstname, $lastname, $email, $gender = null, $origin = null, $nationality = null, $sis = null, $password = null, $birth_date = null, $position = null, $organization_id = null, $interest = null, $avatar = null, $roles = null, $timezone = null, $background = null, $nickname = null, $ambassador = null, $address = null, $active = null)
     {
         $m_user = $this->getModel();
         
@@ -323,7 +323,8 @@ class User extends AbstractService
             ->setNickname($nickname)
             ->setAmbassador($ambassador)
             ->setEmailSent(0)
-            ->setCreatedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'));
+            ->setCreatedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'))
+            ->setIsActive($active);
         
         if (! empty($password)) {
             $m_user->setPassword(md5($password));
@@ -689,6 +690,50 @@ class User extends AbstractService
     }
 
     /**
+     * Pre SignIn
+     *
+     * @invokable
+     *
+     * @param string $email
+     * @param int $page_id
+     * @param string $firstname
+     * @param string $lastname
+     * @return boolean
+     */
+    public function preSignIn($email, $page_id, $firstname = null, $lastname = null)
+    {
+        $res_page = $this->getServicePage()->getCustom(null, $page_id);
+        if($res_page->getDomaine() !== explode("@", $email)[1]) {
+            throw \Exception('Error Mail is not valide');
+        }
+        
+        $uniqid = uniqid($page_id . strlen($email) . "_", true);
+        $m_page = $this->getServicePage()->getLite($page_id);
+        $this->getServicePreregistration()->add($uniqid, null, null, $email, $page_id);
+        
+        $prefix = ($m_page !== false && is_string($m_page->getLibelle()) && !empty($m_page->getLibelle())) ?
+        $m_page->getLibelle() : null;
+        
+        $url = sprintf("https://%s%s/signin/%s", ($prefix ? $prefix.'.':''),  $this->container->get('config')['app-conf']['uiurl'], $uniqid);
+        
+        try {
+            $this->getServiceMail()->sendTpl(
+                'tpl_sendpasswd', $email, [
+                    'uniqid' => $uniqid,
+                    'email' => $email,
+                    'accessurl' => $url,
+                    'lastname' => $lastname,
+                    'firstname' => $firstname
+                ]
+                );
+        } catch (\Exception $e) {
+            syslog(1, 'Model name does not exist <> uniqid is : ' . $uniqid . ' <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode() . ' <URL> ' . $url . ' <Email> ' . $email);
+        }
+
+        return true;
+    }
+    
+    /**
      * Send New Password
      *
      * @invokable
@@ -1048,9 +1093,33 @@ class User extends AbstractService
             );
             $user_id = $m_registration->getUserId();
         } else {
-            $user_id = $this->_add($m_registration->getFirstname(), $m_registration->getLastname(), $m_registration->getEmail(), null, null, null, null, $password, null, null, (is_numeric($m_registration->getOrganizationId()) ? $m_registration->getOrganizationId() : null));
+            $lastname = (!empty($lastname)) ? $lastname : ( (is_string($m_registration->getLastname())) ? $m_registration->getLastname() : null);
+            $firstname = (!empty($firstname)) ? $firstname : ( (is_string($m_registration->getFirstname())) ? $m_registration->getFirstname() : null);
+            
+            $user_id = $this->_add(
+                $firstname, 
+                $lastname, 
+                $m_registration->getEmail(), 
+                null, 
+                null, 
+                null, 
+                null, 
+                $password, 
+                null, 
+                null, 
+                (is_numeric($m_registration->getOrganizationId()) ? $m_registration->getOrganizationId() : null),
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                true
+            );
         }
-        
+       
         $m_user = $this->getLite($user_id);
         $login = $this->login($m_user->getEmail(), $password);
         if(is_numeric($m_user->getOrganizationId())) {

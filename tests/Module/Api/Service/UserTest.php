@@ -2,6 +2,7 @@
 namespace ModuleTest\Api\Service;
 
 use ModuleTest\Api\AbstractService;
+use Application\Model\Preregistration;
 
 class UserTest extends AbstractService
 {
@@ -29,7 +30,7 @@ class UserTest extends AbstractService
             'end_date' => '2016-00-00 00:00:00',
             'location' => 'location',
             'organization_id' => 1,
-            'domaine' => 'yale.edu',
+            'domaine' => 'twic.io',
             'users' => [
               ['user_id' => 1,'role' => 'admin', 'state' => 'member'],
               ['user_id' => 2,'role' => 'admin', 'state' => 'member'],
@@ -279,7 +280,7 @@ class UserTest extends AbstractService
     {
         $this->setIdentity(5, 1);
         
-        $data = $this->jsonRpc('page.getListByEmail', ['email' => 'toto@yale.edu']);
+        $data = $this->jsonRpc('page.getListByEmail', ['email' => 'toto@twic.io']);
         
         $this->assertEquals(count($data) , 3);
         $this->assertEquals($data['id'] , 1);
@@ -288,10 +289,83 @@ class UserTest extends AbstractService
         $this->assertEquals($data['result'][0]['id'] , 1);
         $this->assertEquals($data['result'][0]['title'] , "super title");
         $this->assertEquals($data['result'][0]['logo'] , "logo");
-        $this->assertEquals($data['result'][0]['domaine'] , "yale.edu");
+        $this->assertEquals($data['result'][0]['domaine'] , "twic.io");
         $this->assertEquals($data['jsonrpc'] , 2.0);
     }
+    
+    public function testPreSignIn()
+    {
+        $this->setIdentity(5, 1);
+        
+        //preSignIn($email, $page_id, $firstname = null, $lastname = null)
+        $data = $this->jsonRpc('user.preSignIn', [
+            'email' => 'christophe@twic.io', 
+            'page_id' => 1,
+        ]);
+        
+        $this->assertEquals(count($data) , 3);
+        $this->assertEquals($data['id'] , 1);
+        $this->assertEquals($data['result'] , true);
+        $this->assertEquals($data['jsonrpc'] , 2.0);
+    }
+    
+    public function testSignIn()
+    {
+        $serviceManager = $this->getApplicationServiceLocator();
+        $serviceManager->setAllowOverride(true);
+        
+        $m_preregistration = new Preregistration();
+        $m_preregistration->setEmail("christophe@twic.io")->setOrganizationId(1)->setAccountToken('fake');
+        
+        
+        $mock = $this->getMockBuilder('\Application\Service\Preregistration')
+        ->setMethods(['get','delete'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        
+        $mock->expects($this->any())
+            ->method('get')
+            ->will($this->returnValue($m_preregistration));
+        
+        $serviceManager->setService('app_service_preregistration', $mock);
 
+        $data = $this->jsonRpc('user.signIn', [
+            'account_token' => '1234',
+            'password' => 1,
+            'firstname' => 'chris',
+            'lastname' => 'bob'
+        ]);
+
+        $this->assertEquals(count($data) , 3);
+        $this->assertEquals($data['id'] , 1);
+        $this->assertEquals(count($data['result']) , 18);
+        $this->assertEquals($data['result']['id'] , 11);
+        $this->assertEquals(!empty($data['result']['token']) , true);
+        $this->assertEquals(!empty($data['result']['created_date']) , true);
+        $this->assertEquals($data['result']['firstname'] , "chris");
+        $this->assertEquals($data['result']['lastname'] , "bob");
+        $this->assertEquals($data['result']['nickname'] , null);
+        $this->assertEquals($data['result']['suspension_date'] , null);
+        $this->assertEquals($data['result']['suspension_reason'] , null);
+        $this->assertEquals($data['result']['organization_id'] , 1);
+        $this->assertEquals($data['result']['email'] , "christophe@twic.io");
+        $this->assertEquals($data['result']['avatar'] , null);
+        $this->assertEquals($data['result']['expiration_date'] , null);
+        $this->assertEquals($data['result']['has_linkedin'] , false);
+        $this->assertEquals($data['result']['cgu_accepted'] , 0);
+        $this->assertEquals($data['result']['swap_email'] , null);
+        $this->assertEquals(count($data['result']['roles']) , 1);
+        $this->assertEquals($data['result']['roles'][2] , "user");
+        $this->assertEquals(!empty($data['result']['wstoken']) , true);
+        $this->assertEquals(!empty($data['result']['fbtoken']) , true);
+        $this->assertEquals($data['jsonrpc'] , 2.0);
+    }
+    
+
+    
+    
+    
+    
     /**
      * @depends testCanAddUser
      */
@@ -520,7 +594,7 @@ class UserTest extends AbstractService
         $this->assertEquals(count($data) , 3); 
         $this->assertEquals($data['id'] , 1); 
         $this->assertEquals(count($data['result']) , 18); 
-        $this->assertEquals($data['result']['id'] , 11); 
+        $this->assertEquals($data['result']['id'] , 12); 
         $this->assertEquals(!empty($data['result']['token']) , true); 
         $this->assertEquals(!empty($data['result']['created_date']) , true); 
         $this->assertEquals($data['result']['firstname'] , "Test"); 
@@ -1268,16 +1342,17 @@ class UserTest extends AbstractService
 
         $this->assertEquals(count($data) , 3);
         $this->assertEquals($data['id'] , 1);
-        $this->assertEquals(count($data['result']) , 8);
-        $this->assertEquals($data['result'][0] , 11);
-        $this->assertEquals($data['result'][1] , 10);
-        $this->assertEquals($data['result'][2] , 9);
-        $this->assertEquals($data['result'][3] , 7);
-        $this->assertEquals($data['result'][4] , 6);
-        $this->assertEquals($data['result'][5] , 5);
-        $this->assertEquals($data['result'][6] , 2);
-        $this->assertEquals($data['result'][7] , 1);
-        $this->assertEquals($data['jsonrpc'] , 2.0);
+        $this->assertEquals(count($data['result']) , 9);
+        $this->assertEquals($data['result'][0] , 12);
+        $this->assertEquals($data['result'][1] , 11);
+        $this->assertEquals($data['result'][2] , 10);
+        $this->assertEquals($data['result'][3] , 9);
+        $this->assertEquals($data['result'][4] , 7);
+        $this->assertEquals($data['result'][5] , 6);
+        $this->assertEquals($data['result'][6] , 5);
+        $this->assertEquals($data['result'][7] , 2);
+        $this->assertEquals($data['result'][8] , 1);
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
     }
 
     public function testDeleteContact()
@@ -1754,7 +1829,7 @@ class UserTest extends AbstractService
         $this->assertEquals(count($data) , 3); 
         $this->assertEquals($data['id'] , 1); 
         $this->assertEquals(count($data['result']) , 18); 
-        $this->assertEquals($data['result']['id'] , 12); 
+        $this->assertEquals($data['result']['id'] , 13); 
         $this->assertEquals(!empty($data['result']['token']) , true); 
         $this->assertEquals(!empty($data['result']['created_date']) , true); 
         $this->assertEquals($data['result']['firstname'] , "Paul"); 

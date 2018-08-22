@@ -33,7 +33,7 @@ class Page extends AbstractMapper
      * @param  int    $id
      * @return \Dal\Db\ResultSet\ResultSet
      */
-    public function getCustom($libelle, $id)
+    public function getCustom($libelle = null, $id = null)
     {
         $select = $this->tableGateway->getSql()->select();
         $select->columns(array('id','libelle','custom', 'domaine'));

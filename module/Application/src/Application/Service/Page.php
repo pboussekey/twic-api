@@ -58,6 +58,8 @@ class Page extends AbstractService
      *
      * @param string $libelle
      * @param int    $id
+     * 
+     * @return \Application\Model\Page
      */
     public function getCustom($libelle = null, $id = null)
     {
