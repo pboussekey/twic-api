@@ -709,6 +709,7 @@ class User extends AbstractService
         
         $uniqid = uniqid($page_id . strlen($email) . "_", true);
         $m_page = $this->getServicePage()->getLite($page_id);
+        
         $this->getServicePreregistration()->add($uniqid, $firstname, $lastname, $email, $page_id);
         
         $prefix = ($m_page !== false && is_string($m_page->getLibelle()) && !empty($m_page->getLibelle())) ?
