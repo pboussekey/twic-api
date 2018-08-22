@@ -1,3 +1,2 @@
-ALTER TABLE `hashtag` 
-CHANGE COLUMN `name` `name` TEXT NOT NULL ;
-
+ALTER TABLE `hashtag`
+CHANGE COLUMN `name` `name` VARCHAR(500);

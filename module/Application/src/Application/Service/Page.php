@@ -22,7 +22,12 @@ use Zend\Db\Sql\Predicate\IsNull;
 class Page extends AbstractService
 {
 
-    
+    /**
+     * Check if is admin of the page id
+     * 
+     * @param int $id
+     * @return boolean
+     */
     public function isAdmin($id)
     {
         if($this->getServiceUser()->isStudnetAdmin()){
@@ -31,6 +36,18 @@ class Page extends AbstractService
         $identity = $this->getServiceUser()->getIdentity();
         $ar_pu = $this->getServicePageUser()->getListByPage($id, ModelPageUser::ROLE_ADMIN);
         return (in_array($identity['id'], $ar_pu[$id]));
+    }
+    
+    /**
+     * Get List Org 
+     * @invokable
+     * 
+     * @param string $domaine
+     * @return array
+     */
+    public function getListOrg($email)
+    {
+        return $this->getMapper()->getListOrg(explode("@", $email)[1]);
     }
     
     /**

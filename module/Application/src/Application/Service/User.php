@@ -713,6 +713,7 @@ class User extends AbstractService
         }
 
         $nb = 0;
+        
         $invitation_date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
         foreach ($id as $uid) {
             $res_user = $this->getMapper()->select($this->getModel()->setId($uid));

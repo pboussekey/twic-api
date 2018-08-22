@@ -472,7 +472,7 @@ abstract class AbstractService extends AbstractHttpControllerTestCase
                 ],
         ]);
         
-        $mailMock->init("login", "password");
+        //$mailMock->init("login", "password");
         
         $transportMock = $this->getMockBuilder('\Zend\Mail\Transport\Smtp')
             ->setMethods(['send'])

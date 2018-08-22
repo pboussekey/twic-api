@@ -358,7 +358,7 @@ class MessageTest extends AbstractService
         $this->setIdentity(2);
         $data = $this->jsonRpc(
             'message.send', [
-            'conversation_id' => $item['conversation_id'], 'text' => 'dernier message', 'library' => ['token' => '123456789', 'name' => 'super doc  ']]
+            'conversation_id' => $item['conversation_id'], 'text' =>  'dernier message', 'library' => ['token' => '123456789', 'name' => 'super doc  ']]
         );
 
         $this->assertEquals(count($data), 3);
@@ -472,115 +472,53 @@ class MessageTest extends AbstractService
         $this->setIdentity(2);
         $data = $this->jsonRpc(
             'conversation.get', [
-            'id' => $conv
+                'id' => $conv['conversation_id']
             ]
         );
-        $this->assertEquals(count($data) , 3); 
-        $this->assertEquals($data['id'] , 1); 
-        $this->assertEquals(count($data['result']) , 2); 
-        $this->assertEquals(count($data['result'][6]) , 10); 
-        $this->assertEquals($data['result'][6]['item_id'] , null); 
-        $this->assertEquals(count($data['result'][6]['message']) , 6); 
-        $this->assertEquals(count($data['result'][6]['message']['message_user']) , 1); 
-        $this->assertEquals(!empty($data['result'][6]['message']['message_user']['read_date']) , true); 
-        $this->assertEquals(count($data['result'][6]['message']['library']) , 6); 
-        $this->assertEquals($data['result'][6]['message']['library']['id'] , 4); 
-        $this->assertEquals($data['result'][6]['message']['library']['name'] , "super doc  "); 
-        $this->assertEquals($data['result'][6]['message']['library']['link'] , null); 
-        $this->assertEquals($data['result'][6]['message']['library']['token'] , 123456789); 
-        $this->assertEquals($data['result'][6]['message']['library']['type'] , null); 
-        $this->assertEquals($data['result'][6]['message']['library']['box_id'] , null); 
-        $this->assertEquals($data['result'][6]['message']['id'] , 6); 
-        $this->assertEquals($data['result'][6]['message']['text'] , "dernier message"); 
-        $this->assertEquals(!empty($data['result'][6]['message']['created_date']) , true); 
-        $this->assertEquals($data['result'][6]['message']['user_id'] , 2); 
-        $this->assertEquals(count($data['result'][6]['conversation_user']) , 1); 
-        $this->assertEquals($data['result'][6]['conversation_user']['read_date'] , null); 
-        $this->assertEquals(count($data['result'][6]['users']) , 2); 
-        $this->assertEquals($data['result'][6]['users'][0] , 2); 
-        $this->assertEquals($data['result'][6]['users'][1] , 3); 
-        $this->assertEquals($data['result'][6]['nb_users'] , 2); 
-        $this->assertEquals($data['result'][6]['page_id'] , null); 
-        $this->assertEquals($data['result'][6]['id'] , 6); 
-        $this->assertEquals($data['result'][6]['name'] , "Chat"); 
-        $this->assertEquals($data['result'][6]['type'] , 2); 
-        $this->assertEquals(count($data['result'][6]['options']) , 3); 
-        $this->assertEquals($data['result'][6]['options']['record'] , false); 
-        $this->assertEquals($data['result'][6]['options']['nb_user_autorecord'] , 0); 
-        $this->assertEquals(count($data['result'][6]['options']['rules']) , 10); 
-        $this->assertEquals($data['result'][6]['options']['rules']['autoPublishCamera'] , true); 
-        $this->assertEquals($data['result'][6]['options']['rules']['autoPublishMicrophone'] , false); 
-        $this->assertEquals($data['result'][6]['options']['rules']['archive'] , false); 
-        $this->assertEquals($data['result'][6]['options']['rules']['raiseHand'] , false); 
-        $this->assertEquals($data['result'][6]['options']['rules']['publish'] , true); 
-        $this->assertEquals($data['result'][6]['options']['rules']['askDevice'] , false); 
-        $this->assertEquals($data['result'][6]['options']['rules']['askScreen'] , false); 
-        $this->assertEquals($data['result'][6]['options']['rules']['forceMute'] , false); 
-        $this->assertEquals($data['result'][6]['options']['rules']['forceUnpublish'] , false); 
-        $this->assertEquals($data['result'][6]['options']['rules']['kick'] , false); 
-        $this->assertEquals(count($data['result'][4]) , 10); 
-        $this->assertEquals($data['result'][4]['item_id'] , 5); 
-        $this->assertEquals(count($data['result'][4]['message']) , 6); 
-        $this->assertEquals(count($data['result'][4]['message']['message_user']) , 1); 
-        $this->assertEquals($data['result'][4]['message']['message_user']['read_date'] , null); 
-        $this->assertEquals($data['result'][4]['message']['library'] , null); 
-        $this->assertEquals($data['result'][4]['message']['id'] , 2); 
-        $this->assertEquals($data['result'][4]['message']['text'] , "super message qwerty"); 
-        $this->assertEquals(!empty($data['result'][4]['message']['created_date']) , true); 
-        $this->assertEquals($data['result'][4]['message']['user_id'] , 1); 
-        $this->assertEquals(count($data['result'][4]['conversation_user']) , 1); 
-        $this->assertEquals($data['result'][4]['conversation_user']['read_date'] , null); 
-        $this->assertEquals(count($data['result'][4]['users']) , 4); 
-        $this->assertEquals($data['result'][4]['users'][0] , 1); 
-        $this->assertEquals($data['result'][4]['users'][1] , 2); 
-        $this->assertEquals($data['result'][4]['users'][2] , 3); 
-        $this->assertEquals($data['result'][4]['users'][3] , 4); 
-        $this->assertEquals($data['result'][4]['nb_users'] , 0); 
-        $this->assertEquals($data['result'][4]['page_id'] , null); 
-        $this->assertEquals($data['result'][4]['id'] , 4); 
-        $this->assertEquals($data['result'][4]['name'] , "Chat"); 
-        $this->assertEquals($data['result'][4]['type'] , 3); 
-        $this->assertEquals(count($data['result'][4]['options']) , 3); 
-        $this->assertEquals($data['result'][4]['options']['record'] , false); 
-        $this->assertEquals($data['result'][4]['options']['nb_user_autorecord'] , 2); 
-        $this->assertEquals(count($data['result'][4]['options']['rules']) , 10); 
-        $this->assertEquals($data['result'][4]['options']['rules']['autoPublishCamera'] , true); 
-        $this->assertEquals($data['result'][4]['options']['rules']['autoPublishMicrophone'] , false); 
-        $this->assertEquals(count($data['result'][4]['options']['rules']['archive']) , 1); 
-        $this->assertEquals(count($data['result'][4]['options']['rules']['archive'][0]) , 1); 
-        $this->assertEquals(count($data['result'][4]['options']['rules']['archive'][0]['roles']) , 1); 
-        $this->assertEquals($data['result'][4]['options']['rules']['archive'][0]['roles'][0] , "admin"); 
-        $this->assertEquals(count($data['result'][4]['options']['rules']['raiseHand']) , 1); 
-        $this->assertEquals(count($data['result'][4]['options']['rules']['raiseHand'][0]) , 1); 
-        $this->assertEquals(count($data['result'][4]['options']['rules']['raiseHand'][0]['roles']) , 1); 
-        $this->assertEquals($data['result'][4]['options']['rules']['raiseHand'][0]['roles'][0] , "user"); 
-        $this->assertEquals(count($data['result'][4]['options']['rules']['publish']) , 1); 
-        $this->assertEquals(count($data['result'][4]['options']['rules']['publish'][0]) , 1); 
-        $this->assertEquals(count($data['result'][4]['options']['rules']['publish'][0]['roles']) , 1); 
-        $this->assertEquals($data['result'][4]['options']['rules']['publish'][0]['roles'][0] , "admin"); 
-        $this->assertEquals(count($data['result'][4]['options']['rules']['askDevice']) , 1); 
-        $this->assertEquals(count($data['result'][4]['options']['rules']['askDevice'][0]) , 1); 
-        $this->assertEquals(count($data['result'][4]['options']['rules']['askDevice'][0]['roles']) , 1); 
-        $this->assertEquals($data['result'][4]['options']['rules']['askDevice'][0]['roles'][0] , "admin"); 
-        $this->assertEquals(count($data['result'][4]['options']['rules']['askScreen']) , 1); 
-        $this->assertEquals(count($data['result'][4]['options']['rules']['askScreen'][0]) , 1); 
-        $this->assertEquals(count($data['result'][4]['options']['rules']['askScreen'][0]['roles']) , 1); 
-        $this->assertEquals($data['result'][4]['options']['rules']['askScreen'][0]['roles'][0] , "admin"); 
-        $this->assertEquals(count($data['result'][4]['options']['rules']['forceMute']) , 1); 
-        $this->assertEquals(count($data['result'][4]['options']['rules']['forceMute'][0]) , 1); 
-        $this->assertEquals(count($data['result'][4]['options']['rules']['forceMute'][0]['roles']) , 1); 
-        $this->assertEquals($data['result'][4]['options']['rules']['forceMute'][0]['roles'][0] , "admin"); 
-        $this->assertEquals(count($data['result'][4]['options']['rules']['forceUnpublish']) , 1); 
-        $this->assertEquals(count($data['result'][4]['options']['rules']['forceUnpublish'][0]) , 1); 
-        $this->assertEquals(count($data['result'][4]['options']['rules']['forceUnpublish'][0]['roles']) , 1); 
-        $this->assertEquals($data['result'][4]['options']['rules']['forceUnpublish'][0]['roles'][0] , "admin"); 
-        $this->assertEquals(count($data['result'][4]['options']['rules']['kick']) , 1); 
-        $this->assertEquals(count($data['result'][4]['options']['rules']['kick'][0]) , 1); 
-        $this->assertEquals(count($data['result'][4]['options']['rules']['kick'][0]['roles']) , 1); 
-        $this->assertEquals($data['result'][4]['options']['rules']['kick'][0]['roles'][0] , "admin"); 
-        $this->assertEquals($data['jsonrpc'] , 2.0); 
-
-
+        
+        $this->assertEquals(count($data) , 3);
+        $this->assertEquals($data['id'] , 1);
+        $this->assertEquals(count($data['result']) , 10);
+        $this->assertEquals($data['result']['item_id'] , null);
+        $this->assertEquals(count($data['result']['message']) , 6);
+        $this->assertEquals(count($data['result']['message']['message_user']) , 1);
+        $this->assertEquals(!empty($data['result']['message']['message_user']['read_date']) , true);
+        $this->assertEquals(count($data['result']['message']['library']) , 6);
+        $this->assertEquals($data['result']['message']['library']['id'] , 4);
+        $this->assertEquals($data['result']['message']['library']['name'] , "super doc  ");
+        $this->assertEquals($data['result']['message']['library']['link'] , null);
+        $this->assertEquals($data['result']['message']['library']['token'] , 123456789);
+        $this->assertEquals($data['result']['message']['library']['type'] , null);
+        $this->assertEquals($data['result']['message']['library']['box_id'] , null);
+        $this->assertEquals($data['result']['message']['id'] , 6);
+        $this->assertEquals($data['result']['message']['text'] , "dernier message");
+        $this->assertEquals(!empty($data['result']['message']['created_date']) , true);
+        $this->assertEquals($data['result']['message']['user_id'] , 2);
+        $this->assertEquals(count($data['result']['conversation_user']) , 1);
+        $this->assertEquals($data['result']['conversation_user']['read_date'] , null);
+        $this->assertEquals(count($data['result']['users']) , 2);
+        $this->assertEquals($data['result']['users'][0] , 2);
+        $this->assertEquals($data['result']['users'][1] , 3);
+        $this->assertEquals($data['result']['nb_users'] , 2);
+        $this->assertEquals($data['result']['page_id'] , null);
+        $this->assertEquals($data['result']['id'] , 6);
+        $this->assertEquals($data['result']['name'] , "Chat");
+        $this->assertEquals($data['result']['type'] , 2);
+        $this->assertEquals(count($data['result']['options']) , 3);
+        $this->assertEquals($data['result']['options']['record'] , false);
+        $this->assertEquals($data['result']['options']['nb_user_autorecord'] , 0);
+        $this->assertEquals(count($data['result']['options']['rules']) , 10);
+        $this->assertEquals($data['result']['options']['rules']['autoPublishCamera'] , true);
+        $this->assertEquals($data['result']['options']['rules']['autoPublishMicrophone'] , false);
+        $this->assertEquals($data['result']['options']['rules']['archive'] , false);
+        $this->assertEquals($data['result']['options']['rules']['raiseHand'] , false);
+        $this->assertEquals($data['result']['options']['rules']['publish'] , true);
+        $this->assertEquals($data['result']['options']['rules']['askDevice'] , false);
+        $this->assertEquals($data['result']['options']['rules']['askScreen'] , false);
+        $this->assertEquals($data['result']['options']['rules']['forceMute'] , false);
+        $this->assertEquals($data['result']['options']['rules']['forceUnpublish'] , false);
+        $this->assertEquals($data['result']['options']['rules']['kick'] , false);
+        $this->assertEquals($data['jsonrpc'] , 2.0);
     }
 
     /**
@@ -1114,8 +1052,7 @@ class MessageTest extends AbstractService
         $data = $this->jsonRpc('conversation.getReadDates', [
             'id' => [1,2,3,4,5]
         ]);
-        
-        $this->printCreateTest($data);
+
         $this->assertEquals(count($data) , 3); 
         $this->assertEquals($data['id'] , 1); 
         $this->assertEquals(count($data['result']) , 5); 

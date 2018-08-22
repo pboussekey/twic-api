@@ -1,1 +1,1 @@
-{"method":"user.linkedinLogIn","id":1,"params":{"linkedin_id":"ID"}}
+{"method":"page.getListOrg","id":1,"params":{"domaine":"yale.edu"}}

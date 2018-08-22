@@ -216,7 +216,7 @@ class Post extends AbstractService
                                 continue;
                             }
                             $m_organization = false;
-                            if($m_user->getOrganizationId()) {
+                            if(is_numeric($m_user->getOrganizationId())) {
                                 if(!array_key_exists($m_user->getOrganizationId(), $ar_pages)) {
                                     $ar_pages[$m_user->getOrganizationId()] = $this->getServicePage()->getLite($m_user->getOrganizationId());
                                 }
