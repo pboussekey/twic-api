@@ -5,6 +5,7 @@ use \Application\Controller\Plugin\videoArchive;
 use \Application\Controller\Plugin\item;
 use \Zend\Router\Http\Literal;
 use Application\Controller\Plugin\Library;
+use Application\Controller\Plugin\Mail;
 
 /**
  * Zend Framework (http://framework.zend.com/).
@@ -18,8 +19,7 @@ use Application\Controller\Plugin\Library;
 return [
     'controller_plugins' => [
         'factories' => [
-            'conf' => ConfFactory::class,
-            //'videoArchive' => function (\Interop\Container\ContainerInterface\ContainerInterface $container) {
+              'conf' => ConfFactory::class,
               'videoArchive' => function ($container) {
                   return new videoArchive($container->get('app_service_video_archive'));
               },    
@@ -28,6 +28,9 @@ return [
               },
               'library' => function ($container) {
                   return new Library($container->get('app_service_library'));
+              },
+              'mail' => function ($container) {
+                  return new Mail($container->get('mail.service'));
               }
         ],
     ],
@@ -70,6 +73,16 @@ return [
                     'defaults' => [
                         'controller' => 'Application\Controller\Index',
                         'action' => 'uptboxid',
+                    ],
+                ],
+            ],
+            'demorequest' => [
+                'type' => Literal::class,
+                'options' => [
+                    'route' => '/demorequest',
+                    'defaults' => [
+                        'controller' => 'Application\Controller\Index',
+                        'action' => 'demorequest',
                     ],
                 ],
             ],

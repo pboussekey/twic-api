@@ -43,8 +43,8 @@ return array(
             'authorization' => 'viserlalunecanemefaitpaspeurmemealusurejycroisencoreetencoeur'
         ),
     'zopentok-conf' => [
-        'api_key' => '45105812',
-        'api_secret' => '071024b92d648e39339d0bb891668401a2254bd4',
+        'api_key' => '46144732',
+        'api_secret' => '51245ddb4a591a28dc2a239dade8a6806be4ce03',
     ],
 	'log' => array(
 		'log-system' => array(

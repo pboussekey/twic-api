@@ -26,14 +26,14 @@ class PostTest extends AbstractService
         $this->assertEquals(count($data['result']['meta']), 8);
         $this->assertEquals($data['result']['meta']['twitter:card'], "summary");
         $this->assertEquals($data['result']['meta']['twitter:site'], "@TwicSLE");
-        $this->assertEquals($data['result']['meta']['twitter:title'], "TWIC, The Social Learning Environment for B-Schools");
+        $this->assertEquals($data['result']['meta']['twitter:title'], "TWIC, The Social Learning Environmentfor B-Schools");
         $this->assertEquals(!empty($data['result']['meta']['twitter:description']), true);
         $this->assertEquals($data['result']['meta']['twitter:image'], "https://twicbythestudnet.com/assets/images/Logo.svg");
         $this->assertEquals($data['result']['meta']['twitter:image:alt'], "Twic logo");
         $this->assertEquals($data['result']['meta']['viewport'], "width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1");
         $this->assertEquals(!empty($data['result']['meta']['description']), true);
         $this->assertEquals(count($data['result']['open_graph']), 7);
-        $this->assertEquals($data['result']['open_graph']['title'], "TWIC, The Social Learning Environment for B-Schools");
+        $this->assertEquals($data['result']['open_graph']['title'], "TWIC, The Social Learning Environmentfor B-Schools");
         $this->assertEquals($data['result']['open_graph']['type'], "website");
         $this->assertEquals($data['result']['open_graph']['url'], "https://twicbythestudnet.com");
         $this->assertEquals($data['result']['open_graph']['image'], "https://twicbythestudnet.com/assets/images/Logo.svg");
@@ -125,7 +125,7 @@ class PostTest extends AbstractService
         
         $this->assertEquals(count($data) , 3); 
         $this->assertEquals($data['id'] , 1); 
-        $this->assertEquals($data['result'] , 7); 
+        $this->assertEquals($data['result'] , 6); 
         $this->assertEquals($data['jsonrpc'] , 2.0); 
 
 
@@ -145,7 +145,7 @@ class PostTest extends AbstractService
             );
         $this->assertEquals(count($data) , 3); 
         $this->assertEquals($data['id'] , 1); 
-        $this->assertEquals($data['result'] , 8); 
+        $this->assertEquals($data['result'] , 7); 
         $this->assertEquals($data['jsonrpc'] , 2.0); 
         
         return $data['result'];
@@ -167,7 +167,7 @@ class PostTest extends AbstractService
             );
         $this->assertEquals(count($data) , 3); 
         $this->assertEquals($data['id'] , 1); 
-        $this->assertEquals($data['result'] , 9); 
+        $this->assertEquals($data['result'] , 8); 
         $this->assertEquals($data['jsonrpc'] , 2.0); 
         
         return $data['result'];
@@ -188,7 +188,7 @@ class PostTest extends AbstractService
             );
         $this->assertEquals(count($data) , 3); 
         $this->assertEquals($data['id'] , 1); 
-        $this->assertEquals($data['result'] , 10); 
+        $this->assertEquals($data['result'] , 9); 
         $this->assertEquals($data['jsonrpc'] , 2.0); 
 
     }
@@ -208,7 +208,7 @@ class PostTest extends AbstractService
             );
         $this->assertEquals(count($data) , 3); 
         $this->assertEquals($data['id'] , 1); 
-        $this->assertEquals($data['result'] , 11); 
+        $this->assertEquals($data['result'] , 10); 
         $this->assertEquals($data['jsonrpc'] , 2.0); 
 
     }
@@ -414,10 +414,6 @@ class PostTest extends AbstractService
         $this->assertEquals($data['result'][1]['data']['type'] , "organization"); 
         $this->assertEquals($data['result'][1]['item_id'] , null); 
         $this->assertEquals($data['jsonrpc'] , 2.0); 
-
-
-
-
     }
 
     public function testPostGetListId()
@@ -425,20 +421,16 @@ class PostTest extends AbstractService
         $this->setIdentity(1);
         $data = $this->jsonRpc('post.getListId', []);
 
-        $this->assertEquals(count($data) , 3); 
-        $this->assertEquals($data['id'] , 1); 
-        $this->assertEquals(count($data['result']) , 3); 
-        $this->assertEquals(count($data['result'][0]) , 2); 
-        $this->assertEquals(!empty($data['result'][0]['last_date']) , true); 
-        $this->assertEquals($data['result'][0]['id'] , 7); 
-        $this->assertEquals(count($data['result'][1]) , 2); 
-        $this->assertEquals(!empty($data['result'][1]['last_date']) , true); 
-        $this->assertEquals($data['result'][1]['id'] , 8); 
-        $this->assertEquals(count($data['result'][2]) , 2); 
-        $this->assertEquals(!empty($data['result'][2]['last_date']) , true); 
-        $this->assertEquals($data['result'][2]['id'] , 6); 
+        $this->assertEquals(count($data) , 3);
+        $this->assertEquals($data['id'] , 1);
+        $this->assertEquals(count($data['result']) , 2);
+        $this->assertEquals(count($data['result'][0]) , 2);
+        $this->assertEquals(!empty($data['result'][0]['last_date']) , true);
+        $this->assertEquals($data['result'][0]['id'] , 6);
+        $this->assertEquals(count($data['result'][1]) , 2);
+        $this->assertEquals(!empty($data['result'][1]['last_date']) , true);
+        $this->assertEquals($data['result'][1]['id'] , 7);
         $this->assertEquals($data['jsonrpc'] , 2.0);
-
     }
     
      public function testPostGetListId2()
@@ -446,24 +438,18 @@ class PostTest extends AbstractService
         $this->setIdentity(1);
         $data = $this->jsonRpc('post.getListId', ['filter' => ['n' => 10, 'p' => 1]]);
 
-        $this->assertEquals(count($data) , 3); 
-        $this->assertEquals($data['id'] , 1); 
-        $this->assertEquals(count($data['result']) , 2); 
-        $this->assertEquals($data['result']['count'] , 3); 
-        $this->assertEquals(count($data['result']['list']) , 3); 
-        $this->assertEquals(count($data['result']['list'][0]) , 2); 
-        $this->assertEquals(!empty($data['result']['list'][0]['last_date']) , true); 
-        $this->assertEquals($data['result']['list'][0]['id'] , 7); 
-        $this->assertEquals(count($data['result']['list'][1]) , 2); 
-        $this->assertEquals(!empty($data['result']['list'][1]['last_date']) , true); 
-        $this->assertEquals($data['result']['list'][1]['id'] , 8); 
-        $this->assertEquals(count($data['result']['list'][2]) , 2); 
-        $this->assertEquals(!empty($data['result']['list'][2]['last_date']) , true); 
-        $this->assertEquals($data['result']['list'][2]['id'] , 6); 
+        $this->assertEquals(count($data) , 3);
+        $this->assertEquals($data['id'] , 1);
+        $this->assertEquals(count($data['result']) , 2);
+        $this->assertEquals($data['result']['count'] , 2);
+        $this->assertEquals(count($data['result']['list']) , 2);
+        $this->assertEquals(count($data['result']['list'][0]) , 2);
+        $this->assertEquals(!empty($data['result']['list'][0]['last_date']) , true);
+        $this->assertEquals($data['result']['list'][0]['id'] , 6);
+        $this->assertEquals(count($data['result']['list'][1]) , 2);
+        $this->assertEquals(!empty($data['result']['list'][1]['last_date']) , true);
+        $this->assertEquals($data['result']['list'][1]['id'] , 7);
         $this->assertEquals($data['jsonrpc'] , 2.0); 
-
-
-
     }
 
 

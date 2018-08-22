@@ -13,16 +13,30 @@ class Page extends AbstractMapper
 {
 
     /**
+     * 
+     * @param string $domaine
+     * @return \Zend\Db\ResultSet\ResultSet
+     */
+    public function getListByDomaine($domaine)
+    {
+        $select = $this->tableGateway->getSql()->select();
+        $select->columns(array('id','title','logo', 'domaine'))
+            ->where(["domaine" => $domaine]);
+        
+        return $this->selectWith($select);
+    }
+    
+    /**
      * Execute Request Get Custom
      *
      * @param  string $libelle
      * @param  int    $id
      * @return \Dal\Db\ResultSet\ResultSet
      */
-    public function getCustom($libelle, $id)
+    public function getCustom($libelle = null, $id = null)
     {
         $select = $this->tableGateway->getSql()->select();
-        $select->columns(array('id','libelle','custom'));
+        $select->columns(array('id','libelle','custom', 'domaine'));
 
         if (null !== $libelle) {
             $select->where(array('page.libelle' => $libelle));

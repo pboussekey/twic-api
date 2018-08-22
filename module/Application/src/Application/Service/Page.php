@@ -22,7 +22,12 @@ use Zend\Db\Sql\Predicate\IsNull;
 class Page extends AbstractService
 {
 
-    
+    /**
+     * Check if is admin of the page id
+     * 
+     * @param int $id
+     * @return boolean
+     */
     public function isAdmin($id)
     {
         if($this->getServiceUser()->isStudnetAdmin()){
@@ -34,12 +39,27 @@ class Page extends AbstractService
     }
     
     /**
+     * Get List Page By Email
+     *  
+     * @invokable
+     * 
+     * @param string $domaine
+     * @return array
+     */
+    public function getListByEmail($email)
+    {
+        return $this->getMapper()->getListByDomaine(explode("@", $email)[1]);
+    }
+    
+    /**
      * Get custom Field
      *
      * @invokable
      *
      * @param string $libelle
      * @param int    $id
+     * 
+     * @return \Application\Model\Page
      */
     public function getCustom($libelle = null, $id = null)
     {
@@ -81,6 +101,7 @@ class Page extends AbstractService
      * @param string $subtype,
      * @param int    $circle_id
      * @param bool   $is_published
+     * @param string   $domaine
      *
      * @return int
      */
@@ -108,7 +129,8 @@ class Page extends AbstractService
         $custom = null,
         $subtype = null,
         $circle_id = null,
-        $is_published = null
+        $is_published = null,
+        $domaine = null
     ) {
         
         $identity = $this->getServiceUser()->getIdentity();
@@ -180,6 +202,7 @@ class Page extends AbstractService
             ->setSubtype($subtype)
             ->setConversationId($conversation_id)
             ->setShortTitle($short_title)
+            ->setDomaine($domaine) /** @TODO check admin **/ 
             ->setCreatedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'));
 
         if ($address !== null) {
@@ -402,7 +425,8 @@ class Page extends AbstractService
         $custom = null,
         $circle_id = null,
         $is_published = null,
-        $confidentiality = null
+        $confidentiality = null,
+        $domaine = null
     ) {
         if(!$this->getServiceUser()->isStudnetAdmin() &&  !$this->isAdmin($id)) {
             throw new JrpcException('Unauthorized operation page.update', -38003);
@@ -434,7 +458,8 @@ class Page extends AbstractService
             ->setPhone($phone)
             ->setShortTitle($short_title)
             ->setConfidentiality($confidentiality)
-            ->setAdmission($admission);
+            ->setAdmission($admission)
+            ->setDomaine($domaine); /** @TODO check admin **/ 
 
         if ($address !== null) {
             if($address === 0) {

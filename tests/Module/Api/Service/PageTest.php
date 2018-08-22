@@ -871,10 +871,11 @@ class PageTest extends AbstractService
 
         $this->assertEquals(count($data), 3);
         $this->assertEquals($data['id'], 1);
-        $this->assertEquals(count($data['result']), 3);
+        $this->assertEquals(count($data['result']), 4);
         $this->assertEquals($data['result']['id'], 1);
         $this->assertEquals($data['result']['libelle'], "gnam");
         $this->assertEquals($data['result']['custom'], "{obj}");
+        $this->assertEquals($data['result']['domaine'], "");
         $this->assertEquals($data['jsonrpc'], 2.0);
     }
 
@@ -891,10 +892,11 @@ class PageTest extends AbstractService
 
         $this->assertEquals(count($data), 3);
         $this->assertEquals($data['id'], 1);
-        $this->assertEquals(count($data['result']), 3);
+        $this->assertEquals(count($data['result']), 4);
         $this->assertEquals($data['result']['id'], 1);
         $this->assertEquals($data['result']['libelle'], "gnam");
         $this->assertEquals($data['result']['custom'], "{obj}");
+        $this->assertEquals($data['result']['domaine'], "");
         $this->assertEquals($data['jsonrpc'], 2.0);
     }
 
@@ -1145,9 +1147,10 @@ class PageTest extends AbstractService
         $this->setIdentity(1);
         $data = $this->jsonRpc('user.sendPassword', ['page_id' => $id]);
 
+        
         $this->assertEquals(count($data), 3);
         $this->assertEquals($data['id'], 1);
-        $this->assertEquals($data['result'], 2);
+        $this->assertEquals($data['result'], 1);
         $this->assertEquals($data['jsonrpc'], 2.0);
     }
 

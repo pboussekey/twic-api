@@ -71,6 +71,7 @@ class Conversation extends AbstractService
         $user_id = $this->getServiceUser()->getIdentity()['id'];
 
         $res_conversation = $this->getMapper()->getId($user_id, null, null, null, null, $id);
+
         foreach ($res_conversation as $m_conversation) {
             $cid = $m_conversation->getId();
             $message_id = $m_conversation->getMessage()->getId();

@@ -74,6 +74,9 @@ class Module
                 'gcm-client' => \ZendService\Google\Gcm\Client::class,
                 'fcm' => \Application\Service\Fcm::class,
             ],
+            'invokable' => [
+                \Application\Cache\Storage\Adapter\Memcached::class,
+            ],
             'factories' => [
                 \ZendService\Google\Gcm\Client::class => function ($container) {
                     $config = $container->get('config');

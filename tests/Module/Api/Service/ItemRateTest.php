@@ -870,7 +870,7 @@ class ItemRateTest extends AbstractService
 
         $this->assertEquals(count($data) , 3); 
         $this->assertEquals($data['id'] , 1); 
-        $this->assertEquals(count($data['result']) , 15); 
+        $this->assertEquals(count($data['result']) , 14); 
         $this->assertEquals($data['result']['id'] , 4); 
         $this->assertEquals($data['result']['name'] , "super file"); 
         $this->assertEquals($data['result']['link'] , null); 
@@ -884,7 +884,6 @@ class ItemRateTest extends AbstractService
         $this->assertEquals($data['result']['box_id'] , null); 
         $this->assertEquals($data['result']['global'] , 0); 
         $this->assertEquals($data['result']['text'] , "super cool"); 
-        $this->assertEquals($data['result']['data'] , null); 
         $this->assertEquals($data['result']['status'] , null); 
         $this->assertEquals($data['jsonrpc'] , 2.0); 
 
@@ -1873,7 +1872,7 @@ class ItemRateTest extends AbstractService
          
         $this->assertEquals(count($data), 3);
         $this->assertEquals($data['id'], 1);
-        $this->assertEquals($data['result'], 12);
+        $this->assertEquals($data['result'], 11);
         $this->assertEquals($data['jsonrpc'], 2.0);
     }
 }

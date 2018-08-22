@@ -147,8 +147,6 @@ class Post extends AbstractService
         $m_post_base = $this->getLite($base_id);
         $is_not_public_page = (is_numeric($m_post_base->getTPageId()) && ($this->getServicePage()->getLite($m_post_base->getTPageId())->getConfidentiality() !== ModelPage::CONFIDENTIALITY_PUBLIC));
         $pevent = [];
-
-
         $et = $this->getTarget($m_post_base);
         // S'IL Y A UNE CIBLE A LA BASE ET que l'on a pas definie d'abonnement ON NOTIFIE  P{target}nbr
         if (false !== $et && empty($sub) /*&& null === $parent_id*/) {
@@ -236,7 +234,7 @@ class Post extends AbstractService
                                 continue;
                             }
                             $m_organization = false;
-                            if($m_user->getOrganizationId()) {
+                            if(is_numeric($m_user->getOrganizationId())) {
                                 if(!array_key_exists($m_user->getOrganizationId(), $ar_pages)) {
                                     $ar_pages[$m_user->getOrganizationId()] = $this->getServicePage()->getLite($m_user->getOrganizationId());
                                 }

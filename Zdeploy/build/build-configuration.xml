@@ -37,6 +37,9 @@
 	    		                <exclude name="/config/autoload/**"/>
 	    		                <exclude name="**/*.md"/>
 	    		                <exclude name="**/*.mwb"/>
+	    		        		<exclude name="**/app.yaml"/>
+	    		        		<exclude name="**/cloud_sql_proxy"/>
+	    		        		<exclude name="**/cloudsqlproxy.sh"/>
 	    		        		<include name=".e*/**" />
 	    		        		
 	    		        		
@@ -75,14 +78,14 @@
     		                <exclude name="/config/autoload/**"/>
     		                <exclude name="**/*.md"/>
     		                <exclude name="**/*.mwb"/>
-    		        		<include name=".e*/**" />
+    		    			<exclude name="**/cloud_sql_proxy"/>
+    		    			<exclude name="**/cloudsqlproxy.sh"/>
+    		    		<include name=".e*/**" />
     		        </fileset>
     		    </copy>
     		 </else>
     	</if>
-    	
-    	
-			
+
     	<if>
     	    <equals arg1="${app.eb}" arg2="true" />
     	    	<then>
@@ -91,6 +94,18 @@
     	    		<move file="${tmp.basedir}/ebextensions" tofile="${tmp.basedir}/.ebextensions" includeemptydirs="true" />
     	    		<move file="${tmp.basedir}/elasticbeanstalk" tofile="${tmp.basedir}/.elasticbeanstalk" includeemptydirs="true" />
     	         </then>
+    			<else>
+    				<delete
+			  			dir="${tmp.basedir}/ebextensions"
+			  			includeemptydirs="true"
+			  			verbose="false"
+			  			failonerror="false" />
+    				<delete
+			  			dir="${tmp.basedir}/elasticbeanstalk"
+			  			includeemptydirs="true"
+			  			verbose="false"
+			  			failonerror="false" />
+    			</else>
     	</if>
     	
         <if>

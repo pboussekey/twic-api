@@ -592,7 +592,7 @@ class ItemTest extends AbstractService
         $this->assertEquals($data['result'][4]['is_grade_published'] , null); 
         $this->assertEquals($data['result'][4]['conversation_id'] , null); 
         $this->assertEquals(count($data['result'][5]) , 23); 
-        $this->assertEquals($data['result'][5]['post_id'] , 10); 
+        $this->assertEquals($data['result'][5]['post_id'] , 9); 
         $this->assertEquals($data['result'][5]['nb_children'] , 0); 
         $this->assertEquals($data['result'][5]['quiz_id'] , 1); 
         $this->assertEquals($data['result'][5]['id'] , 5); 

@@ -4,8 +4,6 @@ namespace Mail\Service;
 
 use Mail\Mime\Part;
 use Mail\Template\Model\TplModel;
-use Zend\Mail\Storage\Imap;
-use Zend\Mail\Transport\Factory;
 use Zend\Mime\Mime;
 use Mail\Mail\Message;
 use Mail\Template\Storage\AbstractStorage;
@@ -18,31 +16,11 @@ class Mail
     protected $is_init = false;
     protected $options;
 
-    public function init($login = null, $password = null)
-    {
-        if (null !== $login) {
-            $this->options['transport']['options']['connection_config']['username'] = $login;
-            $this->options['storage']['user'] = $login;
-        }
-        if (null !== $password) {
-            $this->options['transport']['options']['connection_config']['username'] = $password;
-            $this->options['storage']['password'] = $password;
-        }
-        if ($this->options['storage']['active'] === true) {
-            $this->storage = new Imap($this->options['storage']);
-        }
-        if ($this->options['transport']['active'] === true) {
-            $this->transport = Factory::create($this->options['transport']);
-        }
-
-        $this->is_init = true;
-    }
-
     /**
      * Create Template mail
      *
      * @invokable
-     *
+     * 
      * @param string $name
      * @param string $from
      * @param string $subject
@@ -60,8 +38,6 @@ class Mail
             ->setSubject($subject)
             ->setFrom($from)
             ->setFromName($from_name);
-
-        
 
         $part_text = new Part($text);
         $part_text->setEncoding(Mime::ENCODING_8BIT);
@@ -98,6 +74,13 @@ class Mail
             ->setBodyTpl($name, $datas)
             ->setTo($to);
         
+        $this->getTransport()->send($message);
+        
+        return true;
+    }
+    
+    public function send($message)
+    {
         $this->getTransport()->send($message);
         
         return true;
@@ -152,24 +135,28 @@ class Mail
      */
     public function getStorage()
     {
-        if (!$this->is_init) {
-            $this->init();
-        }
-
         return $this->storage;
+    }
+    
+    /**
+     * @throws \Exception
+     *
+     * @param \Zend\Mail\Storage\Imap
+     */
+    public function setStorage($storage)
+    {
+        $this->storage = $storage;
+        
+        return $this;
     }
 
     /**
      * @throws \Exception
      *
-     * @return \Zend\Mail\Transport\Smtp
+     * @return \Zend\Mail\Transport\TransportInterface
      */
     public function getTransport()
     {
-        if (!$this->is_init) {
-            $this->init();
-        }
-
         return $this->transport;
     }
 

@@ -11,7 +11,6 @@ class LinkedinTest extends AbstractService
     public static function setUpBeforeClass()
     {
         parent::setUpBeforeClass();
-       
     }
 
    
