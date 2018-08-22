@@ -17,7 +17,7 @@ class Page extends AbstractMapper
      * @param string $domaine
      * @return \Zend\Db\ResultSet\ResultSet
      */
-    public function getListOrg($domaine)
+    public function getListByDomaine($domaine)
     {
         $select = $this->tableGateway->getSql()->select();
         $select->columns(array('id','title','logo', 'domaine'))

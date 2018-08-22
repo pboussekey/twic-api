@@ -279,11 +279,17 @@ class UserTest extends AbstractService
     {
         $this->setIdentity(5, 1);
         
-        $data = $this->jsonRpc('page.getListOrg', ['email' => 'toto@yale.edu']);
+        $data = $this->jsonRpc('page.getListByEmail', ['email' => 'toto@yale.edu']);
         
-        $this->printCreateTest($data);
-        
-        exit();
+        $this->assertEquals(count($data) , 3);
+        $this->assertEquals($data['id'] , 1);
+        $this->assertEquals(count($data['result']) , 1);
+        $this->assertEquals(count($data['result'][0]) , 4);
+        $this->assertEquals($data['result'][0]['id'] , 1);
+        $this->assertEquals($data['result'][0]['title'] , "super title");
+        $this->assertEquals($data['result'][0]['logo'] , "logo");
+        $this->assertEquals($data['result'][0]['domaine'] , "yale.edu");
+        $this->assertEquals($data['jsonrpc'] , 2.0);
     }
 
     /**

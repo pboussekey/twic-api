@@ -39,15 +39,16 @@ class Page extends AbstractService
     }
     
     /**
-     * Get List Org 
+     * Get List Page By Email
+     *  
      * @invokable
      * 
      * @param string $domaine
      * @return array
      */
-    public function getListOrg($email)
+    public function getListByEmail($email)
     {
-        return $this->getMapper()->getListOrg(explode("@", $email)[1]);
+        return $this->getMapper()->getListByDomaine(explode("@", $email)[1]);
     }
     
     /**
