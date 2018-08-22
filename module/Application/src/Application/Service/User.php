@@ -844,6 +844,7 @@ class User extends AbstractService
      */
     public function checkAccountToken($token)
     {
+        //$res_user = $this->getServicePreregistration()->get($token);
         $res_user = $this->getMapper()->checkUser($token);
         
         return $res_user->current();

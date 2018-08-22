@@ -452,7 +452,7 @@ class UserTest extends AbstractService
 
         $data = $this->jsonRpc('user.checkAccountToken', 
             ['token' => $token]);
-        
+
         $this->assertEquals(count($data) , 3);
         $this->assertEquals($data['id'] , 1);
         $this->assertEquals(count($data['result']) , 7);
@@ -515,19 +515,24 @@ class UserTest extends AbstractService
             'account_token' => $token
             ]
         );
-        $this->assertEquals(count($data), 3);
-        $this->assertEquals($data['id'], 1);
-        $this->assertEquals(count($data['result']), 6);
-        $this->assertEquals($data['result']['email'], "crobertr@thestudnet.com");
-        $this->assertEquals($data['result']['firstname'], "Christophe");
-        $this->assertEquals($data['result']['lastname'], "Robert");
-        $this->assertEquals($data['result']['organization_id'], 1);
-        $this->assertEquals($data['result']['account_token'], $token);
-        $this->assertEquals($data['result']['user_id'], $id);
-        $this->assertEquals($data['jsonrpc'], 2.0);
-
-
-
+        
+        $this->assertEquals(count($data) , 3);
+        $this->assertEquals($data['id'] , 1);
+        $this->assertEquals(count($data['result']) , 7);
+        $this->assertEquals(count($data['result']['user']) , 6);
+        $this->assertEquals($data['result']['user']['firstname'] , "Christophe");
+        $this->assertEquals($data['result']['user']['lastname'] , "Robert");
+        $this->assertEquals($data['result']['user']['nickname'] , null);
+        $this->assertEquals($data['result']['user']['email'] , "crobertr@thestudnet.com");
+        $this->assertEquals($data['result']['user']['avatar'] , "un_token");
+        $this->assertEquals($data['result']['user']['is_active'] , 0);
+        $this->assertEquals($data['result']['email'] , "crobertr@thestudnet.com");
+        $this->assertEquals($data['result']['firstname'] , "Christophe");
+        $this->assertEquals($data['result']['lastname'] , "Robert");
+        $this->assertEquals($data['result']['organization_id'] , 1);
+        $this->assertEquals($data['result']['account_token'] , "token");
+        $this->assertEquals($data['result']['user_id'] , 9);
+        $this->assertEquals($data['jsonrpc'] , 2.0);
     }
     
      /**
