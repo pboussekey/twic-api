@@ -453,18 +453,23 @@ class UserTest extends AbstractService
         $data = $this->jsonRpc('user.checkAccountToken', 
             ['token' => $token]);
         
-        $this->assertEquals(count($data) , 3); 
-        $this->assertEquals($data['id'] , 1); 
-        $this->assertEquals(count($data['result']) , 6); 
-        $this->assertEquals($data['result']['firstname'] , "Christophe"); 
-        $this->assertEquals($data['result']['lastname'] , "Robert"); 
-        $this->assertEquals($data['result']['nickname'] , null); 
-        $this->assertEquals($data['result']['email'] , "crobertr@thestudnet.com"); 
-        $this->assertEquals($data['result']['avatar'] , "un_token"); 
-        $this->assertEquals($data['result']['is_active'] , 0); 
+        $this->assertEquals(count($data) , 3);
+        $this->assertEquals($data['id'] , 1);
+        $this->assertEquals(count($data['result']) , 7);
+        $this->assertEquals(count($data['result']['preregistration']) , 6);
+        $this->assertEquals($data['result']['preregistration']['email'] , "crobertr@thestudnet.com");
+        $this->assertEquals($data['result']['preregistration']['firstname'] , "Christophe");
+        $this->assertEquals($data['result']['preregistration']['lastname'] , "Robert");
+        $this->assertEquals($data['result']['preregistration']['organization_id'] , 1);
+        $this->assertEquals($data['result']['preregistration']['account_token'] , "token");
+        $this->assertEquals($data['result']['preregistration']['user_id'] , 9);
+        $this->assertEquals($data['result']['firstname'] , "Christophe");
+        $this->assertEquals($data['result']['lastname'] , "Robert");
+        $this->assertEquals($data['result']['nickname'] , null);
+        $this->assertEquals($data['result']['email'] , "crobertr@thestudnet.com");
+        $this->assertEquals($data['result']['avatar'] , "un_token");
+        $this->assertEquals($data['result']['is_active'] , 0);
         $this->assertEquals($data['jsonrpc'] , 2.0); 
-
-
 
         return $data['result'];
     }

@@ -314,7 +314,14 @@ class User extends AbstractMapper
         $select->columns(['firstname', 'lastname', 'avatar', 'nickname', 'is_active','email']);
         if(null !== $token){
             $select
-            ->join('preregistration', 'preregistration.user_id = user.id', [])
+            ->join('preregistration', 'preregistration.user_id = user.id', [
+                'email',
+                'firstname',
+                'lastname',
+                'organization_id',
+                'account_token',
+                'user_id'
+            ])
             ->where(['preregistration.account_token' => $token]);
         }
         if(null !== $email){

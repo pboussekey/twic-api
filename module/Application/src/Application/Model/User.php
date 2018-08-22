@@ -20,6 +20,7 @@ class User extends BaseUser
     protected $role_id;
     protected $address;
     protected $tags;
+    protected $preregistration;
 
     public function exchangeArray(array &$data)
     {
@@ -29,6 +30,7 @@ class User extends BaseUser
         $this->nationality = $this->requireModel('addr_model_country', $data, 'nationality');
         $this->origin = $this->requireModel('addr_model_country', $data, 'origin');
         $this->address = $this->requireModel('addr_model_address', $data);
+        $this->preregistration = $this->requireModel('app_model_preregistration', $data);
     }
 
     public function getRoleId()
@@ -196,4 +198,26 @@ class User extends BaseUser
 
         return $this;
     }
+    /**
+     * @return \Application\Model\Preregistration
+     */
+    public function getPreregistration()
+    {
+        return $this->preregistration;
+    }
+
+    /**
+     * @param \Application\Model\Preregistration $preregistration
+     *
+     * @return self
+     */
+    public function setPreregistration($preregistration)
+    {
+        $this->preregistration = $preregistration;
+
+        return $this;
+    }
+
+
+
 }
