@@ -20,7 +20,7 @@ class Page extends AbstractMapper
     public function getListOrg($domaine)
     {
         $select = $this->tableGateway->getSql()->select();
-        $select->columns(array('id','title','logo'))
+        $select->columns(array('id','title','logo', 'domaine'))
             ->where(["domaine" => $domaine]);
         
         return $this->selectWith($select);
@@ -36,7 +36,7 @@ class Page extends AbstractMapper
     public function getCustom($libelle, $id)
     {
         $select = $this->tableGateway->getSql()->select();
-        $select->columns(array('id','libelle','custom'));
+        $select->columns(array('id','libelle','custom', 'domaine'));
 
         if (null !== $libelle) {
             $select->where(array('page.libelle' => $libelle));

@@ -1,1 +1,1 @@
-{"method":"page.getListOrg","id":1,"params":{"domaine":"yale.edu"}}
+{"method":"page.getListOrg","id":1,"params":{"email":"toto@yale.edu"}}

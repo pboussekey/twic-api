@@ -29,6 +29,7 @@ class UserTest extends AbstractService
             'end_date' => '2016-00-00 00:00:00',
             'location' => 'location',
             'organization_id' => 1,
+            'domaine' => 'yale.edu',
             'users' => [
               ['user_id' => 1,'role' => 'admin', 'state' => 'member'],
               ['user_id' => 2,'role' => 'admin', 'state' => 'member'],
