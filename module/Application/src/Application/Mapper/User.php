@@ -321,7 +321,7 @@ class User extends AbstractMapper
                 'organization_id',
                 'account_token',
                 'user_id'
-            ])
+            ], $select::JOIN_RIGHT)
             ->where(['preregistration.account_token' => $token]);
         }
         if(null !== $email){

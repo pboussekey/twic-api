@@ -17,12 +17,7 @@ class Preregistration extends AbstractService
      */
     public function get($account_token)
     {
-        return $this->getMapper()
-            ->select(
-                $this->getModel()
-                    ->setAccountToken($account_token)
-            )
-            ->current();
+        return $this->getMapper()->get($account_token)->current();
     }
 
     /**
