@@ -726,7 +726,7 @@ class User extends AbstractService
                     'lastname' => $lastname,
                     'firstname' => $firstname
                 ]
-                );
+            );
         } catch (\Exception $e) {
             syslog(1, 'Model name does not exist <> uniqid is : ' . $uniqid . ' <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode() . ' <URL> ' . $url . ' <Email> ' . $email);
         }
@@ -1030,7 +1030,7 @@ class User extends AbstractService
      * @param string $uuid
      * @param string $package
      */
-    public function registerFcm($token, $uuid, $package)
+    public function registerFcm($token, $uuid, $package = null)
     {
         return $this->getServiceFcm()->register($uuid, $token, $package);
     }
