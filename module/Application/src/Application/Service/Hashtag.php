@@ -3,6 +3,7 @@
 namespace Application\Service;
 
 use Dal\Service\AbstractService;
+use Zend\Db\Sql\Predicate\IsNotNull;
 
 class Hashtag extends AbstractService
 {
@@ -25,7 +26,7 @@ class Hashtag extends AbstractService
 
         return true;
     }
-    
+
     public function addMentions($id, $mentions)
     {
         $m_hashtag = $this->getModel()->setPostId($id);
@@ -44,12 +45,12 @@ class Hashtag extends AbstractService
         $this->getMapper()->keepMentions($id, $users);
         return $user_id;
     }
-    
-    
-    
+
+
+
     public function getListMentions($id)
     {
-        $m_hashtag = $this->getModel()->setPostId($id)->setType('@');
+        $m_hashtag = $this->getModel()->setPostId($id)->setType('@')->setUserId(new IsNotNull());
         $res_hashtag = $this->getMapper()->select($m_hashtag);
         $ar_user = [];
         foreach($res_hashtag as $m_hashtag){
