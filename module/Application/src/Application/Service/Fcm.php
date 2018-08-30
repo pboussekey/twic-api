@@ -71,9 +71,9 @@ class Fcm extends AbstractService
         
         # Instantiates a client
         $logging = new LoggingClient(['projectId' => 'eloquent-optics-206213']);
-        $logger = $logging->logger("FCM LOG");
-        $logger->write($logger->entry($this->token .">>". $registration_id ."<<".$uuid));
-        
+        $logger = $logging->psrLogger('FCMLOG');
+        $logger->notice("session: ".$this->token);
+
         return $this->session->update($this->token, $uuid, $registration_id, $package);
     }
 

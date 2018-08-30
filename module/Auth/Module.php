@@ -3,7 +3,6 @@
 namespace Auth;
 
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
-use Auth\Authentication\Storage\CacheStorage;
 use Auth\Authentication\Storage\CacheBddStorage;
 
 class Module implements ConfigProviderInterface
@@ -18,7 +17,6 @@ class Module implements ConfigProviderInterface
         return [
             'aliases' => [
                 'auth.service' => \Zend\Authentication\AuthenticationService::class,
-                'token.storage.mem' => \Auth\Authentication\Storage\CacheStorage::class,
                 'token.storage.bddmem' => \Auth\Authentication\Storage\CacheBddStorage::class,
             ],
             'factories' => [

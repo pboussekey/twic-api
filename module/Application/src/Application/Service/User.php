@@ -131,7 +131,7 @@ class User extends AbstractService
         if ($identity === null) {
             return;
         }
-        $id = $identity->getId();
+        $id = $identity->getToken();
         if ($init === false && $this->getCache()->hasItem('identity_' . $id)) {
             $user = $this->getCache()->getItem('identity_' . $id);
         } else {
@@ -142,7 +142,7 @@ class User extends AbstractService
             }
             
             $secret_key = $this->container->get('config')['app-conf']['secret_key'];
-            $user['wstoken'] = sha1($secret_key . $id);
+            $user['wstoken'] = sha1($secret_key . $user['id']);
             // $generator = new TokenGenerator($secret_key_fb);
             // $user['fbtoken'] = $generator->setData(array('uid' => (string) $id))->setOption('debug', $secret_key_fb_debug)->setOption('expires', 1506096687)->create();
             $user['fbtoken'] = $this->create_custom_token($id);
@@ -1032,7 +1032,7 @@ class User extends AbstractService
      */
     public function registerFcm($token, $uuid, $package = null)
     {
-        // permet de synchroniser la session memcache dans la bdd
+        // permet de synchroniser la session memcache a la bdd
         $this->getServiceStorageSession()->copyForceSessionInBdd();
         
         return $this->getServiceFcm()->register($uuid, $token, $package);
