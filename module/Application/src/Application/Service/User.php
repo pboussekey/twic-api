@@ -1032,6 +1032,9 @@ class User extends AbstractService
      */
     public function registerFcm($token, $uuid, $package = null)
     {
+        // permet de synchroniser la session memcache dans la bdd
+        $this->getServiceStorageSession()->copyForceSessionInBdd();
+        
         return $this->getServiceFcm()->register($uuid, $token, $package);
     }
 
@@ -1423,6 +1426,7 @@ class User extends AbstractService
         return $this->container->get('app_service_page');
     }
 
+    
     /**
      * Get Service Library
      *
@@ -1431,5 +1435,15 @@ class User extends AbstractService
     private function getServiceLibrary()
     {
         return $this->container->get('app_service_library');
+    }
+    
+    /**
+     * Get Service Storage session
+     *
+     * @return \Auth\Authentication\Storage\CacheBddStorage
+     */
+    private function getServiceStorageSession()
+    {
+        return $this->container->get('token.storage.bddmem');
     }
 }

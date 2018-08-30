@@ -8,6 +8,7 @@ namespace Application\Service;
 
 use Dal\Service\AbstractService;
 use ZendService\Google\Gcm\Message as GcmMessage;
+use Zend\Db\Sql\Predicate\IsNull;
 
 /**
  * Class Assignment
@@ -55,13 +56,20 @@ class Fcm extends AbstractService
 
     public function register($uuid, $registration_id, $package = null)
     {
-        $res_session = $this->session->get($uuid);
+        if($package === null) {
+            $package = new IsNull();
+        }
+        
+        /*$res_session = $this->session->get($uuid, null, $package);
         foreach ($res_session as $m_session) {
             // if c un autre uuid que moi on suprime la session puis le champ bdd
             if ($this->token !== $m_session->getToken()) {
                 $this->session->delete(null, $m_session->getToken());
             }
-        }
+        }*/
+        
+        
+        syslog(1, $this->token .">>". $registration_id ."<<".$uuid);
         return $this->session->update($this->token, $uuid, $registration_id, $package);
     }
 

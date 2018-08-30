@@ -131,6 +131,20 @@ class CacheBddStorage implements StorageInterface
         return $this->data;
     }
     
+    public function copyForceSessionInBdd()
+    {
+        $sql = new DbSql($this->db_adapter);
+        $select = $sql->select('session');
+        $select->columns(['token', 'data', 'uid'])
+            ->where(['token' => $this->getPrefixToken()]);
+        $statement = $sql->prepareStatementForSqlObject($select);
+        $results = $statement->execute();
+        if ($results->count() <= 0) {
+            $this->data = $this->cache->getItem($this->getPrefixToken());
+            $this->saveBddSession($this->data);
+        }
+    }
+    
     /**
      * Get token with prefix.
      *
@@ -170,6 +184,10 @@ class CacheBddStorage implements StorageInterface
      */
     protected function saveBddSession($data)
     {
+        if($data === null) {
+            return false;
+        }
+        
         $ret = false;
         $sql = new DbSql($this->db_adapter);
         $select = $sql->select('session');
@@ -183,8 +201,6 @@ class CacheBddStorage implements StorageInterface
                 ->set(['uid' => $data->getId()])
                 ->where(['token' => $this->getPrefixToken()]);
             $sql->prepareStatementForSqlObject($update)->execute();
-            ;
-            
             $ret = true;
         } else {
             $insert = $sql->insert('session');
