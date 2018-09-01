@@ -5,6 +5,7 @@ use Dal\Service\AbstractService;
 use Application\Model\Page as ModelPage;
 use ZendService\Google\Gcm\Notification as GcmNotification;
 use Zend\Db\Sql\Predicate\IsNull;
+use Google\Cloud\Logging\LoggingClient;
 
 class PageDoc extends AbstractService
 {
@@ -29,12 +30,15 @@ class PageDoc extends AbstractService
 
         $this->getMapper()->insert($m_page_doc);
         
+        /*
         $m_page = $this->getServicePage()->getLite($page_id);
         if($m_page->getType() == ModelPage::TYPE_COURSE) {
             $identity = $this->getServiceUser()->getIdentity();
             $ar_pages = [];
             $res_user = $this->getServiceUser()->getLite($this->getServicePageUser()->getListByPage($page_id)[$page_id]);
             if($res_user !== null) {
+                $logging = new LoggingClient(['projectId' => 'eloquent-optics-206213']);
+                $logger = $logging->psrLogger('FCMLOG');
                 foreach($res_user as $m_user){
                     if($m_user->getId() == $identity['id'] || $m_user->getHasEmailNotifier() === 0) {
                         continue;
@@ -47,6 +51,7 @@ class PageDoc extends AbstractService
                         $m_organization = $ar_pages[$m_user->getOrganizationId()];
                     }
     
+                    $logger->notice("Page Doc: ".$m_user->getId());
                     try{
                         $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ? 
                             $m_organization->getLibelle() : null;
@@ -55,13 +60,6 @@ class PageDoc extends AbstractService
                             ($prefix ? $prefix.'.':''),
                             $this->container->get('config')['app-conf']['uiurl'],
                             $m_page->getId()
-                        );
-                        $this->getServiceMail()->sendTpl(
-                            'tpl_coursedoc', $m_user->getEmail(), [
-                            'pagename' => $m_page->getTitle(),
-                            'firstname' => $m_user->getFirstName(),
-                            'pageurl' => $url
-                            ]
                         );
                         
                         $gcm_notification = new GcmNotification();
@@ -72,14 +70,28 @@ class PageDoc extends AbstractService
                             ->setTag("PAGEDOV".$page_id)
                             ->setBody("A new material has been added to the course ". $m_page->getTitle());
                         
-                            $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification, Fcm::PACKAGE_TWIC_APP);
+                        $logger->notice("Page Doc Env fcm: ".$m_user->getId());
+                        $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification, Fcm::PACKAGE_TWIC_APP);
+                        
+                        $logger->notice("Page Doc Env Mail: ".$m_user->getId());
+                        $this->getServiceMail()->sendTpl(
+                            'tpl_coursedoc', $m_user->getEmail(), [
+                                'pagename' => $m_page->getTitle(),
+                                'firstname' => $m_user->getFirstName(),
+                                'pageurl' => $url
+                            ]
+                        );
                     }
                     catch (\Exception $e) {
+                        $logger->notice("Page Doc catch: ".$e->getMessage());
                         syslog(1, 'Model name does not exist PageDoc <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode());
                     }
                 }
             }
         }
+        
+        
+        */
          
 
         return $library;

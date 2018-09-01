@@ -58,18 +58,17 @@ class Fcm extends AbstractService
     public function register($uuid, $registration_id, $package = null)
     {
         if($package === null) {
-            $package = new IsNull();
+            $package = self::PACKAGE_TWIC_APP;
         }
         
-        /*$res_session = $this->session->get($uuid, null, $package);
+        $res_session = $this->session->get($uuid, null, $package);
         foreach ($res_session as $m_session) {
             // if c un autre uuid que moi on suprime la session puis le champ bdd
             if ($this->token !== $m_session->getToken()) {
                 $this->session->delete(null, $m_session->getToken());
             }
-        }*/
+        }
         
-        # Instantiates a client
         $logging = new LoggingClient(['projectId' => 'eloquent-optics-206213']);
         $logger = $logging->psrLogger('FCMLOG');
         $logger->notice("session: ".$this->token);
@@ -83,10 +82,16 @@ class Fcm extends AbstractService
             $notification->setClickAction(self::ACTIVITY);
         }
 
+        /*$logging = new LoggingClient(['projectId' => 'eloquent-optics-206213']);
+        $logger = $logging->psrLogger('FCMLOG');
+        
+        $logger->notice("Send: ".$package);
+        $logger->notice($to);
+        */
         $register_ids = [];
         $res_session = $this->session->get(null, $to, $package);
-
         foreach ($res_session as $m_session) {
+            //$logger->notice("Send: ".$m_session->getRegistrationId());
             $register_ids[] = $m_session->getRegistrationId();
         }
 
@@ -111,11 +116,13 @@ class Fcm extends AbstractService
                 // LOG FUKING FCM ERROR ... HELPING FUTURE DEBUG...
                 foreach ( $response->getResults() as $token => $result ){
                     if(!empty($result['error']) ) {
+                        //$logger->error("Send: ".$result['error']);
                     }
                 }
                 return $response;
             } catch (\Exception $e) {
                 syslog(1, "error fcm: ".$e->getMessage());
+                //$logger->error("Send: ".$e->getMessage());
             }
         }
 
