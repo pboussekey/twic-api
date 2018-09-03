@@ -107,6 +107,7 @@ class Post extends AbstractMapper
             'type',
             'data',
             'item_id',
+            'shared_id',
             'post$created_date' => new Expression('DATE_FORMAT(post.created_date, "%Y-%m-%dT%TZ")'),
             'post$updated_date' => new Expression('DATE_FORMAT(post.updated_date, "%Y-%m-%dT%TZ")'),
             'post$nbr_comments' => $nbr_comments,
