@@ -13,10 +13,11 @@ class Post extends BasePost
     protected $nbr_comments;
     protected $is_liked;
     protected $nbr_likes;
+    protected $nbr_sharings;
     protected $user;
     protected $subscription;
     protected $count;
-    
+
     public function exchangeArray(array &$data)
     {
         if ($this->isRepeatRelational()) {
@@ -74,8 +75,8 @@ class Post extends BasePost
     public function getNbrComments()
     {
         return $this->nbr_comments;
-    } 
-    
+    }
+
     public function setMentions($mentions)
     {
         $this->mentions = $mentions;
@@ -112,6 +113,18 @@ class Post extends BasePost
         return $this->nbr_likes;
     }
 
+    public function setNbrSharings($nbr_sharings)
+    {
+        $this->nbr_sharings = $nbr_sharings;
+
+        return $this;
+    }
+
+    public function getNbrSharings()
+    {
+        return $this->nbr_sharings;
+    }
+
     public function setIsLiked($is_liked)
     {
         $this->is_liked = $is_liked;
@@ -135,8 +148,8 @@ class Post extends BasePost
     {
         return $this->user;
     }
-    
-    
+
+
     /**
      * Get count
      *

@@ -101,6 +101,20 @@ class User extends AbstractService
         return $identity;
     }
 
+      /**
+      * Get description of an user
+      *
+      * @invokable
+      *
+      * @param  int $id
+      * @return string
+      */
+     public function getDescription($id){
+         $ar_user = $this->getMapper()->select($this->getModel()->setId($id))->current()->toArray();
+         return array_key_exists('description', $ar_user) && $ar_user['description'] !== null ? $ar_user['description'] : "";
+     }
+
+
 
 
     /**
@@ -926,10 +940,11 @@ class User extends AbstractService
      * @param string $page_type
      * @param int $unsent
      * @param string $is_pinned
+     * @param int    $shared_id
      *
      * @return array
      */
-    public function getListId($search = null, $exclude = null, $filter = null, $contact_state = null, $page_id = null, $post_id = null, $order = null, $role = null, $conversation_id = null, $page_type = null, $unsent = null, $is_pinned = null)
+    public function getListId($search = null, $exclude = null, $filter = null, $contact_state = null, $page_id = null, $post_id = null, $order = null, $role = null, $conversation_id = null, $page_type = null, $unsent = null, $is_pinned = null, $shared_id = null)
     {
         $identity = $this->getIdentity();
         if (null !== $exclude && ! is_array($exclude)) {
@@ -938,7 +953,7 @@ class User extends AbstractService
 
         $is_admin = $this->isStudnetAdmin();
         $mapper = $this->getMapper();
-        $res_user = $mapper->usePaginator($filter)->getList($identity['id'], $is_admin, $post_id, $search, $page_id, $order, $exclude, $contact_state, $unsent, $role, $conversation_id, $page_type, null, $is_pinned);
+        $res_user = $mapper->usePaginator($filter)->getList($identity['id'], $is_admin, $post_id, $search, $page_id, $order, $exclude, $contact_state, $unsent, $role, $conversation_id, $page_type, null, $is_pinned, null, null, $shared_id);
 
         $users = [];
         foreach ($res_user as $m_user) {

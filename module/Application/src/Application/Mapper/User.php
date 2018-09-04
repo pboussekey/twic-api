@@ -131,7 +131,8 @@ class User extends AbstractMapper
         $email = null,
         $is_pinned = null,
         $state = null,
-        $is_active = null
+        $is_active = null,
+        $shared_id = null
     ) {
         $select = $this->tableGateway->getSql()->select();
 
@@ -199,6 +200,11 @@ class User extends AbstractMapper
             $select->join('post_like', 'post_like.user_id=user.id', [])
                 ->where(['post_like.post_id' => $post_id])
                 ->where(['post_like.is_like IS TRUE']);
+        }
+        if (!empty($shared_id)) {
+            $select->join('post', 'post.user_id=user.id', [])
+                ->where(['post.shared_id' => $shared_id])
+                ->where(['post.deleted_date IS NULL']);
         }
         if (!empty($conversation_id)) {
             $select->join('conversation_user', 'conversation_user.user_id=user.id', [])
