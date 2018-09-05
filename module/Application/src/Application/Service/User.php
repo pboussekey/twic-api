@@ -145,7 +145,7 @@ class User extends AbstractService
         if ($identity === null) {
             return;
         }
-        $id = $identity->getId();
+        $id = $identity->getToken();
         if ($init === false && $this->getCache()->hasItem('identity_' . $id)) {
             $user = $this->getCache()->getItem('identity_' . $id);
         } else {
@@ -156,7 +156,7 @@ class User extends AbstractService
             }
 
             $secret_key = $this->container->get('config')['app-conf']['secret_key'];
-            $user['wstoken'] = sha1($secret_key . $id);
+            $user['wstoken'] = sha1($secret_key . $user['id']);
             // $generator = new TokenGenerator($secret_key_fb);
             // $user['fbtoken'] = $generator->setData(array('uid' => (string) $id))->setOption('debug', $secret_key_fb_debug)->setOption('expires', 1506096687)->create();
             $user['fbtoken'] = $this->create_custom_token($id);
@@ -740,7 +740,7 @@ class User extends AbstractService
                     'lastname' => $lastname,
                     'firstname' => $firstname
                 ]
-                );
+            );
         } catch (\Exception $e) {
             syslog(1, 'Model name does not exist <> uniqid is : ' . $uniqid . ' <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode() . ' <URL> ' . $url . ' <Email> ' . $email);
         }
@@ -1046,8 +1046,11 @@ class User extends AbstractService
      * @param string $uuid
      * @param string $package
      */
-    public function registerFcm($token, $uuid, $package)
+    public function registerFcm($token, $uuid, $package = null)
     {
+        // permet de synchroniser la session memcache a la bdd
+        $this->getServiceStorageSession()->copyForceSessionInBdd();
+
         return $this->getServiceFcm()->register($uuid, $token, $package);
     }
 
@@ -1470,6 +1473,7 @@ class User extends AbstractService
         return $this->container->get('app_service_page');
     }
 
+
     /**
      * Get Service Library
      *
@@ -1488,5 +1492,16 @@ class User extends AbstractService
     private function getServiceUserTag()
     {
         return $this->container->get('app_service_user_tag');
+    }
+
+    /**
+     * Get Service Storage session
+     *
+     * @return \Auth\Authentication\Storage\CacheBddStorage
+     */
+    private function getServiceStorageSession()
+    {
+        return $this->container->get('token.storage.bddmem');
+
     }
 }
