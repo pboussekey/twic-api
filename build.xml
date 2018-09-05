@@ -103,7 +103,21 @@
 			<then><phingcall target="tar" /></then>
 		</if>
 		
+		<phingcall target="gcloud" />
 		<phingcall target="numbuild" />
+	</target>
+	
+	<target name="gcloud">
+			<if>
+				<equals arg1="${gcloud.deploy}" arg2="true" />
+				<then>
+					<phingcall target="numbuild" />
+					<exec
+					command="gcloud beta app deploy ${tmp.basedir} -q --project='${gcloud.project}'" 
+					passthru="true"
+				    dir="${tmp.basedir}" />
+				</then>
+			</if>
 	</target>
 	
 	<target name="numbuild">
