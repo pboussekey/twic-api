@@ -19,6 +19,7 @@ class User extends BaseUser
     protected $nb_user;
     protected $role_id;
     protected $address;
+    protected $tags;
     protected $preregistration;
 
     public function exchangeArray(array &$data)
@@ -138,6 +139,18 @@ class User extends BaseUser
         return $this->roles;
     }
 
+    public function setTags($tags)
+    {
+        $this->tags = $tags;
+
+        return $this;
+    }
+
+    public function getTags()
+    {
+        return $this->tags;
+    }
+
     public function setAvailable($available)
     {
         $this->available = $available;
@@ -195,16 +208,16 @@ class User extends BaseUser
 
     /**
      * @param \Application\Model\Preregistration $preregistration
-     * 
+     *
      * @return self
      */
     public function setPreregistration($preregistration)
     {
         $this->preregistration = $preregistration;
-        
+
         return $this;
     }
 
-    
-    
+
+
 }

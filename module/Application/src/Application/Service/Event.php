@@ -178,7 +178,6 @@ class Event extends AbstractService
     {
         $user_id = $this->getServiceUser()->getIdentity()['id'];
         $data_post = $this->getDataPost($post_id);
-
         $event = $type;
         if (is_string($ev)) {
             $event .= '.'.$ev;

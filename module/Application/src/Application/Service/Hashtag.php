@@ -3,6 +3,7 @@
 namespace Application\Service;
 
 use Dal\Service\AbstractService;
+use Zend\Db\Sql\Predicate\IsNotNull;
 
 class Hashtag extends AbstractService
 {
@@ -26,6 +27,38 @@ class Hashtag extends AbstractService
         return true;
     }
 
+    public function addMentions($id, $mentions)
+    {
+        $m_hashtag = $this->getModel()->setPostId($id);
+        $user_id = [];
+        $users = [];
+        for ($i = 0; $i < count($mentions[0]); $i++) {
+            $m_hashtag->setName($mentions[0][$i])
+                ->setType('@')->setUserId($mentions[1][$i]);
+            if ($this->getMapper()->select($m_hashtag)->count() <= 0) {
+                $m_hashtag->setCreatedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'));
+                $this->getMapper()->insert($m_hashtag);
+                $user_id[] = $mentions[1][$i];
+            }
+            $users[] = $mentions[1][$i];
+        }
+        $this->getMapper()->keepMentions($id, $users);
+        return $user_id;
+    }
+
+
+
+    public function getListMentions($id)
+    {
+        $m_hashtag = $this->getModel()->setPostId($id)->setType('@')->setUserId(new IsNotNull());
+        $res_hashtag = $this->getMapper()->select($m_hashtag);
+        $ar_user = [];
+        foreach($res_hashtag as $m_hashtag){
+            $ar_user[] = $m_hashtag->getUserId();
+        }
+        return $ar_user;
+    }
+
     public function getList($filter = [], $search)
     {
         if (strpos($search, '#') === 0 || strpos($search, '@') === 0) {
@@ -34,8 +67,8 @@ class Hashtag extends AbstractService
 
         $mapper = $this->getMapper();
 
-        $res_account = $mapper->usePaginator($filter)->getList($search);
+        $res_hashtag = $mapper->usePaginator($filter)->getList($search);
 
-        return ['count' => $mapper->count(), 'list' => $res_account];
+        return ['count' => $mapper->count(), 'list' => $res_hashtag];
     }
 }

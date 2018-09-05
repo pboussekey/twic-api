@@ -29,10 +29,38 @@ class Tag extends AbstractService
 
     /**
      *
+     * Get list of tags
+     *
+     * @invokable
+     * @param string $search
+     * @param string $category
+     * @param array|string $exclude
+     * @param array $filter
+     */
+    public function getList($search, $category = null, $exclude = null, $filter = null)
+    {
+        $mapper = $this->getMapper();
+        if(null !== $filter){
+          $mapper->usePaginator($filter);
+        }
+        return $mapper->getList($search, $category, $exclude);
+    }
+
+    /**
+     *
      * @param int $page_id
      */
     public function getListByPage($page_id)
     {
         return $this->getMapper()->getListByPage($page_id);
+    }
+
+    /**
+     *
+     * @param int $user_id
+     */
+    public function getListByUser($user_id)
+    {
+        return $this->getMapper()->getListByUser($user_id);
     }
 }

@@ -8,8 +8,8 @@ use Zend\Db\Sql\Predicate\Expression;
 use Zend\Db\Sql\Predicate\Predicate;
 
 class PageUser extends AbstractMapper
-{  
-    
+{
+
     public function get($page_id = null, $user_id = null, $state = null){
         $select = $this->tableGateway->getSql()->select();
         $select->columns(['page_id','user_id','state','role', 'page_user$created_date' => new Expression('DATE_FORMAT(page_user.created_date, "%Y-%m-%dT%TZ")')]);
@@ -19,19 +19,19 @@ class PageUser extends AbstractMapper
         if(null !== $user_id){
             $select->where(['user_id' => $user_id]);
         }
-        
+
         return $this->selectWith($select);
-               
+
     }
-    
-    public function getList($page_id = null, $user_id = null, $role = null, 
-        $state = null, $type = null, $me = null, $sent = null, $is_pinned = null, 
+
+    public function getList($page_id = null, $user_id = null, $role = null,
+        $state = null, $type = null, $me = null, $sent = null, $is_pinned = null,
         $search = null, $order = null)
     {
         $select = $this->tableGateway->getSql()->select();
         $select->columns(['page_id','user_id','state','role'])
             ->join('page', 'page_user.page_id = page.id', [])
-            ->join('user', 'page_user.user_id = user.id', [])
+            ->join('user', 'page_user.user_id = user.id', ['firstname', 'lastname', 'email', 'initial_email'])
             ->where(['page.deleted_date IS NULL'])
             ->where(['user.deleted_date IS NULL'])
             ->quantifier('DISTINCT');
@@ -66,10 +66,22 @@ class PageUser extends AbstractMapper
             $select->where('page_user.is_pinned IS FALSE');
         }
         if (null !== $search) {
-            $select->where(['( CONCAT_WS(" ", user.firstname, user.lastname) LIKE ? ' => $search.'%'])
-                ->where(['CONCAT_WS(" ", user.lastname, user.firstname) LIKE ? ' => $search.'%'], Predicate::OP_OR)
-                ->where(['user.email LIKE ? ' => $search.'%'], Predicate::OP_OR)
-                ->where(['user.nickname LIKE ? )' => $search.'%'], Predicate::OP_OR);
+
+          $tags = explode(' ', $search);
+          $select->join('user_tag', 'user_tag.user_id = user.id', [], $select::JOIN_LEFT)
+              ->join('tag', 'user_tag.tag_id = tag.id', [], $select::JOIN_LEFT)
+              ->where(['( CONCAT_WS(" ", user.lastname, user.firstname) LIKE ? ' =>  $search . '%'])
+              ->where(['CONCAT_WS(" ", user.lastname, user.firstname) LIKE ? ' => $search.'%'], Predicate::OP_OR)
+              ->where(['user.email LIKE ? ' => $search.'%'], Predicate::OP_OR)
+              ->where(['user.initial_email LIKE ? ' => $search.'%'], Predicate::OP_OR)
+              ->where(['tag.name'   => $tags], Predicate::OP_OR)
+              ->where(['1)'])
+              ->having(['( COUNT(DISTINCT tag.id) = ? OR COUNT(DISTINCT tag.id) = 0 ' => count($tags)])
+              ->having([' CONCAT_WS(" ", user.lastname, user.firstname) LIKE ? ' =>  $search . '%'], Predicate::OP_OR)
+              ->having(['CONCAT_WS(" ", user.lastname, user.firstname) LIKE ? ' => $search.'%'], Predicate::OP_OR)
+              ->having(['user.email LIKE ? ' => $search.'%'], Predicate::OP_OR)
+              ->having(['user.initial_email LIKE ? )' => $search.'%'], Predicate::OP_OR)
+              ->group('page_user.user_id');
         }
         if (null !== $me) {
             $select->join(['me' => 'page_user'], new Expression('me.page_id = page.id AND me.user_id = ?',$me), [], $select::JOIN_LEFT)
