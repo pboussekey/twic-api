@@ -400,10 +400,11 @@ class User extends AbstractService
      * @param bool   $ambassador
      * @param string $password
      * @param array  $address
+     * @param int    $graduation_year
      *
      * @return int
      */
-    public function update($id = null, $gender = null, $origin = null, $nationality = null, $firstname = null, $lastname = null, $sis = null, $email = null, $birth_date = null, $position = null, $organization_id = null, $interest = null, $avatar = null, $roles = null, $resetpassword = null, $has_email_notifier = null, $timezone = null, $background = null, $nickname = null, $suspend = null, $suspension_reason = null, $ambassador = null, $password = null, $address = null)
+    public function update($id = null, $gender = null, $origin = null, $nationality = null, $firstname = null, $lastname = null, $sis = null, $email = null, $birth_date = null, $position = null, $organization_id = null, $interest = null, $avatar = null, $roles = null, $resetpassword = null, $has_email_notifier = null, $timezone = null, $background = null, $nickname = null, $suspend = null, $suspension_reason = null, $ambassador = null, $password = null, $address = null, $graduation_year = null)
     {
         if ($this->getNbrEmailUnique($email, $id) > 0) {
             throw new JrpcException('duplicate email', - 38001);
@@ -436,10 +437,10 @@ class User extends AbstractService
          * }
          */
 
-        return $this->_update($id, $gender, $origin, $nationality, $firstname, $lastname, $sis, $email, $birth_date, $position, $organization_id, $interest, $avatar, $roles, $resetpassword, $has_email_notifier, $timezone, $background, $nickname, $suspend, $suspension_reason, $ambassador, $password, $address);
+        return $this->_update($id, $gender, $origin, $nationality, $firstname, $lastname, $sis, $email, $birth_date, $position, $organization_id, $interest, $avatar, $roles, $resetpassword, $has_email_notifier, $timezone, $background, $nickname, $suspend, $suspension_reason, $ambassador, $password, $address, $graduation_year);
     }
 
-    public function _update($id = null, $gender = null, $origin = null, $nationality = null, $firstname = null, $lastname = null, $sis = null, $email = null, $birth_date = null, $position = null, $organization_id = null, $interest = null, $avatar = null, $roles = null, $resetpassword = null, $has_email_notifier = null, $timezone = null, $background = null, $nickname = null, $suspend = null, $suspension_reason = null, $ambassador = null, $password = null, $address = null)
+    public function _update($id = null, $gender = null, $origin = null, $nationality = null, $firstname = null, $lastname = null, $sis = null, $email = null, $birth_date = null, $position = null, $organization_id = null, $interest = null, $avatar = null, $roles = null, $resetpassword = null, $has_email_notifier = null, $timezone = null, $background = null, $nickname = null, $suspend = null, $suspension_reason = null, $ambassador = null, $password = null, $address = null, $graduation_year = null)
     {
          $m_user = $this->getModel();
 
@@ -469,6 +470,10 @@ class User extends AbstractService
             }
         }
 
+        if(null !== $graduation_year && 'null' !== $graduation_year && strlen($graduation_year) !== 4){
+            $graduation_year = 'null';
+        }
+
         $m_user->setId($id)
             ->setFirstname($firstname)
             ->setLastname($lastname)
@@ -484,7 +489,8 @@ class User extends AbstractService
             ->setTimezone($timezone)
             ->setBackground($background)
             ->setNickname($nickname)
-            ->setAmbassador($ambassador);
+            ->setAmbassador($ambassador)
+            ->setGraduationYear(('null' === $graduation_year) ? new IsNull('graduation_year') : $graduation_year);
 
         // @TODO secu school_id
         if ($organization_id !== null) {
@@ -1096,7 +1102,7 @@ class User extends AbstractService
      * @param string $account_token
      * @param string $password
      */
-    public function signIn($account_token, $password, $firstname = null, $lastname = null)
+    public function signIn($account_token, $password, $firstname = null, $lastname = null, $graduation_year = null)
     {
         $m_registration = $this->getServicePreregistration()->get($account_token);
         if (false === $m_registration) {
@@ -1108,7 +1114,8 @@ class User extends AbstractService
                     ->setFirstname($firstname)
                     ->setLastname($lastname)
                     ->setIsActive(1)
-                    ->setPassword(md5($password)), [
+                    ->setPassword(md5($password)
+                    ->setGraduationYear($graduation_year)), [
                 'id' => $m_registration->getUserId()
                     ]
             );

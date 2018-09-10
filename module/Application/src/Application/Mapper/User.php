@@ -35,6 +35,7 @@ class User extends AbstractMapper
             'organization_id',
             'ambassador',
             'email_sent',
+            'graduation_year',
             'user$created_date' => new Expression('DATE_FORMAT(user.created_date, "%Y-%m-%dT%TZ")'),
             'user$invitation_date' => new Expression('DATE_FORMAT(user.invitation_date, "%Y-%m-%dT%TZ")'),
             'user$contacts_count' => $this->getSelectContactCount(),
@@ -74,9 +75,10 @@ class User extends AbstractMapper
         $page_affinity = new Select(['user_pages' => 'page_user']);
         $page_affinity->columns([
             'user_id' => new Expression('other_user.id'),
-            'affinity' => new Expression('SUM(CASE page.type  WHEN "organization" THEN 4 WHEN "course" THEN 8 ELSE 2 END)')
+            'affinity' => new Expression('SUM(CASE page.type  WHEN "organization" THEN 4 * IF(other_user.graduation_year = user.graduation_year, 10, 1) WHEN "course" THEN 8 ELSE 2 END)')
         ])
         ->join('page', 'user_pages.page_id = page.id',[])
+        ->join('user', 'user_pages.user_id = user.id',[])
         ->join(['page_users' => 'page_user'],'user_pages.page_id = page_users.page_id', [])
         ->join(['other_user' => 'user'],'page_users.user_id = other_user.id', [])
         ->where(['user_pages.user_id = ?' => $user_id])
@@ -132,7 +134,8 @@ class User extends AbstractMapper
         $is_pinned = null,
         $state = null,
         $is_active = null,
-        $shared_id = null
+        $shared_id = null,
+        $alumni = null
     ) {
         $select = $this->tableGateway->getSql()->select();
 
@@ -141,7 +144,7 @@ class User extends AbstractMapper
                 'user$id' => new Expression('user.id'),
                 'firstname', 'lastname', 'email', 'nickname', 'ambassador', 'email_sent', 'initial_email',
                 'user$birth_date' => new Expression('DATE_FORMAT(user.birth_date, "%Y-%m-%dT%TZ")'),
-                'position', 'interest', 'avatar', 'suspension_date', 'suspension_reason',
+                'position', 'interest', 'avatar', 'suspension_date', 'suspension_reason', 'graduation_year',
                 'user$contact_state' => $this->getSelectContactState($user_id),
                 'user$contacts_count' => $this->getSelectContactCount()
                 ];
@@ -151,7 +154,7 @@ class User extends AbstractMapper
                 'user$id' => new Expression('user.id'),
                 'firstname', 'lastname', 'email', 'nickname','ambassador', 'initial_email',
                 'user$birth_date' => new Expression('DATE_FORMAT(user.birth_date, "%Y-%m-%dT%TZ")'),
-                'position', 'interest', 'avatar',
+                'position', 'interest', 'avatar', 'graduation_year',
                 'user$contact_state' => $this->getSelectContactState($user_id),
                 'user$contacts_count' => $this->getSelectContactCount()
                 ];
@@ -217,14 +220,16 @@ class User extends AbstractMapper
               ->join('tag', 'user_tag.tag_id = tag.id', [], $select::JOIN_LEFT)
               ->where(['( CONCAT_WS(" ", user.lastname, user.firstname) LIKE ? ' =>  $search . '%'])
               ->where(['CONCAT_WS(" ", user.firstname, user.lastname) LIKE ? ' => $search.'%'], Predicate::OP_OR)
-              ->where(['user.email LIKE ? ' => $search.'%'], Predicate::OP_OR)
+              ->where->OR->in(new Expression('CONCAT( "\'", RIGHT(user.graduation_year, 2))'), $tags);
+              $select->where(['user.email LIKE ? ' => $search.'%'], Predicate::OP_OR)
               ->where(['user.initial_email LIKE ? ' => $search.'%'], Predicate::OP_OR)
               ->where(['tag.name'   => $tags], Predicate::OP_OR)
               ->where(['1)'])
               ->having(['( COUNT(DISTINCT tag.id) = ? OR COUNT(DISTINCT tag.id) = 0 ' => count($tags)])
               ->having([' CONCAT_WS(" ", user.lastname, user.firstname) LIKE ? ' => $search . '%'], Predicate::OP_OR)
               ->having(['CONCAT_WS(" ", user.firstname, user.lastname) LIKE ? ' => $search.'%'], Predicate::OP_OR)
-              ->having(['user.email LIKE ? ' => $search.'%'], Predicate::OP_OR)
+              ->having->OR->in(new Expression('CONCAT( "\'", RIGHT(user.graduation_year, 2))'), $tags);
+              $select->having(['user.email LIKE ? ' => $search.'%'], Predicate::OP_OR)
               ->having(['user.initial_email LIKE ? )' => $search.'%'], Predicate::OP_OR);
         }
         if (null !== $contact_state) {
@@ -275,6 +280,12 @@ class User extends AbstractMapper
         }
         else if ($is_active === false){
             $select->where(['user.is_active IS FALSE']);
+        }
+        if($alumni === true){
+            $select->where(['user.graduation_year < YEAR(CURDATE())']);
+        }
+        else if($alumni === false){
+            $select->where(['(user.graduation_year = YEAR(CURDATE()) OR user.graduation_year IS NULL)']);
         }
         return $this->selectWith($select);
     }

@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `apilms`.`user_tag` (
+CREATE TABLE IF NOT EXISTS `user_tag` (
   `user_id` INT(10) UNSIGNED NOT NULL,
   `tag_id` INT(10) UNSIGNED NOT NULL,
   `category` ENUM('expertise', 'interest', 'language') NOT NULL DEFAULT 'interest',
@@ -6,12 +6,12 @@ CREATE TABLE IF NOT EXISTS `apilms`.`user_tag` (
   INDEX `fk_sgroup_tag_2_idx` (`user_id` ASC),
   CONSTRAINT `fk_user_tag_1`
     FOREIGN KEY (`tag_id`)
-    REFERENCES `apilms`.`tag` (`id`)
+    REFERENCES `tag` (`id`)
     ON DELETE CASCADE
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_user_tag_2`
     FOREIGN KEY (`user_id`)
-    REFERENCES `apilms`.`user` (`id`)
+    REFERENCES `user` (`id`)
     ON DELETE CASCADE
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
