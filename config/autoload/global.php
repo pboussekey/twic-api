@@ -14,7 +14,7 @@
 
 return [
     'version' => "2.0.4",
-    'build-commit' => 1202,
+    'build-commit' => 1203,
     'app-conf' => [
         'cache' => 'storage_memcached',
     ],
@@ -90,6 +90,7 @@ return [
             'app_service_preregistration',
             'app_service_video_archive',
             'app_service_tag',
+            'app_service_event',
             'mail.service',
             'rbac_service_permission',
             'rbac_service_role_permission',
@@ -139,9 +140,9 @@ return [
             'adapter' => [
                 'name' => 'memcached',
                 'options' => [
-                    'namespace' => 'LMS1202',
+                    'namespace' => 'LMS1203',
                     'lib_options' => [
-                        ['option' => Memcached::OPT_PREFIX_KEY, 'value' => 'LMS1202'],
+                        ['option' => Memcached::OPT_PREFIX_KEY, 'value' => 'LMS1203'],
                     ],
                 ],
             ],
