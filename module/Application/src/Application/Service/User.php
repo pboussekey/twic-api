@@ -310,7 +310,7 @@ class User extends AbstractService
         return $this->_add($firstname, $lastname, $email, $gender, $origin, $nationality, $sis, $password, $birth_date, $position, $organization_id, $interest, $avatar, $roles, $timezone, $background, $nickname, $ambassador, $address);
     }
 
-    public function _add($firstname, $lastname, $email, $gender = null, $origin = null, $nationality = null, $sis = null, $password = null, $birth_date = null, $position = null, $organization_id = null, $interest = null, $avatar = null, $roles = null, $timezone = null, $background = null, $nickname = null, $ambassador = null, $address = null, $active = null)
+    public function _add($firstname, $lastname, $email, $gender = null, $origin = null, $nationality = null, $sis = null, $password = null, $birth_date = null, $position = null, $organization_id = null, $interest = null, $avatar = null, $roles = null, $timezone = null, $background = null, $nickname = null, $ambassador = null, $address = null, $active = null, $graduation_year = null)
     {
         $m_user = $this->getModel();
 
@@ -338,7 +338,8 @@ class User extends AbstractService
             ->setAmbassador($ambassador)
             ->setEmailSent(0)
             ->setCreatedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'))
-            ->setIsActive($active);
+            ->setIsActive($active)
+            ->setGraduationYear($graduation_year);
 
         if (! empty($password)) {
             $m_user->setPassword(md5($password));
@@ -1144,7 +1145,8 @@ class User extends AbstractService
                 null,
                 null,
                 null,
-                true
+                true,
+                $graduation_year
             );
         }
 
