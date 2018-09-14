@@ -67,7 +67,7 @@ class PageUser extends AbstractMapper
         }
 
         if($alumni === true){
-            $select->where(['(page.id != user.organization_id OR user.graduation_year < YEAR(CURDATE()))']);
+            $select->where(['(page.id = user.organization_id AND user.graduation_year < YEAR(CURDATE()))']);
         }
         else if($alumni === false){
             $select->where(['(page.id != user.organization_id OR user.graduation_year = YEAR(CURDATE()) OR user.graduation_year IS NULL)']);
