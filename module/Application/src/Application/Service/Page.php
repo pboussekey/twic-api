@@ -24,7 +24,7 @@ class Page extends AbstractService
 
     /**
      * Check if is admin of the page id
-     * 
+     *
      * @param int $id
      * @return boolean
      */
@@ -37,12 +37,12 @@ class Page extends AbstractService
         $ar_pu = $this->getServicePageUser()->getListByPage($id, ModelPageUser::ROLE_ADMIN);
         return (in_array($identity['id'], $ar_pu[$id]));
     }
-    
+
     /**
      * Get List Page By Email
-     *  
+     *
      * @invokable
-     * 
+     *
      * @param string $domaine
      * @return array
      */
@@ -50,7 +50,7 @@ class Page extends AbstractService
     {
         return $this->getMapper()->getListByDomaine(explode("@", $email)[1]);
     }
-    
+
     /**
      * Get custom Field
      *
@@ -58,7 +58,7 @@ class Page extends AbstractService
      *
      * @param string $libelle
      * @param int    $id
-     * 
+     *
      * @return \Application\Model\Page
      */
     public function getCustom($libelle = null, $id = null)
@@ -132,31 +132,31 @@ class Page extends AbstractService
         $is_published = null,
         $domaine = null
     ) {
-        
+
         $identity = $this->getServiceUser()->getIdentity();
 
         //Si un non admin esaye de créer une organization
         if(!$this->getServiceUser()->isStudnetAdmin() && $type === ModelPage::TYPE_ORGANIZATION) {
-            
+
             throw new JrpcException('Unauthorized operation page.add', -38003);
         }
-        
+
         if(null === $page_id  && $type === ModelPage::TYPE_COURSE && (!$this->getServiceUser()->isStudnetAdmin()  || !$this->isAdmin($page_id))) {
-            
+
             throw new JrpcException('Unauthorized operation page.add', -38003);
         }
-        
+
         $user_id = $identity['id'];
         $formattedWebsite = $this->getFormattedWebsite($website);
 
         if (null === $confidentiality) {
             $confidentiality = ModelPage::CONFIDENTIALITY_SECRET;
         }
-        
+
         if(null === $admission) {
             $admission = $confidentiality === ModelPage::CONFIDENTIALITY_PUBLIC ? ModelPage::ADMISSION_FREE : ModelPage::ADMISSION_OPEN;
         }
-        
+
         if(!is_array($address)){
             $address = null;
         }
@@ -172,11 +172,11 @@ class Page extends AbstractService
         if (null === $owner_id) {
             $owner_id = $user_id;
         }
-        
+
         if(null !== $start_date) {
             $start_date = (new \DateTime($start_date))->format('Y-m-d H:i:s');
-        }       
-        
+        }
+
         if(null !== $end_date) {
             $end_date = (new \DateTime($end_date))->format('Y-m-d H:i:s');
         }
@@ -202,7 +202,7 @@ class Page extends AbstractService
             ->setSubtype($subtype)
             ->setConversationId($conversation_id)
             ->setShortTitle($short_title)
-            ->setDomaine($domaine) /** @TODO check admin **/ 
+            ->setDomaine($domaine) /** @TODO check admin **/
             ->setCreatedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'));
 
         if ($address !== null) {
@@ -240,7 +240,7 @@ class Page extends AbstractService
             if(isset($ar_u['user_email'])) {
                 $ar_u['user_id'] = $this->getServiceUser()->_add(null, null, $ar_u['user_email'], null, null, null, null, null, null, null, null);
                 $ar_u['user_email'] = null;
-                 
+
             }
             if (isset($ar_u['user_id']) && $ar_u['user_id'] === $m_page->getOwnerId()) {
                 $is_present = true;
@@ -431,7 +431,7 @@ class Page extends AbstractService
         if(!$this->getServiceUser()->isStudnetAdmin() &&  !$this->isAdmin($id)) {
             throw new JrpcException('Unauthorized operation page.update', -38003);
         }
-        
+
         if(null !== $start_date) {
             $start_date = (new \DateTime($start_date))->format('Y-m-d H:i:s');
         }
@@ -459,7 +459,7 @@ class Page extends AbstractService
             ->setShortTitle($short_title)
             ->setConfidentiality($confidentiality)
             ->setAdmission($admission)
-            ->setDomaine($domaine); /** @TODO check admin **/ 
+            ->setDomaine($domaine); /** @TODO check admin **/
 
         if ($address !== null) {
             if($address === 0) {
@@ -518,9 +518,6 @@ class Page extends AbstractService
                 $ar_pages = [];
                 $res_user = $this->getServiceUser()->getLite($this->getServicePageUser()->getListByPage($id)[$id]);
                 foreach($res_user as $m_user){
-                    if($m_user->getId() == $user_id || $m_user->getHasEmailNotifier() === 0) {
-                        continue;
-                    }
                     $m_organization = false;
                     if($m_user->getOrganizationId()) {
                         if(!array_key_exists($m_user->getOrganizationId(), $ar_pages)) {
@@ -528,21 +525,23 @@ class Page extends AbstractService
                         }
                         $m_organization = $ar_pages[$m_user->getOrganizationId()];
                     }
-                    
+
                     try{
-                        
-                        $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
-                        $m_organization->getLibelle() : null;
-                        
-                        $url = sprintf("https://%s%s/page/course/%s/timeline", ($prefix ? $prefix.'.':''),  $this->container->get('config')['app-conf']['uiurl'], $tmp_m_page->getId());
-                        $this->getServiceMail()->sendTpl(
-                            'tpl_coursepublished', $m_user->getEmail(), [
-                            'pagename' => $tmp_m_page->getTitle(),
-                            'firstname' => $m_user->getFirstName(),
-                            'pageurl' => $url
-                            ]
-                        );
-                        
+
+                        if($m_user->getId() == $user_id && $m_user->getHasEmailNotifier() === 1) {
+                            $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
+                            $m_organization->getLibelle() : null;
+
+                            $url = sprintf("https://%s%s/page/course/%s/timeline", ($prefix ? $prefix.'.':''),  $this->container->get('config')['app-conf']['uiurl'], $tmp_m_page->getId());
+                            $this->getServiceMail()->sendTpl(
+                                'tpl_coursepublished', $m_user->getEmail(), [
+                                'pagename' => $tmp_m_page->getTitle(),
+                                'firstname' => $m_user->getFirstName(),
+                                'pageurl' => $url
+                                ]
+                            );
+                        }
+
                         $gcm_notification = new GcmNotification();
                         $gcm_notification->setTitle($tmp_m_page->getTitle())
                             ->setSound("default")
@@ -550,17 +549,17 @@ class Page extends AbstractService
                             ->setIcon("icon")
                             ->setTag("PAGECOMMENT".$t_page_id)
                             ->setBody("You have just been added to the course " . $tmp_m_page->getTitle());
-                        
+
                         $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification, Fcm::PACKAGE_TWIC_APP);
                     }
                     catch (\Exception $e) {
                         syslog(1, 'Model name does not exist Page publish <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode());
                     }
                 }
-               
+
 
             }
-            
+
         }
 
         if (is_numeric($tmp_m_page->getConversationId()) && null !== $title) {
@@ -588,7 +587,7 @@ class Page extends AbstractService
         }
         $m_page = $this->getModel()->setId($id)
             ->setDeletedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'));
-        
+
         $ret = $this->getMapper()->update($m_page);
         foreach ($id as $i) {
             $this->getServicePost()->hardDelete('PP'.$i);
@@ -668,14 +667,14 @@ class Page extends AbstractService
 
         return $this->getMapper()->select($this->getModel()->setId($id)->setConversationId($conversation_id))->current();
     }
-    
+
     /**
     * Get list suscribed users
     *
     * @invokable
     *
     *  @param  int $id
-     * @param  array  $filter 
+     * @param  array  $filter
      * @param  string $search
      * @param  array $order
     * @return array
@@ -685,7 +684,7 @@ class Page extends AbstractService
         return $this->getServiceSubscription()->getListUserId('PP'.$id, $filter, $search, $order);
     }
 
-    
+
 
     /**
      * Get Page
@@ -749,7 +748,7 @@ class Page extends AbstractService
 
         return [ 'list' => $res_grades, 'count' => $this->getMapper()->count() ];
     }
-    
+
      /**
       * Get user grades per pages
       *
@@ -801,7 +800,7 @@ class Page extends AbstractService
         $tags = null,
         $children_id = null,
         $is_member_admin = null, // get only les meber admin true/false
-        $exclude = null, 
+        $exclude = null,
         $is_published = null
     ) {
         if (empty($tags)) {
@@ -923,7 +922,7 @@ class Page extends AbstractService
         $m_page->setOwner($owner);
     }
 
-    
+
      /**
       * Get page counts.
       *
@@ -940,13 +939,13 @@ class Page extends AbstractService
       */
     public function getCount( $start_date = null, $end_date = null, $interval_date = 'D', $type = null, $page_id  = null, $date_offset = 0)
     {
-        
+
         if(null !== $page_id && !is_array($page_id)){
             $page_id = [$page_id];
         }
         $interval = $this->getServiceActivity()->interval($interval_date);
         $identity = $this->getServiceUser()->getIdentity();
-        
+
         return $this->getMapper()->getCount($identity['id'], $interval, $start_date, $end_date, $page_id, $type, $date_offset);
     }
 
@@ -954,7 +953,7 @@ class Page extends AbstractService
     {
         return $this->getMapper()->select($this->getModel()->setConversationId($conversation_id))->current();
     }
-    
+
 
     /**
      * Get Service Event
@@ -965,7 +964,7 @@ class Page extends AbstractService
     {
         return $this->container->get('app_service_event');
     }
-    
+
 
     /**
      * Get Service User
@@ -1070,7 +1069,7 @@ class Page extends AbstractService
     /**
      * Get Service Subscription
      *
-     * @return \Application\Service\Subscription   
+     * @return \Application\Service\Subscription
      */
     private function getServiceSubscription()
     {
@@ -1085,7 +1084,7 @@ class Page extends AbstractService
     private function getServicePost()
     {
         return $this->container->get('app_service_post');
-    } 
+    }
 
     /**
      * Get Service Activity
@@ -1095,8 +1094,8 @@ class Page extends AbstractService
     private function getServiceActivity()
     {
         return $this->container->get('app_service_activity');
-    }      
-    
+    }
+
     /**
      * Get Service Mail.
      *
@@ -1106,7 +1105,7 @@ class Page extends AbstractService
     {
         return $this->container->get('mail.service');
     }
-    
+
     /**
      * Get Service Service Conversation User.
      *

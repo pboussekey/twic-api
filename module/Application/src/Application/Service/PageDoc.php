@@ -28,7 +28,7 @@ class PageDoc extends AbstractService
             ->setLibraryId($library);
 
         $this->getMapper()->insert($m_page_doc);
-        
+
         $m_page = $this->getServicePage()->getLite($page_id);
         if($m_page->getType() == ModelPage::TYPE_COURSE) {
             $identity = $this->getServiceUser()->getIdentity();
@@ -36,9 +36,6 @@ class PageDoc extends AbstractService
             $res_user = $this->getServiceUser()->getLite($this->getServicePageUser()->getListByPage($page_id)[$page_id]);
             if($res_user !== null) {
                 foreach($res_user as $m_user){
-                    if($m_user->getId() == $identity['id'] || $m_user->getHasEmailNotifier() === 0) {
-                        continue;
-                    }
                     $m_organization = false;
                     if(!$m_user->getOrganizationId() instanceof IsNull) {
                         if(!array_key_exists($m_user->getOrganizationId(), $ar_pages)) {
@@ -46,24 +43,26 @@ class PageDoc extends AbstractService
                         }
                         $m_organization = $ar_pages[$m_user->getOrganizationId()];
                     }
-    
+
                     try{
-                        $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ? 
-                            $m_organization->getLibelle() : null;
-                        $url = sprintf(
-                            "https://%s%s/page/course/%s/resources",
-                            ($prefix ? $prefix.'.':''),
-                            $this->container->get('config')['app-conf']['uiurl'],
-                            $m_page->getId()
-                        );
-                        $this->getServiceMail()->sendTpl(
-                            'tpl_coursedoc', $m_user->getEmail(), [
-                            'pagename' => $m_page->getTitle(),
-                            'firstname' => $m_user->getFirstName(),
-                            'pageurl' => $url
-                            ]
-                        );
-                        
+                        if($m_user->getId() == $identity['id'] && $m_user->getHasEmailNotifier() === 1) {
+                            $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
+                                $m_organization->getLibelle() : null;
+                            $url = sprintf(
+                                "https://%s%s/page/course/%s/resources",
+                                ($prefix ? $prefix.'.':''),
+                                $this->container->get('config')['app-conf']['uiurl'],
+                                $m_page->getId()
+                            );
+                            $this->getServiceMail()->sendTpl(
+                                'tpl_coursedoc', $m_user->getEmail(), [
+                                'pagename' => $m_page->getTitle(),
+                                'firstname' => $m_user->getFirstName(),
+                                'pageurl' => $url
+                                ]
+                            );
+                        }
+
                         $gcm_notification = new GcmNotification();
                         $gcm_notification->setTitle($m_page->getTitle())
                             ->setSound("default")
@@ -71,7 +70,7 @@ class PageDoc extends AbstractService
                             ->setIcon("icon")
                             ->setTag("PAGEDOV".$page_id)
                             ->setBody("A new material has been added to the course ". $m_page->getTitle());
-                        
+
                             $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification, Fcm::PACKAGE_TWIC_APP);
                     }
                     catch (\Exception $e) {
@@ -80,7 +79,7 @@ class PageDoc extends AbstractService
                 }
             }
         }
-         
+
 
         return $library;
     }
@@ -158,7 +157,7 @@ class PageDoc extends AbstractService
     {
         return $this->container->get('app_service_page_user');
     }
-    
+
     /**
      * Get Service Mail.
      *
@@ -178,7 +177,7 @@ class PageDoc extends AbstractService
     {
         return $this->container->get('app_service_page');
     }
-    
+
     /**
      * Get Service Service Conversation User.
      *
