@@ -402,10 +402,11 @@ class User extends AbstractService
      * @param string $password
      * @param array  $address
      * @param int    $graduation_year
+     * @param string   $linkedin_url
      *
      * @return int
      */
-    public function update($id = null, $gender = null, $origin = null, $nationality = null, $firstname = null, $lastname = null, $sis = null, $email = null, $birth_date = null, $position = null, $organization_id = null, $interest = null, $avatar = null, $roles = null, $resetpassword = null, $has_email_notifier = null, $timezone = null, $background = null, $nickname = null, $suspend = null, $suspension_reason = null, $ambassador = null, $password = null, $address = null, $graduation_year = null)
+    public function update($id = null, $gender = null, $origin = null, $nationality = null, $firstname = null, $lastname = null, $sis = null, $email = null, $birth_date = null, $position = null, $organization_id = null, $interest = null, $avatar = null, $roles = null, $resetpassword = null, $has_email_notifier = null, $timezone = null, $background = null, $nickname = null, $suspend = null, $suspension_reason = null, $ambassador = null, $password = null, $address = null, $graduation_year = null, $linkedin_url = null)
     {
         if ($this->getNbrEmailUnique($email, $id) > 0) {
             throw new JrpcException('duplicate email', - 38001);
@@ -438,10 +439,10 @@ class User extends AbstractService
          * }
          */
 
-        return $this->_update($id, $gender, $origin, $nationality, $firstname, $lastname, $sis, $email, $birth_date, $position, $organization_id, $interest, $avatar, $roles, $resetpassword, $has_email_notifier, $timezone, $background, $nickname, $suspend, $suspension_reason, $ambassador, $password, $address, $graduation_year);
+        return $this->_update($id, $gender, $origin, $nationality, $firstname, $lastname, $sis, $email, $birth_date, $position, $organization_id, $interest, $avatar, $roles, $resetpassword, $has_email_notifier, $timezone, $background, $nickname, $suspend, $suspension_reason, $ambassador, $password, $address, $graduation_year, $linkedin_url);
     }
 
-    public function _update($id = null, $gender = null, $origin = null, $nationality = null, $firstname = null, $lastname = null, $sis = null, $email = null, $birth_date = null, $position = null, $organization_id = null, $interest = null, $avatar = null, $roles = null, $resetpassword = null, $has_email_notifier = null, $timezone = null, $background = null, $nickname = null, $suspend = null, $suspension_reason = null, $ambassador = null, $password = null, $address = null, $graduation_year = null)
+    public function _update($id = null, $gender = null, $origin = null, $nationality = null, $firstname = null, $lastname = null, $sis = null, $email = null, $birth_date = null, $position = null, $organization_id = null, $interest = null, $avatar = null, $roles = null, $resetpassword = null, $has_email_notifier = null, $timezone = null, $background = null, $nickname = null, $suspend = null, $suspension_reason = null, $ambassador = null, $password = null, $address = null, $graduation_year = null, $linkedin_url = null)
     {
          $m_user = $this->getModel();
 
@@ -491,7 +492,8 @@ class User extends AbstractService
             ->setBackground($background)
             ->setNickname($nickname)
             ->setAmbassador($ambassador)
-            ->setGraduationYear(('null' === $graduation_year) ? new IsNull('graduation_year') : $graduation_year);
+            ->setGraduationYear(('null' === $graduation_year) ? new IsNull('graduation_year') : $graduation_year)
+            ->setLinkedinUrl(('null' === $linkedin_url) ? new IsNull('linkedin_url') : $linkedin_url);
 
         // @TODO secu school_id
         if ($organization_id !== null) {
@@ -1227,7 +1229,11 @@ class User extends AbstractService
                             $this->getServicePageUser()->update($m_registration->getOrganizationId(), $user_id, ModelPageUser::ROLE_USER, ModelPageUser::STATE_MEMBER);
                         }
 
-                        $m_user->setFirstname($firstname)->setLastname($lastname)->setAvatar($avatar);
+                        $m_user->setFirstname($firstname)
+                          ->setLastname($lastname)
+                          ->setAvatar($avatar)
+                          ->setLinkedinUrl($m_people->getPublicProfileUrl());
+
                     }
                     $this->getMapper()->update($m_user->setLinkedinId($linkedin_id));
                     $user_id = $m_registration->getUserId();
@@ -1263,7 +1269,8 @@ class User extends AbstractService
                         ]
                     )
                 );
-                $m_user = $this->getModel()->setLinkedinId($linkedin_id);
+                $m_user = $this->getModel()->setLinkedinId($linkedin_id)
+                                ->setLinkedinUrl($m_people->getPublicProfileUrl());
                 if((!isset($identity['avatar']) || $identity['avatar'] === null) && $m_people->getPictureUrls() !== null) {
                     $url = $m_people->getPictureUrls()['values']['0'];
                     $m_user->setAvatar($this->getServiceLibrary()->upload($url, $identity['firstname'].' '.$identity['lastname']));

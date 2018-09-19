@@ -36,6 +36,7 @@ class User extends AbstractMapper
             'ambassador',
             'email_sent',
             'graduation_year',
+            'linkedin_url',
             'user$created_date' => new Expression('DATE_FORMAT(user.created_date, "%Y-%m-%dT%TZ")'),
             'user$invitation_date' => new Expression('DATE_FORMAT(user.invitation_date, "%Y-%m-%dT%TZ")'),
             'user$contacts_count' => $this->getSelectContactCount(),

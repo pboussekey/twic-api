@@ -1,0 +1,2 @@
+ALTER TABLE `user`
+ADD COLUMN  `linkedin_url` TEXT NULL DEFAULT NULL;

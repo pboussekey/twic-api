@@ -44,6 +44,7 @@ class User extends AbstractModel
 	protected $invitation_date;
 	protected $description;
 	protected $graduation_year;
+	protected $linkedin_url;
 
 	protected $prefix = 'user';
 
@@ -499,6 +500,18 @@ class User extends AbstractModel
 	public function setGraduationYear($graduation_year)
 	{
 		$this->graduation_year = $graduation_year;
+
+		return $this;
+	}
+
+	public function getLinkedinUrl()
+	{
+		return $this->linkedin_url;
+	}
+
+	public function setLinkedinUrl($linkedin_url)
+	{
+		$this->linkedin_url = $linkedin_url;
 
 		return $this;
 	}
