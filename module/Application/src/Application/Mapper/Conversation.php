@@ -5,7 +5,6 @@ namespace Application\Mapper;
 use Dal\Mapper\AbstractMapper;
 use Zend\Db\Sql\Predicate\Expression;
 use Zend\Db\Sql\Predicate\Predicate;
-use Zend\Db\Sql\Predicate\In;
 use Zend\Db\Sql\Select;
 
 class Conversation extends AbstractMapper

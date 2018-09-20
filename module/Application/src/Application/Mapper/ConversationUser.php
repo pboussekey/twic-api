@@ -5,7 +5,6 @@ namespace Application\Mapper;
 use Dal\Mapper\AbstractMapper;
 use Zend\Db\ResultSet\ResultSet;
 use Zend\Db\Sql\Having;
-use Zend\Db\Sql\Predicate\Expression;
 
 class ConversationUser extends AbstractMapper
 {
