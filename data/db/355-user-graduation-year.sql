@@ -1,0 +1,2 @@
+ALTER TABLE `user`
+ADD COLUMN  `graduation_year` INT(10) UNSIGNED NULL DEFAULT NULL;

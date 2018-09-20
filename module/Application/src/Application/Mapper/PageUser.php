@@ -26,12 +26,12 @@ class PageUser extends AbstractMapper
 
     public function getList($page_id = null, $user_id = null, $role = null,
         $state = null, $type = null, $me = null, $sent = null, $is_pinned = null,
-        $search = null, $order = null)
+        $search = null, $order = null, $alumni = null)
     {
         $select = $this->tableGateway->getSql()->select();
         $select->columns(['page_id','user_id','state','role'])
             ->join('page', 'page_user.page_id = page.id', [])
-            ->join('user', 'page_user.user_id = user.id', ['firstname', 'lastname', 'email', 'initial_email'])
+            ->join('user', 'page_user.user_id = user.id', ['firstname', 'lastname', 'email', 'initial_email', 'graduation_year'])
             ->where(['page.deleted_date IS NULL'])
             ->where(['user.deleted_date IS NULL'])
             ->quantifier('DISTINCT');
@@ -65,6 +65,13 @@ class PageUser extends AbstractMapper
         else if(false === $is_pinned) {
             $select->where('page_user.is_pinned IS FALSE');
         }
+
+        if($alumni === true){
+            $select->where(['(page.id != user.organization_id OR user.graduation_year < YEAR(CURDATE()))']);
+        }
+        else if($alumni === false){
+            $select->where(['(page.id != user.organization_id OR user.graduation_year = YEAR(CURDATE()) OR user.graduation_year IS NULL)']);
+        }
         if (null !== $search) {
 
           $tags = explode(' ', $search);
@@ -72,14 +79,16 @@ class PageUser extends AbstractMapper
               ->join('tag', 'user_tag.tag_id = tag.id', [], $select::JOIN_LEFT)
               ->where(['( CONCAT_WS(" ", user.lastname, user.firstname) LIKE ? ' =>  $search . '%'])
               ->where(['CONCAT_WS(" ", user.lastname, user.firstname) LIKE ? ' => $search.'%'], Predicate::OP_OR)
-              ->where(['user.email LIKE ? ' => $search.'%'], Predicate::OP_OR)
+              ->where->OR->in(new Expression('CONCAT( "\'", RIGHT(user.graduation_year, 2))'), $tags);
+          $select->where(['user.email LIKE ? ' => $search.'%'], Predicate::OP_OR)
               ->where(['user.initial_email LIKE ? ' => $search.'%'], Predicate::OP_OR)
               ->where(['tag.name'   => $tags], Predicate::OP_OR)
               ->where(['1)'])
               ->having(['( COUNT(DISTINCT tag.id) = ? OR COUNT(DISTINCT tag.id) = 0 ' => count($tags)])
               ->having([' CONCAT_WS(" ", user.lastname, user.firstname) LIKE ? ' =>  $search . '%'], Predicate::OP_OR)
               ->having(['CONCAT_WS(" ", user.lastname, user.firstname) LIKE ? ' => $search.'%'], Predicate::OP_OR)
-              ->having(['user.email LIKE ? ' => $search.'%'], Predicate::OP_OR)
+              ->having->OR->in(new Expression('CONCAT( "\'", RIGHT(user.graduation_year, 2))'), $tags);
+          $select->having(['user.email LIKE ? ' => $search.'%'], Predicate::OP_OR)
               ->having(['user.initial_email LIKE ? )' => $search.'%'], Predicate::OP_OR)
               ->group('page_user.user_id');
         }

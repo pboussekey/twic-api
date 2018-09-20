@@ -87,6 +87,8 @@ class Post extends AbstractMapper
         $nbr_comments->columns(['nbr_comments' => new Expression('COUNT(true)')])->where(['post.parent_id=`post$id` AND post.deleted_date IS NULL']);
         $nbr_likes = new Select('post_like');
         $nbr_likes->columns(['nbr_likes' => new Expression('COUNT(true)')])->where(['post_like.post_id=`post$id` AND post_like.is_like IS TRUE']);
+        $nbr_sharings = new Select('post');
+        $nbr_sharings->columns(['nbr_sharings' => new Expression('COUNT(DISTINCT post.user_id)')])->where(['post.shared_id=`post$id` AND post.deleted_date IS NULL']);
         $is_liked = new Select('post_like');
         $is_liked->columns(['is_liked' => new Expression('COUNT(true)')])->where(['post_like.post_id=`post$id` AND post_like.is_like IS TRUE AND post_like.user_id=?' => $me_id]);
 
@@ -107,11 +109,13 @@ class Post extends AbstractMapper
             'type',
             'data',
             'item_id',
+            'shared_id',
             'post$created_date' => new Expression('DATE_FORMAT(post.created_date, "%Y-%m-%dT%TZ")'),
             'post$updated_date' => new Expression('DATE_FORMAT(post.updated_date, "%Y-%m-%dT%TZ")'),
             'post$nbr_comments' => $nbr_comments,
             'post$is_liked' => $is_liked,
             'post$nbr_likes' => $nbr_likes,
+            'post$nbr_sharings' => $nbr_sharings,
             ]
         );
         $select->where(['post.id' => $id])

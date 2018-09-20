@@ -73,7 +73,8 @@ class Post extends AbstractService
         $uid = null,
         $sub = null,
         $type = null,
-        $item_id = null
+        $item_id = null,
+        $shared_id = null
     ) {
         $user_id = $this->getServiceUser()->getIdentity()['id'];
         $origin_id = null;
@@ -121,7 +122,8 @@ class Post extends AbstractService
             ->setTUserId($t_user_id)
             ->setUid($uid)
             ->setType($type)
-            ->setData($data);
+            ->setData($data)
+            ->setSharedId($shared_id);
 
         if (!$is_notif || null !== $parent_id) {
             $m_post->setUserId($user_id);

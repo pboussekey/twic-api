@@ -38,10 +38,10 @@ class Event extends AbstractService
 
     /**
      * Env request nodeJs
-     * 
+     *
      * @param string $method
      * @param array $params
-     * 
+     *
      * @return \Zend\Json\Server\Response
      */
     public function nodeRequest($method, $params = null)
@@ -94,6 +94,9 @@ class Event extends AbstractService
                 'object' => $object],
                 $target
             );
+            foreach ($user as $uid) {
+                $this->getServiceEventUser()->add($event_id, $uid);
+            }
         }
 
         return $event_id;
@@ -197,8 +200,8 @@ class Event extends AbstractService
     private function getDataPost($post_id)
     {
         $ar_post = $this->getServicePost()->getLite($post_id)->toArray();
-       
-        
+
+
         $ar_data = [
             'id' => $ar_post['id'],
             'name' => 'post',
@@ -215,7 +218,7 @@ class Event extends AbstractService
                 'type' => $ar_post['type'],
             ]
         ];
-        
+
         if(null !== $ar_post['t_page_id']){
             $ar_page = $this->getServicePage()->getLite($ar_post['t_page_id']);
             $ar_data['data']['page'] = $ar_page;
@@ -253,6 +256,37 @@ class Event extends AbstractService
                 'user_roles' => $m_user['roles']]];
     }
 
+    /**
+     * Get events list for current user.
+     *
+     * @param array $filter
+     *
+     * @invokable
+     *
+     * @return array
+     */
+    public function getList($filter, $events = null, $unread = null){
+        $mapper = $this->getMapper();
+        $res_event = $mapper->usePaginator($filter)->getList($this->getServiceUser()->getIdentity()['id'], $events, $unread);
+        return [ 'list' => $res_event, 'count' => $mapper->count()];
+    }
+
+    /**
+     * Get events list for current user.
+     *
+     * @param array|int $id
+     *
+     * @invokable
+     *
+     * @return array
+     */
+    public function read($id){
+        if(!is_array($id)){
+            $id = [$id];
+        }
+        return $this->getServiceEventUser()->read($id);
+    }
+
     // ----------------------------- Service
     /**
      * Get Service Event Comment.
@@ -262,6 +296,16 @@ class Event extends AbstractService
     private function getServiceEventSubscription()
     {
         return $this->container->get('app_service_event_subscription');
+    }
+
+    /**
+     * Get Service Event User.
+     *
+     * @return \Application\Service\EventUser
+     */
+    private function getServiceEventUser()
+    {
+        return $this->container->get('app_service_event_user');
     }
 
     /**

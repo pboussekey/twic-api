@@ -43,6 +43,7 @@ class User extends AbstractModel
 	protected $initial_email;
 	protected $invitation_date;
 	protected $description;
+	protected $graduation_year;
 
 	protected $prefix = 'user';
 
@@ -486,6 +487,18 @@ class User extends AbstractModel
 	public function setDescription($description)
 	{
 		$this->description = $description;
+
+		return $this;
+	}
+
+	public function getGraduationYear()
+	{
+		return $this->graduation_year;
+	}
+
+	public function setGraduationYear($graduation_year)
+	{
+		$this->graduation_year = $graduation_year;
 
 		return $this;
 	}

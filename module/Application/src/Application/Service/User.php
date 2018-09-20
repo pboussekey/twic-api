@@ -101,6 +101,20 @@ class User extends AbstractService
         return $identity;
     }
 
+      /**
+      * Get description of an user
+      *
+      * @invokable
+      *
+      * @param  int $id
+      * @return string
+      */
+     public function getDescription($id){
+         $ar_user = $this->getMapper()->select($this->getModel()->setId($id))->current()->toArray();
+         return array_key_exists('description', $ar_user) && $ar_user['description'] !== null ? $ar_user['description'] : "";
+     }
+
+
 
 
     /**
@@ -296,7 +310,7 @@ class User extends AbstractService
         return $this->_add($firstname, $lastname, $email, $gender, $origin, $nationality, $sis, $password, $birth_date, $position, $organization_id, $interest, $avatar, $roles, $timezone, $background, $nickname, $ambassador, $address);
     }
 
-    public function _add($firstname, $lastname, $email, $gender = null, $origin = null, $nationality = null, $sis = null, $password = null, $birth_date = null, $position = null, $organization_id = null, $interest = null, $avatar = null, $roles = null, $timezone = null, $background = null, $nickname = null, $ambassador = null, $address = null, $active = null)
+    public function _add($firstname, $lastname, $email, $gender = null, $origin = null, $nationality = null, $sis = null, $password = null, $birth_date = null, $position = null, $organization_id = null, $interest = null, $avatar = null, $roles = null, $timezone = null, $background = null, $nickname = null, $ambassador = null, $address = null, $active = null, $graduation_year = null)
     {
         $m_user = $this->getModel();
 
@@ -324,7 +338,8 @@ class User extends AbstractService
             ->setAmbassador($ambassador)
             ->setEmailSent(0)
             ->setCreatedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'))
-            ->setIsActive($active);
+            ->setIsActive($active)
+            ->setGraduationYear($graduation_year);
 
         if (! empty($password)) {
             $m_user->setPassword(md5($password));
@@ -386,10 +401,11 @@ class User extends AbstractService
      * @param bool   $ambassador
      * @param string $password
      * @param array  $address
+     * @param int    $graduation_year
      *
      * @return int
      */
-    public function update($id = null, $gender = null, $origin = null, $nationality = null, $firstname = null, $lastname = null, $sis = null, $email = null, $birth_date = null, $position = null, $organization_id = null, $interest = null, $avatar = null, $roles = null, $resetpassword = null, $has_email_notifier = null, $timezone = null, $background = null, $nickname = null, $suspend = null, $suspension_reason = null, $ambassador = null, $password = null, $address = null)
+    public function update($id = null, $gender = null, $origin = null, $nationality = null, $firstname = null, $lastname = null, $sis = null, $email = null, $birth_date = null, $position = null, $organization_id = null, $interest = null, $avatar = null, $roles = null, $resetpassword = null, $has_email_notifier = null, $timezone = null, $background = null, $nickname = null, $suspend = null, $suspension_reason = null, $ambassador = null, $password = null, $address = null, $graduation_year = null)
     {
         if ($this->getNbrEmailUnique($email, $id) > 0) {
             throw new JrpcException('duplicate email', - 38001);
@@ -422,10 +438,10 @@ class User extends AbstractService
          * }
          */
 
-        return $this->_update($id, $gender, $origin, $nationality, $firstname, $lastname, $sis, $email, $birth_date, $position, $organization_id, $interest, $avatar, $roles, $resetpassword, $has_email_notifier, $timezone, $background, $nickname, $suspend, $suspension_reason, $ambassador, $password, $address);
+        return $this->_update($id, $gender, $origin, $nationality, $firstname, $lastname, $sis, $email, $birth_date, $position, $organization_id, $interest, $avatar, $roles, $resetpassword, $has_email_notifier, $timezone, $background, $nickname, $suspend, $suspension_reason, $ambassador, $password, $address, $graduation_year);
     }
 
-    public function _update($id = null, $gender = null, $origin = null, $nationality = null, $firstname = null, $lastname = null, $sis = null, $email = null, $birth_date = null, $position = null, $organization_id = null, $interest = null, $avatar = null, $roles = null, $resetpassword = null, $has_email_notifier = null, $timezone = null, $background = null, $nickname = null, $suspend = null, $suspension_reason = null, $ambassador = null, $password = null, $address = null)
+    public function _update($id = null, $gender = null, $origin = null, $nationality = null, $firstname = null, $lastname = null, $sis = null, $email = null, $birth_date = null, $position = null, $organization_id = null, $interest = null, $avatar = null, $roles = null, $resetpassword = null, $has_email_notifier = null, $timezone = null, $background = null, $nickname = null, $suspend = null, $suspension_reason = null, $ambassador = null, $password = null, $address = null, $graduation_year = null)
     {
          $m_user = $this->getModel();
 
@@ -455,6 +471,10 @@ class User extends AbstractService
             }
         }
 
+        if(null !== $graduation_year && 'null' !== $graduation_year && strlen($graduation_year) !== 4){
+            $graduation_year = 'null';
+        }
+
         $m_user->setId($id)
             ->setFirstname($firstname)
             ->setLastname($lastname)
@@ -470,7 +490,8 @@ class User extends AbstractService
             ->setTimezone($timezone)
             ->setBackground($background)
             ->setNickname($nickname)
-            ->setAmbassador($ambassador);
+            ->setAmbassador($ambassador)
+            ->setGraduationYear(('null' === $graduation_year) ? new IsNull('graduation_year') : $graduation_year);
 
         // @TODO secu school_id
         if ($organization_id !== null) {
@@ -926,10 +947,11 @@ class User extends AbstractService
      * @param string $page_type
      * @param int $unsent
      * @param string $is_pinned
+     * @param int    $shared_id
      *
      * @return array
      */
-    public function getListId($search = null, $exclude = null, $filter = null, $contact_state = null, $page_id = null, $post_id = null, $order = null, $role = null, $conversation_id = null, $page_type = null, $unsent = null, $is_pinned = null)
+    public function getListId($search = null, $exclude = null, $filter = null, $contact_state = null, $page_id = null, $post_id = null, $order = null, $role = null, $conversation_id = null, $page_type = null, $unsent = null, $is_pinned = null, $shared_id = null)
     {
         $identity = $this->getIdentity();
         if (null !== $exclude && ! is_array($exclude)) {
@@ -938,7 +960,7 @@ class User extends AbstractService
 
         $is_admin = $this->isStudnetAdmin();
         $mapper = $this->getMapper();
-        $res_user = $mapper->usePaginator($filter)->getList($identity['id'], $is_admin, $post_id, $search, $page_id, $order, $exclude, $contact_state, $unsent, $role, $conversation_id, $page_type, null, $is_pinned);
+        $res_user = $mapper->usePaginator($filter)->getList($identity['id'], $is_admin, $post_id, $search, $page_id, $order, $exclude, $contact_state, $unsent, $role, $conversation_id, $page_type, null, $is_pinned, null, null, $shared_id);
 
         $users = [];
         foreach ($res_user as $m_user) {
@@ -1035,7 +1057,7 @@ class User extends AbstractService
     {
         // permet de synchroniser la session memcache a la bdd
         $this->getServiceStorageSession()->copyForceSessionInBdd();
-        
+
         return $this->getServiceFcm()->register($uuid, $token, $package);
     }
 
@@ -1081,7 +1103,7 @@ class User extends AbstractService
      * @param string $account_token
      * @param string $password
      */
-    public function signIn($account_token, $password, $firstname = null, $lastname = null)
+    public function signIn($account_token, $password, $firstname = null, $lastname = null, $graduation_year = null)
     {
         $m_registration = $this->getServicePreregistration()->get($account_token);
         if (false === $m_registration) {
@@ -1093,7 +1115,8 @@ class User extends AbstractService
                     ->setFirstname($firstname)
                     ->setLastname($lastname)
                     ->setIsActive(1)
-                    ->setPassword(md5($password)), [
+                    ->setPassword(md5($password)
+                    ->setGraduationYear($graduation_year)), [
                 'id' => $m_registration->getUserId()
                     ]
             );
@@ -1122,7 +1145,8 @@ class User extends AbstractService
                 null,
                 null,
                 null,
-                true
+                true,
+                $graduation_year
             );
         }
 
@@ -1458,7 +1482,7 @@ class User extends AbstractService
         return $this->container->get('app_service_page');
     }
 
-    
+
     /**
      * Get Service Library
      *
@@ -1470,6 +1494,16 @@ class User extends AbstractService
     }
     
     /**
+   * Get Service User Tag
+   *
+   * @return \Application\Service\UserTag
+   */
+    private function getServiceUserTag()
+    {
+        return $this->container->get('app_service_user_tag');
+    }
+
+    /**
      * Get Service Storage session
      *
      * @return \Auth\Authentication\Storage\CacheBddStorage
@@ -1477,15 +1511,5 @@ class User extends AbstractService
     private function getServiceStorageSession()
     {
         return $this->container->get('token.storage.bddmem');
-    }
-   
-    /**
-     * Get Service User Tag
-     *
-     * @return \Application\Service\UserTag
-     */
-    private function getServiceUserTag()
-    {
-        return $this->container->get('app_service_user_tag');
     }
 }
