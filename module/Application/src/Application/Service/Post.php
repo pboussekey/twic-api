@@ -232,9 +232,6 @@ class Post extends AbstractService
                     $res_user = $this->getServiceUser()->getLite($this->getServiceSubscription()->getListUserId('PP'.$t_page_id));
                     if($res_user !== null) {
                         foreach($res_user as $m_user){
-                            if($m_user->getId() == $user_id || $m_user->getHasEmailNotifier() === 0) {
-                                continue;
-                            }
                             $m_organization = false;
                             if(is_numeric($m_user->getOrganizationId())) {
                                 if(!array_key_exists($m_user->getOrganizationId(), $ar_pages)) {
@@ -244,17 +241,19 @@ class Post extends AbstractService
                             }
                             try {
 
-                                $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
-                                $m_organization->getLibelle() : null;
+                                if($m_user->getId() == $user_id && $m_user->getHasEmailNotifier() === 1) {
+                                    $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
+                                    $m_organization->getLibelle() : null;
 
-                                $url = sprintf("https://%s%s/page/course/%s/timeline", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl'], $m_page->getId());
-                                $this->getServiceMail()->sendTpl(
-                                    'tpl_coursepost', $m_user->getEmail(), [
-                                    'pagename' => $m_page->getTitle(),
-                                    'pageurl' => $url,
-                                    'firstname' => $m_user->getFirstName()
-                                    ]
-                                );
+                                    $url = sprintf("https://%s%s/page/course/%s/timeline", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl'], $m_page->getId());
+                                    $this->getServiceMail()->sendTpl(
+                                        'tpl_coursepost', $m_user->getEmail(), [
+                                        'pagename' => $m_page->getTitle(),
+                                        'pageurl' => $url,
+                                        'firstname' => $m_user->getFirstName()
+                                        ]
+                                    );
+                                }
 
                                 $gcm_notification = new GcmNotification();
                                 $gcm_notification->setTitle($m_page->getTitle())

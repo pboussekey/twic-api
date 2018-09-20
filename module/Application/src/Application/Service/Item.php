@@ -40,16 +40,16 @@ class Item extends AbstractService
     public function add($page_id, $title, $points = null, $description = null, $type = null, $is_available = null, $is_published = null, $order_id = null, $start_date = null, $end_date = null, $parent_id = null, $library_id = null, $post_id = null, $text = null, $participants = null, $quiz_id = null, $is_grade_published = null)
     {
         $identity = $this->getServiceUser()->getIdentity();
-        
-        
+
+
         if(null !== $start_date) {
             $start_date = (new \DateTime($start_date))->format('Y-m-d H:i:s');
-        }       
-        
+        }
+
         if(null !== $end_date) {
             $end_date = (new \DateTime($end_date))->format('Y-m-d H:i:s');
         }
-        
+
         if (!$this->getServiceUser()->isStudnetAdmin() && !$this->getServicePage()->isAdmin($page_id)) {
             throw new JrpcException('Unauthorized operation item.add', -38003);
         }
@@ -103,7 +103,7 @@ class Item extends AbstractService
      */
     public function move($id, $order_id = null, $parent_id = null)
     {
-        
+
         if (null !== $parent_id) {
             $this->getMapper()->update(
                 $this->getModel()
@@ -231,7 +231,7 @@ class Item extends AbstractService
         return $this->getServiceItemUser()->deleteUsers($id, $user_ids);
     }
 
-    
+
     /**
     * GetList available items count for a page
     *
@@ -243,10 +243,10 @@ class Item extends AbstractService
     {
         $identity = $this->getServiceUser()->getIdentity();
         $res_item = $this->getMapper()->getListId($page_id, $identity['id'],  $this->getServicePage()->isAdmin($page_id), 0);
-        
+
         return count($res_item->toArray());
     }
-    
+
     /**
      * GetList Id Item
      *
@@ -590,9 +590,6 @@ class Item extends AbstractService
                 $ar_pages = [];
                 $res_user = $this->getServiceUser()->getLite($this->getServicePageUser()->getListByPage($page_id)[$page_id]);
                 foreach($res_user as $m_user){
-                    if($m_user->getId() == $identity['id'] || $m_user->getHasEmailNotifier() === 0) {
-                        continue;
-                    }
                     $m_organization = false;
                     if(!$m_user->getOrganizationId() instanceof IsNull) {
                         if(!isset($ar_pages[$m_user->getOrganizationId()])) {
@@ -601,27 +598,28 @@ class Item extends AbstractService
                         $m_organization = $ar_pages[$m_user->getOrganizationId()];
                     }
                     try{
+                        if($m_user->getId() == $identity['id'] && $m_user->getHasEmailNotifier() === 1) {
+                            $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
+                            $m_organization->getLibelle() : null;
+                            $url = sprintf("https://%s%s/page/course/%s/content/%s", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl'], $m_page->getId(), $m_item->getId());
+                            $this->getServiceMail()->sendTpl(
+                                'tpl_itempublished', $m_user->getEmail(), [
+                                'itemtype' => ModelItem::type_relation[$m_item->getType()],
+                                'pagetitle' => $m_page->getTitle(),
+                                'itemtitle' => $m_item->getTitle(),
+                                'firstname' => $m_user->getFirstName(),
+                                'pageurl' => $url,
+                                ]
+                            );
+                        }
 
-                        $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
-                        $m_organization->getLibelle() : null;
-                        $url = sprintf("https://%s%s/page/course/%s/content/%s", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl'], $m_page->getId(), $m_item->getId());
-                        $this->getServiceMail()->sendTpl(
-                            'tpl_itempublished', $m_user->getEmail(), [
-                            'itemtype' => ModelItem::type_relation[$m_item->getType()],
-                            'pagetitle' => $m_page->getTitle(),
-                            'itemtitle' => $m_item->getTitle(),
-                            'firstname' => $m_user->getFirstName(),
-                            'pageurl' => $url,
-                            ]
-                        );
 
 
-                      
                     }
                     catch (\Exception $e) {
                         syslog(1, 'Model name does not exist Item publish <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode());
                     }
-                    
+
                     try{
 
                         $gcm_notification = new GcmNotification();
@@ -694,20 +692,20 @@ class Item extends AbstractService
         $identity = $this->getServiceUser()->getIdentity();
 
         $m_item = $this->get($id);
-        
+
         if (!$this->getServiceUser()->isStudnetAdmin() && !$this->getServicePage()->isAdmin($m_item->getPageId())) {
             throw new JrpcException('Unauthorized operation item.update', -38003);
         }
 
         if(null !== $start_date) {
             $start_date = (new \DateTime($start_date))->format('Y-m-d H:i:s');
-        }       
-        
+        }
+
         if(null !== $end_date) {
             $end_date = (new \DateTime($end_date))->format('Y-m-d H:i:s');
         }
-        
-        
+
+
         if (null !== $post_id) {
             $this->getServicePost()->_update($post_id, null, null, null, null, null, null, null, null, null, null, null, null, null, $id);
         }
@@ -726,9 +724,6 @@ class Item extends AbstractService
                 $m_item = $this->getLite($id)->current();
                 $res_user = $this->getServiceUser()->getLite($this->getServicePageUser()->getListByPage($m_item->getPageId())[$m_item->getPageId()]);
                 foreach($res_user as $m_user){
-                    if($m_user->getId() == $identity['id'] || $m_user->getHasEmailNotifier() === 0) {
-                        continue;
-                    }
                     $m_organization = false;
                     if(!$m_user->getOrganizationId() instanceof IsNull) {
                         if(!isset($ar_pages[$m_user->getOrganizationId()])) {
@@ -741,24 +736,26 @@ class Item extends AbstractService
                     try{
 
 
-                        $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
-                        $m_organization->getLibelle() : null;
-                        $url = sprintf("https://%s%s/page/course/%s/content/%s", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl'], $m_page->getId(), $m_item->getId());
-                        $this->getServiceMail()->sendTpl(
-                            'tpl_itemupdate', $m_user->getEmail(), [
-                            'itemtype' => ModelItem::type_relation[$m_item->getType()],
-                            'itemtitle' => $final_title,
-                            'firstname' => $m_user->getFirstName(),
-                            'pagename' => $m_page->getTitle(),
-                            'pageurl' => $url,
-                            ]
-                        );
+                        if($m_user->getId() == $identity['id'] && $m_user->getHasEmailNotifier() === 1) {
+                            $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
+                            $m_organization->getLibelle() : null;
+                            $url = sprintf("https://%s%s/page/course/%s/content/%s", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl'], $m_page->getId(), $m_item->getId());
+                            $this->getServiceMail()->sendTpl(
+                                'tpl_itemupdate', $m_user->getEmail(), [
+                                'itemtype' => ModelItem::type_relation[$m_item->getType()],
+                                'itemtitle' => $final_title,
+                                'firstname' => $m_user->getFirstName(),
+                                'pagename' => $m_page->getTitle(),
+                                'pageurl' => $url,
+                                ]
+                            );
+                        }
 
                     }
                     catch (\Exception $e) {
                         syslog(1, 'Model name does not exist Item update <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode());
                     }
-                    
+
                     try{
 
                         $gcm_notification = new GcmNotification();
@@ -820,7 +817,7 @@ class Item extends AbstractService
     {
         $identity = $this->getServiceUser()->getIdentity();
 
-        $m_item = $this->get($id); 
+        $m_item = $this->get($id);
         if (!$m_item || (!$this->getServiceUser()->isStudnetAdmin() && !$this->getServicePage()->isAdmin($m_item->getPageId()))) {
             throw new JrpcException('Unauthorized operation item.delete', -38003);
         }
@@ -845,10 +842,10 @@ class Item extends AbstractService
     {
         $rep = false;
         try {
-            $data =   [ 
-                'date' => $date, 
-                'uid' => 'item.starting.'.$id, 
-                'data' => [ 'type' => 'item.starting', 
+            $data =   [
+                'date' => $date,
+                'uid' => 'item.starting.'.$id,
+                'data' => [ 'type' => 'item.starting',
                             'data' => ['id' => $id]]
             ];
             $rep = $this->getServiceEvent()->nodeRequest('notification.register', $data);
@@ -871,7 +868,7 @@ class Item extends AbstractService
     public function unregister($id)
     {
         $rep = false;
-        try {  
+        try {
             $data =  ['uid' => 'item.starting.'.$id];
             $rep = $this->getServiceEvent()->nodeRequest('notification.unregister', $data);
             if ($rep->isError()) {
@@ -896,9 +893,9 @@ class Item extends AbstractService
      *
      * @return int
      */
-    public function starting($id) 
+    public function starting($id)
     {
-        
+
         if(!is_array($id)) {
             $id = [$id];
         }
@@ -965,7 +962,7 @@ class Item extends AbstractService
     {
         return $this->container->get('app_service_page');
     }
-    
+
     /**
      * Get Service Event
      *
