@@ -22,7 +22,7 @@ class UserTag extends AbstractService
    * @param  string $category
    * @return int
    */
-  public function add($user_id, $tag, $category)
+  public function add($user_id, $tag, $category = null)
   {
       $m_user_tag = $this->getModel()
           ->setUserId($user_id)
@@ -70,12 +70,13 @@ class UserTag extends AbstractService
    *
    * @param  int $user_id
    * @param  int $tag_id
+   * @param  string $category
    * @return bool
    */
-  public function remove($user_id, $tag_id)
+  public function remove($user_id, $tag_id = null, $category = null)
   {
       return $this->getMapper()->delete(
-          $this->getModel()->setUserId($user_id)->setTagId($tag_id)
+          $this->getModel()->setUserId($user_id)->setTagId($tag_id)->setCategory($category)
       );
   }
 
