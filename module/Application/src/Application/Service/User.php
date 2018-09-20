@@ -14,7 +14,6 @@ use Application\Model\Role as ModelRole;
 use Firebase\JWT\JWT;
 use Zend\Db\Sql\Predicate\IsNull;
 use Application\Model\PageUser as ModelPageUser;
-use Zend\Mail\Message;
 
 /**
  * Class User.
@@ -1514,7 +1513,7 @@ class User extends AbstractService
     {
         return $this->container->get('app_service_library');
     }
-
+    
     /**
    * Get Service User Tag
    *
@@ -1533,6 +1532,5 @@ class User extends AbstractService
     private function getServiceStorageSession()
     {
         return $this->container->get('token.storage.bddmem');
-
     }
 }

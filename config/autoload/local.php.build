@@ -22,7 +22,7 @@ return array(
         'secret_key' => '${node.key}'
     ],
     'gcm-conf' => [
-       'api_key' => '${firebase.key}',
+       'api_key' => '${fcm.key}',
        'adapter' => 'http-adapter',
    ],    
     'linkedin-conf' => [

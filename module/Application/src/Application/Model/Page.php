@@ -2,7 +2,6 @@
 
 namespace Application\Model;
 
-use Address\Model\Address;
 use Application\Model\Base\Page as BasePage;
 
 class Page extends BasePage
@@ -206,7 +205,7 @@ class Page extends BasePage
     /**
      * Get last post date
      *
-     * @return date
+     * @return string
      */
     public function getLastPost()
     {

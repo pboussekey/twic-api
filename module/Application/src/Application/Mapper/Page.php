@@ -6,7 +6,6 @@ use Dal\Mapper\AbstractMapper;
 use Zend\Db\Sql\Predicate\Expression;
 use Zend\Db\Sql\Predicate\Predicate;
 use Zend\Db\Sql\Select;
-use Application\Model\Page as ModelPage;
 use Application\Model\PageRelation as ModelPageRelation;
 
 class Page extends AbstractMapper
