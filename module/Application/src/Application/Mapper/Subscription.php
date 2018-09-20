@@ -32,8 +32,7 @@ class Subscription extends AbstractMapper
           ->where(['1)'])
           ->having(['( COUNT(DISTINCT tag.id) = ? OR COUNT(DISTINCT tag.id) = 0 ' => count($tags)])
           ->having([' CONCAT_WS(" ", user.lastname, user.firstname) LIKE ? ' => $search . '%'], Predicate::OP_OR)
-          ->having(['CONCAT_WS(" ", user.lastname, user.firstname) LIKE ? ' => $search.'%'], Predicate::OP_OR)
-          ->having->OR->in(new Expression('CONCAT( "\'", RIGHT(user.graduation_year, 2))'), $tags);
+          ->having(['CONCAT_WS(" ", user.lastname, user.firstname) LIKE ? ' => $search.'%'], Predicate::OP_OR);
           $select->having(['user.email LIKE ? ' => $search.'%'], Predicate::OP_OR)
           ->having(['user.initial_email LIKE ? )' => $search.'%'], Predicate::OP_OR)
           ->group('subscription.user_id');

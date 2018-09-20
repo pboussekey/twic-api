@@ -471,7 +471,8 @@ class User extends AbstractService
             }
         }
 
-        if(null !== $graduation_year && 'null' !== $graduation_year && strlen($graduation_year) !== 4){
+        if(null !== $graduation_year && 'null' !== $graduation_year
+            && (!is_numeric($graduation_year) || strlen($graduation_year) !== 4)){
             $graduation_year = 'null';
         }
 
@@ -537,6 +538,14 @@ class User extends AbstractService
 
         if (null !== $suspend) {
             $this->suspend($id, $suspend, $suspension_reason);
+        }
+
+        if(null !== $graduation_year){
+            $this->getServiceUserTag()->remove($id, null, 'other');
+            if('null' !== $graduation_year){
+                $this->getServiceUserTag()->add($id, $graduation_year);
+                $this->getServiceUserTag()->add($id, "'".($graduation_year % 100));
+            }
         }
         // on supprime son cache identity pour qu'a ca prochaine cannection il el recré.
         $this->deleteCachedIdentityOfUser($id);
@@ -913,7 +922,7 @@ class User extends AbstractService
 
         foreach ($res_user->toArray() as $user) {
             $user['roles'] = [];
-            $user['tags'] = $this->getServiceUserTag()->getList($user['id']);
+            $user['tags'] = $this->getServiceUserTag()->getList($user['id'], ['interest', 'expertise', 'language']);
             foreach ($this->getServiceRole()->getRoleByUser($user['id']) as $role) {
                 $user['roles'][] = $role->getName();
             }
@@ -1110,6 +1119,9 @@ class User extends AbstractService
         if (false === $m_registration) {
             throw new \Exception('Account token not found.');
         }
+        if(null !== $graduation_year && (!is_numeric($graduation_year) || strlen($graduation_year) !== 4)){
+            $graduation_year = null;
+        }
         if (is_numeric($m_registration->getUserId())) {
             $this->getMapper()->update(
                 $this->getModel()
@@ -1150,7 +1162,10 @@ class User extends AbstractService
                 $graduation_year
             );
         }
-
+        if(null !== $graduation_year){
+            $this->getServiceUserTag()->add($user_id, $graduation_year);
+            $this->getServiceUserTag()->add($user_id, "'".($graduation_year % 100));
+        }
         $m_user = $this->getLite($user_id);
         $login = $this->login($m_user->getEmail(), $password);
         if(is_numeric($m_user->getOrganizationId())) {

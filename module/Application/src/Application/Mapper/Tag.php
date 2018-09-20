@@ -35,7 +35,7 @@ class Tag extends AbstractMapper
           ->where(['name LIKE ? ' => $search . '%'])
           ->quantifier('DISTINCT');
         if(null !== $category){
-          $select->join('user_tag', 'tag.id = user_tag.tag_id')
+          $select->join('user_tag', 'tag.id = user_tag.tag_id', [])
                  ->where(['user_tag.category' => $category]);
         }
         if(null !== $exclude && count($exclude) > 0){
