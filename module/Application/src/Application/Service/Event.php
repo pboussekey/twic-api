@@ -280,8 +280,8 @@ class Event extends AbstractService
      *
      * @return array
      */
-    public function read($id){
-        if(!is_array($id)){
+    public function read($id = null){
+        if(null !== $id && !is_array($id)){
             $id = [$id];
         }
         return $this->getServiceEventUser()->read($id);

@@ -453,7 +453,7 @@ class User extends AbstractService
             $m_user->setPassword(md5($password));
         }
 
-        if(null !== $birth_date) {
+        if(null !== $birth_date && 'null' !== $birth_date) {
             $birth_date = (new \DateTime($birth_date))->format('Y-m-d H:i:s');
         }
 
@@ -481,7 +481,7 @@ class User extends AbstractService
                     $m_country = $address->getCountry();
                     $tags[] = $m_country->getShortName();
                 }
-                
+
                 $this->getServiceUserTag()->replace($id,$tags, 'address');
             }
             if ($address_id !== null) {

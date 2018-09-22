@@ -51,14 +51,15 @@ class Tag extends AbstractService
      * @param string $category
      * @param array|string $exclude
      * @param array $filter
+     * @param array|int $page_id
      */
-    public function getList($search, $category = null, $exclude = null, $filter = null)
+    public function getList($search, $category = null, $exclude = null, $filter = null, $page_id = null)
     {
         $mapper = $this->getMapper();
         if(null !== $filter){
-          $mapper->usePaginator($filter);
+            $mapper->usePaginator($filter);
         }
-        return $mapper->getList($search, $category, $exclude);
+        return $mapper->getList($search, $category, $exclude, $page_id);
     }
 
     /**
