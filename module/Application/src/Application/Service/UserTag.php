@@ -41,11 +41,11 @@ class UserTag extends AbstractService
    * @param  array $data
    * @return array
    */
-  public function _add($user_id, $data)
+  public function _add($user_id, $data, $category = null)
   {
       $ret = [];
       foreach ($data as $tag) {
-          $ret = $this->add($user_id, $tag);
+          $ret = $this->add($user_id, $tag, $category);
       }
 
       return $ret;
@@ -58,11 +58,11 @@ class UserTag extends AbstractService
    * @param  array $data
    * @return array
    */
-  public function replace($user_id, $data)
+  public function replace($user_id, $data, $category = null)
   {
-      $this->getMapper()->delete($this->getModel()->setUserId($user_id));
+      $this->getMapper()->delete($this->getModel()->setUserId($user_id)->setCategory($category));
 
-      return  $this->_add($user_id, $data);
+      return  $this->_add($user_id, $data, $category);
   }
 
   /**

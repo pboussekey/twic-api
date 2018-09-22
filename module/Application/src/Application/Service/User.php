@@ -14,6 +14,7 @@ use Application\Model\Role as ModelRole;
 use Firebase\JWT\JWT;
 use Zend\Db\Sql\Predicate\IsNull;
 use Application\Model\PageUser as ModelPageUser;
+use Application\Model\Tag as ModelTag;
 
 /**
  * Class User.
@@ -465,10 +466,35 @@ class User extends AbstractService
                 if ($address) {
                     $address_id = $address->getId();
                 }
+                $tags = [];
+                if(!$address->getCity() instanceof IsNull){
+                    $m_city = $address->getCity();
+                    $tags[] = $m_city->getName();
+
+                }
+                if(!$address->getDivision() instanceof IsNull){
+                    $m_division = $address->getDivision();
+                    $tags[] = $m_division->getName();
+
+                }
+                if(!$address->getCountry() instanceof IsNull){
+                    $m_country = $address->getCountry();
+                    $tags[] = $m_country->getShortName();
+                }
+                
+                $this->getServiceUserTag()->replace($id,$tags, 'address');
             }
             if ($address_id !== null) {
                 $m_user->setAddressId($address_id);
             }
+        }
+
+        if($origin !== null){
+            $tags = [];
+            if('null' !== $origin){
+                $country = $this->getServiceCountry()->getCountryById($origin);
+            }
+            $this->getServiceUserTag()->replace($id,null !== $country ? [$country->getShortName()] : [], 'origin');
         }
 
         if(null !== $graduation_year && 'null' !== $graduation_year
@@ -541,11 +567,7 @@ class User extends AbstractService
         }
 
         if(null !== $graduation_year){
-            $this->getServiceUserTag()->remove($id, null, 'other');
-            if('null' !== $graduation_year){
-                $this->getServiceUserTag()->add($id, $graduation_year);
-                $this->getServiceUserTag()->add($id, "'".($graduation_year % 100));
-            }
+            $this->getServiceUserTag()->replace($id, 'null' !== $graduation_year ? [$graduation_year , "'".($graduation_year % 100)] : [], 'graduation');
         }
         // on supprime son cache identity pour qu'a ca prochaine cannection il el recré.
         $this->deleteCachedIdentityOfUser($id);
@@ -922,7 +944,7 @@ class User extends AbstractService
 
         foreach ($res_user->toArray() as $user) {
             $user['roles'] = [];
-            $user['tags'] = $this->getServiceUserTag()->getList($user['id'], ['interest', 'expertise', 'language']);
+            $user['tags'] = $this->getServiceUserTag()->getList($user['id'], [ModelTag::SKILL, ModelTag::CAREER, ModelTag::HOBBY, ModelTag::LANGUAGE]);
             foreach ($this->getServiceRole()->getRoleByUser($user['id']) as $role) {
                 $user['roles'][] = $role->getName();
             }
@@ -1163,8 +1185,7 @@ class User extends AbstractService
             );
         }
         if(null !== $graduation_year){
-            $this->getServiceUserTag()->add($user_id, $graduation_year);
-            $this->getServiceUserTag()->add($user_id, "'".($graduation_year % 100));
+           $this->getServiceUserTag()->replace($user_id, 'null' !== $graduation_year ? [$graduation_year , "'".($graduation_year % 100)] : [], 'graduation');
         }
         $m_user = $this->getLite($user_id);
         $login = $this->login($m_user->getEmail(), $password);
@@ -1484,6 +1505,17 @@ class User extends AbstractService
     }
 
     /**
+     * Get Service Country
+     *
+     * @return \Address\Service\Country
+     */
+    private function getServiceCountry()
+    {
+        return $this->container->get('addr_service_country');
+    }
+
+
+    /**
      * Get Service PageUser
      *
      * @return \Application\Service\PageUser
@@ -1513,7 +1545,7 @@ class User extends AbstractService
     {
         return $this->container->get('app_service_library');
     }
-    
+
     /**
    * Get Service User Tag
    *

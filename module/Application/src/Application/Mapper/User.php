@@ -216,16 +216,16 @@ class User extends AbstractMapper
         }
         if (null !== $search) {
 
-          $tags = explode(' ', $search);
+          $tags = explode(' ', trim(preg_replace('/\s+/',' ',preg_replace('/([A-Z][a-z0-9])/',' ${0}', $search))));
           $select->join('user_tag', 'user_tag.user_id = user.id', [], $select::JOIN_LEFT)
               ->join('tag', 'user_tag.tag_id = tag.id', [], $select::JOIN_LEFT)
+              ->join('tag_breakdown', 'tag_breakdown.tag_id = tag.id', [], $select::JOIN_LEFT)
               ->where(['( CONCAT_WS(" ", user.lastname, user.firstname) LIKE ? ' =>  $search . '%'])
               ->where(['CONCAT_WS(" ", user.firstname, user.lastname) LIKE ? ' => $search.'%'], Predicate::OP_OR);
               $select->where(['user.email LIKE ? ' => $search.'%'], Predicate::OP_OR)
-              ->where(['user.initial_email LIKE ? ' => $search.'%'], Predicate::OP_OR)
-              ->where(['tag.name'   => $tags], Predicate::OP_OR)
-              ->where(['1)'])
-              ->having(['( COUNT(DISTINCT tag.id) = ? OR COUNT(DISTINCT tag.id) = 0 ' => count($tags)])
+              ->where(['tag_breakdown.tag_part'   => $tags], Predicate::OP_OR)
+              ->where(['user.initial_email LIKE ? )' => $search.'%'], Predicate::OP_OR)
+              ->having(['( COUNT(DISTINCT tag_breakdown.tag_part, tag.id) = ? OR COUNT(DISTINCT tag.id) = 0 ' => count($tags)])
               ->having([' CONCAT_WS(" ", user.lastname, user.firstname) LIKE ? ' => $search . '%'], Predicate::OP_OR)
               ->having(['CONCAT_WS(" ", user.firstname, user.lastname) LIKE ? ' => $search.'%'], Predicate::OP_OR);
               $select->having(['user.email LIKE ? ' => $search.'%'], Predicate::OP_OR)

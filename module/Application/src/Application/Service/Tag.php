@@ -6,6 +6,19 @@ use Dal\Service\AbstractService;
 
 class Tag extends AbstractService
 {
+
+
+    /**
+     * Add tag
+     *
+     * @param  int tag
+     * @return array
+     */
+    public function get($id)
+    {
+        return $this->getMapper()->select($this->getModel()->setId($id))->current();;
+    }
+
     /**
      * Add tag
      *
@@ -18,6 +31,8 @@ class Tag extends AbstractService
         if ($res_tag->count() <= 0) {
             $this->getMapper()->insert($this->getModel()->setName($name)->setWeight(1));
             $id = $this->getMapper()->getLastInsertValue();
+            $this->getServiceTagBreakdown()->create($id, $name);
+
         } else {
             $m_tag = $res_tag->current();
             $this->getMapper()->update($this->getModel()->setId($m_tag->getId())->setWeight($m_tag->getWeight()+1));
@@ -62,5 +77,14 @@ class Tag extends AbstractService
     public function getListByUser($user_id)
     {
         return $this->getMapper()->getListByUser($user_id);
+    }
+
+    /**
+     *
+     * @return \Application\Service\TagBreakdown
+     */
+    private function getServiceTagBreakdown()
+    {
+        return $this->container->get('app_service_tag_breakdown');
     }
 }
