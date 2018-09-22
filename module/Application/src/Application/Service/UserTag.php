@@ -84,10 +84,14 @@ class UserTag extends AbstractService
    * Get List
    *
    * @param int $user_id
+   * @param array|string $category
    */
-  public function getList($user_id)
+  public function getList($user_id, $category = null)
   {
-      return $this->getServiceTag()->getListByUser($user_id);
+      if(null !== $category && !is_array($category)){
+          $category = [$category];
+      }
+      return $this->getServiceTag()->getListByUser($user_id, $category);
   }
 
   /**

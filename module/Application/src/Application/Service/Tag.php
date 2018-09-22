@@ -73,10 +73,11 @@ class Tag extends AbstractService
     /**
      *
      * @param int $user_id
+     * @param array|string $category
      */
-    public function getListByUser($user_id)
+    public function getListByUser($user_id, $category = null)
     {
-        return $this->getMapper()->getListByUser($user_id);
+        return $this->getMapper()->getListByUser($user_id, $category);
     }
 
     /**

@@ -25,7 +25,7 @@ class Tag extends AbstractMapper
      * Get List
      *
      * @param string $search
-     * @param string $category
+     * @param array|string $category
      * @param array|string $exclude
      */
     public function getList($search, $category = null,  $exclude = null)
@@ -48,14 +48,17 @@ class Tag extends AbstractMapper
      * Get List Tag By User
      *
      * @param int $user_id
+     * @param array|string $category
      */
-    public function getListByUser($user_id)
+    public function getListByUser($user_id, $category = null)
     {
         $select = $this->tableGateway->getSql()->select();
         $select->columns(['id', 'name', 'weight'])
             ->join('user_tag', 'user_tag.tag_id=tag.id', ['tag$category' => 'category'])
             ->where(['user_tag.user_id' => $user_id]);
-
+        if(null !== $category){
+               $select->where(['user_tag.category' => $category]);
+        }
         return $this->selectWith($select);
     }
 }
