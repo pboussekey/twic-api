@@ -465,21 +465,22 @@ class User extends AbstractService
                 $address = $this->getServiceAddress()->getAddress($address);
                 if ($address) {
                     $address_id = $address->getId();
-                }
-                $tags = [];
-                if(!$address->getCity() instanceof IsNull){
-                    $m_city = $address->getCity();
-                    $tags[] = $m_city->getName();
-
-                }
-                if(!$address->getDivision() instanceof IsNull){
-                    $m_division = $address->getDivision();
-                    $tags[] = $m_division->getName();
-
-                }
-                if(!$address->getCountry() instanceof IsNull){
-                    $m_country = $address->getCountry();
-                    $tags[] = $m_country->getShortName();
+                
+                    $tags = [];
+                    if(!$address->getCity() instanceof IsNull){
+                        $m_city = $address->getCity();
+                        $tags[] = $m_city->getName();
+                    }
+                    
+                    if(!$address->getDivision() instanceof IsNull){
+                        $m_division = $address->getDivision();
+                        $tags[] = $m_division->getName();
+                    }
+                    
+                    if(!$address->getCountry() instanceof IsNull){
+                        $m_country = $address->getCountry();
+                        $tags[] = $m_country->getShortName();
+                    }
                 }
 
                 $this->getServiceUserTag()->replace($id,$tags, 'address');
