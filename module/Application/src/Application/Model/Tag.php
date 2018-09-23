@@ -6,6 +6,13 @@ use Application\Model\Base\Tag as BaseTag;
 
 class Tag extends BaseTag
 {
+  const SKILL='skill';
+  const CAREER='career';
+  const HOBBY='hobby';
+  const LANGUAGE='language';
+  const GRADUATION='graduation';
+  const OTHER='other';
+
   protected $category;
 
   public function getCategory()

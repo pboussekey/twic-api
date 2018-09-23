@@ -12,7 +12,7 @@ class Page extends AbstractMapper
 {
 
     /**
-     * 
+     *
      * @param string $domaine
      * @return \Zend\Db\ResultSet\ResultSet
      */
@@ -21,10 +21,10 @@ class Page extends AbstractMapper
         $select = $this->tableGateway->getSql()->select();
         $select->columns(array('id','title','logo', 'domaine'))
             ->where(["domaine" => $domaine]);
-        
+
         return $this->selectWith($select);
     }
-    
+
     /**
      * Execute Request Get Custom
      *
@@ -121,13 +121,14 @@ class Page extends AbstractMapper
         }
 
         if (null !== $search) {
-            $tags = explode(' ', $search);
+            $tags = explode(' ', trim(preg_replace('/\s+/',' ',preg_replace('/([A-Z][a-z0-9])/',' ${0}', $search))));
             $select->join('page_tag', 'page_tag.page_id = page.id', [], $select::JOIN_LEFT)
                 ->join('tag', 'page_tag.tag_id = tag.id', [], $select::JOIN_LEFT)
+                ->join('tag_breakdown', 'tag.id = tag_breakdown.tag_id', [], $select::JOIN_LEFT)
                 ->where(['( page.title LIKE ? ' => '%' . $search . '%'])
-                ->where(['tag.name'   => $tags], Predicate::OP_OR)
+                ->where(['tag_breakdown.tag_part'   => $tags], Predicate::OP_OR)
                 ->where(['1)'])
-                ->having(['( COUNT(DISTINCT tag.id) = ? OR COUNT(DISTINCT tag.id) = 0 ' => count($tags)])
+                ->having(['( COUNT(DISTINCT tag_breakdown.tag_part, tag_breakdown.tag_id) = ? OR COUNT(DISTINCT tag.id) = 0 ' => count($tags)])
                 ->having([' page.title LIKE ? ) ' => '%' . $search . '%'], Predicate::OP_OR);
         }
         if (null !== $start_date && null !== $end_date) {
@@ -159,6 +160,7 @@ class Page extends AbstractMapper
             // retourne que les couses publié ou tous le reste
             $select->where(['( page.is_published IS TRUE OR page.type <> "course" OR ( page_user.role = "admin" AND page_user.user_id = ? ) )' => $me]);
         }
+
         $select->group('page.id');
 
         return $this->selectWith($select);

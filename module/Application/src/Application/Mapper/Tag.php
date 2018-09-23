@@ -25,18 +25,25 @@ class Tag extends AbstractMapper
      * Get List
      *
      * @param string $search
-     * @param string $category
+     * @param array|string $category
      * @param array|string $exclude
+     * @param array|int $page_id
      */
-    public function getList($search, $category = null,  $exclude = null)
+    public function getList($search, $category = null,  $exclude = null, $page_id = null)
     {
         $select = $this->tableGateway->getSql()->select();
         $select->columns(['id', 'name', 'weight'])
           ->where(['name LIKE ? ' => $search . '%'])
           ->quantifier('DISTINCT');
+        if(null !== $category || null !== $page_id){
+            $select->join('user_tag', 'tag.id = user_tag.tag_id', ['tag$category' => 'category']);
+        }
         if(null !== $category){
-          $select->join('user_tag', 'tag.id = user_tag.tag_id', [])
-                 ->where(['user_tag.category' => $category]);
+             $select->where(['user_tag.category' => $category]);
+        }
+        if(null !== $page_id){
+            $select->join('user', 'user.id = user_tag.user_id', [])
+                   ->where(['user.organization_id' => $page_id]);
         }
         if(null !== $exclude && count($exclude) > 0){
           $select->where->notIn('name', $exclude);
@@ -48,14 +55,17 @@ class Tag extends AbstractMapper
      * Get List Tag By User
      *
      * @param int $user_id
+     * @param array|string $category
      */
-    public function getListByUser($user_id)
+    public function getListByUser($user_id, $category = null)
     {
         $select = $this->tableGateway->getSql()->select();
         $select->columns(['id', 'name', 'weight'])
             ->join('user_tag', 'user_tag.tag_id=tag.id', ['tag$category' => 'category'])
             ->where(['user_tag.user_id' => $user_id]);
-
+        if(null !== $category){
+               $select->where(['user_tag.category' => $category]);
+        }
         return $this->selectWith($select);
     }
 }
