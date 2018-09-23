@@ -13,7 +13,7 @@ class TagBreakdown extends AbstractService
                   $name = $m_tag->getName();
               }
               $return = 0;
-              $words = explode(' ', trim(preg_replace('/([A-Z][a-z0-9])/',' ${0}', $name)));
+              $words = explode(' ', strtolower(trim(preg_replace('/([A-Z][a-z0-9])/',' ${0}', $name))));
               $words[] = strtolower(str_replace(' ', '', $name));
               $words = array_unique($words);
               foreach($words as $word){
