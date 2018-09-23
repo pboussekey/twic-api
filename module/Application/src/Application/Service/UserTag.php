@@ -60,7 +60,7 @@ class UserTag extends AbstractService
    */
   public function replace($user_id, $data, $category = null)
   {
-      $this->getMapper()->delete($this->getModel()->setUserId($user_id)->setCategory($category));
+      $this->getMapper()->delete($this->getModel()->setUserId($user_id)->setCategory($category),['user_id' => $user_id, 'category' => $category]);
 
       return  $this->_add($user_id, $data, $category);
   }

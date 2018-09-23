@@ -15,6 +15,9 @@ use Firebase\JWT\JWT;
 use Zend\Db\Sql\Predicate\IsNull;
 use Application\Model\PageUser as ModelPageUser;
 use Application\Model\Tag as ModelTag;
+use Address\Model\City;
+use Address\Model\Division;
+use Address\Model\Country;
 
 /**
  * Class User.
@@ -459,6 +462,7 @@ class User extends AbstractService
 
         if ($address !== null) {
             $address_id = null;
+            $tags = [];
             if ($address === 'null') {
                 $address_id = new IsNull('address_id');
             } else {
@@ -466,24 +470,27 @@ class User extends AbstractService
                 if ($address) {
                     $address_id = $address->getId();
                 }
-                $tags = [];
-                if(!$address->getCity() instanceof IsNull){
+                
+                if($address->getCity() instanceof City
+                    && $address->getCity()->getName() !== null){
                     $m_city = $address->getCity();
                     $tags[] = $m_city->getName();
 
                 }
-                if(!$address->getDivision() instanceof IsNull){
+                if($address->getDivision() instanceof Division
+                    && $address->getDivision()->getName() !== null){
                     $m_division = $address->getDivision();
                     $tags[] = $m_division->getName();
 
                 }
-                if(!$address->getCountry() instanceof IsNull){
+                if($address->getCountry() instanceof Country
+                    && $address->getCountry()->getShortName() !== null){
                     $m_country = $address->getCountry();
                     $tags[] = $m_country->getShortName();
                 }
 
-                $this->getServiceUserTag()->replace($id,$tags, 'address');
             }
+            $this->getServiceUserTag()->replace($id,$tags, 'address');
             if ($address_id !== null) {
                 $m_user->setAddressId($address_id);
             }
