@@ -498,10 +498,11 @@ class User extends AbstractService
 
         if($origin !== null){
             $tags = [];
+            $country = null;
             if('null' !== $origin){
                 $country = $this->getServiceCountry()->getCountryById($origin);
             }
-            $this->getServiceUserTag()->replace($id,null !== $country ? [$country->getShortName()] : [], 'origin');
+            $this->getServiceUserTag()->replace($id,(null !== $country) ? [$country->getShortName()] : [], 'origin');
         }
 
         if(null !== $graduation_year && 'null' !== $graduation_year

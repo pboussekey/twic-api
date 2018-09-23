@@ -17,7 +17,9 @@ class TagBreakdown extends AbstractService
               $words[] = strtolower(str_replace(' ', '', $name));
               $words = array_unique($words);
               foreach($words as $word){
-                  $return += $this->getMapper()->insert($this->getModel()->setTagId($tag_id)->setTagPart(strtolower($word)));
+                  if(!empty($word)) {
+                    $return += $this->getMapper()->insert($this->getModel()->setTagId($tag_id)->setTagPart(strtolower($word)));
+                  }
               }
               return $return;
         }
