@@ -1,4 +1,4 @@
-ALTER TABLE `user_tag` MODIFY category TEXT NOT NULL DEFAULT 'other';
+ALTER TABLE `user_tag` MODIFY category VARCHAR(255) NOT NULL;
 UPDATE user_tag SET category = 'graduation' WHERE category = 'other';
 UPDATE user_tag SET category = 'hobby' WHERE category = 'interest';
 UPDATE user_tag SET category = 'skill' WHERE category = 'expertise';

@@ -470,7 +470,7 @@ class User extends AbstractService
                 if ($address) {
                     $address_id = $address->getId();
                 }
-                
+
                 if($address->getCity() instanceof City
                     && $address->getCity()->getName() !== null){
                     $m_city = $address->getCity();
