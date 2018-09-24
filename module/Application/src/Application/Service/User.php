@@ -1158,8 +1158,8 @@ class User extends AbstractService
                     ->setFirstname($firstname)
                     ->setLastname($lastname)
                     ->setIsActive(1)
-                    ->setPassword(md5($password)
-                    ->setGraduationYear($graduation_year)), [
+                    ->setPassword(md5($password))
+                    ->setGraduationYear($graduation_year), [
                 'id' => $m_registration->getUserId()
                     ]
             );
