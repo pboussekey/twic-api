@@ -765,7 +765,7 @@ class User extends AbstractService
     {
         $res_page = $this->getServicePage()->getCustom(null, $page_id);
         if($res_page->getDomaine() !== explode("@", $email)[1]) {
-            throw \Exception('Error Mail is not valide');
+            throw \Exception('Error invalid email address');
         }
 
         $uniqid = uniqid($page_id . strlen($email) . "_", true);

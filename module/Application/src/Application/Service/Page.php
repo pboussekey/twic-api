@@ -45,9 +45,13 @@ class Page extends AbstractService
      *
      * @param string $domaine
      * @return array
-     */
+     * @TODO implements an other method for user registration
+     /
     public function getListByEmail($email)
     {
+        if($this->getServiceUser()->getNbrEmailUnique($email) > 0){
+            throw new JrpcException('This email is already registered');
+        }
         return $this->getMapper()->getListByDomaine(explode("@", $email)[1]);
     }
 
