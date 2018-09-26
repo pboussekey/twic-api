@@ -795,10 +795,12 @@ class Post extends AbstractService
      * @param int    $parent_id
      * @param int    $t_page_id
      * @param int    $t_user_id
+     * @param string $type
+     * @param int    $page_id
      *
      * @return \Application\Model\Post
      */
-    public function addSys($uid, $content, $data, $event, $sub = null, $parent_id = null, $t_page_id = null, $t_user_id = null, $type = null)
+    public function addSys($uid, $content, $data, $event, $sub = null, $parent_id = null, $t_page_id = null, $t_user_id = null, $type = null, $page_id = null)
     {
         $res_post = $this->getMapper()->select($this->getModel()->setUid($uid));
 
@@ -817,7 +819,7 @@ class Post extends AbstractService
                  $parent_id,
                  $t_page_id,
                  $t_user_id,
-                 null,
+                 $page_id,
                  null,
                  null,
                  null,
@@ -828,7 +830,6 @@ class Post extends AbstractService
                  $type
              );
         }
-
     }
 
     /**

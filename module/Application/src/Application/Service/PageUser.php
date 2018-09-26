@@ -114,7 +114,8 @@ class PageUser extends AbstractService
                     null,
                     $page_id,
                     null,
-                    'page'
+                    'page',
+                    $page_id
                 );
             }
             if ($state === ModelPageUser::STATE_INVITED && ModelPage::TYPE_ORGANIZATION !== $m_page->getType()) {
@@ -132,7 +133,8 @@ class PageUser extends AbstractService
                     null/*parent*/,
                     $page_id/*page*/,
                     null/*user*/,
-                    'page'
+                    'page',
+                    $page_id
                 );
                 //$gcm_notification = new GcmNotification();
                 /*$gcm_notification->setTitle($name)
@@ -180,7 +182,8 @@ class PageUser extends AbstractService
                         null/*parent*/,
                         $page_id/*page*/,
                         $uid/*user*/,
-                        'page'
+                        'page',
+                        $page_id
                     );
 
                     /*
@@ -312,7 +315,8 @@ class PageUser extends AbstractService
                     null/*parent*/,
                     null/*page*/,
                     $user_id/*user*/,
-                    'page'
+                    'page',
+                    $page_id
                 );
             }
         }

@@ -294,7 +294,8 @@ class Page extends AbstractService
                 null/*parent*/,
                 $page_id/*page*/,
                 $owner_id/*user*/,
-                'page'
+                'page',
+                $page_id
             );
         }
 
