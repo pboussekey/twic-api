@@ -43,11 +43,15 @@ class Page extends AbstractService
      *
      * @invokable
      *
-     * @param string $domaine
+     * @param string $email
      * @return array
      */
     public function getListByEmail($email)
     {
+        //@TODO implements an other method for user registration
+        if($this->getServiceUser()->getNbrEmailUnique($email) > 0){
+            throw new JrpcException('This email is already registered');
+        }
         return $this->getMapper()->getListByDomaine(explode("@", $email)[1]);
     }
 
@@ -527,10 +531,13 @@ class Page extends AbstractService
                         }
                         $m_organization = $ar_pages[$m_user->getOrganizationId()];
                     }
+                    if($m_user->getId() == $user_id ){
+                      continue;
+                    }
 
                     try{
 
-                        if($m_user->getId() == $user_id && $m_user->getHasEmailNotifier() === 1) {
+                        if($m_user->getHasEmailNotifier() === 1) {
                             $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
                             $m_organization->getLibelle() : null;
 
