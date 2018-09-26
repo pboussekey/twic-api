@@ -529,10 +529,13 @@ class Page extends AbstractService
                         }
                         $m_organization = $ar_pages[$m_user->getOrganizationId()];
                     }
+                    if($m_user->getId() == $user_id ){
+                      continue;
+                    }
 
                     try{
 
-                        if($m_user->getId() == $user_id && $m_user->getHasEmailNotifier() === 1) {
+                        if($m_user->getHasEmailNotifier() === 1) {
                             $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
                             $m_organization->getLibelle() : null;
 

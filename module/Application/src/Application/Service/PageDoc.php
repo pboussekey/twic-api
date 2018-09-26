@@ -26,11 +26,11 @@ class PageDoc extends AbstractService
         } elseif (! is_numeric($var)) {
             throw new \Exception('error add document');
         }
-        
+
         $m_page_doc = $this->getModel()
             ->setPageId($page_id)
             ->setLibraryId($library);
-        
+
         $this->getMapper()->insert($m_page_doc);
         $m_page = $this->getServicePage()->getLite($page_id);
         if ($m_page->getType() == ModelPage::TYPE_COURSE) {
@@ -49,10 +49,13 @@ class PageDoc extends AbstractService
                         if (! array_key_exists($m_user->getOrganizationId(), $ar_pages)) {
                             $ar_pages[$m_user->getOrganizationId()] = $this->getServicePage()->getLite($m_user->getOrganizationId());
                         }
+                        if($m_user->getId() == $identity['id']){
+                            continue;
+                        }
                         $m_organization = $ar_pages[$m_user->getOrganizationId()];
-                        
+
                         try {
-                            if ($m_user->getId() == $identity['id'] && $m_user->getHasEmailNotifier() === 1) {
+                            if ($m_user->getHasEmailNotifier() === 1) {
                                 $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && ! empty($m_organization->getLibelle())) ? $m_organization->getLibelle() : null;
                                 $url = sprintf("https://%s%s/page/course/%s/resources", ($prefix ? $prefix . '.' : ''), $this->container->get('config')['app-conf']['uiurl'], $m_page->getId());
                                 $this->getServiceMail()->sendTpl('tpl_coursedoc', $m_user->getEmail(), [
@@ -61,7 +64,7 @@ class PageDoc extends AbstractService
                                     'pageurl' => $url
                                 ]);
                             }
-                            
+
                             $gcm_notification = new GcmNotification();
                             $gcm_notification->setTitle($m_page->getTitle())
                                 ->setSound("default")
@@ -69,7 +72,7 @@ class PageDoc extends AbstractService
                                 ->setIcon("icon")
                                 ->setTag("PAGEDOV" . $page_id)
                                 ->setBody("A new material has been added to the course " . $m_page->getTitle());
-                            
+
                             $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification, Fcm::PACKAGE_TWIC_APP);
                         } catch (\Exception $e) {
                             $logger->notice("Page Doc catch: " . $e->getMessage());
@@ -91,7 +94,7 @@ class PageDoc extends AbstractService
     {
         $this->getMapper()->delete($this->getModel()
             ->setLibraryId($library_id));
-        
+
         return $this->getServiceLibrary()->delete($library_id);
     }
 
@@ -108,7 +111,7 @@ class PageDoc extends AbstractService
         foreach ($data as $d) {
             $ret[] = $this->add($page_id, $d);
         }
-        
+
         return $ret;
     }
 
@@ -123,7 +126,7 @@ class PageDoc extends AbstractService
     {
         $this->getMapper()->delete($this->getModel()
             ->setPageId($page_id));
-        
+
         return $this->_add($page_id, $data);
     }
 

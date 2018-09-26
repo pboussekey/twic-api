@@ -597,8 +597,11 @@ class Item extends AbstractService
                         }
                         $m_organization = $ar_pages[$m_user->getOrganizationId()];
                     }
+                    if($m_user->getId() === $identity['id']){
+                        continue;
+                    }
                     try{
-                        if($m_user->getId() == $identity['id'] && $m_user->getHasEmailNotifier() === 1) {
+                        if($m_user->getHasEmailNotifier() === 1) {
                             $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
                             $m_organization->getLibelle() : null;
                             $url = sprintf("https://%s%s/page/course/%s/content/%s", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl'], $m_page->getId(), $m_item->getId());
@@ -731,12 +734,15 @@ class Item extends AbstractService
                         }
                         $m_organization = $ar_pages[$m_user->getOrganizationId()];
                     }
+                    if($m_user->getId() === $identity['id']){
+                        continue;
+                    }
                     $final_title = ($title !== null) ? $title : $m_item->getTitle();
                     $final_title = empty($final_title) ? "Untitled" : $final_title;
                     try{
 
 
-                        if($m_user->getId() == $identity['id'] && $m_user->getHasEmailNotifier() === 1) {
+                        if($m_user->getHasEmailNotifier() === 1) {
                             $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
                             $m_organization->getLibelle() : null;
                             $url = sprintf("https://%s%s/page/course/%s/content/%s", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl'], $m_page->getId(), $m_item->getId());
