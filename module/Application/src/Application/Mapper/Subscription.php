@@ -23,7 +23,7 @@ class Subscription extends AbstractMapper
           $tags = explode(' ', $search);
           $select->join('user_tag', 'user_tag.user_id = subscription.user_id', [], $select::JOIN_LEFT)
               ->join('tag', 'user_tag.tag_id = tag.id', [], $select::JOIN_LEFT)
-              ->where(['( CONCAT_WS(" ", user.lastname, user.firstname) LIKE ? ' =>  $search . '%'])
+              ->where(['( CONCAT_WS(" ", user.firstname, user.lastname) LIKE ? ' =>  $search . '%'])
               ->where(['CONCAT_WS(" ", user.lastname, user.firstname) LIKE ? ' => $search.'%'], Predicate::OP_OR)
               ->where->OR->in(new Expression('CONCAT( "\'", RIGHT(user.graduation_year, 2))'), $tags);
           $select->where(['user.email LIKE ? ' => $search.'%'], Predicate::OP_OR)
@@ -31,7 +31,7 @@ class Subscription extends AbstractMapper
           ->where(['tag.name'   => $tags], Predicate::OP_OR)
           ->where(['1)'])
           ->having(['( COUNT(DISTINCT tag.id) = ? OR COUNT(DISTINCT tag.id) = 0 ' => count($tags)])
-          ->having([' CONCAT_WS(" ", user.lastname, user.firstname) LIKE ? ' => $search . '%'], Predicate::OP_OR)
+          ->having([' CONCAT_WS(" ", user.firstname, user.lastname) LIKE ? ' => $search . '%'], Predicate::OP_OR)
           ->having(['CONCAT_WS(" ", user.lastname, user.firstname) LIKE ? ' => $search.'%'], Predicate::OP_OR);
           $select->having(['user.email LIKE ? ' => $search.'%'], Predicate::OP_OR)
           ->having(['user.initial_email LIKE ? )' => $search.'%'], Predicate::OP_OR)
