@@ -156,7 +156,7 @@ class User extends AbstractService
             $user = $this->getCache()->getItem('identity_' . $id);
         } else {
             $user = $identity->toArray();
-            if(!is_array($user['roles'])) {
+            if(isset($user['roles']) || !is_array($user['roles'])) {
                 $user['roles'] = [];
             }
             foreach ($this->getServiceRole()->getRoleByUser() as $role) {
