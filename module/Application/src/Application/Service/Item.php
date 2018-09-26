@@ -693,7 +693,8 @@ class Item extends AbstractService
 
         $m_item = $this->get($id);
 
-        if (!$this->getServiceUser()->isStudnetAdmin() && !$this->getServicePage()->isAdmin($m_item->getPageId())) {
+        
+        if (!$m_item || (!$this->getServiceUser()->isStudnetAdmin() && !$this->getServicePage()->isAdmin($m_item->getPageId())) ) {
             throw new JrpcException('Unauthorized operation item.update', -38003);
         }
 

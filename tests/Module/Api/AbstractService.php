@@ -179,7 +179,6 @@ abstract class AbstractService extends AbstractHttpControllerTestCase
 
     public function setIdentity($id = null, $role = null)
     {
-      
         $serviceManager = $this->getApplicationServiceLocator();
         $serviceManager->setAllowOverride(true);
         $identityMock = $this->getMockBuilder('\Auth\Authentication\Adapter\Model\Identity')
@@ -202,6 +201,7 @@ abstract class AbstractService extends AbstractHttpControllerTestCase
                 'firstname' => 'toto',
                 'avatar' => 'avatar',
                 'lastname' => 'tata',
+                'cache' => 0,
                 'organizations' => [['id' => 1],['id' => 3]]];
         if (null !== $role) {
             if (! is_array($role)) {
@@ -230,16 +230,15 @@ abstract class AbstractService extends AbstractHttpControllerTestCase
             ->method('getIdentity')
             ->will($this->returnValue($user));
 
-        
-   
-        
         $serviceManager->get('app_service_user')->getCache()->setItem('identity_'.$id, $user);
         
         $identityMock->expects($this->any())
             ->method('toArray')
-            ->will(
-                $this->returnValue($user)
-            );
+            ->will($this->returnValue($user));
+        
+        $identityMock->expects($this->any())
+            ->method('getCache')
+            ->will($this->returnValue(0));
 
         $authMock = $this->getMockBuilder('\Zend\Authentication\AuthenticationService')
             ->getMock();
@@ -263,7 +262,6 @@ abstract class AbstractService extends AbstractHttpControllerTestCase
         $rbacMock->expects($this->any())
             ->method('isGranted')
             ->will($this->returnValue(true));
-        
         
        $this->mockMail(true);
         $serviceManager->setService('auth.service', $authMock);

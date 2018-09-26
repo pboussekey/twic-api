@@ -28,6 +28,7 @@ class User extends AbstractService
     public function isStudnetAdmin()
     {
         $identity = $this->getIdentity();
+        
         return $identity['roles'] !== null && in_array(ModelRole::ROLE_ADMIN_STR, $identity['roles']);
     }
 
@@ -145,15 +146,19 @@ class User extends AbstractService
     {
         $user = [];
         $identity = $this->getServiceAuth()->getIdentity();
+
         if ($identity === null) {
             return;
         }
+        
         $id = $identity->getToken();
-        if ($init === false && $this->getCache()->hasItem('identity_' . $id)) {
+        if ($identity->getCache() !== 0 && $init === false && $this->getCache()->hasItem('identity_' . $id)) {
             $user = $this->getCache()->getItem('identity_' . $id);
         } else {
             $user = $identity->toArray();
-            $user['roles'] = [];
+            if(!is_array($user['roles'])) {
+                $user['roles'] = [];
+            }
             foreach ($this->getServiceRole()->getRoleByUser() as $role) {
                 $user['roles'][$role->getId()] = $role->getName();
             }
@@ -1122,6 +1127,26 @@ class User extends AbstractService
             );
         }
 
+        return $ret;
+    }
+    
+    /**
+     * Add School relation If not exist
+     * 
+     * @param  int  $organization_id
+     * @param  int  $user_id
+     * 
+     * @return NULL|int
+     */
+    public function addOrganizationIfNotExist($organization_id, $user_id)
+    {
+        $ret = false;
+        $m_user = $this->getLite($user_id);
+
+        if(!is_numeric($m_user->getOrganizationId())) {
+            $ret = $this->addOrganization($organization_id, $user_id, true);
+        }
+        
         return $ret;
     }
 

@@ -134,10 +134,9 @@ class Page extends AbstractService
     ) {
 
         $identity = $this->getServiceUser()->getIdentity();
-
+        
         //Si un non admin esaye de créer une organization
         if(!$this->getServiceUser()->isStudnetAdmin() && $type === ModelPage::TYPE_ORGANIZATION) {
-
             throw new JrpcException('Unauthorized operation page.add', -38003);
         }
 
@@ -211,7 +210,7 @@ class Page extends AbstractService
                 $m_page->setAddressId($address_id);
             }
         }
-
+        
         $this->getMapper()->insert($m_page);
         $id = (int)$this->getMapper()->getLastInsertValue();
 
@@ -240,12 +239,15 @@ class Page extends AbstractService
             if(isset($ar_u['user_email'])) {
                 $ar_u['user_id'] = $this->getServiceUser()->_add(null, null, $ar_u['user_email'], null, null, null, null, null, null, null, null);
                 $ar_u['user_email'] = null;
-
             }
             if (isset($ar_u['user_id']) && $ar_u['user_id'] === $m_page->getOwnerId()) {
                 $is_present = true;
                 $ar_u['role'] = ModelPageUser::ROLE_ADMIN;
                 $ar_u['state'] = ModelPageUser::STATE_MEMBER;
+            }
+            
+            if($type === ModelPage::TYPE_ORGANIZATION) {
+                $this->getServiceUser()->addOrganizationIfNotExist($id, $ar_u['user_id']);
             }
         }
         if (! $is_present && (!$this->getServiceUser()->isStudnetAdmin() || $type !== ModelPage::TYPE_ORGANIZATION)) {

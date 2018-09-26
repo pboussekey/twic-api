@@ -140,6 +140,7 @@ class ActivityTest extends AbstractService
             'organization_id' => 1
             )
         );
+        
         $this->assertEquals(count($data), 3);
         $this->assertEquals($data['id'], 1);
         $this->assertEquals(count($data['result']), 2);
@@ -226,6 +227,7 @@ class ActivityTest extends AbstractService
             'activity.getConnections',
             ['start_date'=> '2015-04-20' , 'end_date' => '2015-04-25', 'interval_date' => 'D', 'user_id' => 4]
         );
+
         $this->assertEquals(count($data), 3);
         $this->assertEquals($data['id'], 1);
         $this->assertEquals(count($data['result']), 2);
@@ -250,8 +252,6 @@ class ActivityTest extends AbstractService
         $this->assertEquals($data['result']['2015-04']['avg'], 60);
         $this->assertEquals($data['result']['2015-04']['count'], 2);
         $this->assertEquals($data['jsonrpc'], 2.0);
-
-       
 
         $this->reset();
         $this->setIdentity(1);
@@ -313,7 +313,7 @@ class ActivityTest extends AbstractService
         );
         
         $this->assertEquals(count($data) , 3); 
-        $this->assertEquals($data['id'] , 1); 
+        $this->assertEquals($data['id'] , 1);
         $this->assertEquals(count($data['result']) , 2); 
         $this->assertEquals(count($data['result'][0]) , 2); 
         $this->assertEquals($data['result'][0]['count'] , 1); 

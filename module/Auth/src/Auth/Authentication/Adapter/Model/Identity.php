@@ -20,6 +20,7 @@ class Identity implements IdentityInterface
     protected $has_linkedin;
     protected $cgu_accepted;
     protected $swap_email;
+    protected $cache;
 
 
     /**
@@ -250,6 +251,18 @@ class Identity implements IdentityInterface
         return $this;
     }
     
+    public function getCache()
+    {
+        return $this->cache;
+    }
+    
+    public function setCache($cache)
+    {
+        $this->cache = $cache;
+        
+        return $this;
+    }
+    
     public function toArray()
     {
         return [
@@ -268,6 +281,7 @@ class Identity implements IdentityInterface
             'has_linkedin' => ($this->linkedin_id !== null),
             'cgu_accepted' => $this->cgu_accepted,
             'swap_email' => $this->swap_email,
+            'cache' => $this->cache,
         ];
     }
 }

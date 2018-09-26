@@ -24,6 +24,8 @@ class Post extends AbstractMapper
         $select->columns($columns);
         $select->join('page', new Expression('page.id = post.t_page_id'), [], $select::JOIN_LEFT)
             ->join('page_user', new Expression('page.id = page_user.page_id AND page_user.user_id = ? ', $me_id), [], $select::JOIN_LEFT)
+            ->join(['b_page' => 'page'], new Expression('b_page.id = post.page_id'), [], $select::JOIN_LEFT)
+            ->join(['b_page_user' => 'page_user'], new Expression('b_page.id = b_page_user.page_id AND b_page_user.user_id = ? ', $me_id), [], $select::JOIN_LEFT)
             ->join('post_subscription', 'post_subscription.post_id=post.id', [], $select::JOIN_LEFT)
             ->join('post_user', new Expression('post_user.post_id=post.id AND post_user.user_id = ?', $me_id), [], $select::JOIN_LEFT)
             ->join('user','post.user_id = user.id', [], $select::JOIN_LEFT)
@@ -31,6 +33,7 @@ class Post extends AbstractMapper
             ->where(['  post_user.user_id IS NULL ) '], Predicate::OP_OR)
             ->where(['post.deleted_date IS NULL'])
             ->where(['page.deleted_date IS NULL'])
+            ->where(['b_page.deleted_date IS NULL'])
             ->where(['post.type <> "submission"'])
             ->where(['(user.id IS NULL or user.deleted_date IS NULL)'])
             ->group('post.id')
@@ -57,8 +60,9 @@ class Post extends AbstractMapper
                 ->where(['(subscription.user_id = ? ' => $me_id])
                 ->where(['  post_subscription.libelle = ? ) ' => 'M'.$me_id], Predicate::OP_OR)
                 ->where(['post.parent_id IS NULL'])
-                ->where(['( page.id IS NULL '])
-                ->where([' page.confidentiality = 0 '], Predicate::OP_OR)
+                ->where(['( b_page.id IS NULL OR b_page.confidentiality = 0 '])
+                ->where([' ((b_page.type <> "course" OR b_page.is_published IS TRUE OR b_page_user.role = "admin") AND b_page_user.user_id IS NOT NULL AND b_page_user.state NOT IN ("pending", "invited")))'], Predicate::OP_OR)
+                ->where(['( page.id IS NULL OR page.confidentiality = 0 '])
                 ->where([' ((page.type <> "course" OR page.is_published IS TRUE OR page_user.role = "admin") AND page_user.user_id IS NOT NULL AND page_user.state NOT IN ("pending", "invited")))'], Predicate::OP_OR);
         }
 
