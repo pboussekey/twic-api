@@ -41,7 +41,7 @@ class Message extends AbstractService
                 $conversation_id = $this->getServiceConversation()->_create(ModelConversation::TYPE_CHAT, $to);
             }
         } elseif ($conversation_id !== null) {
-            
+
             $m_item = $this->getServiceItem()->getLite(null, $conversation_id)->current();
             if($m_item === false){
                 if (!$this->getServiceConversation()->isInConversation($conversation_id, $user_id)) {
@@ -56,7 +56,7 @@ class Message extends AbstractService
                     throw new \Exception('User '.$user_id.' is not in conversation '.$conversation_id);
                 }
             }
-           
+
         }
 
         if (empty($text) && empty($library)) {
@@ -81,7 +81,7 @@ class Message extends AbstractService
         if ($type === ModelConversation::TYPE_CHAT) {
             $message_user_id = $this->getServiceMessageUser()->send($id, $conversation_id, $text, $library);
         }
-        
+
         if($type === ModelConversation::TYPE_LIVECLASS) {
             $m_item = $this->getServiceItem()->getLite(null, $conversation_id)->current();
             $page_id = $m_item->getPageId();
@@ -97,14 +97,20 @@ class Message extends AbstractService
         $this->getServiceConversationUser()->noread($conversation_id, $id);
 
         //////////////////////// NODEJS //////////////////////////////:
-        $this->sendMessage(
-            [
-            'conversation_id' => (int)$conversation_id,
-            'id' => (int)$id,
-            'users' => $to,
-            'type' => $type,
-            ]
-        );
+        $ar_message =   [
+          'conversation_id' => (int)$conversation_id,
+          'id' => (int)$id,
+          'users' => $to,
+          'type' => $type,
+          'text' => $text,
+          'user_id' => $user_id
+        ];
+        if(null !== $library_id){
+          $ar_message['filename'] = ((isset($library['name'])) ? $library['name'] : null);
+          $ar_message['link'] = ((isset($library['link'])) ? $library['link'] : null);
+          $ar_message['filetype'] = ((isset($library['type'])) ? $library['type'] : null);
+        }
+        $this->sendMessage($ar_message);
 
         //////////////////// USER //////////////////////////////////
         $res_user = $this->getServiceUser()->getLite($to);
@@ -125,8 +131,8 @@ class Message extends AbstractService
                     ->setIcon("icon")
                     ->setTag("CONV".$conversation_id)
                     ->setBody(((count($to) > 2)? explode(' ', $ar_name[$user_id])[0] . ": ":"").(empty($text)?"shared a file.":$text));
-                
-                
+
+
                 $this->getServiceFcm()->send(
                     $user,
                     ['data' => [
@@ -144,7 +150,7 @@ class Message extends AbstractService
                 );
             }
         }
-        
+
         return [
         'message_id' => $id,
         'conversation_id' => $conversation_id,
@@ -204,10 +210,10 @@ class Message extends AbstractService
 
         return  $this->getMapper()->getList($user_id, null, $id)->current();
     }
-    
-    
 
-    
+
+
+
      /**
       * Get page counts.
       *
@@ -224,16 +230,16 @@ class Message extends AbstractService
       */
     public function getCount( $start_date = null, $end_date = null, $interval_date = 'D', $type = null, $page_id  = null, $date_offset = 0)
     {
-        
+
         if(null !== $page_id && !is_array($page_id)){
             $page_id = [$page_id];
         }
         $interval = $this->getServiceActivity()->interval($interval_date);
         $identity = $this->getServiceUser()->getIdentity();
-        
+
         return $this->getMapper()->getCount($identity['id'], $interval, $start_date, $end_date, $page_id, $type, $date_offset);
     }
-    
+
     /**
      * Get Service User.
      *
@@ -283,7 +289,7 @@ class Message extends AbstractService
     {
         return $this->container->get('app_service_item');
     }
-    
+
     /**
      * Get Service ItemUser
      *
@@ -293,7 +299,7 @@ class Message extends AbstractService
     {
         return $this->container->get('app_service_item_user');
     }
-    
+
     /**
      * Get Service Page
      *
@@ -303,7 +309,7 @@ class Message extends AbstractService
     {
         return $this->container->get('app_service_page');
     }
-    
+
     /**
      * Get Service PageUser
      *
@@ -313,7 +319,7 @@ class Message extends AbstractService
     {
         return $this->container->get('app_service_page_user');
     }
-    
+
     /**
      * Get Service Library
      *
@@ -323,7 +329,7 @@ class Message extends AbstractService
     {
         return $this->container->get('app_service_library');
     }
-    
+
     /**
      * Get Service Service Conversation User.
      *
@@ -342,8 +348,8 @@ class Message extends AbstractService
     private function getServiceActivity()
     {
         return $this->container->get('app_service_activity');
-    } 
-    
+    }
+
     /**
      * Get Service Event
      *
