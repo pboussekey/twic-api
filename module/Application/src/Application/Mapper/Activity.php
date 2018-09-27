@@ -12,9 +12,6 @@ use Application\Model\PageUser as ModelPageUser;
 
 class Activity extends AbstractMapper
 {
-  
-
-
     public function getList($search, $start_date, $end_date, $page_id = null, $user_id = null, $date_offset = 0)
     {
         $select = $this->tableGateway->getSql()->select();
@@ -133,6 +130,7 @@ class Activity extends AbstractMapper
         
           
         $select->group([new Expression('SUBSTRING(dates.date,1,'.$interval.')')]);
+        
         return $this->selectWith($select);
     }
     
@@ -170,6 +168,7 @@ class Activity extends AbstractMapper
            $select->where->in(new Expression('SUBSTRING_INDEX(SUBSTRING_INDEX(object_data, \'"id":"\', \'-1\'), \'"\', 1)'), $page_id)
                 ->in('page_user.page_id', $page_id);
         }
+        
         return $this->selectWith($select);
     }
     

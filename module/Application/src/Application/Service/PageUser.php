@@ -136,24 +136,6 @@ class PageUser extends AbstractService
                     'page',
                     $page_id
                 );
-                //$gcm_notification = new GcmNotification();
-                /*$gcm_notification->setTitle($name)
-                    ->setSound("default")
-                    ->setColor("#00A38B")
-                    ->setBody('Sent you a connection request');*/
-                /*    $this->getServiceFcm()->send(
-                    $uid, [
-                    'data' => [
-                        'type' => 'userpage',
-                        'data' => [
-                            'state' => 'invited',
-                            'page' => $page_id,
-                        ],
-                    ],
-                  ] //, $gcm_notification
-                );
-
-                */
                 // member only group
             } elseif ($state === ModelPageUser::STATE_MEMBER) {
 
@@ -168,53 +150,44 @@ class PageUser extends AbstractService
 
                 // Si il n'est pas le propriétaire on lui envoie une notification
                 if ($m_page->getUserId() !== $uid) {
-                    
-                    /* @TODO ne pas envoyer ce message pour un cours non publié */
-                    $this->getServicePost()->addSys(
-                        'PPM'.$page_id.'_'.$uid,
-                        '',
-                        [
-                        'state' => 'member',
-                        'user' => $uid,
-                        'page' => $page_id,
-                        'type' => $m_page->getType(),
-                        ],
-                        'member',
-                        ['M'.$uid]/*sub*/,
-                        null/*parent*/,
-                        $page_id/*page*/,
-                        $uid/*user*/,
-                        'page',
-                        $page_id
-                    );
-
-                    /*
-                        $this->getServiceFcm()->send(
-                            $uid, [
-                            'data' => [
-                                'type' => 'userpage',
-                                'data' => [
-                                    'state' => 'member',
-                                    'page' => $page_id,
-                                ],
-                            ],
-                          ]
-                        );
-                        */
-                }
-            } else {
-                /*    $this->getServiceFcm()->send(
-                        $uid, [
-                        'data' => [
-                            'type' => 'userpage',
-                            'data' => [
-                                'state' => 'pending',
+                    //On envoye la notification qu'il viens d'etre ajouter a un cours qui est publié
+                    if(( $m_page->getType() === ModelPage::TYPE_COURSE && $m_page->getIsPublished() ) || $m_page->getType() !== ModelPage::TYPE_COURSE) {
+                        $this->getServicePost()->addSys(
+                            'PPM'.$page_id.'_'.$uid,
+                            '',
+                            [
+                                'state' => 'member',
+                                'user' => $uid,
                                 'page' => $page_id,
+                                'type' => $m_page->getType(),
                             ],
-                        ],
-                      ]
-                    );
-                    */
+                            'member',
+                            ['M'.$uid]/*sub*/,
+                            null/*parent*/,
+                            $page_id/*page*/,
+                            $uid/*user*/,
+                            'page',
+                            $page_id
+                        );
+                        
+                        $gcm_notification = new GcmNotification();
+                        $gcm_notification->setTitle($m_page->getTitle())
+                            ->setSound("default")
+                            ->setColor("#00A38B")
+                            ->setIcon("icon")
+                            ->setTag("PAGEADD".$page_id);
+                        
+                        if($m_page->getType() !== ModelPage::TYPE_COURSE) {
+                            $gcm_notification->setBody("You have just been added to the course " . $m_page->getTitle());
+                        } else if($m_page->getType() !== ModelPage::TYPE_EVENT) {
+                            $gcm_notification->setBody("You have just been added to the event " . $m_page->getTitle());
+                        } else if($m_page->getType() !== ModelPage::TYPE_GROUP) {
+                            $gcm_notification->setBody("You have just been added to the group " . $m_page->getTitle());
+                        }
+                        
+                        $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification, Fcm::PACKAGE_TWIC_APP);
+                    }
+                }
             }
         }
 
@@ -265,8 +238,6 @@ class PageUser extends AbstractService
             }
 
         }
-
-
 
         return $ret;
     }
