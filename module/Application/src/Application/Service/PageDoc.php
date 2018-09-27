@@ -74,6 +74,7 @@ class PageDoc extends AbstractService
                                 ->setBody("A new material has been added to the course " . $m_page->getTitle());
 
                             $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification, Fcm::PACKAGE_TWIC_APP);
+                            
                         } catch (\Exception $e) {
                             $logger->notice("Page Doc catch: " . $e->getMessage());
                             syslog(1, 'Model name does not exist PageDoc <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode());

@@ -168,6 +168,8 @@ class PageUser extends AbstractService
 
                 // Si il n'est pas le propriétaire on lui envoie une notification
                 if ($m_page->getUserId() !== $uid) {
+                    
+                    /* @TODO ne pas envoyer ce message pour un cours non publié */
                     $this->getServicePost()->addSys(
                         'PPM'.$page_id.'_'.$uid,
                         '',
@@ -187,18 +189,18 @@ class PageUser extends AbstractService
                     );
 
                     /*
-                                        $this->getServiceFcm()->send(
-                                            $uid, [
-                                            'data' => [
-                                                'type' => 'userpage',
-                                                'data' => [
-                                                    'state' => 'member',
-                                                    'page' => $page_id,
-                                                ],
-                                            ],
-                                          ]
-                                        );
-                                        */
+                        $this->getServiceFcm()->send(
+                            $uid, [
+                            'data' => [
+                                'type' => 'userpage',
+                                'data' => [
+                                    'state' => 'member',
+                                    'page' => $page_id,
+                                ],
+                            ],
+                          ]
+                        );
+                        */
                 }
             } else {
                 /*    $this->getServiceFcm()->send(
