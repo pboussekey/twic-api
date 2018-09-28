@@ -28,6 +28,7 @@ class PostSubscription extends AbstractService
      */
     public function add($libelle, $post_id, $last_date, $action, $user_id, $sub_post_id =null, $data = null, $is_not_public = false)
     {
+        syslog(1, 'Libelle : '. json_encode($libelle));
         if (!is_array($libelle)) {
             $libelle = [$libelle];
         }
@@ -43,19 +44,21 @@ class PostSubscription extends AbstractService
             ->setSubPostId($sub_post_id)
             ->setData($data)
             ->setLastDate($last_date);
-        
+
         foreach ($libelle as $l) {
             $m_post_subscription->setLibelle($l);
             $this->getMapper()->insert($m_post_subscription);
         }
-        
+
         $m_post = $this->getServicePost()->getLite($post_id);
         if($is_not_public){
-            for($i = 0; $i < count($libelle); $i++){
-                if(strcmp(substr($libelle[$i], 0, 2), 'PU') === 0){
-                    unset($libelle[$i]);
+            syslog(1, 'Libelle before : '. json_encode($libelle));
+            foreach($libelle as $key => $val){
+                if(strcmp(substr($val, 0, 2), 'PU') === 0){
+                    unset($libelle[$key]);
                 }
             }
+            syslog(1, 'Libelle after : '. json_encode($libelle));
         }
         $this->getServiceEvent()->userPublication($libelle, ($sub_post_id !== null) ? $sub_post_id : $m_post->getId(), $m_post->getType(), $action);
 
