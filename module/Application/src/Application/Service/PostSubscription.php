@@ -52,13 +52,11 @@ class PostSubscription extends AbstractService
 
         $m_post = $this->getServicePost()->getLite($post_id);
         if($is_not_public){
-            syslog(1, 'Libelle before : '. json_encode($libelle));
             foreach($libelle as $key => $val){
                 if(strcmp(substr($val, 0, 2), 'PU') === 0){
                     unset($libelle[$key]);
                 }
             }
-            syslog(1, 'Libelle after : '. json_encode($libelle));
         }
         $this->getServiceEvent()->userPublication($libelle, ($sub_post_id !== null) ? $sub_post_id : $m_post->getId(), $m_post->getType(), $action);
 
