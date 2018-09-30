@@ -41,7 +41,7 @@ class Event extends AbstractService
         $rep = false;
         if (count($users) > 0) {
             try {
-                $data = ['notification' => ['data' => $data,'event' => $type,' source' => $source, 'object' => $object],'users' => array_values($users),'type' => self::TARGET_TYPE_USER];
+                $data = ['notification' => ['data' => $data,'event' => $type,'source' => $source, 'object' => $object],'users' => array_values($users),'type' => self::TARGET_TYPE_USER];
                 $rep = $this->nodeRequest('notification.publish', $data);
                 if ($rep->isError()) {// @codeCoverageIgnore
                     throw new \Exception('Error jrpc nodeJs: ' . $rep->getError()->getMessage(), $rep->getError()->getCode());// @codeCoverageIgnore
@@ -111,7 +111,7 @@ class Event extends AbstractService
         $event_id = $this->getMapper()->getLastInsertValue();
         $this->getServiceEventSubscription()->add($libelle, $event_id);
 
-        $user = $this->sendData(null, $target, $libelle, $source, $object, (new \DateTime($date))->format('Y-m-d\TH:i:s\Z'));
+        $user = $this->sendData(null, $event, $libelle, $source, $object, (new \DateTime($date))->format('Y-m-d\TH:i:s\Z'));
         if (count($user) > 0) {
             foreach ($user as $uid) {
                 $this->getServiceEventUser()->add($event_id, $uid);
