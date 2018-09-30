@@ -328,10 +328,11 @@ class PostTest extends AbstractService
         $this->setIdentity(1);
         $data = $this->jsonRpc(
             'post.get', [
-            'id' => [1,2,3]
+                'id' => [1,2,3]
             ]
         );
         
+        print_r($data);
         $this->assertEquals(count($data) , 3); 
         $this->assertEquals($data['id'] , 1); 
         $this->assertEquals(count($data['result']) , 3); 

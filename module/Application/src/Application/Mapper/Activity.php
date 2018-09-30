@@ -135,7 +135,7 @@ class Activity extends AbstractMapper
     }
     
     public function getVisitsCount($me, $interval, $start_date = null, $end_date = null, $page_id = null, $date_offset = 0)
-    {
+    {   
         $select = $this->tableGateway->getSql()->select();
      
             $select->columns([ 
@@ -143,18 +143,14 @@ class Activity extends AbstractMapper
                 'activity$count' => new Expression('COUNT(DISTINCT SUBSTRING(activity.date,1,10), activity.user_id)')]
              )
             ->join('user', 'activity.user_id = user.id', [])
-            ->group(
-                new Expression('SUBSTRING(DATE_SUB(activity.date, INTERVAL '.$date_offset.' HOUR),1,'.$interval.')')
-            )
+            ->group(new Expression('SUBSTRING(DATE_SUB(activity.date, INTERVAL '.$date_offset.' HOUR),1,'.$interval.')'))
             ->join('page_user', 'activity.user_id = page_user.user_id', [])
             ->where(['page_user.role = ?' => ModelPageUser::ROLE_USER])
             ->where(['page_user.state = ?' => ModelPageUser::STATE_MEMBER])
             ->where(['object_name is not NULL'])
             ->where(["object_name LIKE 'lms.page%'"])
             ->where(["event = 'navigation'"]);
-
-       
-
+            
         if (null != $start_date) {
             $select->where(['date >= ? ' => $start_date]);
         }
