@@ -537,7 +537,6 @@ class Page extends AbstractService
                     }
 
                     try{
-
                         if($m_user->getHasEmailNotifier() === 1) {
                             $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
                             $m_organization->getLibelle() : null;
@@ -552,7 +551,6 @@ class Page extends AbstractService
                             );
                         }
 
-                        /** @TODO Envoyer lorsque le cours est publier
                         $this->getServicePost()->addSys(
                             'PPM'.$page_id.'_'.$uid,
                             '',
@@ -560,24 +558,23 @@ class Page extends AbstractService
                                 'state' => 'member',
                                 'user' => $uid,
                                 'page' => $page_id,
-                                'type' => $m_page->getType(),
+                                'type' => $tmp_m_page->getType(),
                             ],
                             'member',
-                            ['M'.$uid]/*sub*,
-                            null/*parent*,
-                            $page_id/*page*,
-                            $uid/*user*,
+                            ['M'.$uid]/*sub*/,
+                            null/*parent*/,
+                            $page_id/*page*/,
+                            $uid/*user*/,
                             'page',
                             $page_id
-                            );
-                        */
+                        );
                         
                         $gcm_notification = new GcmNotification();
                         $gcm_notification->setTitle($tmp_m_page->getTitle())
                             ->setSound("default")
                             ->setColor("#00A38B")
                             ->setIcon("icon")
-                            ->setTag("PAGECOMMENT".$id)
+                            ->setTag("PAGEADD".$page_id)
                             ->setBody("You have just been added to the course " . $tmp_m_page->getTitle());
 
                         $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification, Fcm::PACKAGE_TWIC_APP);

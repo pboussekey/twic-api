@@ -615,9 +615,6 @@ class Item extends AbstractService
                                 ]
                             );
                         }
-
-
-
                     }
                     catch (\Exception $e) {
                         syslog(1, 'Model name does not exist Item publish <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode());
@@ -630,7 +627,7 @@ class Item extends AbstractService
                             ->setSound("default")
                             ->setColor("#00A38B")
                             ->setIcon("icon")
-                            ->setTag("PAGECOMMENT".$t_page_id)
+                            ->setTag("PAGECOMMENT".$page_id)
                             ->setBody("A new " . ModelItem::type_relation[$m_item->getType()] . " has been added to the course " . $m_page->getTitle());
 
                         $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification, Fcm::PACKAGE_TWIC_APP );
