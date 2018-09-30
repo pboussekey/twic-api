@@ -272,12 +272,12 @@ class Page extends AbstractService
         }
 
         if ($type !== ModelPage::TYPE_ORGANIZATION && $type !== ModelPage::TYPE_COURSE) {
-            $sub=[];
+            /*$sub=[];
             if (null !== $page_id) {
                 $sub[] = 'EP'.$page_id;
             } else {
                 $sub[] = 'EU'.$owner_id;
-            }
+            }*/
 
             $this->getServicePost()->addSys(
                 'PP'.$id,

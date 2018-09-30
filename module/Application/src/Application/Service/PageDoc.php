@@ -6,6 +6,7 @@ use Application\Model\Page as ModelPage;
 use ZendService\Google\Gcm\Notification as GcmNotification;
 use Zend\Db\Sql\Predicate\IsNull;
 use Google\Cloud\Logging\LoggingClient;
+use Application\Service\Event as ModelEvent;
 
 class PageDoc extends AbstractService
 {
@@ -36,8 +37,7 @@ class PageDoc extends AbstractService
         if ($m_page->getType() == ModelPage::TYPE_COURSE) {
             $identity = $this->getServiceUser()->getIdentity();
             $ar_pages = [];
-            $res_user = $this->getServiceUser()->getLite($this->getServicePageUser()
-                ->getListByPage($page_id)[$page_id]);
+            $res_user = $this->getServiceUser()->getLite($this->getServicePageUser()->getListByPage($page_id)[$page_id]);
             if ($res_user !== null) {
                 $logging = new LoggingClient([
                     'projectId' => 'eloquent-optics-206213'
@@ -74,7 +74,16 @@ class PageDoc extends AbstractService
                                 ->setBody("A new material has been added to the course " . $m_page->getTitle());
 
                             $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification, Fcm::PACKAGE_TWIC_APP);
-                            
+                            $this->getServiceEvent()->create(
+                                'page.doc', 
+                                $this->getServiceEvent()->getDataUser($identity['id']), 
+                                [
+                                    'library_id' => $library,
+                                    'page_id'    => $page_id
+                                ], 
+                                ["PP".$page_id], 
+                                ModelEvent::TARGET_TYPE_USER
+                            );
                         } catch (\Exception $e) {
                             $logger->notice("Page Doc catch: " . $e->getMessage());
                             syslog(1, 'Model name does not exist PageDoc <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode());
@@ -139,6 +148,16 @@ class PageDoc extends AbstractService
     private function getServiceLibrary()
     {
         return $this->container->get('app_service_library');
+    }
+    
+    /**
+     * Get Service Event
+     *
+     * @return \Application\Service\Event
+     */
+    private function getServiceEvent()
+    {
+        return $this->container->get('app_service_event');
     }
 
     /**

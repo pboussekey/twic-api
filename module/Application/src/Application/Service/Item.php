@@ -9,6 +9,7 @@ use Dal\Db\ResultSet\ResultSet;
 use Application\Model\Conversation as ModelConversation;
 use Zend\Db\Sql\Predicate\IsNull;
 use JRpc\Json\Server\Exception\JrpcException;
+use Application\Service\Event as ModelEvent;
 
 class Item extends AbstractService
 {
@@ -637,7 +638,16 @@ class Item extends AbstractService
                     }
                 }
 
-
+                $this->getServiceEvent()->create(
+                    'item.publish',
+                    $this->getServiceEvent()->getDataUser($identity['id']),
+                    [
+                        'item_id' => $id,
+                        'page_id'    => $page_id
+                    ],
+                    ["PP".$page_id],
+                    ModelEvent::TARGET_TYPE_USER
+                );
             }
         }
 
@@ -723,6 +733,7 @@ class Item extends AbstractService
             if($m_page->getIsPublished() == true) {
                 $ar_pages = [];
                 $m_item = $this->getLite($id)->current();
+                /** @TODO vérifier pour l'item que se soit que les personnes concerné qui recoive l'update */
                 $res_user = $this->getServiceUser()->getLite($this->getServicePageUser()->getListByPage($m_item->getPageId())[$m_item->getPageId()]);
                 foreach($res_user as $m_user){
                     $m_organization = false;
@@ -738,8 +749,6 @@ class Item extends AbstractService
                     $final_title = ($title !== null) ? $title : $m_item->getTitle();
                     $final_title = empty($final_title) ? "Untitled" : $final_title;
                     try{
-
-
                         if($m_user->getHasEmailNotifier() === 1) {
                             $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
                             $m_organization->getLibelle() : null;
@@ -754,14 +763,12 @@ class Item extends AbstractService
                                 ]
                             );
                         }
-
                     }
                     catch (\Exception $e) {
                         syslog(1, 'Model name does not exist Item update <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode());
                     }
 
                     try{
-
                         $gcm_notification = new GcmNotification();
                         $gcm_notification->setTitle($m_page->getTitle())
                             ->setSound("default")
@@ -777,7 +784,16 @@ class Item extends AbstractService
                     }
                 }
 
-
+                $this->getServiceEvent()->create(
+                    'item.update',
+                    $this->getServiceEvent()->getDataUser($identity['id']),
+                    [
+                        'item_id' => $m_item->getId(),
+                        'page_id'    => $m_page->getId(),
+                    ],
+                    ["PP".$m_page->getId()],
+                    ModelEvent::TARGET_TYPE_USER
+                );
             }
         }
 
