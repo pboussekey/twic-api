@@ -550,23 +550,25 @@ class Page extends AbstractService
                                 ]
                             );
                         }
+                        
+                        //syslog(1, 'PPM'.$page_id.'_'.$m_user->getId());
 
                         $this->getServicePost()->addSys(
-                            'PPM'.$page_id.'_'.$m_user->getId(),
+                            'PPM'.$id.'_'.$m_user->getId(),
                             '',
                             [
                                 'state' => 'member',
                                 'user' => $m_user->getId(),
-                                'page' => $page_id,
+                                'page' => $id,
                                 'type' => $tmp_m_page->getType(),
                             ],
                             'member',
                             ['M'.$m_user->getId()]/*sub*/,
                             null/*parent*/,
-                            $page_id/*page*/,
+                            $id/*page*/,
                             $m_user->getId()/*user*/,
                             'page',
-                            $page_id
+                            $id
                         );
                         
                         $gcm_notification = new GcmNotification();
@@ -574,7 +576,7 @@ class Page extends AbstractService
                             ->setSound("default")
                             ->setColor("#00A38B")
                             ->setIcon("icon")
-                            ->setTag("PAGEADD".$page_id)
+                            ->setTag("PAGEADD".$id)
                             ->setBody("You have just been added to the course " . $tmp_m_page->getTitle());
 
                         $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification, Fcm::PACKAGE_TWIC_APP);
