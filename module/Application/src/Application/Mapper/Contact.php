@@ -44,21 +44,20 @@ class Contact extends AbstractMapper
         }
         $select = $this->tableGateway->getSql()->select();
 
-        $select->columns(array('request_date', 'user_id', 'contact_id'))
-            ->where(
-                array('
+        $select->columns(['request_date', 'user_id', 'contact_id'])
+            ->where(['
                 contact.request_date IS NOT NULL AND
                 contact.accepted_date IS NULL AND
                 contact.deleted_date IS NULL AND
                 requested IS false AND
                 accepted IS false AND
-                deleted IS false')
-            );
+                deleted IS false'
+            ]);
         if (null !== $user) {
-            $select->where(array('contact.user_id' => $user));
+            $select->where(['contact.user_id' => $user]);
         }
         if (null !== $contact) {
-            $select->where(array('contact.contact_id' => $contact));
+            $select->where(['contact.contact_id' => $contact]);
         }
         return $this->selectWith($select);
     }
@@ -67,13 +66,13 @@ class Contact extends AbstractMapper
     {
         $select = $this->tableGateway->getSql()->select();
         $select->columns(
-            [ 'contact$accepted_date' => new Expression('SUBSTRING(DATE_SUB(contact.accepted_date, INTERVAL '.$date_offset. ' HOUR ),1,'.$interval.')'), 
+            [ 
+                'contact$accepted_date' => new Expression('SUBSTRING(DATE_SUB(contact.accepted_date, INTERVAL '.$date_offset.' HOUR ),1,'.$interval.')'), 
             'contact$accepted' => new Expression('COUNT(DISTINCT contact.id)')]
         )
             ->where('contact.deleted_date IS NULL')
             ->where('contact.accepted IS TRUE')
-            ->group(new Expression('SUBSTRING(DATE_SUB(contact.accepted_date, INTERVAL '.$date_offset. ' HOUR ),1,'.$interval.')'));
-        
+            ->group(new Expression('SUBSTRING(DATE_SUB(contact.accepted_date, INTERVAL '.$date_offset.' HOUR ),1,'.$interval.')'));
         if (null != $organization_id) {
             $select->join('user', 'contact.contact_id = user.id', [])
                 ->join('page_user', 'user.id = page_user.user_id', [])
@@ -87,8 +86,6 @@ class Contact extends AbstractMapper
         }
         
         return $this->selectWith($select);
-        
-      
     }
     
     public function getRequestsCount($me, $interval, $start_date = null, $end_date = null, $organization_id = null, $date_offset = 0)
