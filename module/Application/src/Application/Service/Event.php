@@ -87,17 +87,17 @@ class Event extends AbstractService
      * @param  mixed  $object
      * @param  array  $user
      * @param  mixed  $target   la source soit user soit school soit global 
-     * @param  mixed  $src
+     * @param  mixed  $user_id  l'id de la personne qui a généré l'event
      *
      * @throws \Exception
      *
      * @return int
      */
-    public function create($event, $source, $object, $libelle, $target, $src = null)
+    public function create($event, $source, $object, $libelle, $target, $user_id = null)
     {
         $date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
         $m_event = $this->getModel()
-            ->setUserId($src)
+            ->setUserId($user_id)
             ->setEvent($event)
             ->setSource(json_encode($source))
             ->setObject(json_encode($object))

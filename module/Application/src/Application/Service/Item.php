@@ -646,7 +646,8 @@ class Item extends AbstractService
                         'page_id'    => $page_id
                     ],
                     ["PP".$page_id],
-                    ModelEvent::TARGET_TYPE_USER
+                    ModelEvent::TARGET_TYPE_USER,
+                    $identity['id']
                 );
             }
         }
@@ -792,7 +793,8 @@ class Item extends AbstractService
                         'page_id'    => $m_page->getId(),
                     ],
                     ["PP".$m_page->getId()],
-                    ModelEvent::TARGET_TYPE_USER
+                    ModelEvent::TARGET_TYPE_USER,
+                    $identity['id']
                 );
             }
         }
