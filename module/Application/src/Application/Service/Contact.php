@@ -90,7 +90,6 @@ class Contact extends AbstractService
             }
         }
 
-        /*
          $gcm_notification = new GcmNotification();
             $gcm_notification->setTitle($name)
                 ->setSound("default")
@@ -109,7 +108,7 @@ class Contact extends AbstractService
 
                 ], $gcm_notification
             );
-        */
+        
         $l = 'C'.(($user > $user_id) ? $user_id.'_'.$user : $user.'_'.$user_id);
         $this->getServicePost()->addSys(
             $l,
@@ -121,8 +120,9 @@ class Contact extends AbstractService
             null,
             null,
             'connection'
-        );  
-        if($m_contact->getHasEmailNotifier() === 1){
+        );
+        
+        if( $m_contact->getHasEmailNotifier() === 1 && $m_contact->getHasEmailContactRequestNotifier() === 1 ) {
             $m_page = $this->getServicePage()->getLite($m_contact->getOrganizationId());
             $prefix = ($m_page !== false && is_string($m_page->getLibelle()) && !empty($m_page->getLibelle())) ?  $m_page->getLibelle() : null;
             $url = sprintf("https://%s%s/profile/%s", ($prefix ? $prefix.'.':''),  $this->container->get('config')['app-conf']['uiurl'],$m_user->getId());

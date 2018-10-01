@@ -45,6 +45,7 @@ class User extends AbstractModel
 	protected $description;
 	protected $graduation_year;
 	protected $linkedin_url;
+	protected $has_email_contact_request_notifier;
 
 	protected $prefix = 'user';
 
@@ -512,6 +513,18 @@ class User extends AbstractModel
 	public function setLinkedinUrl($linkedin_url)
 	{
 		$this->linkedin_url = $linkedin_url;
+
+		return $this;
+	}
+
+	public function getHasEmailContactRequestNotifier()
+	{
+		return $this->has_email_contact_request_notifier;
+	}
+
+	public function setHasEmailContactRequestNotifier($has_email_contact_request_notifier)
+	{
+		$this->has_email_contact_request_notifier = $has_email_contact_request_notifier;
 
 		return $this;
 	}
