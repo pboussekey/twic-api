@@ -28,7 +28,6 @@ class PostSubscription extends AbstractService
      */
     public function add($libelle, $post_id, $last_date, $action, $user_id, $sub_post_id =null, $data = null, $is_not_public = false)
     {
-        syslog(1, 'Libelle : '. json_encode($libelle));
         if (!is_array($libelle)) {
             $libelle = [$libelle];
         }
