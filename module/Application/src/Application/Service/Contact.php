@@ -8,6 +8,7 @@ namespace Application\Service;
 
 use Dal\Service\AbstractService;
 use Zend\Db\Sql\Predicate\IsNull;
+use ZendService\Google\Gcm\Notification as GcmNotification;
 
 /**
  * Class Contact.
@@ -90,24 +91,31 @@ class Contact extends AbstractService
             }
         }
 
-         $gcm_notification = new GcmNotification();
-            $gcm_notification->setTitle($name)
-                ->setSound("default")
-                ->setColor("#00A38B")
-                ->setBody('Sent you a connection request');
+        $res_contact = $this->getMapper()->getListRequest(null, $user);
+        
+        $gcm_notification = new GcmNotification();
+        $nbr = ($res_contact->count()-1);
+        
+        $mess = ($nbr > 0) ? $name.' and '.  (($nbr > 1)? $nbr.' others': 'another'). ' sent you a connection request':
+            $name . ' sent you a connection request';
+        
+        $gcm_notification->setTitle('Connection request')
+            ->setSound("default")
+            ->setColor("#00A38B")
+            ->setBody($mess);
 
-            $this->getServiceFcm()->send(
-                $user, [
+        $this->getServiceFcm()->send(
+            $user, [
+            'data' => [
+                'type' => 'connection',
                 'data' => [
-                    'type' => 'connection',
-                    'data' => [
-                        'state' => 'request',
-                        'user' => $user_id,
-                    ],
+                    'state' => 'request',
+                    'user' => $user_id,
                 ],
+            ],
 
-                ], $gcm_notification
-            );
+            ], $gcm_notification
+        );
         
         $l = 'C'.(($user > $user_id) ? $user_id.'_'.$user : $user.'_'.$user_id);
         $this->getServicePost()->addSys(
@@ -499,5 +507,15 @@ class Contact extends AbstractService
     private function getServiceMail()
     {
         return $this->container->get('mail.service');
+    }
+    
+    /**
+     * Get Service Fcm
+     *
+     * @return \Application\Service\Fcm
+     */
+    private function getServiceFcm()
+    {
+        return $this->container->get('fcm');
     }
 }
