@@ -410,11 +410,38 @@ class User extends AbstractService
      * @param string $password
      * @param array  $address
      * @param int    $graduation_year
-     * @param string   $linkedin_url
+     * @param string $linkedin_url
+     * @param bool $has_email_contact_request_notifier
      *
      * @return int
      */
-    public function update($id = null, $gender = null, $origin = null, $nationality = null, $firstname = null, $lastname = null, $sis = null, $email = null, $birth_date = null, $position = null, $organization_id = null, $interest = null, $avatar = null, $roles = null, $resetpassword = null, $has_email_notifier = null, $timezone = null, $background = null, $nickname = null, $suspend = null, $suspension_reason = null, $ambassador = null, $password = null, $address = null, $graduation_year = null, $linkedin_url = null)
+    public function update(
+        $id = null, 
+        $gender = null, 
+        $origin = null, 
+        $nationality = null, 
+        $firstname = null, 
+        $lastname = null, $sis = null, 
+        $email = null, 
+        $birth_date = null, 
+        $position = null, 
+        $organization_id = null, 
+        $interest = null, 
+        $avatar = null, $roles = null, 
+        $resetpassword = null, 
+        $has_email_notifier = null, 
+        $timezone = null, 
+        $background = null,
+        $nickname = null, 
+        $suspend = null, 
+        $suspension_reason = null, 
+        $ambassador = null, 
+        $password = null, 
+        $address = null, 
+        $graduation_year = null, 
+        $linkedin_url = null,
+        $has_email_contact_request_notifier = null
+    )
     {
         if ($this->getNbrEmailUnique($email, $id) > 0) {
             throw new JrpcException('duplicate email', - 38001);
@@ -428,29 +455,39 @@ class User extends AbstractService
                 $roles = null;
             }
         }
-
-
-         /*
-         * if (null !== $avatar && $id === $this->getIdentity()['id']) {
-         * $this->getServicePost()->addSys(
-         * 'UU'.$id. 'A'.$avatar, 'Avatar update', [
-         * 'state' => 'update',
-         * 'user' => $id,
-         * 'avatar' => $avatar,
-         * ], 'update',
-         * null/*sub/,
-         * null/*parent/,
-         * null/*page/,
-         * $id/*user/,
-         * 'user'
-         * );
-         * }
-         */
-
-        return $this->_update($id, $gender, $origin, $nationality, $firstname, $lastname, $sis, $email, $birth_date, $position, $organization_id, $interest, $avatar, $roles, $resetpassword, $has_email_notifier, $timezone, $background, $nickname, $suspend, $suspension_reason, $ambassador, $password, $address, $graduation_year, $linkedin_url);
+        
+        return $this->_update(
+            $id, 
+            $gender, 
+            $origin, 
+            $nationality, 
+            $firstname, 
+            $lastname, 
+            $sis, 
+            $email, 
+            $birth_date, 
+            $position, 
+            $organization_id, 
+            $interest, 
+            $avatar, 
+            $roles, 
+            $resetpassword, 
+            $has_email_notifier, 
+            $timezone, 
+            $background, 
+            $nickname, 
+            $suspend, 
+            $suspension_reason, 
+            $ambassador, 
+            $password, 
+            $address, 
+            $graduation_year, 
+            $linkedin_url,
+            $has_email_contact_request_notifier
+        );
     }
 
-    public function _update($id = null, $gender = null, $origin = null, $nationality = null, $firstname = null, $lastname = null, $sis = null, $email = null, $birth_date = null, $position = null, $organization_id = null, $interest = null, $avatar = null, $roles = null, $resetpassword = null, $has_email_notifier = null, $timezone = null, $background = null, $nickname = null, $suspend = null, $suspension_reason = null, $ambassador = null, $password = null, $address = null, $graduation_year = null, $linkedin_url = null)
+    public function _update($id = null, $gender = null, $origin = null, $nationality = null, $firstname = null, $lastname = null, $sis = null, $email = null, $birth_date = null, $position = null, $organization_id = null, $interest = null, $avatar = null, $roles = null, $resetpassword = null, $has_email_notifier = null, $timezone = null, $background = null, $nickname = null, $suspend = null, $suspension_reason = null, $ambassador = null, $password = null, $address = null, $graduation_year = null, $linkedin_url = null, $has_email_contact_request_notifier = null)
     {
          $m_user = $this->getModel();
 
@@ -531,6 +568,7 @@ class User extends AbstractService
             ->setBackground($background)
             ->setNickname($nickname)
             ->setAmbassador($ambassador)
+            ->setHasEmailContactRequestNotifier($has_email_contact_request_notifier)
             ->setGraduationYear(('null' === $graduation_year) ? new IsNull('graduation_year') : $graduation_year)
             ->setLinkedinUrl(('null' === $linkedin_url) ? new IsNull('linkedin_url') : $linkedin_url);
 

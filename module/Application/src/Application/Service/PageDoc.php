@@ -16,9 +16,10 @@ class PageDoc extends AbstractService
      *
      * @param int $page_id
      * @param int|array $library
+     * @param bool true
      * @return int
      */
-    public function add($page_id, $library)
+    public function add($page_id, $library, $notify=true)
     {
         if (is_array($library)) {
             $library = $this->getServiceLibrary()
@@ -34,7 +35,7 @@ class PageDoc extends AbstractService
 
         $this->getMapper()->insert($m_page_doc);
         $m_page = $this->getServicePage()->getLite($page_id);
-        if ($m_page->getType() == ModelPage::TYPE_COURSE) {
+        if ($m_page->getType() == ModelPage::TYPE_COURSE && $notify===true) {
             $identity = $this->getServiceUser()->getIdentity();
             $ar_pages = [];
             $res_user = $this->getServiceUser()->getLite($this->getServicePageUser()->getListByPage($page_id)[$page_id]);

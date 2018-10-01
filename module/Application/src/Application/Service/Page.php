@@ -339,14 +339,16 @@ class Page extends AbstractService
      *
      * @param $id
      * @param $library
+     * @param $notify
+     * 
      **/
-    public function addDocument($id, $library)
+    public function addDocument($id, $library, $notify)
     {
 
         if(!$this->isAdmin($id)) {
             throw new JrpcException('Unauthorized operation page.addDocument', -38003);
         }
-        return $this->getServicePageDoc()->add($id, $library);
+        return $this->getServicePageDoc()->add($id, $library, $notify);
     }
 
     /**
