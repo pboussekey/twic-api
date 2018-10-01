@@ -1,1 +1,1 @@
-{"method":"post.get","id":1,"params":{"id":[1,2,3]}}
+{"method":"page.get","id":1,"params":{"id":1,"type":"organization"}}

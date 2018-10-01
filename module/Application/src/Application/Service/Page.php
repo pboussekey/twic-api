@@ -552,19 +552,19 @@ class Page extends AbstractService
                         }
 
                         $this->getServicePost()->addSys(
-                            'PPM'.$page_id.'_'.$uid,
+                            'PPM'.$page_id.'_'.$m_user->getId(),
                             '',
                             [
                                 'state' => 'member',
-                                'user' => $uid,
+                                'user' => $m_user->getId(),
                                 'page' => $page_id,
                                 'type' => $tmp_m_page->getType(),
                             ],
                             'member',
-                            ['M'.$uid]/*sub*/,
+                            ['M'.$m_user->getId()]/*sub*/,
                             null/*parent*/,
                             $page_id/*page*/,
-                            $uid/*user*/,
+                            $m_user->getId()/*user*/,
                             'page',
                             $page_id
                         );

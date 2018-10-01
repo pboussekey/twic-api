@@ -208,7 +208,6 @@ class PageUser extends AbstractService
                 }
 
                 try{
-
                     if($m_user->getHasEmailNotifier() === 1) {
                         $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
                         $m_organization->getLibelle() : null;
@@ -227,7 +226,7 @@ class PageUser extends AbstractService
                         ->setSound("default")
                         ->setColor("#00A38B")
                         ->setIcon("icon")
-                        ->setTag("PAGECOMMENT".$t_page_id)
+                        ->setTag("PAGECOMMENT".$m_page->getId())
                         ->setBody("You have just been added to the course " . $m_page->getTitle());
 
                     $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification, Fcm::PACKAGE_TWIC_APP);
