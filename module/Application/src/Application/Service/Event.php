@@ -41,7 +41,7 @@ class Event extends AbstractService
         $rep = false;
         if (count($users) > 0) {
             try {
-                $data = ['notification' => ['data' => $data,'event' => $type,' source' => $source, 'object' => $object],'users' => array_values($users),'type' => self::TARGET_TYPE_USER];
+                $data = ['notification' => ['data' => $data,'event' => $type,'source' => $source, 'object' => $object],'users' => array_values($users),'type' => self::TARGET_TYPE_USER];
                 $rep = $this->nodeRequest('notification.publish', $data);
                 if ($rep->isError()) {// @codeCoverageIgnore
                     throw new \Exception('Error jrpc nodeJs: ' . $rep->getError()->getMessage(), $rep->getError()->getCode());// @codeCoverageIgnore
@@ -87,17 +87,17 @@ class Event extends AbstractService
      * @param  mixed  $object
      * @param  array  $user
      * @param  mixed  $target   la source soit user soit school soit global 
-     * @param  mixed  $src
+     * @param  mixed  $user_id  l'id de la personne qui a généré l'event
      *
      * @throws \Exception
      *
      * @return int
      */
-    public function create($event, $source, $object, $libelle, $target, $src = null)
+    public function create($event, $source, $object, $libelle, $target, $user_id = null)
     {
         $date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
         $m_event = $this->getModel()
-            ->setUserId($src)
+            ->setUserId($user_id)
             ->setEvent($event)
             ->setSource(json_encode($source))
             ->setObject(json_encode($object))
@@ -111,7 +111,7 @@ class Event extends AbstractService
         $event_id = $this->getMapper()->getLastInsertValue();
         $this->getServiceEventSubscription()->add($libelle, $event_id);
 
-        $user = $this->sendData(null, $target, $libelle, $source, $object, (new \DateTime($date))->format('Y-m-d\TH:i:s\Z'));
+        $user = $this->sendData(null, $event, $libelle, $source, $object, (new \DateTime($date))->format('Y-m-d\TH:i:s\Z'));
         if (count($user) > 0) {
             foreach ($user as $uid) {
                 $this->getServiceEventUser()->add($event_id, $uid);

@@ -74,22 +74,25 @@ class PageDoc extends AbstractService
                                 ->setBody("A new material has been added to the course " . $m_page->getTitle());
 
                             $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification, Fcm::PACKAGE_TWIC_APP);
-                            $this->getServiceEvent()->create(
-                                'page.doc', 
-                                $this->getServiceEvent()->getDataUser($identity['id']), 
-                                [
-                                    'library_id' => $library,
-                                    'page_id'    => $page_id
-                                ], 
-                                ["PP".$page_id], 
-                                ModelEvent::TARGET_TYPE_USER
-                            );
+                            
                         } catch (\Exception $e) {
                             $logger->notice("Page Doc catch: " . $e->getMessage());
                             syslog(1, 'Model name does not exist PageDoc <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode());
                         }
                     }
                 }
+                
+                $this->getServiceEvent()->create(
+                    'page.doc',
+                    $this->getServiceEvent()->getDataUser($identity['id']),
+                    [
+                        'library_id' => $library,
+                        'page_id'    => $page_id
+                    ],
+                    ["PP".$page_id],
+                    ModelEvent::TARGET_TYPE_USER,
+                    $identity['id']
+                );
             }
         }
         return $library;
