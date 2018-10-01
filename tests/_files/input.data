@@ -1,1 +1,1 @@
-{"method":"page.get","id":1,"params":{"id":1,"type":"organization"}}
+{"method":"message.send","id":1,"params":{"conversation_id":4,"text":"super message qwerty"}}

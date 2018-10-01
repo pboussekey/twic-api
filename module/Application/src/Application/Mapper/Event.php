@@ -10,7 +10,14 @@ class Event extends AbstractMapper
     public function getList($user_id, $events = null, $unread = null)
     {
         $select = $this->tableGateway->getSql()->select();
-        $select->columns(['id', 'user_id', 'source', 'date', 'event', 'object', 'target'])
+        $select->columns([
+            'id', 
+            'user_id', 
+            'source', 
+            'event$date' => new Expression('DATE_FORMAT(user.birth_date, "%Y-%m-%dT%TZ")'), 
+            'event', 
+            'object', 
+            'target'])
                 ->join('event_user',
                   new Expression('event_user.event_id = event.id AND event_user.user_id = '.$user_id),
                   ['event$read_date' => 'read_date']
