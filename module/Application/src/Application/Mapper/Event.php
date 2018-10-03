@@ -14,7 +14,7 @@ class Event extends AbstractMapper
             'id', 
             'user_id', 
             'source', 
-            'event$date' => new Expression('DATE_FORMAT(user.birth_date, "%Y-%m-%dT%TZ")'), 
+            'event$date' => new Expression('DATE_FORMAT(event.date, "%Y-%m-%dT%TZ")'), 
             'event',
             'object', 
             'target'])
