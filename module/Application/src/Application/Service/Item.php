@@ -337,7 +337,7 @@ class Item extends AbstractService
      * @param array $filter
      */
     public function getListTimeline($filter = [])
-    {
+    {a
         $identity = $this->getServiceUser()->getIdentity();
         $mapper = $this->getMapper();
         $ret = $mapper->usePaginator($filter)
