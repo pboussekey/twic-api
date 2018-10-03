@@ -14,7 +14,7 @@
 
 return [
     'version' => "2.0.4",
-    'build-commit' => 1240,
+    'build-commit' => 1242,
     'app-conf' => [
         'cache' => 'storage_memcached',
     ],
@@ -91,10 +91,13 @@ return [
             'app_service_video_archive',
             'app_service_tag',
             'app_service_event',
+            'app_service_page_program_user',
+            'app_service_page_program',
             'mail.service',
             'rbac_service_permission',
             'rbac_service_role_permission',
             'rbac_service_role_relation',
+            
             [
                 'class' => 'addr_service_address',
                 'methods' => [
@@ -141,9 +144,9 @@ return [
             'adapter' => [
                 'name' => 'memcached',
                 'options' => [
-                    'namespace' => 'LMS1240',
+                    'namespace' => 'LMS1242',
                     'lib_options' => [
-                        ['option' => Memcached::OPT_PREFIX_KEY, 'value' => 'LMS1240'],
+                        ['option' => Memcached::OPT_PREFIX_KEY, 'value' => 'LMS1242'],
                     ],
                 ],
             ],

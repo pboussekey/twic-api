@@ -339,10 +339,11 @@ class Item extends AbstractService
     public function getListTimeline($filter = [])
     {
         $identity = $this->getServiceUser()->getIdentity();
-        $ret = $this->getMapper()
-            ->usePaginator($filter)
+        $mapper = $this->getMapper();
+        $ret = $mapper->usePaginator($filter)
             ->getListTimeline($identity['id']);
-        return $ret;
+        
+        return ['list' => $ret, 'count' => $mapper->count()];
     }
 
     /**

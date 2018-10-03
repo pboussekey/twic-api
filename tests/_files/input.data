@@ -1,1 +1,1 @@
-{"method":"page.get","id":1,"params":{"id":1,"type":"organization"}}
+{"method":"pageprogram.delete","id":1,"params":{"id":"1"}}
