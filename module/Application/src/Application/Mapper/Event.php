@@ -15,7 +15,7 @@ class Event extends AbstractMapper
             'user_id', 
             'source', 
             'event$date' => new Expression('DATE_FORMAT(user.birth_date, "%Y-%m-%dT%TZ")'), 
-            'event', 
+            'event',
             'object', 
             'target'])
                 ->join('event_user',
