@@ -65,7 +65,11 @@ class Event extends AbstractService
      */
     public function nodeRequest($method, $params = null)
     {
-        $params['nid'] = uniqid('notif', true);
+        if(!isset($params['notification'])) {
+            $params['notification'] = null;
+        }
+        
+        $params['notification']['nid'] = uniqid('notif', true);
         
         $request = new Request();
         $request->setMethod($method)
