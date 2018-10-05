@@ -71,6 +71,7 @@ class Event extends AbstractService
             ->setId(++ self::$id)
             ->setVersion('2.0');
         
+        $params['nid'] = uniqid('notif', true);
         $authorization = $this->container->get('config')['node']['authorization'];
         $client = new Client();
         $client->setOptions($this->container->get('config')['http-adapter']);
