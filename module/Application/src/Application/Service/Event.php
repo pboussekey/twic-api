@@ -65,13 +65,14 @@ class Event extends AbstractService
      */
     public function nodeRequest($method, $params = null)
     {
+        $params['nid'] = uniqid('notif', true);
+        
         $request = new Request();
         $request->setMethod($method)
             ->setParams($params)
             ->setId(++ self::$id)
             ->setVersion('2.0');
         
-        $params['nid'] = uniqid('notif', true);
         $authorization = $this->container->get('config')['node']['authorization'];
         $client = new Client();
         $client->setOptions($this->container->get('config')['http-adapter']);
