@@ -244,7 +244,7 @@ class User extends AbstractMapper
                   ->join('tag', 'user_tag.tag_id = tag.id', [], $select::JOIN_LEFT)
                   ->join('tag_breakdown', 'tag_breakdown.tag_id = tag.id', [], $select::JOIN_LEFT)
                   ->where(['tag_breakdown.tag_part' => $tags_break])
-                  ->group('user.id')->having(['COUNT(`user`.`id`) = ?' => $nbt]);
+                  ->group('user.id')->having(['COUNT(`user`.`id`) = ?' => $nbt-1]);
           } 
           
           $s = $this->tableGateway->getSql()->select();
