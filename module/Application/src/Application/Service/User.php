@@ -633,6 +633,17 @@ class User extends AbstractService
             ]
         );
 
+        $m_user = $this->getLite($id);
+        
+        if(null !== $email || null != $firstname || null != $lastname) {
+            $this->getServiceUserTag()->replace($m_user->getId(), [
+                $m_user->getLastname(),
+                $m_user->getFirstname(),
+                $m_user->getEmail(),
+                $m_user->getInitialEmail(),
+            ], 'profile');
+        }
+        
         return $ret;
     }
 
@@ -1615,6 +1626,16 @@ class User extends AbstractService
     private function getServiceUserTag()
     {
         return $this->container->get('app_service_user_tag');
+    }
+    
+    /**
+     * Get Service Tag
+     *
+     * @return \Application\Service\Tag
+     */
+    private function getServiceTag()
+    {
+        return $this->container->get('app_service_tag');
     }
 
     /**

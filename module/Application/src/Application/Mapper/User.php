@@ -225,7 +225,8 @@ class User extends AbstractMapper
             $select->join('user_tag', 'user_tag.user_id = user.id', [], $select::JOIN_LEFT)
                 ->join('tag', 'user_tag.tag_id = tag.id', [], $select::JOIN_LEFT)
                 ->where->in(new Expression('CONCAT_WS(":", user_tag.category, tag.name)'),$tags);
-                $select->group('user.id')->having(['COUNT(`user`.`id`) = ?' => count($tags)]);
+            
+            $select->group('user.id')->having(['COUNT(`user`.`id`) = ?' => count($tags)]);
         }
         
         if (!empty($search)) {
@@ -244,7 +245,7 @@ class User extends AbstractMapper
                   ->join('tag', 'user_tag.tag_id = tag.id', [], $select::JOIN_LEFT)
                   ->join('tag_breakdown', 'tag_breakdown.tag_id = tag.id', [], $select::JOIN_LEFT)
                   ->where(['tag_breakdown.tag_part' => $tags_break])
-                  ->group('user.id')->having(['COUNT(`user`.`id`) = ?' => $nbt]);
+                  ->group('user.id')->having(['COUNT(`user`.`id`) = ?' => $nbt-1]);
           } 
           
           $s = $this->tableGateway->getSql()->select();
