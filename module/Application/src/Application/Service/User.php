@@ -634,7 +634,6 @@ class User extends AbstractService
         );
 
         $m_user = $this->getLite($id);
-        
         if(null !== $email || null != $firstname || null != $lastname) {
             $this->getServiceUserTag()->replace($m_user->getId(), [
                 $m_user->getLastname(),
