@@ -53,7 +53,9 @@ class UserTag extends AbstractService
       
       $ret = [];
       foreach ($data as $tag) {
-          $ret = $this->add($user_id, $tag, $category);
+          if(!empty($tag)) {
+            $ret = $this->add($user_id, $tag, $category);
+          }
       }
 
       return $ret;
