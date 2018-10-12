@@ -24,14 +24,20 @@ class UserTag extends AbstractService
    */
   public function add($user_id, $tag, $category = null)
   {
+      $ret = 0;
+      $tag_id = $this->getServiceTag()->add($tag);
+
       $m_user_tag = $this->getModel()
           ->setUserId($user_id)
           ->setCategory($category)
-          ->setTagId($this->getServiceTag()->add($tag));
+          ->setTagId($tag_id);
 
-      $this->getMapper()->insert($m_user_tag);
-
-      return $m_user_tag->getTagId();
+      if($this->getMapper()->select($m_user_tag)->count() === 0) {
+          $this->getMapper()->insert($m_user_tag);
+          $ret = $m_user_tag->getTagId();
+      }
+          
+      return $ret;
   }
 
   /**
@@ -43,6 +49,8 @@ class UserTag extends AbstractService
    */
   public function _add($user_id, $data, $category = null)
   {
+      $data = array_unique($data);
+      
       $ret = [];
       foreach ($data as $tag) {
           $ret = $this->add($user_id, $tag, $category);

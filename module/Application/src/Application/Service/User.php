@@ -535,9 +535,8 @@ class User extends AbstractService
                 }
 
             }
-            if(!empty($tags)) {
-                $this->getServiceUserTag()->replace($id,$tags, 'address');
-            }
+            $this->getServiceUserTag()->replace($id,$tags, 'address');
+            
             if ($address_id !== null) {
                 $m_user->setAddressId($address_id);
             }
