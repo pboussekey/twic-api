@@ -137,7 +137,8 @@ class User extends AbstractMapper
         $state = null,
         $is_active = null,
         $shared_id = null,
-        $alumni = null
+        $alumni = null,
+        $tags = null
     ) {
         $select = $this->tableGateway->getSql()->select();
 
@@ -216,20 +217,20 @@ class User extends AbstractMapper
                 ->where(['conversation_user.conversation_id' => $conversation_id]);
         }
         if (null !== $search) {
-
-          $tags = explode(' ', trim(preg_replace('/\s+/',' ',preg_replace('/([A-Z][a-z0-9])/',' ${0}', $search))));
+          $tags_break = explode(' ', trim(preg_replace('/\s+/',' ',preg_replace('/([A-Z][a-z0-9])/',' ${0}', $search))));
+          
           $select->join('user_tag', 'user_tag.user_id = user.id', [], $select::JOIN_LEFT)
               ->join('tag', 'user_tag.tag_id = tag.id', [], $select::JOIN_LEFT)
               ->join('tag_breakdown', 'tag_breakdown.tag_id = tag.id', [], $select::JOIN_LEFT)
               ->where(['( CONCAT_WS(" ", user.lastname, user.firstname) LIKE ? ' =>  $search . '%'])
-              ->where(['CONCAT_WS(" ", user.firstname, user.lastname) LIKE ? ' => $search.'%'], Predicate::OP_OR);
-              $select->where(['user.email LIKE ? ' => $search.'%'], Predicate::OP_OR)
-              ->where(['tag_breakdown.tag_part'   => $tags], Predicate::OP_OR)
+              ->where(['CONCAT_WS(" ", user.firstname, user.lastname) LIKE ? ' => $search.'%'], Predicate::OP_OR)
+              ->where(['user.email LIKE ? ' => $search.'%'], Predicate::OP_OR)
+              ->where(['tag_breakdown.tag_part'   => $tags_break], Predicate::OP_OR)
               ->where(['user.initial_email LIKE ? )' => $search.'%'], Predicate::OP_OR)
-              ->having(['( COUNT(DISTINCT tag_breakdown.tag_part, tag.id) = ? OR COUNT(DISTINCT tag.id) = 0 ' => count($tags)])
+              ->having(['( COUNT(DISTINCT tag_breakdown.tag_part, tag.id) = ? OR COUNT(DISTINCT tag.id) = 0 ' => count($tags_break)])
               ->having([' CONCAT_WS(" ", user.lastname, user.firstname) LIKE ? ' => $search . '%'], Predicate::OP_OR)
-              ->having(['CONCAT_WS(" ", user.firstname, user.lastname) LIKE ? ' => $search.'%'], Predicate::OP_OR);
-              $select->having(['user.email LIKE ? ' => $search.'%'], Predicate::OP_OR)
+              ->having(['CONCAT_WS(" ", user.firstname, user.lastname) LIKE ? ' => $search.'%'], Predicate::OP_OR)
+              ->having(['user.email LIKE ? ' => $search.'%'], Predicate::OP_OR)
               ->having(['user.initial_email LIKE ? )' => $search.'%'], Predicate::OP_OR);
         }
         if (null !== $contact_state) {
@@ -287,6 +288,19 @@ class User extends AbstractMapper
         else if($alumni === false){
             $select->where(['(user.graduation_year = YEAR(CURDATE()) OR user.graduation_year IS NULL)']);
         }
+        
+        if(!empty($tags)) {
+            $s = $this->tableGateway->getSql()->select();
+            $s->join(['t1' => $select], new Expression('`t1`.`user$id`=`user`.`id`'), []);
+            $select = $s;
+
+            $select->join('user_tag', 'user_tag.user_id = user.id', [], $select::JOIN_LEFT)
+                ->join('tag', 'user_tag.tag_id = tag.id', [], $select::JOIN_LEFT)
+                ->where->in(new Expression('CONCAT_WS(":", user_tag.category, tag.name)'),$tags);
+            $select->group('user.id')
+                ->having(['COUNT(`user`.`id`) = ?' => count($tags)]);
+        }
+        
         return $this->selectWith($select);
     }
 

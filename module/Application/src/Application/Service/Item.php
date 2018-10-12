@@ -592,6 +592,9 @@ class Item extends AbstractService
                 $ar_pages = [];
                 $res_user = $this->getServiceUser()->getLite($this->getServicePageUser()->getListByPage($page_id)[$page_id]);
                 foreach($res_user as $m_user){
+                    if(!$m_user->getIsActive()){
+                        continue;
+                    }
                     $m_organization = false;
                     if(!$m_user->getOrganizationId() instanceof IsNull) {
                         if(!isset($ar_pages[$m_user->getOrganizationId()])) {
@@ -738,6 +741,10 @@ class Item extends AbstractService
                 /** @TODO vérifier pour l'item que se soit que les personnes concerné qui recoive l'update */
                 $res_user = $this->getServiceUser()->getLite($this->getServicePageUser()->getListByPage($m_item->getPageId())[$m_item->getPageId()]);
                 foreach($res_user as $m_user){
+                    
+                    if(!$m_user->getIsActive()){
+                        continue;
+                    }
                     $m_organization = false;
                     if(!$m_user->getOrganizationId() instanceof IsNull) {
                         if(!isset($ar_pages[$m_user->getOrganizationId()])) {

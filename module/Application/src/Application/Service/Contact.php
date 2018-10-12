@@ -130,7 +130,8 @@ class Contact extends AbstractService
             'connection'
         );
         
-        if( $m_contact->getHasEmailNotifier() === 1 && $m_contact->getHasEmailContactRequestNotifier() === 1 ) {
+        
+        if($m_contact->getIsActive() && $m_contact->getHasEmailNotifier() === 1 && $m_contact->getHasEmailContactRequestNotifier() === 1 ) {
             $m_page = $this->getServicePage()->getLite($m_contact->getOrganizationId());
             $prefix = ($m_page !== false && is_string($m_page->getLibelle()) && !empty($m_page->getLibelle())) ?  $m_page->getLibelle() : null;
             $url = sprintf("https://%s%s/profile/%s", ($prefix ? $prefix.'.':''),  $this->container->get('config')['app-conf']['uiurl'],$m_user->getId());

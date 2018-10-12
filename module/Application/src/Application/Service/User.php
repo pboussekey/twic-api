@@ -260,9 +260,9 @@ class User extends AbstractService
     public function suspend($id, $suspend, $reason = null)
     {
         if(!$this->isStudnetAdmin() ) {
-
             throw new JrpcException('Unauthorized operation user.suspend', -38003);
         }
+        
         $m_user = $this->getModel()
             ->setId($id)
             ->setSuspensionDate(1 === $suspend ? (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s') : new IsNull())
@@ -311,7 +311,6 @@ class User extends AbstractService
             }
         }
         if(!$this->isStudnetAdmin() && (null === $organization_id || !$this->getServicePage()->isAdmin($organization_id))) {
-
             throw new JrpcException('Unauthorized operation user.add', -38003);
         }
 
@@ -876,9 +875,13 @@ class User extends AbstractService
             if ($res_user->count() <= 0) {
                 continue;
             }
-
-            $uniqid = uniqid($uid . "_", true);
+            
             $m_user = $res_user->current();
+            // if user is not
+            if(!$m_user->getIsActive()){
+                continue;
+            }
+            $uniqid = uniqid($uid . "_", true);
             $m_page = $this->getServicePage()->getLite($m_user->getOrganizationId());
             $this->getServicePreregistration()->add($uniqid, null, null, null, $m_user->getOrganizationId(), $m_user->getId());
 
@@ -1037,10 +1040,12 @@ class User extends AbstractService
      * @param int $unsent
      * @param string $is_pinned
      * @param int    $shared_id
+     * @param array  $tags
      *
      * @return array
      */
-    public function getListId($search = null, $exclude = null, $filter = null, $contact_state = null, $page_id = null, $post_id = null, $order = null, $role = null, $conversation_id = null, $page_type = null, $unsent = null, $is_pinned = null, $shared_id = null)
+    public function getListId($search = null, $exclude = null, $filter = null, $contact_state = null, $page_id = null, $post_id = null, $order = null, 
+        $role = null, $conversation_id = null, $page_type = null, $unsent = null, $is_pinned = null, $shared_id = null, $tags = null)
     {
         $identity = $this->getIdentity();
         if (null !== $exclude && ! is_array($exclude)) {
@@ -1049,7 +1054,8 @@ class User extends AbstractService
 
         $is_admin = $this->isStudnetAdmin();
         $mapper = $this->getMapper();
-        $res_user = $mapper->usePaginator($filter)->getList($identity['id'], $is_admin, $post_id, $search, $page_id, $order, $exclude, $contact_state, $unsent, $role, $conversation_id, $page_type, null, $is_pinned, null, null, $shared_id);
+        $res_user = $mapper->usePaginator($filter)->getList($identity['id'], $is_admin, $post_id, $search, $page_id, $order, $exclude, 
+            $contact_state, $unsent, $role, $conversation_id, $page_type, null, $is_pinned, null, null, $shared_id, null, $tags);
 
         $users = [];
         foreach ($res_user as $m_user) {
@@ -1282,22 +1288,16 @@ class User extends AbstractService
      */
     public function linkedinSignIn($code, $account_token = null)
     {
-        syslog(
-            1, json_encode(
-                [
-                'code' => $code,
-                'account_token' => $account_token,
-                ]
-            )
-        );
-
         $identity = $this->getIdentity();
         $linkedin = $this->getServiceLinkedIn();
         $linkedin->init($code);
         $m_people = $linkedin->people();
+        
+        
         $linkedin_id = $m_people->getId();
         $login = false;
-        if (empty($linkedin_id) || ! is_string($linkedin_id)) {
+        
+        if ( empty($linkedin_id) || !is_string($linkedin_id)) {
             throw new \Exception('Error LinkedIn Id');
         }
         $res_user = $this->getMapper()->select($this->getModel()->setDeletedDate(new IsNull())->setIsActive(1)->setLinkedinId($linkedin_id));
@@ -1352,17 +1352,6 @@ class User extends AbstractService
                 } else {
                     $user_id = $this->_add($firstname, $lastname, $m_registration->getEmail(), null, null, null, null, null, null, null, (is_numeric($m_registration->getOrganizationId()) ? $m_registration->getOrganizationId() : null), $avatar);
                     $this->getMapper()->update($this->getModel()->setLinkedinId($linkedin_id), ['id' => $user_id]);
-
-                    syslog(
-                        1, json_encode(
-                            [
-                            'code' => $code,
-                            'account_token' => $account_token,
-                            'user_id' => $user_id,
-                            'type' => 'create compte'
-                            ]
-                        )
-                    );
                 }
 
                 $m_user = $this->getLite($user_id);
@@ -1370,17 +1359,6 @@ class User extends AbstractService
                 $login = $this->loginLinkedIn($linkedin_id);
                 $this->getServicePreregistration()->delete($account_token, $m_user->getId());
             } else if(is_numeric($identity['id'])) {
-
-                syslog(
-                    1, json_encode(
-                        [
-                        'code' => $code,
-                        'account_token' => $account_token,
-                        'user_id' => $identity['id'],
-                        'type' => 'Already connected'
-                        ]
-                    )
-                );
                 $m_user = $this->getModel()->setLinkedinId($linkedin_id)
                                 ->setLinkedinUrl($m_people->getPublicProfileUrl());
                 if((!isset($identity['avatar']) || $identity['avatar'] === null) && $m_people->getPictureUrls() !== null) {
@@ -1443,14 +1421,18 @@ class User extends AbstractService
    *
    * @invokable
    *
-   * @param int    $id
    * @param string $tag
    * @param string $category
-   *
+   * @param int    $id
+   * 
    * @return int
    */
-    public function addTag($id, $tag, $category)
+    public function addTag($tag, $category, $id = null)
     {
+        if(!$this->isStudnetAdmin() || null === $id){
+            $id=$this->getIdentity()['id'];
+        }
+        
         return $this->getServiceUserTag()->add($id, $tag, $category);
     }
     /**
@@ -1458,13 +1440,16 @@ class User extends AbstractService
      *
      * @invokable
      *
-     * @param int $id
      * @param int $tag_id
+     * @param int $id
      *
      * @return int
      */
-    public function removeTag($id, $tag_id)
+    public function removeTag($tag_id, $id = null)
     {
+        if(!$this->isStudnetAdmin() || null === $id){
+            $id=$this->getIdentity()['id'];
+        }
         return $this->getServiceUserTag()->remove($id, $tag_id);
     }
 

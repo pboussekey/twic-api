@@ -196,6 +196,10 @@ class PageUser extends AbstractService
             $ar_pages = [];
             $ar_user = $this->getServiceUser()->getLite($user_id);
             foreach($ar_user as $m_user){
+                
+                if(!$m_user->getIsActive()){
+                    continue;
+                }
                 $m_organization = false;
                 if(!$m_user->getOrganizationId() instanceof IsNull) {
                     if(!array_key_exists($m_user->getOrganizationId(), $ar_pages)) {

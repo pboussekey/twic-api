@@ -286,6 +286,7 @@ abstract class AbstractService extends AbstractHttpControllerTestCase
     public function mockIdentity($user){
         
         $id = $user['id'];
+        $user['cache'] = 0;
         $identityMock = $this->getMockBuilder('\Auth\Authentication\Adapter\Model\Identity')
             ->disableOriginalConstructor()
             ->getMock();
@@ -299,6 +300,10 @@ abstract class AbstractService extends AbstractHttpControllerTestCase
             ->method('getId')
             ->will($this->returnValue($id));
         
+        $identityMock->expects($this->any())
+            ->method('getCache')
+            ->will($this->returnValue(0));
+            
         $adapterMock = $this->getMockBuilder('\Auth\Authentication\Adapter\DbAdapter')
           ->disableOriginalConstructor()
           ->getMock();
@@ -316,6 +321,8 @@ abstract class AbstractService extends AbstractHttpControllerTestCase
             ->getMock();
         
 
+        
+        
         $authMock->expects($this->any())
             ->method('getIdentity')
             ->will($this->returnValue($identityMock));
@@ -336,7 +343,6 @@ abstract class AbstractService extends AbstractHttpControllerTestCase
         $serviceManager = $this->getApplicationServiceLocator();
         $serviceManager->setAllowOverride(true);
         $serviceManager->setService('auth.service', $authMock);
-        $serviceManager->get('app_service_user')->getCache()->setItem('identity_'.$id, $user);
     }
         
     public function mockLinkedin($id = 'ID'){
@@ -354,15 +360,16 @@ abstract class AbstractService extends AbstractHttpControllerTestCase
                 $this->returnArgument(1)
             );
         
-        
         $m_people = new People();
         $m_people->setId($id)
-                ->setFirstname('Paul')
-                ->setLastname('BOUSSEKEY')
-                ->setPictureUrls(['values' => ['https://avatar.url']]);
+            ->setFirstname('Paul')
+            ->setLastname('BOUSSEKEY')
+            ->setPictureUrls(['values' => ['https://avatar.url']]);
+        
         $linkedinMock->expects($this->any())
             ->method('people')
             ->will($this->returnValue($m_people));
+        
         $serviceManager->setService('linkedin.service', $linkedinMock);
     }
     

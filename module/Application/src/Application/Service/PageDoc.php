@@ -46,6 +46,10 @@ class PageDoc extends AbstractService
                 $logger = $logging->psrLogger('FCMLOG');
                 foreach ($res_user as $m_user) {
                     $m_organization = false;
+                    if(!$m_user->getIsActive()){
+                        continue;
+                    }
+                    
                     if (! $m_user->getOrganizationId() instanceof IsNull) {
                         if (! array_key_exists($m_user->getOrganizationId(), $ar_pages)) {
                             $ar_pages[$m_user->getOrganizationId()] = $this->getServicePage()->getLite($m_user->getOrganizationId());
