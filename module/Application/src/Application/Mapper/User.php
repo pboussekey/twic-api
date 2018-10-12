@@ -216,34 +216,50 @@ class User extends AbstractMapper
             $select->join('conversation_user', 'conversation_user.user_id=user.id', [])
                 ->where(['conversation_user.conversation_id' => $conversation_id]);
         }
+        
+        if(!empty($tags)) {
+            $s = $this->tableGateway->getSql()->select();
+            $s->join(['t1' => $select], new Expression('`t1`.`user$id`=`user`.`id`'), ['user$id' => 'user$id']);
+            $select = $s;
+            
+            $select->join('user_tag', 'user_tag.user_id = user.id', [], $select::JOIN_LEFT)
+                ->join('tag', 'user_tag.tag_id = tag.id', [], $select::JOIN_LEFT)
+                ->where->in(new Expression('CONCAT_WS(":", user_tag.category, tag.name)'),$tags);
+                $select->group('user.id')->having(['COUNT(`user`.`id`) = ?' => count($tags)]);
+        }
+        
         if (!empty($search)) {
           $tags_break = explode(' ', trim(preg_replace('/\s+/',' ',preg_replace('/([A-Z][a-z0-9])/',' ${0}', $search))));
           $nbt = count($tags_break);
           $last = end($tags_break);
           
+          if($nbt > 1) {
+              array_pop($tags_break);
+              // le search dernier mot
+              $s = $this->tableGateway->getSql()->select();
+              $s->join(['t2' => $select], new Expression('`t2`.`user$id`=`user`.`id`'), ['user$id' => 'user$id']);
+              $select = $s;
+              
+              $select->join('user_tag', 'user_tag.user_id = user.id', [], $select::JOIN_LEFT)
+                  ->join('tag', 'user_tag.tag_id = tag.id', [], $select::JOIN_LEFT)
+                  ->join('tag_breakdown', 'tag_breakdown.tag_id = tag.id', [], $select::JOIN_LEFT)
+                  ->where(['tag_breakdown.tag_part' => $tags_break])
+                  ->group('user.id')->having(['COUNT(`user`.`id`) = ?' => $nbt]);
+          } 
+          
+          $s = $this->tableGateway->getSql()->select();
+          $s->join(['t3' => $select], new Expression('`t3`.`user$id`=`user`.`id`'), ['user$id' => 'user$id']);
+          $select = $s;
+          
           $select->join('user_tag', 'user_tag.user_id = user.id', [], $select::JOIN_LEFT)
               ->join('tag', 'user_tag.tag_id = tag.id', [], $select::JOIN_LEFT)
               ->join('tag_breakdown', 'tag_breakdown.tag_id = tag.id', [], $select::JOIN_LEFT)
               ->where(['tag_breakdown.tag_part LIKE ?'   => $last.'%']);
-             
-          if($nbt > 1) {
-              array_pop($tags_break);
-              $select->where(['tag_breakdown.tag_part' => $tags_break], Predicate::OP_OR);
-          }
-          
-          $select->group('user.id')->having(['COUNT(`user`.`id`) = ?' => $nbt]);
+              $select->group('user.id');
         }
-        if(!empty($tags)) {
-            $s = $this->tableGateway->getSql()->select();
-            $s->join(['t1' => $select], new Expression('`t1`.`user$id`=`user`.`id`'), []);
-            $select = $s;
-            
-            $select->join('user_tag', 'user_tag.user_id = user.id', [], $select::JOIN_LEFT)
-            ->join('tag', 'user_tag.tag_id = tag.id', [], $select::JOIN_LEFT)
-            ->where->in(new Expression('CONCAT_WS(":", user_tag.category, tag.name)'),$tags);
-            $select->group('user.id')
-            ->having(['COUNT(`user`.`id`) = ?' => count($tags)]);
-        }
+        
+        
+        
         if (null !== $contact_state) {
             if (!is_array($contact_state)) {
                 $contact_state = [$contact_state];
