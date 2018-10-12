@@ -526,7 +526,13 @@ class Page extends AbstractService
             if(!$tmp_m_page->getIsPublished() && $tmp_m_page->getType() == ModelPage::TYPE_COURSE) {
                 $ar_pages = [];
                 $res_user = $this->getServiceUser()->getLite($this->getServicePageUser()->getListByPage($id)[$id]);
-                foreach($res_user as $m_user){
+                foreach($res_user as $m_user) {
+                    
+                    // if user is not 
+                    if(!$m_user->getIsActive()){
+                        continue;
+                    }
+                    
                     $m_organization = false;
                     if($m_user->getOrganizationId()) {
                         if(!array_key_exists($m_user->getOrganizationId(), $ar_pages)) {

@@ -232,6 +232,9 @@ class Post extends AbstractService
                     $res_user = $this->getServiceUser()->getLite($this->getServiceSubscription()->getListUserId('PP'.$t_page_id));
                     if($res_user !== null) {
                         foreach($res_user as $m_user){
+                            if(!$m_user->getIsActive()){
+                                continue;
+                            }
                             $m_organization = false;
                             if(is_numeric($m_user->getOrganizationId())) {
                                 if(!array_key_exists($m_user->getOrganizationId(), $ar_pages)) {
@@ -278,6 +281,9 @@ class Post extends AbstractService
                     $res_user = $this->getServiceUser()->getLite($this->getServiceSubscription()->getListUserId('PP'.$t_page_id));
                     if($res_user !== null) {
                         foreach($res_user as $m_user){
+                            if(!$m_user->getIsActive()) {
+                                continue;
+                            }
                             if($m_user->getId() == $user_id) {
                                 continue;
                             }
@@ -327,11 +333,11 @@ class Post extends AbstractService
                     $m_page =  $this->getServicePage()->getLite($m_user->getOrganizationId());
                 }
                 try{
-
                     $prefix = ($m_page !== false && is_string($m_page->getLibelle()) && !empty($m_page->getLibelle())) ?
                     $m_page->getLibelle() : null;
                     $url = sprintf("https://%s%s/", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl']);
-                    /*$this->getServiceMail()->sendTpl(
+                    /*
+                     * $this->getServiceMail()->sendTpl(
                         'tpl_postcomment', $m_user->getEmail(), [
                         'url' => $url,
                         'firstname' => $m_user->getFirstname(),
@@ -651,7 +657,8 @@ class Post extends AbstractService
                     'someone' => $m_me->getFirstname(),
                     ]
                 );*/
-                if($m_page !== false){
+                
+                if($m_page !== false && $m_user->getIsActive()){
                     $gcm_notification = new GcmNotification();
                     $gcm_notification->setTitle($m_page->getTitle())
                         ->setSound("default")
