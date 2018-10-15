@@ -1220,11 +1220,20 @@ class User extends AbstractService
      * sign In Password
      *
      * @invokable
-     *
+     * 
      * @param string $account_token
      * @param string $password
+     * @param string $firstname
+     * @param string $lastname
+     * @param int $graduation_year
+     * @param int $page_program_id
+     * @param string $page_program_name
+     * 
+     * @throws \Exception
+     * 
+     * @return array|void|mixed|array[]|string[]
      */
-    public function signIn($account_token, $password, $firstname = null, $lastname = null, $graduation_year = null)
+    public function signIn($account_token, $password, $firstname = null, $lastname = null, $graduation_year = null, $page_program_id = null, $page_program_name = null)
     {
         $m_registration = $this->getServicePreregistration()->get($account_token);
         if (false === $m_registration) {
@@ -1240,9 +1249,7 @@ class User extends AbstractService
                     ->setLastname($lastname)
                     ->setIsActive(1)
                     ->setPassword(md5($password))
-                    ->setGraduationYear($graduation_year), [
-                'id' => $m_registration->getUserId()
-                    ]
+                    ->setGraduationYear($graduation_year), ['id' => $m_registration->getUserId()]
             );
             $user_id = $m_registration->getUserId();
         } else {
@@ -1273,9 +1280,21 @@ class User extends AbstractService
                 $graduation_year
             );
         }
-        if(null !== $graduation_year){
-           $this->getServiceUserTag()->replace($user_id, 'null' !== $graduation_year ? [$graduation_year , "'".($graduation_year % 100)] : [], 'graduation');
+        
+        
+        if(null !== $graduation_year) {
+            $this->getServiceUserTag()->replace($user_id, 'null' !== $graduation_year ? [$graduation_year , "'".($graduation_year % 100)] : [], 'graduation');
         }
+        if(null !== $page_program_name) {
+            $organization_id = $this->getLite($user_id)->getOrganizationId();
+            if(is_numeric($organization_id)) {
+                $this->getServicePageProgram()->add($organization_id , $page_program_name);
+            }
+        }
+        if(null !== $page_program_id) {
+            $this->getServicePageProgramUser()->add($page_program_id, $user_id);
+        }
+        
         $m_user = $this->getLite($user_id);
         $login = $this->login($m_user->getEmail(), $password);
         if(is_numeric($m_user->getOrganizationId())) {
@@ -1622,6 +1641,26 @@ class User extends AbstractService
     private function getServiceUserTag()
     {
         return $this->container->get('app_service_user_tag');
+    }
+    
+    /**
+     * Get Service Page Program
+     *
+     * @return \Application\Service\PageProgram
+     */
+    private function getServicePageProgram()
+    {
+        return $this->container->get('app_service_page_program');
+    }
+    
+    /**
+     * Get Service Page Program User
+     *
+     * @return \Application\Service\PageProgramUser
+     */
+    private function getServicePageProgramUser()
+    {
+        return $this->container->get('app_service_page_program_user');
     }
     
     /**

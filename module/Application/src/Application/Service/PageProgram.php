@@ -19,16 +19,27 @@ class PageProgram extends AbstractService
      */
     public function add($page_id, $name)
     {
+        $ret = 0;
         $user_id = $this->getServiceUser()->getIdentity()['id'];
+        
         $m_page_program = $this->getModel()
             ->setPageId($page_id)
-            ->setUserId($user_id)
-            ->setName($name)
-            ->setCreatedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'));
+            ->setName($name);
         
-        $ret = 0;
-        if($this->getMapper()->insert($m_page_program)) {
-            $ret = $this->getMapper()->getLastInsertValue();
+        $res_page_program = $this->getMapper()->select($m_page_program);
+        if($res_page_program->count() < 1) {
+            $m_page_program = $this->getModel()
+                ->setPageId($page_id)
+                ->setUserId($user_id)
+                ->setName($name)
+                ->setCreatedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'));
+            
+            
+            if($this->getMapper()->insert($m_page_program)) {
+                $ret = $this->getMapper()->getLastInsertValue();
+            }
+        } else {
+            $ret = $res_page_program->current()->getId();
         }
         
         return $ret;
