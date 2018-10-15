@@ -31,12 +31,13 @@ class PageProgramUser extends AbstractService
             $page_program_id = $this->getServicePageProgram()->add($m_user->getOrganizationId(), $page_program_name);
         }
         
-        $m_page_program = $this->getModel()
+        $this->deleteAll($user_id);
+        $m_page_program_user = $this->getModel()
             ->setPageProgramId($page_program_id)
             ->setUserId($user_id)
             ->setCreatedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'));
         
-        return $this->getMapper()->insert($m_page_program);
+         return $this->getMapper()->insert($m_page_program_user);
     }
 
     /**
@@ -60,6 +61,33 @@ class PageProgramUser extends AbstractService
             ->setUserId($user_id);
         
         return $this->getMapper()->delete($m_page_program);
+    }
+    
+    /**
+     * Delete user in to program
+     *
+     * @param int $user_id
+     * 
+     * @return boolean
+     */
+    public function deleteAll($user_id)
+    {
+        $m_page_program = $this->getModel()->setUserId($user_id);
+        
+        return $this->getMapper()->delete($m_page_program);
+    }
+    
+    /**
+     * Get List programme user
+     * 
+     * @param int $user_id
+     */
+    public function getList($user_id)
+    {
+        $m_page_program_user = $this->getModel()
+            ->setUserId($user_id);
+        
+        return $this->getMapper()->select($m_page_program_user);
     }
     
     /**

@@ -439,7 +439,8 @@ class User extends AbstractService
         $address = null, 
         $graduation_year = null, 
         $linkedin_url = null,
-        $has_email_contact_request_notifier = null
+        $has_email_contact_request_notifier = null,
+        $page_program_name = null
     )
     {
         if ($this->getNbrEmailUnique($email, $id) > 0) {
@@ -482,11 +483,12 @@ class User extends AbstractService
             $address, 
             $graduation_year, 
             $linkedin_url,
-            $has_email_contact_request_notifier
+            $has_email_contact_request_notifier,
+            $page_program_name
         );
     }
 
-    public function _update($id = null, $gender = null, $origin = null, $nationality = null, $firstname = null, $lastname = null, $sis = null, $email = null, $birth_date = null, $position = null, $organization_id = null, $interest = null, $avatar = null, $roles = null, $resetpassword = null, $has_email_notifier = null, $timezone = null, $background = null, $nickname = null, $suspend = null, $suspension_reason = null, $ambassador = null, $password = null, $address = null, $graduation_year = null, $linkedin_url = null, $has_email_contact_request_notifier = null)
+    public function _update($id = null, $gender = null, $origin = null, $nationality = null, $firstname = null, $lastname = null, $sis = null, $email = null, $birth_date = null, $position = null, $organization_id = null, $interest = null, $avatar = null, $roles = null, $resetpassword = null, $has_email_notifier = null, $timezone = null, $background = null, $nickname = null, $suspend = null, $suspension_reason = null, $ambassador = null, $password = null, $address = null, $graduation_year = null, $linkedin_url = null, $has_email_contact_request_notifier = null, $page_program_name = null)
     {
          $m_user = $this->getModel();
 
@@ -634,6 +636,14 @@ class User extends AbstractService
         );
 
         $m_user = $this->getLite($id);
+        if(null !== $page_program_name) {
+            if($page_program_name === 'null') {
+                $this->getServicePageProgramUser()->deleteAll($m_user->getId());
+            } else {
+                $this->getServicePageProgramUser()->add(null, $m_user->getId(), $page_program_name);
+            }
+        }
+        
         if(null !== $email || null != $firstname || null != $lastname) {
             $this->getServiceUserTag()->replace($m_user->getId(), [
                 $m_user->getLastname(),
@@ -1014,6 +1024,10 @@ class User extends AbstractService
             foreach ($this->getServiceRole()->getRoleByUser($user['id']) as $role) {
                 $user['roles'][] = $role->getName();
             }
+            foreach ($this->getServicePageProgramUser()->getList($user['id']) as $m_page_program_user) {
+                $user['programs'][] = $m_page_program_user->getName();
+            }
+            
             $users[$user['id']] = $user;
         }
 
