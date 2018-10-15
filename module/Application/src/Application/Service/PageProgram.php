@@ -65,6 +65,18 @@ class PageProgram extends AbstractService
     }
     
     /**
+     * Get list program by user_id
+     * 
+     * @param int $user_id
+     * 
+     * @return \Dal\Db\ResultSet\ResultSet
+     */
+    public function getListUserId($user_id)
+    {
+        return $this->getMapper()->getList(null, null, $user_id);
+    }
+    
+    /**
      * Get Lite Page Program
      * 
      * @param int $id

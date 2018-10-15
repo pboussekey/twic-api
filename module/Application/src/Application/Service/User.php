@@ -411,6 +411,7 @@ class User extends AbstractService
      * @param int    $graduation_year
      * @param string $linkedin_url
      * @param bool $has_email_contact_request_notifier
+     * @param string $page_program_name
      *
      * @return int
      */
@@ -1024,7 +1025,10 @@ class User extends AbstractService
             foreach ($this->getServiceRole()->getRoleByUser($user['id']) as $role) {
                 $user['roles'][] = $role->getName();
             }
-            foreach ($this->getServicePageProgramUser()->getList($user['id']) as $m_page_program_user) {
+            /**
+             * @param $m_page_program_user \Application\Model\PageProgramUser
+             */
+            foreach ($this->getServicePageProgram()->getListUserId($user['id']) as $m_page_program_user) {
                 $user['programs'][] = $m_page_program_user->getName();
             }
             
