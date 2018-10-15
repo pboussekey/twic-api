@@ -16,10 +16,19 @@ class PageProgramUser extends AbstractService
      * 
      * @return int
      */
-    public function add($page_program_id, $user_id =  null)
+    public function add($page_program_id = null, $user_id =  null, $page_program_name = null)
     {
+        if(null === $page_program_id && null === $page_program_name) {
+            new \Exception("Erro params");
+        }
+        
         if(null === $user_id) {
             $user_id = $this->getServiceUser()->getIdentity()['id'];
+        }
+        
+        if(null === $page_program_id && null !== $page_program_name) {
+            $m_user = $this->getServiceUser()->getLite($user_id);
+            $page_program_id = $this->getServicePageProgram()->add($m_user->getOrganizationId(), $page_program_name);
         }
         
         $m_page_program = $this->getModel()
