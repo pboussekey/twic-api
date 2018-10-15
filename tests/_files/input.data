@@ -1,1 +1,1 @@
-{"method":"user.getListId","id":1,"params":{"search":"quatretag","tags":["skill:deuxtag","skill:troistag"]}}
+{"method":"pageprogram.delete","id":1,"params":{"id":"1"}}
