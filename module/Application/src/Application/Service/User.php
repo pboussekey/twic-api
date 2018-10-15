@@ -1288,7 +1288,7 @@ class User extends AbstractService
         if(null !== $page_program_name) {
             $organization_id = $this->getLite($user_id)->getOrganizationId();
             if(is_numeric($organization_id)) {
-                $this->getServicePageProgram()->add($organization_id , $page_program_name);
+                $page_program_id = $this->getServicePageProgram()->add($organization_id , $page_program_name);
             }
         }
         if(null !== $page_program_id) {
