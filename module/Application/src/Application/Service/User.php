@@ -1280,13 +1280,15 @@ class User extends AbstractService
                 $graduation_year
             );
         }
+        $m_user = $this->getLite($user_id);
         
+        $login = $this->login($m_user->getEmail(), $password);
         
         if(null !== $graduation_year) {
             $this->getServiceUserTag()->replace($user_id, 'null' !== $graduation_year ? [$graduation_year , "'".($graduation_year % 100)] : [], 'graduation');
         }
         if(null !== $page_program_name) {
-            $organization_id = $this->getLite($user_id)->getOrganizationId();
+            $organization_id = $m_user->getOrganizationId();
             if(is_numeric($organization_id)) {
                 $page_program_id = $this->getServicePageProgram()->add($organization_id , $page_program_name);
             }
@@ -1295,8 +1297,6 @@ class User extends AbstractService
             $this->getServicePageProgramUser()->add($page_program_id, $user_id);
         }
         
-        $m_user = $this->getLite($user_id);
-        $login = $this->login($m_user->getEmail(), $password);
         if(is_numeric($m_user->getOrganizationId())) {
             $this->getServicePageUser()->update($m_user->getOrganizationId(), $user_id, ModelPageUser::ROLE_USER, ModelPageUser::STATE_MEMBER);
         }
