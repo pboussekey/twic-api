@@ -886,10 +886,7 @@ class User extends AbstractService
             }
             
             $m_user = $res_user->current();
-            // if user is not
-            if(!$m_user->getIsActive()){
-                continue;
-            }
+
             $uniqid = uniqid($uid . "_", true);
             $m_page = $this->getServicePage()->getLite($m_user->getOrganizationId());
             $this->getServicePreregistration()->add($uniqid, null, null, null, $m_user->getOrganizationId(), $m_user->getId());

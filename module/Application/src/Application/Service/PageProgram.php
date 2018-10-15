@@ -40,12 +40,17 @@ class PageProgram extends AbstractService
      * @invokable
      * 
      * @param int $page_id
+     * @param string $search
+     * @param array $filter
      * 
      * @return \Dal\Db\ResultSet\ResultSet
      */
-    public function getList($page_id)
+    public function getList($page_id, $search = null, $filter = null)
     {
-        return $this->getMapper()->getList($page_id);
+        $mapper = $this->getMapper();
+        $res_page_program = $mapper->usePaginator($filter)->getList($page_id, $search);
+        
+        return [ 'list' => $res_page_program, 'count' => $mapper->count() ];
     }
     
     /**
