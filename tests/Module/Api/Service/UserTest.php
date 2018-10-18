@@ -186,7 +186,7 @@ class UserTest extends AbstractService
         
         $this->assertEquals(count($data) , 3);
         $this->assertEquals($data['id'] , 1);
-        $this->assertEquals($data['result'] , 1);
+        $this->assertEquals($data['result'] , 22);
         $this->assertEquals($data['jsonrpc'] , 2.0); 
 
         $this->reset();
@@ -199,7 +199,7 @@ class UserTest extends AbstractService
         
         $this->assertEquals(count($data) , 3);
         $this->assertEquals($data['id'] , 1);
-        $this->assertEquals($data['result'] , 2);
+        $this->assertEquals($data['result'] , 23);
         $this->assertEquals($data['jsonrpc'] , 2.0); 
         
         $this->reset();
@@ -212,7 +212,7 @@ class UserTest extends AbstractService
         
         $this->assertEquals(count($data) , 3);
         $this->assertEquals($data['id'] , 1);
-        $this->assertEquals($data['result'] , 3);
+        $this->assertEquals($data['result'] , 24);
         $this->assertEquals($data['jsonrpc'] , 2.0); 
         
         $this->reset();
@@ -225,7 +225,7 @@ class UserTest extends AbstractService
         
         $this->assertEquals(count($data) , 3);
         $this->assertEquals($data['id'] , 1);
-        $this->assertEquals($data['result'] , 4);
+        $this->assertEquals($data['result'] , 25);
         $this->assertEquals($data['jsonrpc'] , 2.0); 
         
         $this->reset();
@@ -238,7 +238,7 @@ class UserTest extends AbstractService
         
         $this->assertEquals(count($data) , 3);
         $this->assertEquals($data['id'] , 1);
-        $this->assertEquals($data['result'] , 5);
+        $this->assertEquals($data['result'] , 26);
         $this->assertEquals($data['jsonrpc'] , 2.0); 
         
         
@@ -316,8 +316,11 @@ class UserTest extends AbstractService
                 ]
             ]);
         
-     print_r($data);
-     exit();
+        $this->assertEquals(count($data) , 3);
+        $this->assertEquals($data['id'] , 1);
+        $this->assertEquals(count($data['result']) , 1);
+        $this->assertEquals($data['result'][0] , 5);
+        $this->assertEquals($data['jsonrpc'] , 2.0); 
     }
     
     /**
@@ -560,7 +563,7 @@ class UserTest extends AbstractService
 
         $this->assertEquals(count($data) , 3); 
         $this->assertEquals($data['id'] , 1); 
-        $this->assertEquals($data['result'] , 0); 
+        $this->assertEquals($data['result'] , 1); 
         $this->assertEquals($data['jsonrpc'] , 2.0); 
 
 
@@ -1226,9 +1229,9 @@ class UserTest extends AbstractService
         $this->assertEquals($data['result'][9]['background'] , null);
         $this->assertEquals($data['result'][9]['ambassador'] , null);
         $this->assertEquals(!empty($data['result'][9]['created_date']) , true);
-        $this->assertEquals($data['result'][9]['email_sent'] , 0);
+        $this->assertEquals($data['result'][9]['email_sent'] , 1);
         $this->assertEquals($data['result'][9]['welcome_date'] , null);
-        $this->assertEquals(!empty($data['result'][9]['invitation_date']) , false);
+        $this->assertEquals(!empty($data['result'][9]['invitation_date']) , true);
         $this->assertEquals($data['result'][9]['graduation_year'] , null);
         $this->assertEquals($data['result'][9]['linkedin_url'] , null);
         $this->assertEquals($data['result'][9]['has_email_contact_request_notifier'] , 1);
@@ -1581,6 +1584,28 @@ class UserTest extends AbstractService
         $this->assertEquals($data['jsonrpc'], 2.0);
     }
     
+    //affinity
+    public function testCanGetListIdaffinity()
+    {
+        $this->setIdentity(1);
+        $data = $this->jsonRpc(
+            'user.getListId', [
+                'exclude' => [2],
+                'search' => 'robert',
+                'filter' => ['p' => 1, 'n' => 10],
+                'order' => ['type' => 'affinity']
+                //  'page_id' => 1
+            ]
+            );
+        
+        $this->assertEquals(count($data) , 3);
+        $this->assertEquals($data['id'] , 1);
+        $this->assertEquals(count($data['result']) , 2);
+        $this->assertEquals(count($data['result']['list']) , 1);
+        $this->assertEquals($data['result']['list'][0] , 3);
+        $this->assertEquals($data['result']['count'] , 1);
+        $this->assertEquals($data['jsonrpc'] , 2.0);
+    }
     
     public function testCanGetListId()
     {
@@ -1598,13 +1623,10 @@ class UserTest extends AbstractService
         $this->assertEquals(count($data) , 3);
         $this->assertEquals($data['id'] , 1);
         $this->assertEquals(count($data['result']) , 2);
-        $this->assertEquals(count($data['result']['list']) , 2);
+        $this->assertEquals(count($data['result']['list']) , 1);
         $this->assertEquals($data['result']['list'][0] , 3);
-        $this->assertEquals($data['result']['list'][1] , 10);
-        $this->assertEquals($data['result']['count'] , 2);
+        $this->assertEquals($data['result']['count'] , 1);
         $this->assertEquals($data['jsonrpc'] , 2.0);
-        
-
     }
 
      public function testCanGetListIdAdmin()
