@@ -28,7 +28,7 @@ class User extends AbstractService
     public function isStudnetAdmin()
     {
         $identity = $this->getIdentity();
-        
+
         return $identity['roles'] !== null && in_array(ModelRole::ROLE_ADMIN_STR, $identity['roles']);
     }
 
@@ -150,7 +150,7 @@ class User extends AbstractService
         if ($identity === null) {
             return;
         }
-        
+
         $id = $identity->getToken();
         if ($identity->getCache() !== 0 && $init === false && $this->getCache()->hasItem('identity_' . $id)) {
             $user = $this->getCache()->getItem('identity_' . $id);
@@ -262,7 +262,7 @@ class User extends AbstractService
         if(!$this->isStudnetAdmin() ) {
             throw new JrpcException('Unauthorized operation user.suspend', -38003);
         }
-        
+
         $m_user = $this->getModel()
             ->setId($id)
             ->setSuspensionDate(1 === $suspend ? (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s') : new IsNull())
@@ -416,29 +416,29 @@ class User extends AbstractService
      * @return int
      */
     public function update(
-        $id = null, 
-        $gender = null, 
-        $origin = null, 
-        $nationality = null, 
-        $firstname = null, 
-        $lastname = null, $sis = null, 
-        $email = null, 
-        $birth_date = null, 
-        $position = null, 
-        $organization_id = null, 
-        $interest = null, 
-        $avatar = null, $roles = null, 
-        $resetpassword = null, 
-        $has_email_notifier = null, 
-        $timezone = null, 
+        $id = null,
+        $gender = null,
+        $origin = null,
+        $nationality = null,
+        $firstname = null,
+        $lastname = null, $sis = null,
+        $email = null,
+        $birth_date = null,
+        $position = null,
+        $organization_id = null,
+        $interest = null,
+        $avatar = null, $roles = null,
+        $resetpassword = null,
+        $has_email_notifier = null,
+        $timezone = null,
         $background = null,
-        $nickname = null, 
-        $suspend = null, 
-        $suspension_reason = null, 
-        $ambassador = null, 
-        $password = null, 
-        $address = null, 
-        $graduation_year = null, 
+        $nickname = null,
+        $suspend = null,
+        $suspension_reason = null,
+        $ambassador = null,
+        $password = null,
+        $address = null,
+        $graduation_year = null,
         $linkedin_url = null,
         $has_email_contact_request_notifier = null,
         $page_program_name = null
@@ -456,33 +456,33 @@ class User extends AbstractService
                 $roles = null;
             }
         }
-        
+
         return $this->_update(
-            $id, 
-            $gender, 
-            $origin, 
-            $nationality, 
-            $firstname, 
-            $lastname, 
-            $sis, 
-            $email, 
-            $birth_date, 
-            $position, 
-            $organization_id, 
-            $interest, 
-            $avatar, 
-            $roles, 
-            $resetpassword, 
-            $has_email_notifier, 
-            $timezone, 
-            $background, 
-            $nickname, 
-            $suspend, 
-            $suspension_reason, 
-            $ambassador, 
-            $password, 
-            $address, 
-            $graduation_year, 
+            $id,
+            $gender,
+            $origin,
+            $nationality,
+            $firstname,
+            $lastname,
+            $sis,
+            $email,
+            $birth_date,
+            $position,
+            $organization_id,
+            $interest,
+            $avatar,
+            $roles,
+            $resetpassword,
+            $has_email_notifier,
+            $timezone,
+            $background,
+            $nickname,
+            $suspend,
+            $suspension_reason,
+            $ambassador,
+            $password,
+            $address,
+            $graduation_year,
             $linkedin_url,
             $has_email_contact_request_notifier,
             $page_program_name
@@ -539,7 +539,7 @@ class User extends AbstractService
 
             }
             $this->getServiceUserTag()->replace($id,$tags, 'address');
-            
+
             if ($address_id !== null) {
                 $m_user->setAddressId($address_id);
             }
@@ -585,6 +585,7 @@ class User extends AbstractService
                 $organization_id = new IsNull('organization_id');
             }
             $this->addOrganization($organization_id, $id, true);
+
         }
 
         if ($roles !== null) {
@@ -643,8 +644,9 @@ class User extends AbstractService
             } else {
                 $this->getServicePageProgramUser()->add(null, $m_user->getId(), $page_program_name);
             }
+            $this->getServiceUserTag()->replace($id, 'null' !== $page_program_name ? [$page_program_name] : [], 'program');
         }
-        
+
         if(null !== $email || null != $firstname || null != $lastname) {
             $this->getServiceUserTag()->replace($m_user->getId(), [
                 $m_user->getLastname(),
@@ -653,7 +655,7 @@ class User extends AbstractService
                 $m_user->getInitialEmail(),
             ], 'profile');
         }
-        
+
         return $ret;
     }
 
@@ -895,7 +897,7 @@ class User extends AbstractService
             if ($res_user->count() <= 0) {
                 continue;
             }
-            
+
             $m_user = $res_user->current();
 
             $uniqid = uniqid($uid . "_", true);
@@ -1031,7 +1033,7 @@ class User extends AbstractService
             foreach ($this->getServicePageProgram()->getListUserId($user['id']) as $m_page_program_user) {
                 $user['programs'][] = $m_page_program_user->getName();
             }
-            
+
             $users[$user['id']] = $user;
         }
 
@@ -1069,7 +1071,7 @@ class User extends AbstractService
      *
      * @return array
      */
-    public function getListId($search = null, $exclude = null, $filter = null, $contact_state = null, $page_id = null, $post_id = null, $order = null, 
+    public function getListId($search = null, $exclude = null, $filter = null, $contact_state = null, $page_id = null, $post_id = null, $order = null,
         $role = null, $conversation_id = null, $page_type = null, $unsent = null, $is_pinned = null, $shared_id = null, $tags = null, $is_active = null)
     {
         $identity = $this->getIdentity();
@@ -1079,7 +1081,7 @@ class User extends AbstractService
 
         $is_admin = $this->isStudnetAdmin();
         $mapper = $this->getMapper();
-        $res_user = $mapper->usePaginator($filter)->getList($identity['id'], $is_admin, $post_id, $search, $page_id, $order, $exclude, 
+        $res_user = $mapper->usePaginator($filter)->getList($identity['id'], $is_admin, $post_id, $search, $page_id, $order, $exclude,
             $contact_state, $unsent, $role, $conversation_id, $page_type, null, $is_pinned, null, $is_active, $shared_id, null, $tags);
 
         $users = [];
@@ -1202,15 +1204,22 @@ class User extends AbstractService
             );
         }
 
+        $m_page = null;
+        if(!$organization_id instanceof IsNull){
+            $m_page = $this->getServicePage()->getLite($organization_id);
+        }
+
+        $this->getServiceUserTag()->replace($id, $m_page !== null ? [$m_page->getTitle()] : [], 'organization');
+
         return $ret;
     }
-    
+
     /**
      * Add School relation If not exist
-     * 
+     *
      * @param  int  $organization_id
      * @param  int  $user_id
-     * 
+     *
      * @return NULL|int
      */
     public function addOrganizationIfNotExist($organization_id, $user_id)
@@ -1221,7 +1230,7 @@ class User extends AbstractService
         if(!is_numeric($m_user->getOrganizationId())) {
             $ret = $this->addOrganization($organization_id, $user_id, true);
         }
-        
+
         return $ret;
     }
 
@@ -1239,7 +1248,7 @@ class User extends AbstractService
      * sign In Password
      *
      * @invokable
-     * 
+     *
      * @param string $account_token
      * @param string $password
      * @param string $firstname
@@ -1247,9 +1256,9 @@ class User extends AbstractService
      * @param int $graduation_year
      * @param int $page_program_id
      * @param string $page_program_name
-     * 
+     *
      * @throws \Exception
-     * 
+     *
      * @return array|void|mixed|array[]|string[]
      */
     public function signIn($account_token, $password, $firstname = null, $lastname = null, $graduation_year = null, $page_program_id = null, $page_program_name = null)
@@ -1300,9 +1309,9 @@ class User extends AbstractService
             );
         }
         $m_user = $this->getLite($user_id);
-        
+
         $login = $this->login($m_user->getEmail(), $password);
-        
+
         if(null !== $graduation_year) {
             $this->getServiceUserTag()->replace($user_id, 'null' !== $graduation_year ? [$graduation_year , "'".($graduation_year % 100)] : [], 'graduation');
         }
@@ -1315,7 +1324,7 @@ class User extends AbstractService
         if(null !== $page_program_id) {
             $this->getServicePageProgramUser()->add($page_program_id, $user_id);
         }
-        
+
         if(is_numeric($m_user->getOrganizationId())) {
             $this->getServicePageUser()->update($m_user->getOrganizationId(), $user_id, ModelPageUser::ROLE_USER, ModelPageUser::STATE_MEMBER);
         }
@@ -1336,11 +1345,11 @@ class User extends AbstractService
         $linkedin = $this->getServiceLinkedIn();
         $linkedin->init($code);
         $m_people = $linkedin->people();
-        
-        
+
+
         $linkedin_id = $m_people->getId();
         $login = false;
-        
+
         if ( empty($linkedin_id) || !is_string($linkedin_id)) {
             throw new \Exception('Error LinkedIn Id');
         }
@@ -1468,7 +1477,7 @@ class User extends AbstractService
    * @param string $tag
    * @param string $category
    * @param int    $id
-   * 
+   *
    * @return int
    */
     public function addTag($tag, $category, $id = null)
@@ -1476,7 +1485,7 @@ class User extends AbstractService
         if(!$this->isStudnetAdmin() || null === $id){
             $id=$this->getIdentity()['id'];
         }
-        
+
         return $this->getServiceUserTag()->add($id, $tag, $category);
     }
     /**
@@ -1661,7 +1670,7 @@ class User extends AbstractService
     {
         return $this->container->get('app_service_user_tag');
     }
-    
+
     /**
      * Get Service Page Program
      *
@@ -1671,7 +1680,7 @@ class User extends AbstractService
     {
         return $this->container->get('app_service_page_program');
     }
-    
+
     /**
      * Get Service Page Program User
      *
@@ -1681,7 +1690,7 @@ class User extends AbstractService
     {
         return $this->container->get('app_service_page_program_user');
     }
-    
+
     /**
      * Get Service Tag
      *
