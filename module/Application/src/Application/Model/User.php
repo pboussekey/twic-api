@@ -21,6 +21,7 @@ class User extends BaseUser
     protected $address;
     protected $tags;
     protected $preregistration;
+    protected $nbr_user_common;
 
     public function exchangeArray(array &$data)
     {
@@ -218,6 +219,24 @@ class User extends BaseUser
         return $this;
     }
 
-
+    /**
+     * @return int
+     */
+    public function getNbrUserCommon()
+    {
+        return $this->nbr_user_common;
+    }
+    
+    /**
+     * @param int $nbr_user_common
+     * 
+     * @return self
+     */
+    public function setNbrUserCommon($nbr_user_common)
+    {
+        $this->nbr_user_common = $nbr_user_common;
+        
+        return $this;
+    }
 
 }

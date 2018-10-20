@@ -268,8 +268,9 @@ class UserTest extends AbstractService
         
         $this->assertEquals(count($data) , 3);
         $this->assertEquals($data['id'] , 1);
-        $this->assertEquals(count($data['result']) , 29);
+        $this->assertEquals(count($data['result']) , 30);
         $this->assertEquals($data['result']['origin'] , null);
+        $this->assertEquals($data['result']['nbr_user_common'] , 0);
         $this->assertEquals($data['result']['nationality'] , null);
         $this->assertEquals($data['result']['gender'] , null);
         $this->assertEquals($data['result']['contact_state'] , 0);
@@ -1187,7 +1188,7 @@ class UserTest extends AbstractService
         $this->assertEquals(count($data) , 3);
         $this->assertEquals($data['id'] , 1);
         $this->assertEquals(count($data['result']) , 1);
-        $this->assertEquals(count($data['result'][9]) , 28);
+        $this->assertEquals(count($data['result'][9]) , 29);
         $this->assertEquals(count($data['result'][9]['origin']) , 2);
         $this->assertEquals($data['result'][9]['origin']['id'] , 1);
         $this->assertEquals($data['result'][9]['origin']['short_name'] , "Afghanistan");
@@ -1195,6 +1196,8 @@ class UserTest extends AbstractService
         $this->assertEquals($data['result'][9]['nationality']['id'] , 1);
         $this->assertEquals($data['result'][9]['nationality']['short_name'] , "Afghanistan");
         $this->assertEquals($data['result'][9]['gender'] , "m");
+        
+        $this->assertEquals($data['result'][9]['nbr_user_common'] , 0);
         $this->assertEquals($data['result'][9]['contact_state'] , 0);
         $this->assertEquals($data['result'][9]['contacts_count'] , 0);
         $this->assertEquals(count($data['result'][9]['address']) , 14);
@@ -1250,8 +1253,9 @@ class UserTest extends AbstractService
         
         $this->assertEquals(count($data) , 3);
         $this->assertEquals($data['id'] , 1);
-        $this->assertEquals(count($data['result']) , 29);
+        $this->assertEquals(count($data['result']) , 30);
         $this->assertEquals($data['result']['origin'] , null);
+        $this->assertEquals($data['result']['nbr_user_common'] , 0);
         $this->assertEquals($data['result']['nationality'] , null);
         $this->assertEquals($data['result']['gender'] , null);
         $this->assertEquals($data['result']['contact_state'] , 0);

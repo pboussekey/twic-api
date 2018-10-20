@@ -19,6 +19,20 @@ class User extends AbstractMapper
 {
     public function get($user_id, $me, $is_admin = false)
     {
+        /*
+         * select count(true) from user
+         JOIN contact ON contact.user_id=user.id AND contact.accepted_date IS NOT NULL AND contact.deleted_date IS NULL
+         JOIN contact ct ON contact.contact_id=ct.contact_id AND ct.accepted_date IS NOT NULL AND ct.deleted_date IS NULL
+         WHERE user.id=1 AND ct.user_id=3
+         */
+        $select_communs_user = $this->tableGateway->getSql()->select();
+        $select_communs_user->columns(['user$nbr_user_common' => new Expression('COUNT(true)')])
+            ->join('contact', new Expression('contact.user_id=user.id AND contact.accepted_date IS NOT NULL AND contact.deleted_date IS NULL'), [])
+            ->join(['ct' => 'contact'], new Expression('contact.contact_id=ct.contact_id AND ct.accepted_date IS NOT NULL AND ct.deleted_date IS NULL'), [])
+            ->where(['user.id' => $user_id])
+            ->where(['user.id=`user$id`']);
+        
+        
         $columns = [
             'user$id' => new Expression('user.id'),
             'firstname',
@@ -42,13 +56,14 @@ class User extends AbstractMapper
             'user$invitation_date' => new Expression('DATE_FORMAT(user.invitation_date, "%Y-%m-%dT%TZ")'),
             'user$contacts_count' => $this->getSelectContactCount(),
             'user$contact_state' => $this->getSelectContactState($me),
+            'user$nbr_user_common' => $select_communs_user,
             'user$welcome_date' =>  new Expression('DATE_FORMAT(DATE_ADD(user.welcome_date, INTERVAL user.welcome_delay DAY), "%Y-%m-%dT%TZ")')
         ];
 
         if($user_id === $me || (is_array($user_id) && count($user_id) === 1 && in_array($me, $user_id))){
             $columns[] = 'swap_email';
         }
-
+        
         $select = $this->tableGateway->getSql()->select();
         $select->columns($columns)
             ->join(array('nationality' => 'country'), 'nationality.id=user.nationality', ['nationality!id' => 'id', 'short_name'], $select::JOIN_LEFT)
@@ -407,8 +422,8 @@ class User extends AbstractMapper
 		     IF(contact.request_date IS NOT  NULL AND contact.requested = 1 AND contact.deleted_date IS NULL, 1,0)))'
             ))
         )
-            ->join('contact', 'contact.contact_id = user.id', array())
-            ->where(array('user.id=`user$id`'))
+            ->join('contact', 'contact.contact_id = user.id', [])
+            ->where(['user.id=`user$id`'])
             ->where(['contact.user_id' => $user]);
 
         return $select;
