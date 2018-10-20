@@ -31,8 +31,8 @@ class User extends AbstractMapper
             ->join(['ct' => 'contact'], new Expression('contact.contact_id=ct.contact_id AND ct.accepted_date IS NOT NULL AND ct.deleted_date IS NULL'), [])
             ->where(['user.id' => $user_id])
             ->where(['user.id=`user$id`']);
-        
-        
+
+
         $columns = [
             'user$id' => new Expression('user.id'),
             'firstname',
@@ -63,7 +63,7 @@ class User extends AbstractMapper
         if($user_id === $me || (is_array($user_id) && count($user_id) === 1 && in_array($me, $user_id))){
             $columns[] = 'swap_email';
         }
-        
+
         $select = $this->tableGateway->getSql()->select();
         $select->columns($columns)
             ->join(array('nationality' => 'country'), 'nationality.id=user.nationality', ['nationality!id' => 'id', 'short_name'], $select::JOIN_LEFT)
@@ -83,7 +83,7 @@ class User extends AbstractMapper
             $select->join(['circle_organization_user' => 'user'], 'circle_organization_user.organization_id=circle_organization.organization_id', []);
             $select->where([' ( circle_organization_user.id = ? OR user_role.role_id = '.ModelRole::ROLE_ADMIN_ID . ') ' => $me]);
         }
-        
+
         return $this->selectWith($select);
     }
 
@@ -93,7 +93,7 @@ class User extends AbstractMapper
         $page_affinity = new Select(['user_pages' => 'page_user']);
         $page_affinity->columns([
             'user_id' => new Expression('other_user.id'),
-            'affinity' => new Expression('SUM(CASE page.type  WHEN "organization" THEN 4 * IF(other_user.graduation_year = user.graduation_year, 10, 1) WHEN "course" THEN 8 ELSE 2 END)')
+            'affinity' => new Expression('SUM(CASE page.type  WHEN "organization" THEN 20 * IF(other_user.graduation_year = user.graduation_year, 2, 1) WHEN "course" THEN 20 ELSE 10 END)')
         ])
             ->join('page', 'user_pages.page_id = page.id',[])
             ->join('user', 'user_pages.user_id = user.id',[])
@@ -130,13 +130,14 @@ class User extends AbstractMapper
         $program_affinity = new Select(['ouser' => 'user']);
         $program_affinity->columns([
             'user_id' => new Expression('page_program_user.user_id'),
-            'affinity' => new Expression('IF(`page_program_user`.`user_id` IS NOT NULL, 50,0)')
+            'affinity' => new Expression('IF(`page_program_user`.`user_id` IS NOT NULL, IF(user.id IS NOT NULL, 60, 10),0)')
         ])
-            ->join('page_program_user','page_program_user.user_id = ouser.id', [])
-            ->join(['other_page_program_user' => 'page_program_user'],new Expression('other_page_program_user.user_id = ?', $user_id), [])
+            ->join(['other_page_program_user' => 'page_program_user'],'other_page_program_user.user_id = ouser.id', [])
+            ->join('page_program_user', new Expression('page_program_user.user_id = ?', $user_id), [])
+            ->join('user', 'user.id = page_program_user.user_id AND user.graduation_year = ouser.graduation_year', [], $program_affinity::JOIN_LEFT)
             ->where(['other_page_program_user.user_id <> page_program_user.user_id'])
             ->where(['other_page_program_user.page_program_id = page_program_user.page_program_id']);
-        
+
         $select = $this->tableGateway->getSql()->select();
         $select->columns(['user_id' => 'id', 'affinity' => new Expression(
             "COALESCE(program_affinity.affinity,0) + COALESCE(page_affinity.affinity,0) + COALESCE(contact_affinity.affinity,0) + COALESCE(tag_affinity.affinity,0)")])
@@ -144,7 +145,7 @@ class User extends AbstractMapper
                ->join(['contact_affinity' => $contact_affinity], 'contact_affinity.user_id = user.id', [], $select::JOIN_LEFT)
                ->join(['tag_affinity' => $tag_affinity], 'tag_affinity.user_id = user.id', [], $select::JOIN_LEFT)
                ->join(['program_affinity' => $program_affinity], 'program_affinity.user_id = user.id', [], $select::JOIN_LEFT);
-       
+
         return $select;
 
    }
@@ -210,15 +211,21 @@ class User extends AbstractMapper
             case 'name':
                 $select->order(new Expression('user.is_active DESC, COALESCE(NULLIF(user.nickname,""),TRIM(CONCAT_WS(" ",user.lastname,user.firstname, user.email)))'));
                 break;
-            case 'firstname' : 
+            case 'firstname' :
                 $select->order('user.firstname ASC');
                 break;
-            case 'random' : 
+            case 'random' :
                 $select->order(new Expression('RAND(?)', $order['seed']));
                 break;
-            case 'affinity' : 
-                $select->join(['affinity' => $this->getAffinitySelect($user_id)], 'user.id = affinity.user_id', [])
-                    ->order([new Expression('user.id = ?', $user_id), 'affinity DESC']);
+            case 'affinity' :
+                $select->join(['affinity' => $this->getAffinitySelect($user_id)], 'user.id = affinity.user_id', []);
+                if(isset($order['seed'])){
+                    $select->order([new Expression('user.id = ?', $user_id), new Expression('ROUND(affinity / 50) DESC'), new Expression('RAND(?)', $order['seed'])]);
+                }
+                else{
+                    $select->order([new Expression('user.id = ?', $user_id), 'affinity DESC']);
+
+                }
                     //->order(new Expression(' ( ROUND( affinity.affinity ) * 10 / ( MAX(affinity.affinity) OVER() ) ) DESC '));
                 break;
             default:
@@ -245,51 +252,51 @@ class User extends AbstractMapper
             $select->join('conversation_user', 'conversation_user.user_id=user.id', [])
                 ->where(['conversation_user.conversation_id' => $conversation_id]);
         }
-        
+
         if(!empty($tags)) {
             $s = $this->tableGateway->getSql()->select();
             $s->join(['t1' => $select], new Expression('`t1`.`user$id`=`user`.`id`'), ['user$id' => 'user$id']);
             $select = $s;
-            
+
             $select->join('user_tag', 'user_tag.user_id = user.id', [], $select::JOIN_LEFT)
                 ->join('tag', 'user_tag.tag_id = tag.id', [], $select::JOIN_LEFT)
                 ->where->in(new Expression('CONCAT_WS(":", user_tag.category, tag.name)'),$tags);
-            
+
             $select->group('user.id')->having(['COUNT(`user`.`id`) = ?' => count($tags)]);
         }
-        
+
         if (!empty($search)) {
           $tags_break = explode(' ', trim(preg_replace('/\s+/',' ',preg_replace('/([A-Z][a-z0-9])/',' ${0}', $search))));
           $nbt = count($tags_break);
           $last = end($tags_break);
-          
+
           if($nbt > 1) {
               array_pop($tags_break);
               // le search dernier mot
               $s = $this->tableGateway->getSql()->select();
               $s->join(['t2' => $select], new Expression('`t2`.`user$id`=`user`.`id`'), ['user$id' => 'user$id']);
               $select = $s;
-              
+
               $select->join('user_tag', 'user_tag.user_id = user.id', [], $select::JOIN_LEFT)
                   ->join('tag', 'user_tag.tag_id = tag.id', [], $select::JOIN_LEFT)
                   ->join('tag_breakdown', 'tag_breakdown.tag_id = tag.id', [], $select::JOIN_LEFT)
                   ->where(['tag_breakdown.tag_part' => $tags_break])
                   ->group('user.id')->having(['COUNT(`user`.`id`) = ?' => $nbt-1]);
-          } 
-          
+          }
+
           $s = $this->tableGateway->getSql()->select();
           $s->join(['t3' => $select], new Expression('`t3`.`user$id`=`user`.`id`'), ['user$id' => 'user$id']);
           $select = $s;
-          
+
           $select->join('user_tag', 'user_tag.user_id = user.id', [], $select::JOIN_LEFT)
               ->join('tag', 'user_tag.tag_id = tag.id', [], $select::JOIN_LEFT)
               ->join('tag_breakdown', 'tag_breakdown.tag_id = tag.id', [], $select::JOIN_LEFT)
               ->where(['tag_breakdown.tag_part LIKE ?'   => $last.'%']);
               $select->group('user.id');
         }
-        
-        
-        
+
+
+
         if (null !== $contact_state) {
             if (!is_array($contact_state)) {
                 $contact_state = [$contact_state];
@@ -344,7 +351,6 @@ class User extends AbstractMapper
         else if($alumni === false){
             $select->where(['(user.graduation_year = YEAR(CURDATE()) OR user.graduation_year IS NULL)']);
         }
-
         return $this->selectWith($select);
     }
 
