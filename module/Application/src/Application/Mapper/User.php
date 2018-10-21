@@ -29,7 +29,7 @@ class User extends AbstractMapper
         $select_communs_user->columns(['user$nbr_user_common' => new Expression('COUNT(true)')])
             ->join('contact', new Expression('contact.user_id=user.id AND contact.accepted_date IS NOT NULL AND contact.deleted_date IS NULL'), [])
             ->join(['ct' => 'contact'], new Expression('contact.contact_id=ct.contact_id AND ct.accepted_date IS NOT NULL AND ct.deleted_date IS NULL'), [])
-            ->where(['user.id' => $user_id])
+            ->where(['user.id' => $me])
             ->where(['user.id=`user$id`']);
 
 

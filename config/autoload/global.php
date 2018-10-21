@@ -14,7 +14,7 @@
 
 return [
     'version' => "2.0.4",
-    'build-commit' => 1274,
+    'build-commit' => 1275,
     'app-conf' => [
         'cache' => 'storage_memcached',
     ],
@@ -97,7 +97,7 @@ return [
             'rbac_service_permission',
             'rbac_service_role_permission',
             'rbac_service_role_relation',
-            
+
             [
                 'class' => 'addr_service_address',
                 'methods' => [
@@ -144,9 +144,9 @@ return [
             'adapter' => [
                 'name' => 'memcached',
                 'options' => [
-                    'namespace' => 'LMS1274',
+                    'namespace' => 'LMS1275',
                     'lib_options' => [
-                        ['option' => Memcached::OPT_PREFIX_KEY, 'value' => 'LMS1274'],
+                        ['option' => Memcached::OPT_PREFIX_KEY, 'value' => 'LMS1275'],
                     ],
                 ],
             ],
