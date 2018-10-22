@@ -839,13 +839,12 @@ class User extends AbstractService
             throw \Exception('Error invalid email address');
         }
 
-        $uniqid = uniqid($page_id . strlen($email) . "_", true);
-        $m_page = $this->getServicePage()->getLite($page_id);
-
         $m_user = $this->getLiteByEmail($email);
         if($m_user && $m_user->getIsActive() === 0) {
             $this->sendPassword($m_user->getId());
         } else {
+            $m_page = $this->getServicePage()->getLite($page_id);
+            $uniqid = uniqid($page_id . strlen($email) . "_", true);
             $this->getServicePreregistration()->add($uniqid, $firstname, $lastname, $email, $page_id);
     
             $prefix = ($m_page !== false && is_string($m_page->getLibelle()) && !empty($m_page->getLibelle())) ?
