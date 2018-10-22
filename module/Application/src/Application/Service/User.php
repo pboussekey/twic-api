@@ -842,27 +842,32 @@ class User extends AbstractService
         $uniqid = uniqid($page_id . strlen($email) . "_", true);
         $m_page = $this->getServicePage()->getLite($page_id);
 
-        $this->getServicePreregistration()->add($uniqid, $firstname, $lastname, $email, $page_id);
-
-        $prefix = ($m_page !== false && is_string($m_page->getLibelle()) && !empty($m_page->getLibelle())) ?
-        $m_page->getLibelle() : null;
-
-        $url = sprintf("https://%s%s/signin/%s", ($prefix ? $prefix.'.':''),  $this->container->get('config')['app-conf']['uiurl'], $uniqid);
-
-        try {
-            $this->getServiceMail()->sendTpl(
-                'tpl_sendpasswd', $email, [
-                    'uniqid' => $uniqid,
-                    'email' => $email,
-                    'accessurl' => $url,
-                    'lastname' => $lastname,
-                    'firstname' => $firstname
-                ]
-            );
-        } catch (\Exception $e) {
-            syslog(1, 'Model name does not exist <> uniqid is : ' . $uniqid . ' <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode() . ' <URL> ' . $url . ' <Email> ' . $email);
+        $m_user = $this->getLiteByEmail($email);
+        if($m_user && $m_user->getIsActive() === 0) {
+            $this->sendPassword($m_user->getId());
+        } else {
+            $this->getServicePreregistration()->add($uniqid, $firstname, $lastname, $email, $page_id);
+    
+            $prefix = ($m_page !== false && is_string($m_page->getLibelle()) && !empty($m_page->getLibelle())) ?
+            $m_page->getLibelle() : null;
+    
+            $url = sprintf("https://%s%s/signin/%s", ($prefix ? $prefix.'.':''),  $this->container->get('config')['app-conf']['uiurl'], $uniqid);
+    
+            try {
+                $this->getServiceMail()->sendTpl(
+                    'tpl_sendpasswd', $email, [
+                        'uniqid' => $uniqid,
+                        'email' => $email,
+                        'accessurl' => $url,
+                        'lastname' => $lastname,
+                        'firstname' => $firstname
+                    ]
+                );
+            } catch (\Exception $e) {
+                syslog(1, 'Model name does not exist <> uniqid is : ' . $uniqid . ' <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode() . ' <URL> ' . $url . ' <Email> ' . $email);
+            }
         }
-
+        
         return true;
     }
 
@@ -966,6 +971,18 @@ class User extends AbstractService
             $this->getModel()
                 ->setId($id)
         );
+        return (is_array($id)) ? $res_user : $res_user->current();
+    }
+    
+    /**
+     *
+     * @param int $id
+     * @return \Dal\Db\ResultSet\ResultSet|\Application\Model\User
+     */
+    public function getLiteByEmail($email)
+    {
+        $res_user = $this->getMapper()->select($this->getModel()->setEmail($email)->setDeletedDate(new IsNull('deleted_date')));
+        
         return (is_array($id)) ? $res_user : $res_user->current();
     }
 
