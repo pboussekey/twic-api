@@ -13,6 +13,7 @@ class Post extends BasePost
     protected $nbr_comments;
     protected $is_liked;
     protected $nbr_likes;
+    protected $nbr_views;
     protected $nbr_sharings;
     protected $user;
     protected $subscription;
@@ -123,6 +124,18 @@ class Post extends BasePost
     public function getNbrSharings()
     {
         return $this->nbr_sharings;
+    }
+
+    public function setNbrViews($nbr_views)
+    {
+        $this->nbr_views = $nbr_views;
+
+        return $this;
+    }
+
+    public function getNbrViews()
+    {
+        return $this->nbr_views;
     }
 
     public function setIsLiked($is_liked)

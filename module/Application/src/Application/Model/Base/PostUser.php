@@ -9,6 +9,7 @@ class PostUser extends AbstractModel
  	protected $post_id;
 	protected $user_id;
 	protected $hidden;
+	protected $view_date;
 
 	protected $prefix = 'post_user';
 
@@ -44,6 +45,18 @@ class PostUser extends AbstractModel
 	public function setHidden($hidden)
 	{
 		$this->hidden = $hidden;
+
+		return $this;
+	}
+
+	public function getViewDate()
+	{
+		return $this->view_date;
+	}
+
+	public function setViewDate($view_date)
+	{
+		$this->view_date = $view_date;
 
 		return $this;
 	}

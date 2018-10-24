@@ -567,6 +567,7 @@ class Post extends AbstractService
         $identity = $this->getServiceUser()->getIdentity();
         $is_sadmin = $identity && (in_array(ModelRole::ROLE_ADMIN_STR, $identity['roles']));
         $res_post = $this->getMapper()->get($identity['id'], $id, $is_sadmin);
+        $ids = [];
         foreach ($res_post as $m_post) {
             $m_post->setDocs($this->getServicePostDoc()->getList($m_post->getId()));
             $m_post->setSubscription($this->getServicePostSubscription()->getLastLite($m_post->getId()));
@@ -574,8 +575,10 @@ class Post extends AbstractService
             if (is_string($m_post->getData())) {
                 $m_post->setData(json_decode($m_post->getData(), true));
             }
+            $ids[] = $m_post->getId();
         }
 
+        $this->getServicePostUser()->view($ids);
         $res_post->rewind();
 
         if (is_array($id)) {
@@ -657,7 +660,7 @@ class Post extends AbstractService
                     'someone' => $m_me->getFirstname(),
                     ]
                 );*/
-                
+
                 if($m_page !== false && $m_user->getIsActive()){
                     $gcm_notification = new GcmNotification();
                     $gcm_notification->setTitle($m_page->getTitle())

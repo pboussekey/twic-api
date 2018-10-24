@@ -846,12 +846,12 @@ class User extends AbstractService
             $m_page = $this->getServicePage()->getLite($page_id);
             $uniqid = uniqid($page_id . strlen($email) . "_", true);
             $this->getServicePreregistration()->add($uniqid, $firstname, $lastname, $email, $page_id);
-    
+
             $prefix = ($m_page !== false && is_string($m_page->getLibelle()) && !empty($m_page->getLibelle())) ?
             $m_page->getLibelle() : null;
-    
+
             $url = sprintf("https://%s%s/signin/%s", ($prefix ? $prefix.'.':''),  $this->container->get('config')['app-conf']['uiurl'], $uniqid);
-    
+
             try {
                 $this->getServiceMail()->sendTpl(
                     'tpl_sendpasswd', $email, [
@@ -866,7 +866,7 @@ class User extends AbstractService
                 syslog(1, 'Model name does not exist <> uniqid is : ' . $uniqid . ' <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode() . ' <URL> ' . $url . ' <Email> ' . $email);
             }
         }
-        
+
         return true;
     }
 
@@ -972,17 +972,17 @@ class User extends AbstractService
         );
         return (is_array($id)) ? $res_user : $res_user->current();
     }
-    
+
     /**
      *
-     * @param int $id
+     * @param string $email
      * @return \Dal\Db\ResultSet\ResultSet|\Application\Model\User
      */
     public function getLiteByEmail($email)
     {
         $res_user = $this->getMapper()->select($this->getModel()->setEmail($email)->setDeletedDate(new IsNull('deleted_date')));
-        
-        return (is_array($id)) ? $res_user : $res_user->current();
+
+        return (is_array($email)) ? $res_user : $res_user->current();
     }
 
     /**
@@ -1089,7 +1089,7 @@ class User extends AbstractService
      * @return array
      */
     public function getListId($search = null, $exclude = null, $filter = null, $contact_state = null, $page_id = null, $post_id = null, $order = null,
-        $role = null, $conversation_id = null, $page_type = null, $unsent = null, $is_pinned = null, $shared_id = null, $tags = null, $is_active = null)
+        $role = null, $conversation_id = null, $page_type = null, $unsent = null, $is_pinned = null, $shared_id = null, $tags = null, $is_active = null, $view_id = null)
     {
         $identity = $this->getIdentity();
         if (null !== $exclude && ! is_array($exclude)) {
@@ -1099,7 +1099,7 @@ class User extends AbstractService
         $is_admin = $this->isStudnetAdmin();
         $mapper = $this->getMapper();
         $res_user = $mapper->usePaginator($filter)->getList($identity['id'], $is_admin, $post_id, $search, $page_id, $order, $exclude,
-            $contact_state, $unsent, $role, $conversation_id, $page_type, null, $is_pinned, null, $is_active, $shared_id, null, $tags);
+            $contact_state, $unsent, $role, $conversation_id, $page_type, null, $is_pinned, null, $is_active, $shared_id, null, $tags, $view_id);
 
         $users = [];
         foreach ($res_user as $m_user) {

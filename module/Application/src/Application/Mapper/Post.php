@@ -7,6 +7,7 @@ use Zend\Db\Sql\Predicate\Expression;
 use Dal\Db\Sql\Select;
 use Zend\Db\Sql\Predicate\Predicate;
 use Application\Model\Page as ModelPage;
+use Application\Model\Role as ModelRole;
 
 class Post extends AbstractMapper
 {
@@ -95,6 +96,16 @@ class Post extends AbstractMapper
         $nbr_sharings->columns(['nbr_sharings' => new Expression('COUNT(DISTINCT post.user_id)')])->where(['post.shared_id=`post$id` AND post.deleted_date IS NULL']);
         $is_liked = new Select('post_like');
         $is_liked->columns(['is_liked' => new Expression('COUNT(true)')])->where(['post_like.post_id=`post$id` AND post_like.is_like IS TRUE AND post_like.user_id=?' => $me_id]);
+        $nbr_views = new Select('post_user');
+        $nbr_views->columns(['nbr_views' => new Expression('COUNT(DISTINCT post_user.user_id) + 1')])
+                  ->where(new Expression('post_user.post_id=`post$id` AND post_user.view_date IS NOT NULL AND post_user.user_id <> ?', $me_id));
+        if(!$is_sadmin){
+            $nbr_views->join('user', 'user.id = post_user.user_id', [])
+            ->join(['co' => 'circle_organization'], 'co.organization_id=user.organization_id', [])
+            ->join('circle_organization', 'circle_organization.circle_id=co.circle_id', [])
+            ->join(['circle_organization_user' => 'user'], 'circle_organization_user.organization_id=circle_organization.organization_id', [])
+            ->where(['circle_organization_user.id = ?' => $me_id]);
+        }
 
         $select->columns(
             [
@@ -120,6 +131,7 @@ class Post extends AbstractMapper
             'post$is_liked' => $is_liked,
             'post$nbr_likes' => $nbr_likes,
             'post$nbr_sharings' => $nbr_sharings,
+            'post$nbr_views' => $nbr_views,
             ]
         );
         $select->where(['post.id' => $id])
@@ -132,7 +144,6 @@ class Post extends AbstractMapper
         if (!$is_sadmin) {
             $select->where(['post.deleted_date IS NULL']);
         }
-
         return $this->selectWith($select);
     }
 

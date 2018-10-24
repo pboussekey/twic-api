@@ -3,6 +3,7 @@
 namespace Application\Service;
 
 use Dal\Service\AbstractService;
+use Zend\Db\Sql\Predicate\IsNull;
 
 class PostUser extends AbstractService
 {
@@ -27,6 +28,35 @@ class PostUser extends AbstractService
 
         return true;
     }
+
+
+     /**
+      * Hide post
+      *
+      * @param int $id
+      */
+      public function view($id)
+      {
+          if(!is_array($id)){
+              $id = [$id];
+          }
+          $identity = $this->getServiceUser()->getIdentity();
+          $date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
+          foreach ($id as $pid) {
+              $m_post_user = $this->getModel()->setUserId($identity['id'])->setPostId($pid);
+              $res_post_user = $this->getMapper()->select($m_post_user);
+              $m_post_user->setViewDate($date);
+              $m_previous_post_user = $res_post_user->current();
+              if($m_previous_post_user === false) {
+                  $this->getMapper()->insert($m_post_user);
+              }
+              else if($m_previous_post_user->getViewDate() instanceof isNull){
+                  $this->getMapper()->update($m_post_user);
+              }
+          }
+
+          return true;
+      }
 
 
   /**

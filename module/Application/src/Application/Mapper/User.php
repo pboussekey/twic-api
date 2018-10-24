@@ -169,7 +169,8 @@ class User extends AbstractMapper
         $is_active = null,
         $shared_id = null,
         $alumni = null,
-        $tags = null
+        $tags = null,
+        $view_id = null
     ) {
         $select = $this->tableGateway->getSql()->select();
 
@@ -238,15 +239,20 @@ class User extends AbstractMapper
         if ($exclude) {
             $select->where->notIn('user.id', $exclude);
         }
-        if (!empty($post_id)) {
+        if (null !== $post_id) {
             $select->join('post_like', 'post_like.user_id=user.id', [])
                 ->where(['post_like.post_id' => $post_id])
                 ->where(['post_like.is_like IS TRUE']);
         }
-        if (!empty($shared_id)) {
+        if (null !== $shared_id) {
             $select->join('post', 'post.user_id=user.id', [])
                 ->where(['post.shared_id' => $shared_id])
                 ->where(['post.deleted_date IS NULL']);
+        }
+        if (null !== $view_id) {
+            $select->join('post_user', 'post_user.user_id=user.id', [])
+                ->where(['post_user.post_id' => $view_id])
+                ->where(['post_user.view_date IS NOT NULL']);
         }
         if (!empty($conversation_id)) {
             $select->join('conversation_user', 'conversation_user.user_id=user.id', [])
