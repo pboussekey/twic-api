@@ -21,11 +21,11 @@ class Event extends AbstractService
      * @var int
      */
     private static $id = 0;
-    
+
     const TARGET_TYPE_USER = 'user';
     const TARGET_TYPE_GLOBAL = 'global';
     const TARGET_TYPE_SCHOOL = 'school';
-    
+
     /**
      * Envoie une notification "notification.publish" sans l'enregistrer dans la table event
      *
@@ -51,10 +51,10 @@ class Event extends AbstractService
                 syslog(1, $e->getMessage());
             }
         }
-        
+
         return $users;
     }
-    
+
     /**
      * Envent request nodeJs
      *
@@ -68,31 +68,31 @@ class Event extends AbstractService
         if(!isset($params['notification'])) {
             $params['notification'] = null;
         }
-        
+
         $params['notification']['nid'] = uniqid('notif', true);
-        
+
         $request = new Request();
         $request->setMethod($method)
             ->setParams($params)
             ->setId(++ self::$id)
             ->setVersion('2.0');
-        
+
         $authorization = $this->container->get('config')['node']['authorization'];
         $client = new Client();
         $client->setOptions($this->container->get('config')['http-adapter']);
         $client->setHeaders([ 'Authorization' => $authorization]);
-        
+
         return (new \Zend\Json\Server\Client($this->container->get('config')['node']['addr'], $client))->doRequest($request);
     }
-    
+
     /**
      * create un event puis envoye un evenement "notification.publish"
      *
      * @param  string $event    nom de l'evenement
-     * @param  mixed  $source   
+     * @param  mixed  $source
      * @param  mixed  $object
      * @param  array  $user
-     * @param  mixed  $target   la source soit user soit school soit global 
+     * @param  mixed  $target   la source soit user soit school soit global
      * @param  mixed  $user_id  l'id de la personne qui a généré l'event
      *
      * @throws \Exception
@@ -109,11 +109,11 @@ class Event extends AbstractService
             ->setObject(json_encode($object))
             ->setTarget($target)
             ->setDate($date);
-        
+
         if ($this->getMapper()->insert($m_event) <= 0) {
             throw new \Exception('error insert event');// @codeCoverageIgnore
         }
-        
+
         $event_id = $this->getMapper()->getLastInsertValue();
         $this->getServiceEventSubscription()->add($libelle, $event_id);
 
@@ -123,30 +123,33 @@ class Event extends AbstractService
                 $this->getServiceEventUser()->add($event_id, $uid);
             }
         }
-        
+
         return $event_id;
     }
-    
+
     /**
      * Event user.publication
      *
      * @param  int   $post_id
      * @param  array $sub
-     * 
+     *
      * @return int
      */
-    public function userPublication($sub, $post_id, $type = 'user', $ev = 'publication', $src = null)
+    public function userPublication($sub, $post_id, $type = 'user', $ev = 'publication', $src = null, $origin_id = null)
     {
         $user_id = $this->getServiceUser()->getIdentity()['id'];
         $data_post = $this->getDataPost($post_id);
+        if(null !== $origin_id){
+            $data_post['origin_id'] = $origin_id;
+        }
         $event = $type;
         if (is_string($ev)) {
             $event .= '.'.$ev;
         }
-        
+
         return $this->create($event, $this->getDataUser($src), $data_post, $sub, self::TARGET_TYPE_USER, $user_id);
     }
-    
+
     /**
      * Get events list for current user.
      *
@@ -161,7 +164,7 @@ class Event extends AbstractService
         $res_event = $mapper->usePaginator($filter)->getList($this->getServiceUser()->getIdentity()['id'], $events, $unread);
         return [ 'list' => $res_event, 'count' => $mapper->count()];
     }
-    
+
     /**
      * Get events list for current user.
      *
@@ -177,9 +180,9 @@ class Event extends AbstractService
         }
         return $this->getServiceEventUser()->read($id);
     }
-    
-   
-    
+
+
+
     // ------------- DATA OBJECT -------------------
 
     /**
@@ -202,16 +205,13 @@ class Event extends AbstractService
                 'link' => $ar_post['link'],
                 't_page_id' => $ar_post['t_page_id'],
                 't_user_id' => $ar_post['t_user_id'],
+                'user_id' => $ar_post['user_id'],
                 'parent_id' => $ar_post['parent_id'],
                 'origin_id' => $ar_post['origin_id'],
+                'shared_id' => $ar_post['shared_id'],
                 'type' => $ar_post['type'],
             ]
         ];
-
-        if(null !== $ar_post['t_page_id']){
-            $ar_page = $this->getServicePage()->getLite($ar_post['t_page_id']);
-            $ar_data['data']['page'] = $ar_page;
-        }
 
         return $ar_data;
     }

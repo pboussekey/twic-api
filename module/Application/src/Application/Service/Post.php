@@ -177,7 +177,12 @@ class Post extends AbstractService
         if (!empty($sub)) {
             $pevent = array_merge($pevent, $sub);
         }
-        $ev=((!empty($event))? $event:(($base_id!==$id) ? ModelPostSubscription::ACTION_COM : ModelPostSubscription ::ACTION_CREATE));
+        if(null !== $shared_id){
+            $ev = ModelPostSubscription::ACTION_SHARE;
+        }
+        else{
+            $ev=((!empty($event))? $event:(($base_id!==$id) ? ModelPostSubscription::ACTION_COM : ModelPostSubscription ::ACTION_CREATE));
+        }
         if(count($pevent) > 0){
             $this->getServicePostSubscription()->add(
                 array_unique($pevent),
@@ -185,7 +190,7 @@ class Post extends AbstractService
                 $date,
                 $ev,
                 ((!$is_notif) ? $user_id:null),
-                (($base_id!==$id) ? $id:null),
+                (null !== $shared_id ? $shared_id : $id),
                 $data,
                 $is_not_public_page
             );

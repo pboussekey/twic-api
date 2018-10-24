@@ -1226,7 +1226,7 @@ class User extends AbstractService
             $m_page = $this->getServicePage()->getLite($organization_id);
         }
 
-        $this->getServiceUserTag()->replace($id, $m_page !== null ? [$m_page->getTitle()] : [], 'organization');
+        $this->getServiceUserTag()->replace($user_id, $m_page !== null ? [$m_page->getTitle()] : [], 'organization');
 
         return $ret;
     }
