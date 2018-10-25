@@ -400,7 +400,7 @@ class PageTest extends AbstractService
         $this->assertEquals($data['result']['address']['building'] , null); 
         $this->assertEquals($data['result']['address']['apartment'] , null); 
         $this->assertEquals($data['result']['address']['floor'] , null); 
-        $this->assertEquals($data['result']['address']['timezone'] , "Europe/Paris"); 
+        $this->assertEquals(array_key_exists('timezone', $data['result']['address']), true); 
         $this->assertEquals($data['result']['address']['full_address'] , null); 
         $this->assertEquals(count($data['result']['user']) , 5); 
         $this->assertEquals($data['result']['user']['id'] , 1); 
@@ -476,7 +476,7 @@ class PageTest extends AbstractService
         $this->assertEquals($data['result'][1]['address']['building'] , null); 
         $this->assertEquals($data['result'][1]['address']['apartment'] , null); 
         $this->assertEquals($data['result'][1]['address']['floor'] , null); 
-        $this->assertEquals($data['result'][1]['address']['timezone'] , "Europe/Paris"); 
+        $this->assertEquals(array_key_exists('timezone', $data['result'][1]['address']), true); 
         $this->assertEquals($data['result'][1]['address']['full_address'] , null); 
         $this->assertEquals(count($data['result'][1]['user']) , 5); 
         $this->assertEquals($data['result'][1]['user']['id'] , 1); 
