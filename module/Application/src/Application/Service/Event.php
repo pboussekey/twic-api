@@ -213,6 +213,11 @@ class Event extends AbstractService
             ]
         ];
 
+        if(null !== $ar_post['t_page_id']){
+            $ar_page = $this->getServicePage()->getLite($ar_post['t_page_id']);
+            $ar_data['data']['page'] = $ar_page;
+        }
+
         return $ar_data;
     }
 
