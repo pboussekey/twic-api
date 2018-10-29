@@ -51,7 +51,14 @@ class Page extends AbstractService
     {
         //@TODO implements an other method for user registration
         if($this->getServiceUser()->getNbrEmailUnique($email) > 0){
-            throw new JrpcException('This email is already registered');
+           
+            
+            // check if 
+            if($this->getServiceUser()->getNbrEmailUnique($email, null, true) > 0) {
+                throw new JrpcException('This email is already registered', -32501);
+            } else {
+                throw new JrpcException('This email is already registered not active', -32502);
+            }
         }
         return $this->getMapper()->getListByDomaine(explode("@", $email)[1]);
     }

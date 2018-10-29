@@ -744,12 +744,13 @@ class User extends AbstractService
      *
      * @param string $email
      * @param int    $user_id
-     *
+     * @param bool $is_active
+     * 
      * @return int
      */
-    public function getNbrEmailUnique($email, $user_id = null)
+    public function getNbrEmailUnique($email, $user_id = null, $is_active = null)
     {
-        $res_user = $this->getMapper()->getEmailUnique($email, $user_id);
+        $res_user = $this->getMapper()->getEmailUnique($email, $user_id, $is_active);
 
         return ($res_user->count() > 0) ? $res_user->current()->getNbUser() : 0;
     }

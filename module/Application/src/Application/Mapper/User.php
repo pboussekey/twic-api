@@ -360,7 +360,7 @@ class User extends AbstractMapper
         return $this->selectWith($select);
     }
 
-    public function getEmailUnique($email, $user)
+    public function getEmailUnique($email, $user = null, $is_active = null)
     {
         $select = $this->tableGateway->getSql()->select();
         $select->columns(array('user$nb_user' => new Expression('COUNT(true)')))
@@ -370,6 +370,12 @@ class User extends AbstractMapper
 
         if (null !== $user) {
             $select->where(array('user.id <> ?' => $user));
+        }
+        
+        if (true === $is_active) {
+            $select->where(['user.is_active IS TRUE']);
+        } else if(false === $is_active) {
+            $select->where(['user.is_active IS FALSE']);
         }
 
         return $this->selectWith($select);
