@@ -14,6 +14,7 @@ use Zend\Mail\Address\AddressInterface;
 use Zend\Mail\Transport\TransportInterface;
 use Mailgun\Mailgun as LibMailgun;
 use Zend\Mime\Mime;
+//use Google\Cloud\Logging\LoggingClient;
 
 /**
  * MailGun connection object
@@ -65,6 +66,10 @@ class MailGun implements TransportInterface
             'subject' => $message->getSubject(),
         ];
 
+        /*$logging = new LoggingClient(['projectId' => 'eloquent-optics-206213']);
+        $logger = $logging->psrLogger('MailLOG');
+        $logger->notice("mail base: ".json_encode($send));*/
+        
         if(!is_string($minemessage)) {
             foreach ($minemessage->getParts() as $part ) {
                 if($part->getDisposition() === Mime::DISPOSITION_ATTACHMENT ) {
@@ -140,7 +145,8 @@ class MailGun implements TransportInterface
         
         $from->rewind();
         $sender = $from->current();
-        return $sender->getEmail();
+        
+        return  $sender->getName() . ' <' . $sender->getEmail() . '>';
     }
     
     /**
