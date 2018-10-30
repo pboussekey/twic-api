@@ -145,7 +145,7 @@ class Post extends AbstractService
             $this->getServicePostDoc()->_add($id, $docs);
         }
 
-        $base_id = ($origin_id) ? $origin_id:$id;
+        $base_id = ($origin_id !== null && $shared_id === null) ? $origin_id:$id;
         $m_post_base = $this->getLite($base_id);
         $is_not_public_page = (is_numeric($m_post_base->getTPageId()) && ($this->getServicePage()->getLite($m_post_base->getTPageId())->getConfidentiality() !== ModelPage::CONFIDENTIALITY_PUBLIC));
         $pevent = [];
@@ -190,7 +190,7 @@ class Post extends AbstractService
                 $date,
                 $ev,
                 ((!$is_notif) ? $user_id:null),
-                (null !== $shared_id ? $shared_id : $id),
+                ($base_id !== $id ? $id : null),
                 $data,
                 $is_not_public_page
             );

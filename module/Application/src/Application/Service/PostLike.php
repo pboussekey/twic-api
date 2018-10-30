@@ -49,7 +49,7 @@ class PostLike extends AbstractService
              */
             $m_post = $this->getServicePost()->getLite($post_id);
             $m_post_like = $this->getLite($res);
-            
+
             $sub_post = ['P'.$this->getServicePost()->getTarget($m_post)];
             if(!$m_post->getUserId() instanceof IsNull){
                 $sub_post[] = 'M'.$m_post->getUserId();
@@ -61,7 +61,7 @@ class PostLike extends AbstractService
             if (is_numeric($origin_id)) {
                 $sub_post = array_merge($sub_post, ['P'.$this->getServicePost()->getTarget($m_post_base)]);
             }
-            
+
             $is_not_public = ($m_post_base && is_numeric($m_post_base->getTPageId()) && ($this->getServicePage()->getLite($m_post_base->getTPageId())->getConfidentiality() !== ModelPage::CONFIDENTIALITY_PUBLIC));
             $sub_post = array_merge(
                 $sub_post,
@@ -77,7 +77,7 @@ class PostLike extends AbstractService
                 $date,
                 ModelPostSubscription::ACTION_LIKE,
                 $user_id,
-                null,
+                $post_id,
                 ['id' => $post_id, 'parent_id' => $m_post->getParentId(), 'origin_id' => $m_post->getOriginId()],
                 $is_not_public
             );
@@ -131,7 +131,7 @@ class PostLike extends AbstractService
 
         return $u;
     }
-    
+
      /**
       * Get like counts.
       *
@@ -152,7 +152,7 @@ class PostLike extends AbstractService
         }
         $interval = $this->getServiceActivity()->interval($interval_date);
         $identity = $this->getServiceUser()->getIdentity();
-        
+
         return $this->getMapper()->getCount($identity['id'], $interval, $start_date, $end_date, $page_id, $date_offset);
     }
 
@@ -204,5 +204,5 @@ class PostLike extends AbstractService
     private function getServiceActivity()
     {
         return $this->container->get('app_service_activity');
-    }      
+    }
 }

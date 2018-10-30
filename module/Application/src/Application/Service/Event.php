@@ -135,13 +135,10 @@ class Event extends AbstractService
      *
      * @return int
      */
-    public function userPublication($sub, $post_id, $type = 'user', $ev = 'publication', $src = null, $origin_id = null)
+    public function userPublication($sub, $post_id, $type = 'user', $ev = 'publication', $src = null)
     {
         $user_id = $this->getServiceUser()->getIdentity()['id'];
         $data_post = $this->getDataPost($post_id);
-        if(null !== $origin_id){
-            $data_post['origin_id'] = $origin_id;
-        }
         $event = $type;
         if (is_string($ev)) {
             $event .= '.'.$ev;
@@ -209,6 +206,7 @@ class Event extends AbstractService
                 'parent_id' => $ar_post['parent_id'],
                 'origin_id' => $ar_post['origin_id'],
                 'shared_id' => $ar_post['shared_id'],
+                'page_id' => $ar_post['page_id'],
                 'type' => $ar_post['type'],
             ]
         ];
