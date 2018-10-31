@@ -59,7 +59,7 @@ class Post extends AbstractMapper
         } else if($is_admin !== true) {
             $select->join('subscription', 'subscription.libelle=post_subscription.libelle', [], $select::JOIN_LEFT)
                 ->where(['(subscription.user_id = ? ' => $me_id])
-                ->where(['  post_subscription.libelle = ? ) ' => 'M'.$me_id], Predicate::OP_OR)
+                ->where(['  post_subscription.libelle = ? OR post_subscription.libelle = "GLOBAL" ) ' => 'M'.$me_id], Predicate::OP_OR)
                 ->where(['post.parent_id IS NULL'])
                 ->where(['( b_page.id IS NULL OR b_page.confidentiality = 0 '])
                 ->where([' ((b_page.type <> "course" OR b_page.is_published IS TRUE OR b_page_user.role = "admin") AND b_page_user.user_id IS NOT NULL AND b_page_user.state NOT IN ("pending", "invited")))'], Predicate::OP_OR)
@@ -71,7 +71,7 @@ class Post extends AbstractMapper
         if($is_admin === true && null === $parent_id) {
             $select->join('subscription', 'subscription.libelle=post_subscription.libelle', [], $select::JOIN_LEFT)
                 ->where(['( ( post.uid IS NOT NULL AND (subscription.user_id = ? ' => $me_id])
-                ->where(['  post_subscription.libelle = ?) ) OR post.uid IS NULL ) ' => 'M'.$me_id], Predicate::OP_OR)
+                ->where(['  post_subscription.libelle = ? OR post_subscription.libelle = "GLOBAL") ) OR post.uid IS NULL ) ' => 'M'.$me_id], Predicate::OP_OR)
                 ->where(['post.parent_id IS NULL']);
         }
         if (null !== $user_id) {

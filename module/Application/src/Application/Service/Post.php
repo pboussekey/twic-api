@@ -74,9 +74,13 @@ class Post extends AbstractService
         $sub = null,
         $type = null,
         $item_id = null,
-        $shared_id = null
+        $shared_id = null,
+        $global = false
     ) {
         $user_id = $this->getServiceUser()->getIdentity()['id'];
+        if(!$this->getServiceUser()->isStudnetAdmin()){
+            $global = false;
+        }
         $origin_id = null;
         if (null !== $parent_id) {
             $m_post = $this->getMapper()->select($this->getModel()->setId($parent_id))->current();
@@ -85,8 +89,10 @@ class Post extends AbstractService
                 $m_post->getId();
             $uid = $m_post->getUid();
         }
-
-        if (empty($type)) {
+        if(true === $global){
+          $type = 'global';
+        }
+        else if (empty($type)) {
             $type = 'post';
         }
         $uid = (($uid) && is_string($uid) && !empty($uid)) ? $uid:null;
@@ -149,6 +155,9 @@ class Post extends AbstractService
         $m_post_base = $this->getLite($base_id);
         $is_not_public_page = (is_numeric($m_post_base->getTPageId()) && ($this->getServicePage()->getLite($m_post_base->getTPageId())->getConfidentiality() !== ModelPage::CONFIDENTIALITY_PUBLIC));
         $pevent = [];
+        if(true === $global){
+            $pevent[] = 'GLOBAL';
+        }
         $et = $this->getTarget($m_post_base);
         // S'IL Y A UNE CIBLE A LA BASE ET que l'on a pas definie d'abonnement ON NOTIFIE  P{target}nbr
         if (false !== $et && empty($sub) /*&& null === $parent_id*/) {
