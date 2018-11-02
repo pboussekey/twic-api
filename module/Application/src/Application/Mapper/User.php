@@ -83,7 +83,7 @@ class User extends AbstractMapper
             $select->join(['circle_organization_user' => 'user'], 'circle_organization_user.organization_id=circle_organization.organization_id', []);
             $select->where([' ( circle_organization_user.id = ? OR user_role.role_id = '.ModelRole::ROLE_ADMIN_ID . ') ' => $me]);
         }
-
+        syslog(1, $this->printSql($select));
         return $this->selectWith($select);
     }
 
@@ -371,7 +371,7 @@ class User extends AbstractMapper
         if (null !== $user) {
             $select->where(array('user.id <> ?' => $user));
         }
-        
+
         if (true === $is_active) {
             $select->where(['user.is_active IS TRUE']);
         } else if(false === $is_active) {
@@ -404,7 +404,17 @@ class User extends AbstractMapper
     public function checkUser($token = null, $email = null)
     {
         $select = $this->tableGateway->getSql()->select();
-        $select->columns(['firstname', 'lastname', 'avatar', 'nickname', 'is_active','email']);
+        $select->columns(
+          ['firstname',
+           'lastname',
+           'avatar',
+           'nickname',
+           'is_active',
+           'user$email' => new Expression('IF(user.email = "'.$email.'", user.email , CONCAT(SUBSTRING(user.email, 1, 4), "******", SUBSTRING(user.email, -4)))'),
+           'user$initial_email' => new Expression('IF(user.initial_email IS NOT NULL AND user.initial_email = "'.$email.'", NULL, user.initial_email)'),
+           'user$invitation_date' => new Expression('DATE_FORMAT(user.invitation_date, "%Y-%m-%dT%TZ")'),
+           'user$linkedin_id' => new Expression("IF(linkedin_id IS NOT NULL, true, false)"),
+           'organization_id']);
         if(null !== $token){
             $select
             ->join('preregistration', 'preregistration.user_id = user.id', [
@@ -415,12 +425,15 @@ class User extends AbstractMapper
                 'account_token',
                 'user_id'
             ], $select::JOIN_RIGHT)
-            ->where(['preregistration.account_token' => $token]);
+           ->where(['preregistration.account_token' => $token]);
+
         }
         if(null !== $email){
-            $select->where(['user.email' => $email]);
+            $select->where(['( user.email = ? ' => $email])
+                   ->where([' user.initial_email = ? )' => $email], Predicate::OP_OR);
         }
-
+        $select->join('page', 'user.organization_id = page.id', ['user$domain' => 'libelle'], $select::JOIN_LEFT)
+               ->where('user.deleted_date IS NULL');
         return $this->selectWith($select);
     }
 

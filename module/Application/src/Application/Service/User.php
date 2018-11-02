@@ -379,6 +379,15 @@ class User extends AbstractService
 
         $this->getServiceSubscription()->add('SU' . $id, $id);
 
+        if(null !== $email || null != $firstname || null != $lastname) {
+            $this->getServiceUserTag()->replace($id, [
+                $m_user->getLastname(),
+                $m_user->getFirstname(),
+                $m_user->getEmail(),
+                $m_user->getInitialEmail(),
+            ], 'profile');
+        }
+
         return $id;
     }
 
@@ -745,7 +754,7 @@ class User extends AbstractService
      * @param string $email
      * @param int    $user_id
      * @param bool $is_active
-     * 
+     *
      * @return int
      */
     public function getNbrEmailUnique($email, $user_id = null, $is_active = null)
@@ -840,35 +849,39 @@ class User extends AbstractService
             throw \Exception('Error invalid email address');
         }
 
+
+
         $m_user = $this->getLiteByEmail($email);
-        if($m_user && $m_user->getIsActive() === 0) {
-            $this->sendPassword($m_user->getId());
+        if($m_user && $m_user->getIsActive() === 1) {
+              $this->sendPassword($m_user->getId());
         } else {
-            $m_page = $this->getServicePage()->getLite($page_id);
-            $uniqid = uniqid($page_id . strlen($email) . "_", true);
-            $this->getServicePreregistration()->add($uniqid, $firstname, $lastname, $email, $page_id);
+              $m_page = $this->getServicePage()->getLite($page_id);
 
-            $prefix = ($m_page !== false && is_string($m_page->getLibelle()) && !empty($m_page->getLibelle())) ?
-            $m_page->getLibelle() : null;
+              $uniqid = uniqid($page_id . strlen($email) . "_", true);
+              $token = $this->getServicePreregistration()->add($uniqid, $firstname, $lastname, $email, $page_id);
 
-            $url = sprintf("https://%s%s/signin/%s", ($prefix ? $prefix.'.':''),  $this->container->get('config')['app-conf']['uiurl'], $uniqid);
+              $prefix = ($m_page !== false && is_string($m_page->getLibelle()) && !empty($m_page->getLibelle())) ?
+              $m_page->getLibelle() : null;
 
-            try {
-                $this->getServiceMail()->sendTpl(
-                    'tpl_sendpasswd', $email, [
-                        'uniqid' => $uniqid,
-                        'email' => $email,
-                        'accessurl' => $url,
-                        'lastname' => $lastname,
-                        'firstname' => $firstname
-                    ]
-                );
-            } catch (\Exception $e) {
-                syslog(1, 'Model name does not exist <> uniqid is : ' . $uniqid . ' <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode() . ' <URL> ' . $url . ' <Email> ' . $email);
-            }
+              $url = sprintf("https://%s%s/signin/%s", ($prefix ? $prefix.'.':''),  $this->container->get('config')['app-conf']['uiurl'], $uniqid);
+
+              try {
+                  $this->getServiceMail()->sendTpl(
+                      'tpl_sendpasswd', $email, [
+                          'uniqid' => $uniqid,
+                          'email' => $email,
+                          'accessurl' => $url,
+                          'lastname' => $lastname,
+                          'firstname' => $firstname
+                      ]
+                  );
+              } catch (\Exception $e) {
+                  syslog(1, 'Model name does not exist <> uniqid is : ' . $uniqid . ' <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode() . ' <URL> ' . $url . ' <Email> ' . $email);
+              }
         }
 
         return true;
+
     }
 
     /**
@@ -1523,7 +1536,6 @@ class User extends AbstractService
         }
         return $this->getServiceUserTag()->remove($id, $tag_id);
     }
-
 
     /**
      * Get Service Preregistration

@@ -18,7 +18,7 @@ runtime_config:
 
 handlers:
 - url: /.*
-  script: public/index.php
+  script: auto
 
 - url: /css
   static_dir: public/css

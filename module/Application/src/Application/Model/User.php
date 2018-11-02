@@ -22,6 +22,7 @@ class User extends BaseUser
     protected $tags;
     protected $preregistration;
     protected $nbr_user_common;
+    protected $domain;
 
     public function exchangeArray(array &$data)
     {
@@ -226,17 +227,29 @@ class User extends BaseUser
     {
         return $this->nbr_user_common;
     }
-    
+
     /**
      * @param int $nbr_user_common
-     * 
+     *
      * @return self
      */
     public function setNbrUserCommon($nbr_user_common)
     {
         $this->nbr_user_common = $nbr_user_common;
-        
+
         return $this;
     }
+
+    public function getDomain()
+    {
+        return $this->domain;
+    }
+
+     public function setDomain($domain)
+     {
+         $this->domain = $domain;
+
+         return $this;
+     }
 
 }

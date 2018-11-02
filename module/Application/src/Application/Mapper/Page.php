@@ -19,7 +19,8 @@ class Page extends AbstractMapper
     public function getListByDomaine($domaine)
     {
         $select = $this->tableGateway->getSql()->select();
-        $select->columns(array('id','title','logo', 'domaine'))
+        $select->columns(array('id','title','logo', 'domaine', 'libelle'))
+            ->where('deleted_date IS NULL')
             ->where(["domaine" => $domaine]);
 
         return $this->selectWith($select);

@@ -35,31 +35,21 @@ class Page extends AbstractService
         }
         $identity = $this->getServiceUser()->getIdentity();
         $ar_pu = $this->getServicePageUser()->getListByPage($id, ModelPageUser::ROLE_ADMIN);
-        
+
         return (in_array($identity['id'], $ar_pu[$id]));
     }
 
     /**
-     * Get List Page By Email
      *
-     * @invokable
+     *@invokable
+     *
+     * Get List Page By Email
      *
      * @param string $email
      * @return array
      */
     public function getListByEmail($email)
     {
-        //@TODO implements an other method for user registration
-        if($this->getServiceUser()->getNbrEmailUnique($email) > 0){
-           
-            
-            // check if 
-            if($this->getServiceUser()->getNbrEmailUnique($email, null, true) > 0) {
-                throw new JrpcException('This email is already registered', -32501);
-            } else {
-                throw new JrpcException('This email is already registered not active', -32502);
-            }
-        }
         return $this->getMapper()->getListByDomaine(explode("@", $email)[1]);
     }
 
@@ -146,7 +136,7 @@ class Page extends AbstractService
     ) {
 
         $identity = $this->getServiceUser()->getIdentity();
-        
+
         //Si un non admin esaye de créer une organization
         if(!$this->getServiceUser()->isStudnetAdmin() && $type === ModelPage::TYPE_ORGANIZATION) {
             throw new JrpcException('Unauthorized operation page.add', -38003);
@@ -222,7 +212,7 @@ class Page extends AbstractService
                 $m_page->setAddressId($address_id);
             }
         }
-        
+
         $this->getMapper()->insert($m_page);
         $id = (int)$this->getMapper()->getLastInsertValue();
 
@@ -257,7 +247,7 @@ class Page extends AbstractService
                 $ar_u['role'] = ModelPageUser::ROLE_ADMIN;
                 $ar_u['state'] = ModelPageUser::STATE_MEMBER;
             }
-            
+
             if($type === ModelPage::TYPE_ORGANIZATION) {
                 $this->getServiceUser()->addOrganizationIfNotExist($id, $ar_u['user_id']);
             }
@@ -348,7 +338,7 @@ class Page extends AbstractService
      * @param $id
      * @param $library
      * @param $notify
-     * 
+     *
      **/
     public function addDocument($id, $library, $notify)
     {
@@ -535,12 +525,12 @@ class Page extends AbstractService
                 $ar_pages = [];
                 $res_user = $this->getServiceUser()->getLite($this->getServicePageUser()->getListByPage($id)[$id]);
                 foreach($res_user as $m_user) {
-                    
-                    // if user is not 
+
+                    // if user is not
                     if(!$m_user->getIsActive()){
                         continue;
                     }
-                    
+
                     $m_organization = false;
                     if($m_user->getOrganizationId()) {
                         if(!array_key_exists($m_user->getOrganizationId(), $ar_pages)) {
@@ -566,7 +556,7 @@ class Page extends AbstractService
                                 ]
                             );
                         }
-                        
+
                         //syslog(1, 'PPM'.$page_id.'_'.$m_user->getId());
 
                         $this->getServicePost()->addSys(
@@ -586,7 +576,7 @@ class Page extends AbstractService
                             'page',
                             $id
                         );
-                        
+
                         $gcm_notification = new GcmNotification();
                         $gcm_notification->setTitle($tmp_m_page->getTitle())
                             ->setSound("default")
