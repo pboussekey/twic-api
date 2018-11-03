@@ -1394,8 +1394,8 @@ class User extends AbstractService
                 if (false === $m_registration) {
                     throw new \Exception('Account token not found.');
                 }
-                $firstname = strlen($m_registration->getFirstname()) === 0 ? $m_people->getFirstname() : $m_registration->getFirstname();
-                $lastname = strlen($m_registration->getLastname()) === 0   ? $m_people->getLastname() : $m_registration->getLastname();
+                $firstname = $m_registration->getFirstname() instanceof IsNull || strlen($m_registration->getFirstname()) === 0 ? $m_people->getFirstname() : $m_registration->getFirstname();
+                $lastname =  $m_registration->getLastname() instanceof IsNull || strlen($m_registration->getLastname()) === 0   ? $m_people->getLastname() : $m_registration->getLastname();
                 $avatar = null;
 
                 $user_id = $m_registration->getUserId();
@@ -1413,7 +1413,7 @@ class User extends AbstractService
                     );
                     $m_user = $this->getModel()->setId($user_id);
                     if($this->getMapper()->update($m_user->setIsActive(1)) > 0) {
-                        if($m_user->getAvatar() === null
+                        if($m_user->getAvatar() instanceof IsNull
                             && !empty($m_people->getPictureUrls()) && array_key_exists('values', $m_people->getPictureUrls())
                             && count($m_people->getPictureUrls()['values']) > 0
                         ) {
