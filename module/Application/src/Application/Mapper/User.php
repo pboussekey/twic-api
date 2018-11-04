@@ -432,7 +432,7 @@ class User extends AbstractMapper
             $select->where(['( user.email = ? ' => $email])
                    ->where([' user.initial_email = ? )' => $email], Predicate::OP_OR);
         }
-        $select->join('page', 'user.organization_id = page.id', ['user$domain' => 'libelle'], $select::JOIN_LEFT)
+        $select->join('page', 'user.organization_id = page.id', ['id', 'libelle', 'logo', 'title'], $select::JOIN_LEFT)
                ->where('user.deleted_date IS NULL');
         return $this->selectWith($select);
     }

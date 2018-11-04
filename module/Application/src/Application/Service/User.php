@@ -845,8 +845,10 @@ class User extends AbstractService
     public function preSignIn($email, $page_id, $firstname = null, $lastname = null)
     {
         $res_page = $this->getServicePage()->getCustom(null, $page_id);
-        if($res_page->getDomaine() !== explode("@", $email)[1]) {
-            throw \Exception('Error invalid email address');
+        $m_user = $this->getLiteByEmail($email);
+        if((false !== $m_user && $m_user->getOrganizationId() !== $page_id)
+          || (false === $m_user && $res_page->getDomaine() !== explode("@", $email)[1])) {
+            throw new \Exception('Error invalid email address');
         }
 
 

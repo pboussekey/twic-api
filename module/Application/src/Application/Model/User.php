@@ -23,6 +23,7 @@ class User extends BaseUser
     protected $preregistration;
     protected $nbr_user_common;
     protected $domain;
+    protected $organization;
 
     public function exchangeArray(array &$data)
     {
@@ -33,6 +34,7 @@ class User extends BaseUser
         $this->origin = $this->requireModel('addr_model_country', $data, 'origin');
         $this->address = $this->requireModel('addr_model_address', $data);
         $this->preregistration = $this->requireModel('app_model_preregistration', $data);
+        $this->organization = $this->requireModel('app_model_page', $data);
     }
 
     public function getRoleId()
@@ -251,5 +253,17 @@ class User extends BaseUser
 
          return $this;
      }
+
+     public function getOrganization()
+     {
+         return $this->organization;
+     }
+
+      public function setOrganization($organization)
+      {
+          $this->organization = $organization;
+
+          return $this;
+      }
 
 }
