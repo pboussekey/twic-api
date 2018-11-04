@@ -48,6 +48,21 @@ class Hashtag extends AbstractService
 
 
 
+    public function addHashtags($id, $hashtags)
+    {
+        $m_hashtag = $this->getModel()->setPostId($id);
+        for ($i = 0; $i < count($hashtags[0]); $i++) {
+            $m_hashtag->setName($hashtags[0][$i])
+                ->setType('#');
+            if ($this->getMapper()->select($m_hashtag)->count() <= 0) {
+                $m_hashtag->setCreatedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'));
+                $this->getMapper()->insert($m_hashtag);
+            }
+        }
+        $this->getMapper()->keepHashtags($id, $hashtags[0]);
+        return true;
+    }
+
     public function getListMentions($id)
     {
         $m_hashtag = $this->getModel()->setPostId($id)->setType('@')->setUserId(new IsNotNull());

@@ -22,7 +22,7 @@ return [
               'conf' => ConfFactory::class,
               'videoArchive' => function ($container) {
                   return new videoArchive($container->get('app_service_video_archive'));
-              },    
+              },
               'item' => function ($container) {
                   return new item($container->get('app_service_item'));
               },
@@ -201,6 +201,7 @@ return [
     'json-rpc-server' => [
         'headers' => [
             'Access-Control-Allow-Origin' => function(){
+                syslog(1, isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : "*");
                 return isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : "*";
             },
         ]
