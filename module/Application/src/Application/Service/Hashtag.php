@@ -55,7 +55,9 @@ class Hashtag extends AbstractService
             $m_hashtag->setName($hashtags[0][$i])
                 ->setType('#');
             if ($this->getMapper()->select($m_hashtag)->count() <= 0) {
-                $m_hashtag->setCreatedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'));
+                $tag_id = $this->getServiceTag()->add(substr($hashtags[0][$i], 1));
+                $m_hashtag->setTagId($tag_id)
+                          ->setCreatedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'));
                 $this->getMapper()->insert($m_hashtag);
             }
         }
@@ -85,5 +87,15 @@ class Hashtag extends AbstractService
         $res_hashtag = $mapper->usePaginator($filter)->getList($search);
 
         return ['count' => $mapper->count(), 'list' => $res_hashtag];
+    }
+
+    /**
+     * Get Service Post Like
+     *
+     * @return \Application\Service\Tag
+     */
+    private function getServiceTag()
+    {
+        return $this->container->get('app_service_tag');
     }
 }

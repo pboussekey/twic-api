@@ -11,6 +11,7 @@ class Hashtag extends AbstractModel
 	protected $type;
 	protected $created_date;
 	protected $user_id;
+	protected $tag_id;
 
 	protected $prefix = 'hashtag';
 
@@ -70,6 +71,18 @@ class Hashtag extends AbstractModel
 	public function setUserId($user_id)
 	{
 		$this->user_id = $user_id;
+
+		return $this;
+	}
+
+	public function getTagId()
+	{
+		return $this->tag_id;
+	}
+
+	public function setTagId($tag_id)
+	{
+		$this->tag_id = $tag_id;
 
 		return $this;
 	}

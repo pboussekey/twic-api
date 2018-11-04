@@ -228,7 +228,7 @@ class Post extends AbstractService
                 }
             }
             $hashtags = [];
-            preg_match_all ( '/(#\w+) /', $content, $hashtags );
+            preg_match_all ( '/((^|\s)#\w+(\s|$))/', $content, $hashtags );
             if(count($hashtags[0]) > 0){
                 $ar_users = $this->getServiceHashtag()->addHashtags($id, $hashtags);
             }

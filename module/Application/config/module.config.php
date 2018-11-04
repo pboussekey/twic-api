@@ -201,7 +201,6 @@ return [
     'json-rpc-server' => [
         'headers' => [
             'Access-Control-Allow-Origin' => function(){
-                syslog(1, isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : "*");
                 return isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : "*";
             },
         ]
