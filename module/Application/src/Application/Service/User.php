@@ -1415,7 +1415,7 @@ class User extends AbstractService
                     );
                     $m_user = $this->getModel()->setId($user_id);
                     if($this->getMapper()->update($m_user->setIsActive(1)) > 0) {
-                        if($m_user->getAvatar() instanceof IsNull
+                        if(($m_user->getAvatar() instanceof IsNull || $m_user->getAvatar() === null)
                             && !empty($m_people->getPictureUrls()) && array_key_exists('values', $m_people->getPictureUrls())
                             && count($m_people->getPictureUrls()['values']) > 0
                         ) {
@@ -1437,7 +1437,7 @@ class User extends AbstractService
                     $user_id = $m_registration->getUserId();
                 } else {
                     $user_id = $this->_add($firstname, $lastname, $m_registration->getEmail(), null, null, null, null, null, null, null, (is_numeric($m_registration->getOrganizationId()) ? $m_registration->getOrganizationId() : null), $avatar);
-                    $this->getMapper()->update($this->getModel()->setLinkedinId($linkedin_id), ['id' => $user_id]);
+                    $this->getMapper()->update($this->getModel()->setLinkedinId($linkedin_id)->setIsActive(1), ['id' => $user_id]);
                 }
 
                 $m_user = $this->getLite($user_id);
