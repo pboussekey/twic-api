@@ -44,6 +44,9 @@ class Page extends AbstractMapper
         if (null !== $id) {
             $select->where(array('page.id' => $id));
         }
+        else{
+            $select->where('custom IS NOT NULL');
+        }
 
         return $this->selectWith($select);
     }
