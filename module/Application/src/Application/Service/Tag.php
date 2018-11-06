@@ -27,7 +27,7 @@ class Tag extends AbstractService
      */
     public function add($name)
     {
-        $res_tag = $this->getMapper()->select($this->getModel()->setName($name));
+        $res_tag = $this->getMapper()->getByName($name);
         if ($res_tag->count() <= 0) {
             $this->getMapper()->insert($this->getModel()->setName($name)->setWeight(1));
             $id = $this->getMapper()->getLastInsertValue();

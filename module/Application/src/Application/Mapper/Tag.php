@@ -3,6 +3,7 @@
 namespace Application\Mapper;
 
 use Dal\Mapper\AbstractMapper;
+use Zend\Db\Sql\Expression;
 
 class Tag extends AbstractMapper
 {
@@ -66,6 +67,19 @@ class Tag extends AbstractMapper
         if(null !== $category){
                $select->where(['user_tag.category' => $category]);
         }
+        return $this->selectWith($select);
+    }
+
+    /**
+     * Get tag id by name
+     *
+     * @param string $name
+     */
+    public function getByName($name)
+    {
+        $select = $this->tableGateway->getSql()->select();
+        $select->columns(['id', 'name', 'weight'])
+               ->where(['REPLACE(LCASE(name), " ", "") = ? ' => preg_replace('/\s+/', '', strtolower($name))]);
         return $this->selectWith($select);
     }
 }
