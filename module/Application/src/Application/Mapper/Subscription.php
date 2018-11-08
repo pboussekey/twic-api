@@ -15,10 +15,8 @@ class Subscription extends AbstractMapper
             ->where(['subscription.libelle' => $libelle])
             ->quantifier('DISTINCT');
 
-        if(null !== $search || null !== $order){
-            $select
-                ->join('user', 'subscription.user_id = user.id', ['firstname', 'lastname', 'email', 'initial_email']);
-        }
+        $select->join('user', 'subscription.user_id = user.id', ['firstname', 'lastname', 'email', 'initial_email'])
+              ->where(['user.deleted_date IS NULL']);
         if (null !== $search) {
           $tags = explode(' ', $search);
           $select->join('user_tag', 'user_tag.user_id = subscription.user_id', [], $select::JOIN_LEFT)
@@ -50,6 +48,7 @@ class Subscription extends AbstractMapper
                 break;
             }
          }
+         syslog(1, $this->printSql($select));
         return $this->selectWith($select);
 
     }
