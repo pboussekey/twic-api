@@ -183,6 +183,18 @@ class Post extends AbstractService
         else{
             $ev=((!empty($event))? $event:(($base_id!==$id) ? ModelPostSubscription::ACTION_COM : ModelPostSubscription ::ACTION_CREATE));
         }
+        if(!$is_notif){
+            $hashtags = [];
+            preg_match_all ( '/((^|\s)#\w+(\s|$))/', $content, $hashtags );
+            if(count($hashtags[0]) > 0){
+                $ar_tags = $this->getServiceHashtag()->addHashtags($id, $hashtags);
+                if(count($ar_tags) > 0){
+                    foreach ($ar_tags as $tag_id) {
+                        $pevent[] = 'T'.$tag_id;
+                    }
+                }
+            }
+        }
         if(count($pevent) > 0){
             $this->getServicePostSubscription()->add(
                 array_unique($pevent),
@@ -226,11 +238,6 @@ class Post extends AbstractService
                         );
                     }
                 }
-            }
-            $hashtags = [];
-            preg_match_all ( '/((^|\s)#\w+(\s|$))/', $content, $hashtags );
-            if(count($hashtags[0]) > 0){
-                $ar_users = $this->getServiceHashtag()->addHashtags($id, $hashtags);
             }
 
         }

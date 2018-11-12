@@ -33,10 +33,11 @@ class UserTag extends AbstractService
           ->setTagId($tag_id);
 
       if($this->getMapper()->select($m_user_tag)->count() === 0) {
+          $this->getServiceSubscription()->add('T'.$tag_id, $user_id);
           $this->getMapper()->insert($m_user_tag);
           $ret = $m_user_tag->getTagId();
       }
-          
+
       return $ret;
   }
 
@@ -50,7 +51,7 @@ class UserTag extends AbstractService
   public function _add($user_id, $data, $category = null)
   {
       $data = array_unique($data);
-      
+
       $ret = [];
       foreach ($data as $tag) {
           if(!empty($tag)) {
@@ -70,6 +71,10 @@ class UserTag extends AbstractService
    */
   public function replace($user_id, $data, $category = null)
   {
+      $res_usertags = $this->getMapper()->select($this->getModel()->setUserId($user_id)->setCategory($category),['user_id' => $user_id, 'category' => $category]);
+      foreach($res_usertags as $m_user_tag){
+          $this->getServiceSubscription()->delete('T'.$m_user_tag->getTagId(), $user_id);
+      }
       $this->getMapper()->delete($this->getModel()->setUserId($user_id)->setCategory($category),['user_id' => $user_id, 'category' => $category]);
 
       return  $this->_add($user_id, $data, $category);
@@ -85,6 +90,7 @@ class UserTag extends AbstractService
    */
   public function remove($user_id, $tag_id = null, $category = null)
   {
+      $this->getServiceSubscription()->delete('T'.$tag_id, $user_id);
       return $this->getMapper()->delete(
           $this->getModel()->setUserId($user_id)->setTagId($tag_id)->setCategory($category)
       );
@@ -104,6 +110,14 @@ class UserTag extends AbstractService
       return $this->getServiceTag()->getListByUser($user_id, $category);
   }
 
+    /**
+     *
+     * @return \Application\Service\Subscription
+     */
+    private function getServiceSubscription()
+    {
+        return $this->container->get('app_service_subscription');
+    }
   /**
    *
    * @return \Application\Service\Tag
