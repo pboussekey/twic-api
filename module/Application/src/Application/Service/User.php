@@ -451,7 +451,8 @@ class User extends AbstractService
         $graduation_year = null,
         $linkedin_url = null,
         $has_email_contact_request_notifier = null,
-        $page_program_name = null
+        $page_program_name = null,
+        $description = null
     )
     {
         if ($this->getNbrEmailUnique($email, $id) > 0) {
@@ -495,11 +496,12 @@ class User extends AbstractService
             $graduation_year,
             $linkedin_url,
             $has_email_contact_request_notifier,
-            $page_program_name
+            $page_program_name,
+            $description
         );
     }
 
-    public function _update($id = null, $gender = null, $origin = null, $nationality = null, $firstname = null, $lastname = null, $sis = null, $email = null, $birth_date = null, $position = null, $organization_id = null, $interest = null, $avatar = null, $roles = null, $resetpassword = null, $has_email_notifier = null, $timezone = null, $background = null, $nickname = null, $suspend = null, $suspension_reason = null, $ambassador = null, $password = null, $address = null, $graduation_year = null, $linkedin_url = null, $has_email_contact_request_notifier = null, $page_program_name = null)
+    public function _update($id = null, $gender = null, $origin = null, $nationality = null, $firstname = null, $lastname = null, $sis = null, $email = null, $birth_date = null, $position = null, $organization_id = null, $interest = null, $avatar = null, $roles = null, $resetpassword = null, $has_email_notifier = null, $timezone = null, $background = null, $nickname = null, $suspend = null, $suspension_reason = null, $ambassador = null, $password = null, $address = null, $graduation_year = null, $linkedin_url = null, $has_email_contact_request_notifier = null, $page_program_name = null, $description = null)
     {
          $m_user = $this->getModel();
 
@@ -587,7 +589,8 @@ class User extends AbstractService
             ->setAmbassador($ambassador)
             ->setHasEmailContactRequestNotifier($has_email_contact_request_notifier)
             ->setGraduationYear(('null' === $graduation_year) ? new IsNull('graduation_year') : $graduation_year)
-            ->setLinkedinUrl(('null' === $linkedin_url) ? new IsNull('linkedin_url') : $linkedin_url);
+            ->setLinkedinUrl(('null' === $linkedin_url) ? new IsNull('linkedin_url') : $linkedin_url)
+            ->setDescription(('null' === $description) ? new IsNull('description') : $description);
 
         // @TODO secu school_id
         if ($organization_id !== null) {
