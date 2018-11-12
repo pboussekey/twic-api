@@ -13,15 +13,14 @@ class Page extends AbstractMapper
 
     /**
      *
-     * @param string $domaine
      * @return \Zend\Db\ResultSet\ResultSet
      */
-    public function getListByDomaine($domaine)
+    public function getListWithDomain()
     {
         $select = $this->tableGateway->getSql()->select();
         $select->columns(array('id','title','logo', 'domaine', 'libelle'))
             ->where('deleted_date IS NULL')
-            ->where(["?  LIKE CONCAT('%',domaine)" => $domaine]);
+            ->where(["domaine IS NOT NULL"]);
 
         return $this->selectWith($select);
     }
