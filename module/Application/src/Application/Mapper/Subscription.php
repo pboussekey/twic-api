@@ -48,7 +48,6 @@ class Subscription extends AbstractMapper
                 break;
             }
          }
-         syslog(1, $this->printSql($select));
         return $this->selectWith($select);
 
     }

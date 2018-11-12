@@ -10,6 +10,8 @@ class EventUser extends AbstractModel
 	protected $user_id;
 	protected $read_date;
 	protected $view_date;
+	protected $text;
+	protected $picture;
 
 	protected $prefix = 'event_user';
 
@@ -57,6 +59,30 @@ class EventUser extends AbstractModel
 	public function setViewDate($view_date)
 	{
 		$this->view_date = $view_date;
+
+		return $this;
+	}
+
+	public function getText()
+	{
+		return $this->text;
+	}
+
+	public function setText($text)
+	{
+		$this->text = $text;
+
+		return $this;
+	}
+
+	public function getPicture()
+	{
+		return $this->picture;
+	}
+
+	public function setPicture($picture)
+	{
+		$this->picture = $picture;
 
 		return $this;
 	}

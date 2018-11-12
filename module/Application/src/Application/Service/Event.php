@@ -116,11 +116,23 @@ class Event extends AbstractService
 
         $event_id = $this->getMapper()->getLastInsertValue();
         $this->getServiceEventSubscription()->add($libelle, $event_id);
-
+        $data = ['event' => $event];
+        if($object['name'] === 'post'){
+            $data['initial'] = $this->getDataPost($object['id']);
+            if(isset($data['initial']['parent_id'])){
+                $data['parent'] = $this->getDataPost($data['initial']['parent_id']);
+            }
+            if(isset($data['initial']['origin_id'])){
+                $data['parent'] = $this->getDataPost($data['initial']['origin_id']);
+            }
+            if(isset($data['initial']['shared_id'])){
+                $data['shared'] = $this->getDataPost($data['initial']['origin_id']);
+            }
+        }
         $user = $this->sendData(null, $event, $libelle, $source, $object, (new \DateTime($date))->format('Y-m-d\TH:i:s\Z'));
         if (count($user) > 0) {
             foreach ($user as $uid) {
-                $this->getServiceEventUser()->add($event_id, $uid);
+                $this->getServiceEventUser()->add($event_id, $uid, $source, $data);
             }
         }
 
@@ -211,9 +223,19 @@ class Event extends AbstractService
             ]
         ];
 
-        if(null !== $ar_post['t_page_id']){
-            $ar_page = $this->getServicePage()->getLite($ar_post['t_page_id']);
+        if(null !== $ar_post['page_id']){
+            $ar_page = $this->getServicePage()->getLite($ar_post['t_page_id'])->toArray();
             $ar_data['data']['page'] = $ar_page;
+        }
+
+        if(null !== $ar_post['t_page_id']){
+            $ar_page = $this->getServicePage()->getLite($ar_post['t_page_id'])->toArray();
+            $ar_data['data']['target'] = $ar_page;
+        }
+
+        if(null !== $ar_post['user_id']){
+            $ar_page = $this->getServiceuser()->getLite($ar_post['user_id'])->toArray();
+            $ar_data['data']['user'] = $ar_page;
         }
 
         return $ar_data;
