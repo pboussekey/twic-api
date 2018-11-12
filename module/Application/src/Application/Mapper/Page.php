@@ -21,7 +21,7 @@ class Page extends AbstractMapper
         $select = $this->tableGateway->getSql()->select();
         $select->columns(array('id','title','logo', 'domaine', 'libelle'))
             ->where('deleted_date IS NULL')
-            ->where(["domaine" => $domaine]);
+            ->where(["?  LIKE CONCAT('%',domaine)" => $domaine]);
 
         return $this->selectWith($select);
     }
