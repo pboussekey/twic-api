@@ -50,7 +50,16 @@ class Page extends AbstractService
      */
     public function getListByEmail($email)
     {
-        return $this->getMapper()->getListByDomaine(explode("@", $email)[1]);
+        $domain = explode("@", $email)[1];
+        $res_page = $this->getMapper()->getListWithDomain();
+        $ar_pages =  [];
+        foreach($res_page as $m_page){
+            $page_domains = explode(',', $m_page->getDomaine());
+            if(in_array($domain, $page_domains)){
+                $ar_pages[] = $m_page;
+            }
+        }
+        return $ar_pages;
     }
 
     /**

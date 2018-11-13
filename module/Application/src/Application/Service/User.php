@@ -849,8 +849,10 @@ class User extends AbstractService
     {
         $res_page = $this->getServicePage()->getCustom(null, $page_id);
         $m_user = $this->getLiteByEmail($email);
+        $page_domains = explode(',', $res_page->getDomaine());
+        $domain = explode("@", $email)[1];
         if((false !== $m_user && $m_user->getOrganizationId() !== $page_id)
-          || (false === $m_user && $res_page->getDomaine() !== explode("@", $email)[1])) {
+          || (false === $m_user && !in_array($domain, $page_domains))) {
             throw new \Exception('Error invalid email address');
         }
 
