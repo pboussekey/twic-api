@@ -158,7 +158,6 @@ class EventUser extends AbstractService
      * @return array
      */
     public function add($event_id, $user_id, $source = null, $data = null){
-        $ret = 0;
         $m_event_user = $this->getModel()
             ->setUserId($user_id)
             ->setEventId($event_id);
@@ -182,10 +181,11 @@ class EventUser extends AbstractService
               $m_event_user->setPicture( isset($data['initial']['data']['page']) ? $data['initial']['data']['page']['logo'] : $source['data']['avatar']) ;
             }
             $this->getMapper()->insert($m_event_user);
-            $ret++;
+            return $m_event_user;
+
         }
 
-        return $ret;
+        return false;
     }
 
     /**

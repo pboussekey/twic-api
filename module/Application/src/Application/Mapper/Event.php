@@ -7,7 +7,7 @@ use Zend\Db\Sql\Predicate\Expression;
 
 class Event extends AbstractMapper
 {
-    public function getList($user_id, $events = null, $unread = null)
+    public function getList($user_id, $events = null, $unread = null, $start_date = null)
     {
         $select = $this->tableGateway->getSql()->select();
         $select->columns([
@@ -28,6 +28,9 @@ class Event extends AbstractMapper
         }
         if($unread === true){
             $select->where('event_user.read_date IS NULL');
+        }
+        if (null != $start_date) {
+            $select->where(['date >= ? ' => $start_date]);
         }
         return $this->selectWith($select);
     }

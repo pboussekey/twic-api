@@ -190,12 +190,27 @@ class Message extends AbstractService
     public function getList($conversation_id, $filter = [])
     {
         $user_id = $this->getServiceUser()->getIdentity()['id'];
+
+        return $this->_getList($user_id, $conversation_id, $filters, $unread);
+    }
+
+    /**
+     * Get List By user Conversation
+     *
+     * @invokable
+     *
+     * @param int   $conversation_id
+     * @param array $filter
+     */
+    public function _getList($user_id, $conversation_id = null, $filter = [], $unread = null)
+    {
+        $user_id = $this->getServiceUser()->getIdentity()['id'];
         $mapper = $this->getMapper();
-        $res_message = $mapper->usePaginator($filter)->getList($user_id, $conversation_id);
+        $res_message = $mapper->usePaginator($filter)->getList($user_id, $conversation_id, null, $unread);
 
         return [
-        'list' => $res_message,
-        'count' => $mapper->count()
+          'list' => $res_message,
+          'count' => $mapper->count()
         ];
     }
 

@@ -99,7 +99,7 @@ class Event extends AbstractService
      *
      * @return int
      */
-    public function create($event, $source, $object, $libelle, $target, $user_id = null)
+    public function create($event, $source, $object, $libelle, $target, $user_id = null, $fcm_package = null, $send_email = false, $force_email = false)
     {
         $date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
         $m_event = $this->getModel()
@@ -123,16 +123,39 @@ class Event extends AbstractService
                 $data['parent'] = $this->getDataPost($data['initial']['parent_id']);
             }
             if(isset($data['initial']['origin_id'])){
-                $data['parent'] = $this->getDataPost($data['initial']['origin_id']);
+                $data['origin'] = $this->getDataPost($data['initial']['origin_id']);
             }
             if(isset($data['initial']['shared_id'])){
-                $data['shared'] = $this->getDataPost($data['initial']['origin_id']);
+                $data['shared'] = $this->getDataPost($data['initial']['shared_id']);
+            }
+        }
+        else{
+            if(isset($data['object']['data']) && (isset($data['object']['data']['t_page_id']) || isset($data['object']['page_id']))){
+                $data['target'] = $this->getServicePage()->getLite(isset($data['object']['page_id']) ? $data['object']['page_id'] : $data['object']['data']['t_page_id'])->toArray();
+            }
+            if(isset($data['object']['data']) && isset($data['object']['data']['user_id'])){
+                $data['user'] = $this->getServiceuser()->getLite($data['object']['data']['user_id'])->toArray();
             }
         }
         $user = $this->sendData(null, $event, $libelle, $source, $object, (new \DateTime($date))->format('Y-m-d\TH:i:s\Z'));
         if (count($user) > 0) {
             foreach ($user as $uid) {
-                $this->getServiceEventUser()->add($event_id, $uid, $source, $data);
+                $m_event_user = $this->getServiceEventUser()->add($event_id, $uid, $source, $data);
+                if(false !== $m_event_user && null !== $fcm_package){
+                    $fcm_service = $this->getServiceFcm();
+                    $gcm_notification = new GcmNotification();
+                    $gcm_notification->setTitle($m_page->getTitle())
+                        ->setSound("default")
+                        ->setColor("#00A38B")
+                        ->setIcon("icon")
+                        ->setTag("TWIC:".$event)
+                        ->setBody(strip_tags ($m_event_user->getText()));
+
+                    $this->getServiceFcm()->send($uid, null, $gcm_notification, $fcm_package );
+                }
+                if(true === $send_email){
+                    $this->sendRecapEmail($uid, $force_email);
+                }
             }
         }
 
@@ -159,6 +182,7 @@ class Event extends AbstractService
         return $this->create($event, $this->getDataUser($src), $data_post, $sub, self::TARGET_TYPE_USER, $user_id);
     }
 
+
     /**
      * Get events list for current user.
      *
@@ -168,9 +192,13 @@ class Event extends AbstractService
      *
      * @return array
      */
-    public function getList($filter, $events = null, $unread = null){
+    public function getList($filter, $events = null, $unread = null, $start_date = null){
+        return $this->_getList($filter, $events, $unread, $this->getServiceUser()->getIdentity()['id'], $start_date);
+    }
+
+    public function _getList($filter, $events = null, $unread = null, $user_id = null, $start_date = null){
         $mapper = $this->getMapper();
-        $res_event = $mapper->usePaginator($filter)->getList($this->getServiceUser()->getIdentity()['id'], $events, $unread);
+        $res_event = $mapper->usePaginator($filter)->getList($this->getServiceUser()->getIdentity()['id'], $events, $unread, $start_date);
         return [ 'list' => $res_event, 'count' => $mapper->count()];
     }
 
@@ -270,6 +298,190 @@ class Event extends AbstractService
                 'user_roles' => $m_user['roles']]];
     }
 
+
+    function limit($text, $length = 50){
+        return strlen($text) > $length ? substr($text, $length).'...' : $text;
+    }
+
+    function sendRecapEmail($user_id, $last_activity='event', $force = false){
+        $m_activity = $this->getServiceActivity()->getList(['n'=>1, 'p'=>1, 'o' => 'activity$id DESC'], null, null, null, $user_id)->current();
+        if($force || (false !== $m_activity && time() - strtotime($m_activity->getDate() > 60 * 60 * 24 * 7) )){
+            $labels = [
+                //ALL
+                'display_all' => 'none',
+                //MAIN NOTIFICATION
+                'ntf_picture' => '',
+                'ntf_text' => '',
+                //LIKE
+                'display_like' => 'none',
+                'like_text' => '',
+                'like_picture' => '',
+                'display_like_count'  => 'none',
+                'like_count'  => 0,
+                //REQUEST
+                'display_request' => 'none',
+                'request_text' => '',
+                'request_picture' => '',
+                'display_request_count'  => 'none',
+                'request_count'  => 0,
+                //CHAT
+                'display_chat' => 'none',
+                'chat_text' => '',
+                'chat_picture' => '',
+                'display_chat_count'  => 'none',
+                'chat_count'  => 0,
+                //POST
+                'display_post' => 'none',
+                'post_text' => '',
+                'post_picture' => '',
+                'display_post_count'  => 'none',
+                'post_count'  => 0,
+                //COM
+                'display_comment' => 'none',
+                'comment_text' => '',
+                'comment_picture' => '',
+                'display_comment_count'  => 'none',
+                'comment_count'  => 0,
+                //USERS
+                'display_user' => 'none',
+                'user_text' => '',
+                'user_picture' => '',
+                'display_user_count'  => 'none',
+                'user_count'  => 0,
+            ];
+
+
+            $res_event = $this->_getList([ 'o' => 'event.id DESC', 'c' => ['event.date' => '>'], 's' => $m_activity->getDate()], null, null, $user_id);
+            $res_message = $this->getServiceMessage()->getList($user_id, null, ['n' => 1, 'p' => 1, 'o' => 'message$id DESC'], true);
+            $res_request = $this->getServiceContact()->getListRequest($user_id, null, ['n' => 1, 'p' => 1, 'o' => 'message$id DESC'], true);
+            $res_user = $this->getServiceUser()->getListId(null, null, ['c' => ['user.created_date' => '>'], 's' => $m_activity->getDate(), 'p' => 1, 'o' => 'user$id DESC'], null, null, null, null, null, null, null, null, null, true);
+            $urldms = $this->container->get('config')['app-conf']['urldms'];
+
+            foreach($res_event as $m_event){
+                if(empty($labels['ntf_text']) && $last_activity === 'event'){
+                    $labels['ntf_text'] = $m_event->getText();
+                    $labels['ntf_picture'] = $urldms.$m_event->getPicture().'-80m80';
+                }
+                else{
+                     if($m_event->getEvent() === 'post.like'){
+                        $labels['display_all'] = 'block';
+                        $labels['display_like'] = 'block';
+                        if(empty($labels['like_text'])){
+                            $labels['like_text'] = $m_event->getText();
+                            $labels['like_picture'] = $urldms.$m_event->getPicture().'-80m80';
+                        }
+                        else{
+                            $labels['like_count']++;
+                            $labels['display_like_count']  = 'block';
+                        }
+                    }
+                    if($m_event->getEvent() === 'post.create'){
+                       $labels['display_all'] = 'block';
+                       $labels['display_post'] = 'block';
+                       if(empty($labels['post_text'])){
+                           $labels['post_text'] = $m_event->getText();
+                           $labels['post_picture'] = $urldms.$m_event->getPicture().'-80m80';
+                       }
+                       else{
+                           $labels['post_count']++;
+                           $labels['display_post_count']  = 'block';
+                       }
+                   }
+                   if($m_event->getEvent() === 'post.com'){
+                      $labels['display_all'] = 'block';
+                      $labels['display_comment'] = 'block';
+                      if(empty($labels['comment_text'])){
+                          $labels['comment_text'] = $m_event->getText();
+                          $labels['comment_picture'] = $urldms.$m_event->getPicture().'-80m80';
+                      }
+                      else{
+                          $labels['comment_count']++;
+                          $labels['display_comment_count']  = 'block';
+                      }
+                   }
+                }
+            }
+            if($res_request->count() > 0){
+                 $m_request = $res_request->current();
+                 $m_contact = $this->getServiceUser()->getLite($m_request->getUserId());
+                 if($last_activity  === 'request' && empty($labels['ntf_text'])){
+                     $labels['ntf_text'] = '<b>'.$m_contact->getFirstname().' '.$m_contact->getLastname().'</b> sent you a connection request.';
+                     $labels['ntf_picture'] =  $urldms.$m_contact->getAvatar().'-80m80';
+                 }
+                 $idx = $last_activity  === 'request' ? 1 : 0;
+                 if($res_request->count() > $idx){
+                     $labels['display_all'] = 'block';
+                     $labels['display_request'] = 'block';
+                     $res_request->next();
+                     $m_request = $res_request->current();
+                     $m_contact = $this->getServiceUser()->getLite($m_request->getUserId());
+                     $labels['request_text'] = '<b>'.$m_contact->getFirstname().' '.$m_contact->getLastname().'</b> sent you a connection request.';
+                     $labels['request_picture'] =  $urldms.$m_contact->getAvatar().'-80m80';
+                 }
+                 if($res_request->count() > $idx + 1){
+                     $labels['request_count'] = $res_request->count() - $idx - 1;
+                     $labels['display_request_count']  = 'block';
+
+                 }
+            }
+            if($res_message->count() > 0){
+                $m_message = $res_request->current();
+                $m_contact = $this->getServiceUser()->getLite($m_message->getUserId());
+                if($last_activity  === 'chat' && empty($labels['ntf_text'])){
+                    if($m_message->getText() instanceof IsNull){
+                       $labels['ntf_text'] = '<b>'.$m_contact->getFirstname().' '.$m_contact->getLastname().'</b> shared a file';
+
+                    }
+                    else{
+                       $labels['ntf_text'] =  'You have an unread message from <b>'.$m_contact->getFirstname().' '.$m_contact->getLastname().'</b> : &laquo;'.$this->limit($m_message->getText())."&raquo;";
+                    }
+                    $labels['ntf_picture'] = $urldms.$m_contact->getAvatar().'-80m80';
+                }
+                $idx = $last_activity  === 'chat' ? 1 : 0;
+                if($res_message->count() > $idx){
+                   $labels['display_all'] = 'block';
+                   $labels['display_chat'] = 'block';
+                   $res_message->next();
+                   $m_message = $res_request->current();
+                   $m_contact = $this->getServiceUser()->getLite($m_message->getUserId());
+                   if($m_message->getText() instanceof IsNull){
+                        $labels['chat_text'] = '<b>'.$m_contact->getFirstname().' '.$m_contact->getLastname().'</b> shared a file';
+
+                   }
+                   else{
+                      $labels['chat_text'] =  'You have an unread message from <b>'.$m_contact->getFirstname().' '.$m_contact->getLastname().'</b> : &laquo;'.$this->limit($m_message->getText())."&raquo;";
+                   }
+                   $labels['chat_picture'] = $urldms.$m_contact->getAvatar().'-80m80';
+                }
+                if($res_request->count() > $idx + 1){
+                   $labels['chat_count'] = $res_request->count() - $idx - 1;
+                   $labels['display_chat_count']  = 'block';
+                }
+            }
+
+            if($res_user->count() > 0){
+               $user_id = $res_user->current();
+               $labels['display_all'] = 'block';
+               $labels['display_user'] = 'block';
+               $m_user = $this->getServiceUser()->getLite($m_message->getUserId());
+               if($m_message->getText() instanceof IsNull){
+                    $labels['chat_text'] = '<b>'.$m_contact->getFirstname().' '.$m_contact->getLastname().'</b> shared a file';
+
+               }
+               $labels['user_text'] =  $m_user->getFirstname().' '.$m_user->getLastname().' joined TWIC';
+               $labels['user_picture'] = $urldms.$m_user->getAvatar().'-80m80';
+               if($res_request->count() > $idx + 1){
+                  $labels['user_count'] = $res_request->count() - $idx - 1;
+                  $labels['display_user_count']  = 'block';
+               }
+            }
+            $m_user = $this->getServiceUser()->getLite($user_id);
+            $this->getServiceMail()->sendTpl('tpl_newactivity', $m_user->getEmail(), $labels);
+        }
+    }
+
+
+
     // ------------------------------------------------- Methode
 
     /**
@@ -303,6 +515,16 @@ class Event extends AbstractService
     }
 
     /**
+     * Get Service Activity.
+     *
+     * @return \Application\Service\Activity
+     */
+    private function getServiceActivity()
+    {
+        return $this->container->get('app_service_activity');
+    }
+
+    /**
      * Get Service Post
      *
      * @return \Application\Service\Post
@@ -310,6 +532,16 @@ class Event extends AbstractService
     private function getServicePost()
     {
         return $this->container->get('app_service_post');
+    }
+
+    /**
+     * Get Service Message
+     *
+     * @return \Application\Service\Message
+     */
+    private function getServiceMessage()
+    {
+        return $this->container->get('app_service_message');
     }
 
     /**
@@ -331,4 +563,14 @@ class Event extends AbstractService
     {
         return $this->container->get('app_service_subscription');
     }
+
+      /**
+       * Get Service Service Conversation User.
+       *
+       * @return \Application\Service\Fcm
+       */
+      private function getServiceFcm()
+      {
+          return $this->container->get('fcm');
+      }
 }

@@ -1110,7 +1110,7 @@ class User extends AbstractService
      * @return array
      */
     public function getListId($search = null, $exclude = null, $filter = null, $contact_state = null, $page_id = null, $post_id = null, $order = null,
-        $role = null, $conversation_id = null, $page_type = null, $unsent = null, $is_pinned = null, $shared_id = null, $tags = null, $is_active = null, $view_id = null)
+        $role = null, $conversation_id = null, $page_type = null, $unsent = null, $is_pinned = null, $shared_id = null, $tags = null, $is_active = null, $view_id = null , $created_date = null)
     {
         $identity = $this->getIdentity();
         if (null !== $exclude && ! is_array($exclude)) {
