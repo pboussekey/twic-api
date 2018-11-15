@@ -92,13 +92,13 @@ class Contact extends AbstractService
         }
 
         $res_contact = $this->getMapper()->getListRequest(null, $user);
-        
+
         $gcm_notification = new GcmNotification();
         $nbr = ($res_contact->count()-1);
-        
+
         $mess = ($nbr > 0) ? $name.' and '.  (($nbr > 1)? $nbr.' others': 'another'). ' sent you a connection request':
             $name . ' sent you a connection request';
-        
+
         $gcm_notification->setTitle('Connection request')
             ->setSound("default")
             ->setColor("#00A38B")
@@ -114,9 +114,9 @@ class Contact extends AbstractService
                 ],
             ],
 
-            ], $gcm_notification
+          ], $gcm_notification
         );
-        
+
         $l = 'C'.(($user > $user_id) ? $user_id.'_'.$user : $user.'_'.$user_id);
         $this->getServicePost()->addSys(
             $l,
@@ -129,8 +129,8 @@ class Contact extends AbstractService
             null,
             'connection'
         );
-        
-        
+
+
         if($m_contact->getIsActive() && $m_contact->getHasEmailNotifier() === 1 && $m_contact->getHasEmailContactRequestNotifier() === 1 ) {
             $m_page = $this->getServicePage()->getLite($m_contact->getOrganizationId());
             $prefix = ($m_page !== false && is_string($m_page->getLibelle()) && !empty($m_page->getLibelle())) ?  $m_page->getLibelle() : null;
@@ -144,7 +144,7 @@ class Contact extends AbstractService
                 ]
             );
         }
-      
+
         return $ret;
     }
 
@@ -200,14 +200,14 @@ class Contact extends AbstractService
                 $name .= ' '.$m_user->getLastname();
             }
         }
-        
+
         /*
                 $gcm_notification = new GcmNotification();
                 $gcm_notification->setTitle($name)
                     ->setSound("default")
                     ->setColor("#00A38B")
                     ->setBody('Accepted your request');
-        
+
                 $this->getServiceFcm()->send(
                     $user, ['data' => [
                     'type' => 'connection',
@@ -384,7 +384,7 @@ class Contact extends AbstractService
 
         return $request;
     }
-    
+
      /**
       * Get page counts.
       *
@@ -400,13 +400,13 @@ class Contact extends AbstractService
       */
     public function getRequestsCount( $start_date = null, $end_date = null, $interval_date = 'D',  $page_id  = null, $date_offset = 0)
     {
-        
+
         $interval = $this->getServiceActivity()->interval($interval_date);
         $identity = $this->getServiceUser()->getIdentity();
-        
+
         return $this->getMapper()->getRequestsCount($identity['id'], $interval, $start_date, $end_date, $page_id, $date_offset);
     }
-    
+
      /**
       * Get page counts.
       *
@@ -422,10 +422,10 @@ class Contact extends AbstractService
       */
     public function getAcceptedCount( $start_date = null, $end_date = null, $interval_date = 'D',  $page_id  = null, $date_offset = 0)
     {
-        
+
         $interval = $this->getServiceActivity()->interval($interval_date);
         $identity = $this->getServiceUser()->getIdentity();
-        
+
         return $this->getMapper()->getAcceptedCount($identity['id'], $interval, $start_date, $end_date, $page_id, $date_offset);
     }
 
@@ -488,8 +488,8 @@ class Contact extends AbstractService
     {
         return $this->container->get('app_service_page');
     }
-    
-    
+
+
     /**
      * Get Service Activity
      *
@@ -498,7 +498,7 @@ class Contact extends AbstractService
     private function getServiceActivity()
     {
         return $this->container->get('app_service_activity');
-    }    
+    }
 
     /**
      * Get Service Mail.
@@ -509,7 +509,7 @@ class Contact extends AbstractService
     {
         return $this->container->get('mail.service');
     }
-    
+
     /**
      * Get Service Fcm
      *

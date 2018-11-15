@@ -187,11 +187,11 @@ class Message extends AbstractService
      * @param int   $conversation_id
      * @param array $filter
      */
-    public function getList($conversation_id, $filter = [])
+    public function getList($conversation_id, $filter = [], $unread)
     {
         $user_id = $this->getServiceUser()->getIdentity()['id'];
 
-        return $this->_getList($user_id, $conversation_id, $filters, $unread);
+        return $this->_getList($user_id, $conversation_id, $filter, $unread);
     }
 
     /**
@@ -225,8 +225,6 @@ class Message extends AbstractService
 
         return  $this->getMapper()->getList($user_id, null, $id)->current();
     }
-
-
 
 
      /**

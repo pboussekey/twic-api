@@ -20,7 +20,7 @@ class Mail
      * Create Template mail
      *
      * @invokable
-     * 
+     *
      * @param string $name
      * @param string $from
      * @param string $subject
@@ -44,13 +44,13 @@ class Mail
         $part_text->setType(Mime::TYPE_TEXT);
         $part_text->setIsMappable(true);
         $m_tpl->append($part_text);
-        
+
         $html = new Part($content);
         $html->setEncoding(Mime::ENCODING_8BIT);
         $html->setType(Mime::TYPE_HTML);
         $html->setIsMappable(true);
         $m_tpl->append($html);
-        
+
         foreach ($files as $file) {
             $attachement = new Part($file['content']);
             $attachement->setIsPath(true);
@@ -73,16 +73,16 @@ class Mail
             ->setEncoding('UTF-8')
             ->setBodyTpl($name, $datas)
             ->setTo($to);
-        
+            
         $this->getTransport()->send($message);
-        
+
         return true;
     }
-    
+
     public function send($message)
     {
         $this->getTransport()->send($message);
-        
+
         return true;
     }
 
@@ -137,7 +137,7 @@ class Mail
     {
         return $this->storage;
     }
-    
+
     /**
      * @throws \Exception
      *
@@ -146,7 +146,7 @@ class Mail
     public function setStorage($storage)
     {
         $this->storage = $storage;
-        
+
         return $this;
     }
 

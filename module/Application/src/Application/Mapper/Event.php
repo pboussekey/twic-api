@@ -32,6 +32,7 @@ class Event extends AbstractMapper
         if (null != $start_date) {
             $select->where(['date >= ? ' => $start_date]);
         }
+        syslog(1, $this->printSql($select));
         return $this->selectWith($select);
     }
 }

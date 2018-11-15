@@ -10,7 +10,7 @@ use Zend\Mime\Mime;
 class Message extends BaseMessage
 {
     protected $has_template = false;
-    
+
     /**
      * Storage Tpl
      *
@@ -41,9 +41,8 @@ class Message extends BaseMessage
             }
             $parts[] = $m_part;
         }
-        
-        $mimemessage->setParts($parts);
 
+        $mimemessage->setParts($parts);
         $this->setSubject(str_replace($key, $value, $tpl_model->getSubject()));
         $this->setFrom($tpl_model->getFrom(), $tpl_model->getFromName());
         $this->setBody($mimemessage);

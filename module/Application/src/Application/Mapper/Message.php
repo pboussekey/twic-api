@@ -25,10 +25,10 @@ class Message extends AbstractMapper
             $select->where(['message.conversation_id' => $conversation_id]);
         }
         if(true === $unread){
-            $select->where(['message_message_user$read_date IS NULL');
+            $select->where(['message_message_user$read_date IS NULL']);
         }
         else if(false === $unread){
-            $select->where(['message_message_user$read_date IS NOT NULL');
+            $select->where(['message_message_user$read_date IS NOT NULL']);
         }
 
         return $this->selectWith($select);

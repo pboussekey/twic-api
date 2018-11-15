@@ -342,7 +342,7 @@ class Item extends AbstractService
         $mapper = $this->getMapper();
         $ret = $mapper->usePaginator($filter)
             ->getListTimeline($identity['id']);
-        
+
         return ['list' => $ret, 'count' => $mapper->count()];
     }
 
@@ -708,7 +708,7 @@ class Item extends AbstractService
 
         $m_item = $this->get($id);
 
-        
+
         if (!$m_item || (!$this->getServiceUser()->isStudnetAdmin() && !$this->getServicePage()->isAdmin($m_item->getPageId())) ) {
             throw new JrpcException('Unauthorized operation item.update', -38003);
         }
@@ -741,7 +741,7 @@ class Item extends AbstractService
                 /** @TODO vérifier pour l'item que se soit que les personnes concerné qui recoive l'update */
                 $res_user = $this->getServiceUser()->getLite($this->getServicePageUser()->getListByPage($m_item->getPageId())[$m_item->getPageId()]);
                 foreach($res_user as $m_user){
-                    
+
                     if(!$m_user->getIsActive()){
                         continue;
                     }

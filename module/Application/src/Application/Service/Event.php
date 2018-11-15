@@ -9,6 +9,7 @@ namespace Application\Service;
 use Dal\Service\AbstractService;
 use Zend\Json\Server\Request;
 use Zend\Http\Client;
+use Zend\Db\Sql\Predicate\IsNull;
 
 /**
  * Class Event
@@ -154,7 +155,7 @@ class Event extends AbstractService
                     $this->getServiceFcm()->send($uid, null, $gcm_notification, $fcm_package );
                 }
                 if(true === $send_email){
-                    $this->sendRecapEmail($uid, $force_email);
+                    $this->sendRecapEmail($uid, $event, $force_email);
                 }
             }
         }
@@ -179,7 +180,7 @@ class Event extends AbstractService
             $event .= '.'.$ev;
         }
 
-        return $this->create($event, $this->getDataUser($src), $data_post, $sub, self::TARGET_TYPE_USER, $user_id);
+        return $this->create($event, $this->getDataUser($src), $data_post, $sub, self::TARGET_TYPE_USER, $user_id, null, true);
     }
 
 
@@ -198,7 +199,7 @@ class Event extends AbstractService
 
     public function _getList($filter, $events = null, $unread = null, $user_id = null, $start_date = null){
         $mapper = $this->getMapper();
-        $res_event = $mapper->usePaginator($filter)->getList($this->getServiceUser()->getIdentity()['id'], $events, $unread, $start_date);
+        $res_event = $mapper->usePaginator($filter)->getList($user_id, $events, $unread, $start_date);
         return [ 'list' => $res_event, 'count' => $mapper->count()];
     }
 
@@ -304,11 +305,9 @@ class Event extends AbstractService
     }
 
     function sendRecapEmail($user_id, $last_activity='event', $force = false){
-        $m_activity = $this->getServiceActivity()->getList(['n'=>1, 'p'=>1, 'o' => 'activity$id DESC'], null, null, null, $user_id)->current();
+        $m_activity = $this->getServiceActivity()->getList(['n'=>1, 'p'=>1, 'o' => ['activity$id' =>  'DESC']], null, null, null, $user_id)['list']->current();
         if($force || (false !== $m_activity && time() - strtotime($m_activity->getDate() > 60 * 60 * 24 * 7) )){
             $labels = [
-                //ALL
-                'display_all' => 'none',
                 //MAIN NOTIFICATION
                 'ntf_picture' => '',
                 'ntf_text' => '',
@@ -350,25 +349,24 @@ class Event extends AbstractService
                 'user_count'  => 0,
             ];
 
-
-            $res_event = $this->_getList([ 'o' => 'event.id DESC', 'c' => ['event.date' => '>'], 's' => $m_activity->getDate()], null, null, $user_id);
-            $res_message = $this->getServiceMessage()->getList($user_id, null, ['n' => 1, 'p' => 1, 'o' => 'message$id DESC'], true);
-            $res_request = $this->getServiceContact()->getListRequest($user_id, null, ['n' => 1, 'p' => 1, 'o' => 'message$id DESC'], true);
-            $res_user = $this->getServiceUser()->getListId(null, null, ['c' => ['user.created_date' => '>'], 's' => $m_activity->getDate(), 'p' => 1, 'o' => 'user$id DESC'], null, null, null, null, null, null, null, null, null, true);
+            syslog(1,"USER : ". $user_id);
+            $res_event = $this->_getList([ 'o' => ['event$id' => 'DESC'], 'c' => ['event.date' => '>'], 's' => $m_activity->getDate()], null, null, $user_id);
+            $res_message = $this->getServiceMessage()->getList($user_id, null, ['n' => 1, 'p' => 1, 'o' => ['message$id' => 'DESC']], true);
+            $ar_request = $this->getServiceContact()->getListRequestId($user_id, null, ['n' => 1, 'p' => 1, 'o' => ['contact$request_date' => 'DESC']], true);
+            $res_user = $this->getServiceUser()->getListId(null, null, ['c' => ['user$created_date' => '>'], 's' => $m_activity->getDate(), 'p' => 1, 'o' => ['user$id' => 'DESC']], null, null, null, null, null, null, null, null, null, true);
             $urldms = $this->container->get('config')['app-conf']['urldms'];
 
-            foreach($res_event as $m_event){
-                if(empty($labels['ntf_text']) && $last_activity === 'event'){
+            foreach($res_event['list'] as $m_event){
+                if(empty($labels['ntf_text']) && !($m_event->getText() instanceof IsNull)){
                     $labels['ntf_text'] = $m_event->getText();
-                    $labels['ntf_picture'] = $urldms.$m_event->getPicture().'-80m80';
+                    $labels['ntf_picture'] = !($m_event->getPicture() instanceof IsNull) ? $urldms.$m_event->getPicture().'-80m80' : null;
                 }
                 else{
                      if($m_event->getEvent() === 'post.like'){
-                        $labels['display_all'] = 'block';
                         $labels['display_like'] = 'block';
                         if(empty($labels['like_text'])){
                             $labels['like_text'] = $m_event->getText();
-                            $labels['like_picture'] = $urldms.$m_event->getPicture().'-80m80';
+                            $labels['like_picture'] = !($m_event->getPicture() instanceof IsNull) ? $urldms.$m_event->getPicture().'-80m80' : null;
                         }
                         else{
                             $labels['like_count']++;
@@ -376,11 +374,10 @@ class Event extends AbstractService
                         }
                     }
                     if($m_event->getEvent() === 'post.create'){
-                       $labels['display_all'] = 'block';
                        $labels['display_post'] = 'block';
-                       if(empty($labels['post_text'])){
+                       if(empty($labels['post_text']) && !($m_event->getText() instanceof IsNull)){
                            $labels['post_text'] = $m_event->getText();
-                           $labels['post_picture'] = $urldms.$m_event->getPicture().'-80m80';
+                           $labels['post_picture'] = !($m_event->getPicture() instanceof IsNull) ? $urldms.$m_event->getPicture().'-80m80' : null;
                        }
                        else{
                            $labels['post_count']++;
@@ -388,11 +385,10 @@ class Event extends AbstractService
                        }
                    }
                    if($m_event->getEvent() === 'post.com'){
-                      $labels['display_all'] = 'block';
                       $labels['display_comment'] = 'block';
-                      if(empty($labels['comment_text'])){
+                      if(empty($labels['comment_text']) && !($m_event->getText() instanceof IsNull)){
                           $labels['comment_text'] = $m_event->getText();
-                          $labels['comment_picture'] = $urldms.$m_event->getPicture().'-80m80';
+                          $labels['comment_picture'] = !($m_event->getPicture() instanceof IsNull) ? $urldms.$m_event->getPicture().'-80m80' : null;
                       }
                       else{
                           $labels['comment_count']++;
@@ -401,31 +397,29 @@ class Event extends AbstractService
                    }
                 }
             }
-            if($res_request->count() > 0){
-                 $m_request = $res_request->current();
-                 $m_contact = $this->getServiceUser()->getLite($m_request->getUserId());
-                 if($last_activity  === 'request' && empty($labels['ntf_text'])){
+            if(count($ar_request) > 0){
+                 $contact_id = $ar_request[0];
+                 $m_contact = $this->getServiceUser()->getLite($contact_id);
+                 if($last_activity  === 'connection.request' && empty($labels['ntf_text'])){
                      $labels['ntf_text'] = '<b>'.$m_contact->getFirstname().' '.$m_contact->getLastname().'</b> sent you a connection request.';
                      $labels['ntf_picture'] =  $urldms.$m_contact->getAvatar().'-80m80';
                  }
-                 $idx = $last_activity  === 'request' ? 1 : 0;
-                 if($res_request->count() > $idx){
-                     $labels['display_all'] = 'block';
+                 $idx = $last_activity  === 'connection.request' ? 1 : 0;
+                 if(count($ar_request) > $idx){
                      $labels['display_request'] = 'block';
-                     $res_request->next();
-                     $m_request = $res_request->current();
-                     $m_contact = $this->getServiceUser()->getLite($m_request->getUserId());
+                     $contact_id = $ar_request[$idx];
+                     $m_contact = $this->getServiceUser()->getLite($contact_id);
                      $labels['request_text'] = '<b>'.$m_contact->getFirstname().' '.$m_contact->getLastname().'</b> sent you a connection request.';
                      $labels['request_picture'] =  $urldms.$m_contact->getAvatar().'-80m80';
                  }
-                 if($res_request->count() > $idx + 1){
-                     $labels['request_count'] = $res_request->count() - $idx - 1;
+                 if(count($ar_request) > $idx + 1){
+                     $labels['request_count'] = count($ar_request) - $idx - 1;
                      $labels['display_request_count']  = 'block';
 
                  }
             }
-            if($res_message->count() > 0){
-                $m_message = $res_request->current();
+            if($res_message['count'] > 0){
+                $m_message = $res_message['list']->current();
                 $m_contact = $this->getServiceUser()->getLite($m_message->getUserId());
                 if($last_activity  === 'chat' && empty($labels['ntf_text'])){
                     if($m_message->getText() instanceof IsNull){
@@ -438,11 +432,10 @@ class Event extends AbstractService
                     $labels['ntf_picture'] = $urldms.$m_contact->getAvatar().'-80m80';
                 }
                 $idx = $last_activity  === 'chat' ? 1 : 0;
-                if($res_message->count() > $idx){
-                   $labels['display_all'] = 'block';
+                if($res_message['count'] > $idx){
                    $labels['display_chat'] = 'block';
-                   $res_message->next();
-                   $m_message = $res_request->current();
+                   $res_message['list']->next();
+                   $m_message = $res_message['list']->current();
                    $m_contact = $this->getServiceUser()->getLite($m_message->getUserId());
                    if($m_message->getText() instanceof IsNull){
                         $labels['chat_text'] = '<b>'.$m_contact->getFirstname().' '.$m_contact->getLastname().'</b> shared a file';
@@ -453,14 +446,14 @@ class Event extends AbstractService
                    }
                    $labels['chat_picture'] = $urldms.$m_contact->getAvatar().'-80m80';
                 }
-                if($res_request->count() > $idx + 1){
-                   $labels['chat_count'] = $res_request->count() - $idx - 1;
+                if($ar_request->count() > $idx + 1){
+                   $labels['chat_count'] = $ar_request->count() - $idx - 1;
                    $labels['display_chat_count']  = 'block';
                 }
             }
 
-            if($res_user->count() > 0){
-               $user_id = $res_user->current();
+            if($res_user['count'] > 0){
+               $uid = $res_user['list']->current();
                $labels['display_all'] = 'block';
                $labels['display_user'] = 'block';
                $m_user = $this->getServiceUser()->getLite($m_message->getUserId());
@@ -470,16 +463,20 @@ class Event extends AbstractService
                }
                $labels['user_text'] =  $m_user->getFirstname().' '.$m_user->getLastname().' joined TWIC';
                $labels['user_picture'] = $urldms.$m_user->getAvatar().'-80m80';
-               if($res_request->count() > $idx + 1){
-                  $labels['user_count'] = $res_request->count() - $idx - 1;
+               if($res_user['count'] > $idx + 1){
+                  $labels['user_count'] = $ar_request->count() - $idx - 1;
                   $labels['display_user_count']  = 'block';
                }
             }
             $m_user = $this->getServiceUser()->getLite($user_id);
+            syslog(1, json_encode($labels));
             $this->getServiceMail()->sendTpl('tpl_newactivity', $m_user->getEmail(), $labels);
         }
     }
 
+    public function MailActivityCron(){
+        syslog(1, "!!!");
+    }
 
 
     // ------------------------------------------------- Methode
@@ -572,5 +569,25 @@ class Event extends AbstractService
       private function getServiceFcm()
       {
           return $this->container->get('fcm');
+      }
+
+      /**
+       * Get Service Contact.
+       *
+       * @return \Application\Service\Contact
+       */
+      private function getServiceContact()
+      {
+          return $this->container->get('app_service_contact');
+      }
+
+      /**
+       * Get Service Mail.
+       *
+       * @return \Mail\Service\Mail
+       */
+      private function getServiceMail()
+      {
+          return $this->container->get('mail.service');
       }
 }

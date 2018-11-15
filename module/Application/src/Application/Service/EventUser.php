@@ -34,7 +34,6 @@ class EventUser extends AbstractService
                 }
                 if(false !== $users[$uid]){
                     $content = str_replace($mention, strtolower('<span class="mention">@'.$users[$uid]->getFirstname().$users[$uid]->getLastName()).'</span>', $content);
-                    syslog(1, $mention. ' => <span class="mention">@'.strtolower($users[$uid]->getFirstname().$users[$uid]->getLastName()).'</span> '.$content);
                 }
             }
             return " : &laquo;".$content."&raquo";
