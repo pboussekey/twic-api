@@ -23,25 +23,25 @@ class Submission extends AbstractService
         $ar_pa = $this->getServicePageUser()->getListByPage($page_id, 'admin');
         $ar_pu = $this->getServicePageUser()->getListByPage($page_id, 'user');
 
-        //si la personne ne fait pas partie du cour
-        if (!in_array($me, $ar_p[$page_id])) {
+        //si la personne ne fait pas partie du cours
+        if (!in_array($me, $ar_p[$page_id]) && !$this->getServiceUser()->isStudnetAdmin()) {
             throw new \Exception("Error Processing Request", 1);
         }
 
         $is_admin = in_array($me, $ar_pa[$page_id]);
-      
+
         if (null === $user_id && null !== $group_id || !$is_admin) {
             $user_id = $me;
         }
 
         //si le user_id final n'est pas un student du cour
-        if (!in_array($user_id, $ar_pu[$page_id]) &&  null !== $user_id) {
+        if (!in_array($user_id, $ar_pu[$page_id]) &&  null !== $user_id && !$is_admin) {
             throw new \Exception("Error Processing Request", 1);
         }
 
         $res_submission = $this->getMapper()->get(null, $item_id, $user_id, $group_id);
         if ($res_submission->count() <= 0) {
-            
+
             $submission_id = null;
             // SI c un group on récupére la submission d'un user du group si elle existe.
             if($m_item->getParticipants() == 'group') {
@@ -54,14 +54,14 @@ class Submission extends AbstractService
                 $this->getMapper()->insert($this->getModel()->setItemId($item_id));
                 $submission_id  = (int) $this->getMapper()->getLastInsertValue();
             }
-            
+
             $this->getServiceItemUser()->getOrCreate($item_id, $user_id, $submission_id, $group_id);
-            $m_submission = $this->getMapper()->get(null, $item_id, $user_id, $group_id)->current();
+            $m_submission = $this->getMapper()->get(null, $item_id, $m_item->getParticipants() == 'group' ? null : $user_id, $group_id)->current();
         } else {
             $m_submission = $res_submission->current();
         }
 
-        $m_submission->setItemUsers($this->getServiceItemUser()->getList($item_id, null, $m_submission->getId()));
+        $m_submission->setItemUsers($this->getServiceItemUser()->getList($item_id, null, $submission_id));
         if (!is_numeric($m_submission->getPostId())) {
             $post_id = $this->getServicePost()->add(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'submission');
             $m_submission->setPostId($post_id);
@@ -119,10 +119,10 @@ class Submission extends AbstractService
                 ]
             );
         }
-        
+
         return $submission_id;
     }
-    
+
     /**
      * Send Message Node message.publish
      *
@@ -141,7 +141,7 @@ class Submission extends AbstractService
             syslog(1, $e->getMessage());
         }
         syslog(1, json_encode($rep));
-        
+
         return $rep;
     }
 
@@ -169,7 +169,7 @@ class Submission extends AbstractService
         if ($res_item_user->count() <= 0) {
             throw new \Exception("Bad User", 1);
         }
-        
+
         $ret = $this->getServiceSubmissionLibrary()->remove($id, $library_id);
 
         $m_item_user = $res_item_user->current();

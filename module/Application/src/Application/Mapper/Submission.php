@@ -15,7 +15,7 @@ class Submission extends AbstractMapper
             'submission$submit_date' => new Expression('DATE_FORMAT(submission.submit_date, "%Y-%m-%dT%TZ")'),
             'is_graded', 'post_id']
         );
-      
+
         if ($user_id !== null || $group_id !== null) {
             $select->join('item_user', 'item_user.submission_id=submission.id', []);
         }
@@ -25,17 +25,17 @@ class Submission extends AbstractMapper
         if ($group_id !== null) {
             $select->where(['item_user.group_id' => $group_id]);
         }
-      
+
         if ($item_id !== null) {
             $select->where(['submission.item_id' => $item_id]);
         }
-      
+
         if ($id !== null) {
             $select->where(['submission.id' => $id]);
         }
         $select->quantifier('DISTINCT');
 
-
+        syslog(1, $this->printSql($select));
         return $this->selectWith($select);
     }
 }
