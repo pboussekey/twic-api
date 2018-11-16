@@ -566,8 +566,6 @@ class Page extends AbstractService
                             );
                         }
 
-                        //syslog(1, 'PPM'.$page_id.'_'.$m_user->getId());
-
                         $this->getServicePost()->addSys(
                             'PPM'.$id.'_'.$m_user->getId(),
                             '',

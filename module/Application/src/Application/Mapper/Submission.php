@@ -35,7 +35,6 @@ class Submission extends AbstractMapper
         }
         $select->quantifier('DISTINCT');
 
-        syslog(1, $this->printSql($select));
         return $this->selectWith($select);
     }
 }

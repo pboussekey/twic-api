@@ -453,7 +453,8 @@ class Post extends AbstractService
         $event = null,
         $uid = null,
         $sub = null,
-        $item_id = null
+        $item_id = null,
+        $replace_sub = null
     ) {
 
         $user_id = $this->getServiceUser()->getIdentity()['id'];
@@ -510,6 +511,9 @@ class Post extends AbstractService
             }
             if (!empty($sub)) {
                 $pevent = array_merge($pevent, $sub);
+            }
+            if(true === $replace_sub){
+                $this->getServicePostSubscription()->delete($id);
             }
             $this->getServicePostSubscription()->add(
                 array_unique($pevent),
@@ -815,13 +819,12 @@ class Post extends AbstractService
      *
      * @return \Application\Model\Post
      */
-    public function addSys($uid, $content, $data, $event, $sub = null, $parent_id = null, $t_page_id = null, $t_user_id = null, $type = null, $page_id = null)
+    public function addSys($uid, $content, $data, $event, $sub = null, $parent_id = null, $t_page_id = null, $t_user_id = null, $type = null, $page_id = null, $replace_sub = null)
     {
         $res_post = $this->getMapper()->select($this->getModel()->setUid($uid));
-
         if($res_post->count() > 0){
             $this->getServicePostUser()->show(null, $uid);
-            return $this->_update(null, $content, null, null, null, null, null, null, null, null, $data, $event, $uid, $sub);
+            return $this->_update(null, $content, null, null, null, null, null, null, null, null, $data, $event, $uid, $sub, null, null, $replace_sub);
         }
         else{
            return   $this->add(

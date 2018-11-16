@@ -6,7 +6,7 @@ use Zend\Db\Sql\Expression;
 
 class ItemUser extends AbstractMapper
 {
-    public function getList($item_id, $user_id = null, $submission_id = null)
+    public function getList($item_id, $user_id = null, $submission_id = null, $group_id = null)
     {
         $select = $this->tableGateway->getSql()->select();
         $select->columns(
@@ -56,7 +56,14 @@ class ItemUser extends AbstractMapper
                 ]
             );
         }
-        
+        if (null !== $group_id) {
+            $select->where(
+                [
+                'item_user.group_id' => $group_id
+                ]
+            );
+        }
+
         return $this->selectWith($select);
     }
 
@@ -64,7 +71,7 @@ class ItemUser extends AbstractMapper
     {
         $select = $this->tableGateway->getSql()->select();
         $select->columns(['user_id']);
-        
+
         if(null !== $group_id) {
             $select->where(['item_user.group_id' => $group_id]);
         }

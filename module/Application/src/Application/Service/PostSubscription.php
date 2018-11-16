@@ -67,12 +67,11 @@ class PostSubscription extends AbstractService
      * @param  int    $post_id
      * @return int
      */
-    public function delete($libelle, $post_id)
+    public function delete($post_id, $libelle = null)
     {
         $m_post_subscription = $this->getModel()
             ->setLibelle($libelle)
             ->setPostId($post_id);
-
         return $this->getMapper()->delete($m_post_subscription);
     }
 
