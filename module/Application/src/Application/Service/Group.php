@@ -35,6 +35,12 @@ class Group extends AbstractService
         return $ret;
     }
 
+
+   public function getListByPage($page_id)
+   {
+       return $this->getMapper()->getListByPage($page_id);
+   }
+
     /**
      * Add GRoup
      *

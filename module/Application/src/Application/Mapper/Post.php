@@ -11,7 +11,7 @@ use Application\Model\Role as ModelRole;
 
 class Post extends AbstractMapper
 {
-    public function getListId($me_id, $page_id = null, $user_id = null, $parent_id = null, $is_item = null, $is_admin = false)
+    public function getListId($me_id, $page_id = null, $user_id = null, $parent_id = null, $is_item = null, $is_admin = false, $type = null)
     {
         $select = $this->tableGateway->getSql()->select();
         $columns = ['post$id' => new Expression('post.id')];
@@ -80,6 +80,10 @@ class Post extends AbstractMapper
 
         if (null !== $page_id) {
             $select->where(['post.t_page_id' => $page_id]);
+        }
+
+        if (null !== $type) {
+            $select->where(['post.type' => $type]);
         }
         return $this->selectWith($select);
     }

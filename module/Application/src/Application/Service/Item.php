@@ -242,6 +242,7 @@ class Item extends AbstractService
             null/*user*/,
             'group',
             $m_item->getPageId(),
+            $m_item->getId(),
             true
         );
         return $res;
@@ -681,6 +682,34 @@ class Item extends AbstractService
                     ModelEvent::TARGET_TYPE_USER,
                     $identity['id']
                 );
+                $res_group = $this->getServiceGroup()->getList($page_id);
+                foreach($res_group as $m_group){
+                    $res_item_user = $this->getServiceItemUser()->getList($m_group->getItemId(), null, null, $m_group->getId());
+                    $users = [];
+                    $sub = [];
+                    foreach($res_item_user as $m_item_user){
+                        $sub[] = 'M'.$m_item_user->getUserId();
+                        $users[] = $m_item_user->getUserId();
+                    }
+                    $this->getServicePost()->addSys(
+                        'GR'.$m_group->getId(),
+                        '',
+                        [
+                          'users' => $users,
+                          'id' => $m_group->getId(),
+                          'name' => $m_group->getName(),
+                          'item' => $m_group->getItemId()
+                        ],
+                        'member',
+                        $sub/*sub*/,
+                        null/*parent*/,
+                        null/*page*/,
+                        null/*user*/,
+                        'group',
+                        $page_id,
+                        $m_group->getItemId()
+                    );
+                }
             }
         }
 

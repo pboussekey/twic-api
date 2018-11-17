@@ -137,14 +137,14 @@ class Item extends AbstractMapper
             'item$text' =>       $is_admin ? new Expression('item.text') : new Expression("IF(`page_user`.`role`='admin' OR `item`.`is_grade_published`=true OR (`item`.`is_available`=1 OR (`item`.`is_available` = 3 AND (( `item`.`start_date` IS NULL AND `item`.`end_date` IS NULL )OR( `item`.`start_date` < UTC_TIMESTAMP() AND `item`.`end_date` IS NULL )OR( `item`.`start_date` IS NULL AND `item`.`end_date` > UTC_TIMESTAMP()) OR (UTC_TIMESTAMP() BETWEEN `item`.`start_date` AND `item`.`end_date` )))), `item`.`text`, NULL)")
             ]
         )
-            ->join('post', 'item.id=post.item_id', [], $select::JOIN_LEFT)
+            ->join('post', new Expression("item.id=post.item_id AND post.type = 'post'"), [], $select::JOIN_LEFT)
 	        ->join('quiz', 'item.id=quiz.item_id', [], $select::JOIN_LEFT)
             ->where(['item.id' => $id])
             ->group('item.id');
 
     	if(!$is_admin) {
     	    $select->join('page_user', 'page_user.page_id=item.page_id', [])
-                   ->join(['children'=> 'item'], new Expression('item.id = children.parent_id AND (children.is_published IS TRUE OR page_user.role = "admin")' ), [], $select::JOIN_LEFT)  
+                   ->join(['children'=> 'item'], new Expression('item.id = children.parent_id AND (children.is_published IS TRUE OR page_user.role = "admin")' ), [], $select::JOIN_LEFT)
                    ->join(['children_user' => 'item_user'], new Expression('children.id = children_user.item_id AND children_user.user_id = ?', $me),  ['item$nb_children'=> new Expression('SUM(IF(children.id IS NOT NULL AND ((children.is_published IS TRUE AND (children.participants = "all" OR children_user.user_id IS NOT NULL)) OR page_user.role = "admin"), 1, 0))')], $select::JOIN_LEFT)
                    ->where(['page_user.user_id' => $me]);
     	} else {
@@ -186,11 +186,11 @@ class Item extends AbstractMapper
             )
             ->where(['page_user.role'=> 'user'])
             ->where(['item.id' => $id]);
-    
+
         if (null !== $user_id) {
             $select->where(['page_user.user_id' => $user_id]);
         }
-    
+
             return $this->selectWith($select);
     }
 

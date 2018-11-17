@@ -229,7 +229,7 @@ class Post extends AbstractService
             }
 
         }
-        if($parent_id == null) {
+        if($parent_id == null && null === $item_id) {
             if($t_page_id != null && $this->getServicePage()->isAdmin($t_page_id)) {
                 $m_page = $this->getServicePage()->getLite($t_page_id);
                 if($m_page->getType() == ModelPage::TYPE_COURSE && $type === 'post' && $m_page->getIsPublished() && !$is_notif) {
@@ -328,7 +328,7 @@ class Post extends AbstractService
                     }
                 }
             }
-        } else if(null !== $parent_id) {
+        } else if(null !== $parent_id && null === $item_id) {
             $m_post = $this->getLite($parent_id);
             if(!$m_post->getUserId() instanceof IsNull && $user_id != $m_post->getUserId()) {
                 $m_user = $this->getServiceUser()->getLite($m_post->getUserId());
@@ -500,14 +500,15 @@ class Post extends AbstractService
            // si c pas une notification on gére les hastags
 
             $pevent = [];
-            // S'IL Y A UNE CIBLE A LA BASE ON NOTIFIE
-            $et = $this->getTarget($m_post_base);
-            if (false !== $et) {
-                $pevent = array_merge($pevent, ['P'.$et]);
-            }
+
             // if ce n'est pas un page privée
             if (!$is_notif) {
                 $pevent = array_merge($pevent, ['P'.$this->getOwner($m_post_base)]);
+                // S'IL Y A UNE CIBLE A LA BASE ON NOTIFIE
+                $et = $this->getTarget($m_post_base);
+                if (false !== $et) {
+                    $pevent = array_merge($pevent, ['P'.$et]);
+                }
             }
             if (!empty($sub)) {
                 $pevent = array_merge($pevent, $sub);
@@ -613,14 +614,14 @@ class Post extends AbstractService
      * @param int   $parent_id
      * @param bool  $is_item
      */
-    public function getListId($filter = null, $user_id = null, $page_id = null, $parent_id = null, $is_item = null)
+    public function getListId($filter = null, $user_id = null, $page_id = null, $parent_id = null, $is_item = null, $type = null)
     {
         $identity = $this->getServiceUser()->getIdentity();
         $mapper = (null !== $filter) ?
             $this->getMapper()->usePaginator($filter) :
             $this->getMapper();
 
-        $res_posts = $mapper->getListId($identity['id'], $page_id, $user_id, $parent_id, $is_item, (in_array(ModelRole::ROLE_ADMIN_STR, $identity['roles'])));
+        $res_posts = $mapper->getListId($identity['id'], $page_id, $user_id, $parent_id, $is_item, (in_array(ModelRole::ROLE_ADMIN_STR, $identity['roles'])), $type);
 
         return (null !== $filter) ?
             ['count' => $mapper->count(), 'list' => $res_posts] :
@@ -789,11 +790,11 @@ class Post extends AbstractService
     public function getTarget($m_post)
     {
         switch (true) {
-        case (is_numeric($m_post->getTPageId())):
-            $t = 'P'.$m_post->getTPageId();
-            break;
         case (is_numeric($m_post->getTUserId())):
             $t = 'U'.$m_post->getTUserId();
+        break;
+        case (is_numeric($m_post->getTPageId())):
+            $t = 'P'.$m_post->getTPageId();
             break;
         default:
             $t = false;
@@ -819,12 +820,12 @@ class Post extends AbstractService
      *
      * @return \Application\Model\Post
      */
-    public function addSys($uid, $content, $data, $event, $sub = null, $parent_id = null, $t_page_id = null, $t_user_id = null, $type = null, $page_id = null, $replace_sub = null)
+    public function addSys($uid, $content, $data, $event, $sub = null, $parent_id = null, $t_page_id = null, $t_user_id = null, $type = null, $page_id = null, $item_id = null, $replace_sub = null)
     {
         $res_post = $this->getMapper()->select($this->getModel()->setUid($uid));
         if($res_post->count() > 0){
             $this->getServicePostUser()->show(null, $uid);
-            return $this->_update(null, $content, null, null, null, null, null, null, null, null, $data, $event, $uid, $sub, null, null, $replace_sub);
+            return $this->_update(null, $content, null, null, null, null, null, null, null, null, $data, $event, $uid, $sub, $item_id,  $replace_sub);
         }
         else{
            return   $this->add(
