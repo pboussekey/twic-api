@@ -531,6 +531,7 @@ class Page extends AbstractService
                 );
             }
             if(!$tmp_m_page->getIsPublished() && $tmp_m_page->getType() == ModelPage::TYPE_COURSE) {
+
                 $ar_pages = [];
                 $res_user = $this->getServiceUser()->getLite($this->getServicePageUser()->getListByPage($id)[$id]);
                 foreach($res_user as $m_user) {
@@ -557,18 +558,16 @@ class Page extends AbstractService
                             $m_organization->getLibelle() : null;
 
                             $url = sprintf("https://%s%s/page/course/%s/timeline", ($prefix ? $prefix.'.':''),  $this->container->get('config')['app-conf']['uiurl'], $tmp_m_page->getId());
-                            $this->getServiceMail()->sendTpl(
+                          /*  $this->getServiceMail()->sendTpl(
                                 'tpl_coursepublished', $m_user->getEmail(), [
                                 'pagename' => $tmp_m_page->getTitle(),
                                 'firstname' => $m_user->getFirstName(),
                                 'pageurl' => $url
                                 ]
-                            );
+                            );*/
                         }
 
-                        //syslog(1, 'PPM'.$page_id.'_'.$m_user->getId());
-
-                        $this->getServicePost()->addSys(
+                       $this->getServicePost()->addSys(
                             'PPM'.$id.'_'.$m_user->getId(),
                             '',
                             [
@@ -599,6 +598,34 @@ class Page extends AbstractService
                     catch (\Exception $e) {
                         syslog(1, 'Model name does not exist Page publish <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode());
                     }
+                }
+                $res_group = $this->getServiceGroup()->getListByPage($tmp_m_page->getId());
+                foreach($res_group as $m_group){
+                    $res_item_user = $this->getServiceItemUser()->getList($m_group->getItemId(), null, null, $m_group->getId());
+                    $users = [];
+                    $sub = [];
+                    foreach($res_item_user as $m_item_user){
+                        $sub[] = 'M'.$m_item_user->getUserId();
+                        $users[] = $m_item_user->getUserId();
+                    }
+                    $this->getServicePost()->addSys(
+                        'GR'.$m_group->getId(),
+                        '',
+                        [
+                          'users' => $users,
+                          'id' => $m_group->getId(),
+                          'name' => $m_group->getName(),
+                          'item' => $m_group->getItemId()
+                        ],
+                        'member',
+                        $sub/*sub*/,
+                        null/*parent*/,
+                        null/*page*/,
+                        null/*user*/,
+                        'group',
+                        $m_group->getPageId(),
+                        $m_group->getItemId()
+                    );
                 }
 
 
@@ -1099,6 +1126,26 @@ class Page extends AbstractService
     {
         return $this->container->get('app_service_library');
     }
+
+    /**
+     * Get Service Item
+     *
+     * @return \Application\Service\Group
+     */
+    private function getServiceGroup()
+    {
+        return $this->container->get('app_service_group');
+    }
+
+      /**
+       * Get Service ItemUser
+       *
+       * @return \Application\Service\ItemUser
+       */
+      private function getServiceItemUser()
+      {
+          return $this->container->get('app_service_item_user');
+      }
 
     /**
      * Get Service Post Subscription

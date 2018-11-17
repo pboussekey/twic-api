@@ -208,15 +208,44 @@ class Item extends AbstractService
      */
     public function addUsers($id, $user_ids, $group_id = null, $group_name = null)
     {
+        $me = $this->getServiceUser()->getIdentity()['id'];
+        $m_group = $this->getServiceGroup()->getOrCreate($group_name, $id, $group_id);
         if (null === $group_id && null !== $group_name) {
-            $m_group = $this->getServiceGroup()->getOrCreate($group_name, $id);
             $group_id = $m_group->getId();
         }
         else if(null !== $group_id && null !== $group_name){
             $this->getServiceGroup()->update($group_id, $group_name);
         }
 
-        return $this->getServiceItemUser()->addUsers($id, $user_ids, $group_id);
+        $res = $this->getServiceItemUser()->addUsers($id, $user_ids, $group_id);
+        $m_item = $this->get($id);
+        $res_item_user = $this->getServiceItemUser()->getList($id, null, null, $group_id);
+        $sub = [];
+        $users = [];
+        foreach($res_item_user as $m_item_user){
+            $sub[] = 'M'.$m_item_user->getUserId();
+            $users[] = $m_item_user->getUserId();
+        }
+        $this->getServicePost()->addSys(
+            'GR'.$group_id,
+            '',
+            [
+              'users' => $users,
+              'id' => $group_id,
+              'name' => $group_name,
+              'item' => $m_item->getId()
+            ],
+            'member',
+            $sub/*sub*/,
+            null/*parent*/,
+            null/*page*/,
+            null/*user*/,
+            'group',
+            $m_item->getPageId(),
+            $m_item->getId(),
+            true
+        );
+        return $res;
     }
 
     /**
@@ -653,6 +682,34 @@ class Item extends AbstractService
                     ModelEvent::TARGET_TYPE_USER,
                     $identity['id']
                 );
+                $res_group = $this->getServiceGroup()->getList($page_id);
+                foreach($res_group as $m_group){
+                    $res_item_user = $this->getServiceItemUser()->getList($m_group->getItemId(), null, null, $m_group->getId());
+                    $users = [];
+                    $sub = [];
+                    foreach($res_item_user as $m_item_user){
+                        $sub[] = 'M'.$m_item_user->getUserId();
+                        $users[] = $m_item_user->getUserId();
+                    }
+                    $this->getServicePost()->addSys(
+                        'GR'.$m_group->getId(),
+                        '',
+                        [
+                          'users' => $users,
+                          'id' => $m_group->getId(),
+                          'name' => $m_group->getName(),
+                          'item' => $m_group->getItemId()
+                        ],
+                        'member',
+                        $sub/*sub*/,
+                        null/*parent*/,
+                        null/*page*/,
+                        null/*user*/,
+                        'group',
+                        $page_id,
+                        $m_group->getItemId()
+                    );
+                }
             }
         }
 

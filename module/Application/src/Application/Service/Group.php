@@ -18,7 +18,7 @@ class Group extends AbstractService
         if (!is_array($item_id)) {
             $item_id = [$item_id];
         }
-        
+
         $ret = [];
         foreach ($item_id as $itm) {
             $ret[$itm] = [];
@@ -26,15 +26,21 @@ class Group extends AbstractService
         // indexer par item_id
         $m_group = $this->getModel()->setItemId($item_id);
         $res_group = $this->getMapper()->select($m_group);
-        
-        
+
+
         foreach ($res_group as $m_group) {
             $ret[$m_group->getItemId()][] = $m_group->toArray();
         }
-        
+
         return $ret;
     }
-    
+
+
+   public function getListByPage($page_id)
+   {
+       return $this->getMapper()->getListByPage($page_id);
+   }
+
     /**
      * Add GRoup
      *
@@ -50,33 +56,33 @@ class Group extends AbstractService
         if (!is_array($name)) {
             $name = [$name];
         }
-        
+
         $ret = [];
         foreach ($name as $n) {
             $m_group = $this->getModel()->setName($n)->setItemId($item_id);
             $this->getMapper()->insert($m_group);
             $ret[] = $this->getMapper()->getLastInsertValue();
         }
-        
+
         return $ret;
     }
-    
+
      /**
      * Add GRoup
      *
      * @invokable
      *
      * @param int $id
-     * @param string name 
+     * @param string name
      *
      * @return int
      */
     public function update($id, $name)
     {
-       
+
         return $this->getMapper()->update($this->getModel()->setId($id)->setName($name));
     }
-    
+
     /**
      * Delete Group
      *
@@ -87,10 +93,10 @@ class Group extends AbstractService
     public function delete($id)
     {
         $m_group = $this->getModel()->setId($id);
-        
+
         return $this->getMapper()->delete($m_group);
     }
-    
+
     /**
      * Get Or Create GRoup
      *
@@ -99,10 +105,10 @@ class Group extends AbstractService
      *
      * @return \Application\Model\Group
      */
-    public function getOrCreate($name, $item_id)
+    public function getOrCreate($name, $item_id, $id = null)
     {
-        $m_group = $this->getModel()->setName($name)->setItemId($item_id);
-        
+        $m_group = $this->getModel()->setName($name)->setItemId($item_id)->setId($id);
+
         $res_group = $this->getMapper()->select($m_group);
         if ($res_group->count() <= 0) {
             $this->getMapper()->insert($m_group);
@@ -110,7 +116,7 @@ class Group extends AbstractService
         } else {
             $m_group = $res_group->current();
         }
-        
+
         return $m_group;
     }
 }

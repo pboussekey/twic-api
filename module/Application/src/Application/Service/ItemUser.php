@@ -14,11 +14,11 @@ class ItemUser extends AbstractService
      * @param int $user_id
      * @param int $submission_id
      */
-    public function getList($item_id, $user_id = null, $submission_id = null)
+    public function getList($item_id, $user_id = null, $submission_id = null, $group_id = null)
     {
-        return $this->getMapper()->getList($item_id, $user_id, $submission_id);
+        return $this->getMapper()->getList($item_id, $user_id, $submission_id, $group_id);
     }
-    
+
     /**
      * Get List User Id By group
      *
@@ -28,12 +28,12 @@ class ItemUser extends AbstractService
     public function getListUserId($group_id = null, $item_id = null)
     {
         $res_item_user = $this->getMapper()->getListUserId($group_id, $item_id);
-        
+
         $ret = [];
         foreach ($res_item_user as $m_item_user) {
             $ret[] = $m_item_user->getUserId();
         }
-        
+
         return $ret;
     }
 
@@ -77,7 +77,7 @@ class ItemUser extends AbstractService
                 ->setItemId($item_id)
                 ->setGroupId($group_id)
         );
-        
+
         if ($res_item_user->count() <= 0) {
             if ($user_id === null) {
                 throw new \Exception("Error process: there is no item_user");
@@ -93,7 +93,7 @@ class ItemUser extends AbstractService
                     ->setItemId($item_id)
                     ->setGroupId($group_id)
             );
-            
+
             foreach ($res_upt_item_user as $m_item_user) {
                 if (null !== $submission_id && $m_item_user->getSubmissionId() !== $submission_id) {
                     $this->getMapper()->update(
@@ -110,7 +110,7 @@ class ItemUser extends AbstractService
                     ->setSubmissionId($submission_id)
             );
         }
-        
+
         return $m_final_item_user;
     }
 
@@ -133,7 +133,7 @@ class ItemUser extends AbstractService
                 ->setSubmissionId($submission_id)
                 ->setGroupId($group_id)
         );
-        
+
         return (int) $this->getMapper()->getLastInsertValue();
     }
 
@@ -150,7 +150,7 @@ class ItemUser extends AbstractService
                 $user_id
             ];
         }
-        
+
         $ubmission_id = new IsNull('submission_id');
         if($group_id !== null) {
             /**
@@ -162,7 +162,7 @@ class ItemUser extends AbstractService
                 $ubmission_id = $m_item_user->getSubmissionId();
             }
         }
-        
+
         if(count($user_id) > 0){
             $res_item_user = $this->getMapper()->select(
                 $this->getModel()
@@ -178,7 +178,7 @@ class ItemUser extends AbstractService
                 unset($user_id[array_search($m_item_user->getUserId(), $user_id)]);
             }
         }
-        
+
         foreach ($user_id as $user) {
             $this->getMapper()->insert(
                 $this->getModel()
@@ -188,7 +188,7 @@ class ItemUser extends AbstractService
                     ->setItemId($item_id)
             );
         }
-        
+
         return true;
     }
 
@@ -205,7 +205,7 @@ class ItemUser extends AbstractService
                 $user_id
             ];
         }
-        
+
         $m_item_user = $this->getModel()->setDeletedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'));
         foreach ($user_id as $user) {
             $this->getMapper()->update(
@@ -215,7 +215,7 @@ class ItemUser extends AbstractService
                 ]
             );
         }
-        
+
         return true;
     }
 
@@ -230,7 +230,7 @@ class ItemUser extends AbstractService
         if (! in_array($identity['id'], $ar_pu[$page_id])) {
             throw new \Exception("No admin", 1);
         }
-        
+
         return $this->_grade($item_id, $rate, $user_id, $group_id);
     }
 
@@ -267,7 +267,7 @@ class ItemUser extends AbstractService
                 }
             }
         }
-        
+
         if ($group_id !== null) {
             if (! is_array($group_id)) {
                 $group_id = [
@@ -283,7 +283,7 @@ class ItemUser extends AbstractService
                 );
             }
         }
-        
+
         return true;
     }
 
