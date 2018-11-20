@@ -35,6 +35,9 @@ class Event extends AbstractService
      * @param mixed  $data
      * @param string $type
      * @param array  $libelle
+     * @param array  $source
+     * @param array  $object
+     * @param string  $date
      *
      * @return array get users sended
      */
@@ -146,12 +149,10 @@ class Event extends AbstractService
     /**
      * create un event puis envoye un evenement "notification.publish"
      *
-     * @param  string $event    nom de l'evenement
-     * @param  mixed  $source
-     * @param  mixed  $object
-     * @param  array  $user
-     * @param  mixed  $target   la source soit user soit school soit global
-     * @param  mixed  $user_id  l'id de la personne qui a généré l'event
+     * @param  string $event    Event name
+     * @param  mixed $data    Event data
+     * @param  array|string  $libelle Subscription to event
+     * @param  mixed  $notify medium used to notify ['ntf' => true/false => "Enable/disable notification bell in header", 'fcm' => null/package => "Package to send for fcm", 'mail' => false/int => "Dont 'send or inactivity days required to send an email"]
      *
      * @throws \Exception
      *

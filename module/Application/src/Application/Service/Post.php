@@ -34,9 +34,8 @@ class Post extends AbstractService
      * @invokable
      *
      * @param string $content
-     * @param string $link
      * @param string $picture
-     * @param string $name_picture
+     * @param string $link
      * @param string $link_title
      * @param string $link_desc
      * @param int    $parent_id
