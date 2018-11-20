@@ -59,6 +59,11 @@ class DbAdapter extends AbstractAdapter
     protected $linkedin_id;
     
     /**
+     * @var string
+     */
+    protected $sso_uid;
+    
+    /**
      * Sets username and password for authentication.
      */
     public function __construct(Adapter $db_adapter, $table, $identity_column, $credential_column, $hash = 'MD5(?)', $result = null)
@@ -89,7 +94,10 @@ class DbAdapter extends AbstractAdapter
         $select->from($this->table)
             ->columns(['*']);
         
-        if (null !== $this->linkedin_id) {
+        if(null !== $this->sso_uid) {
+            $select->where(['user.sso_uid' => $this->sso_uid])
+            ->where(['user.deleted_date IS NULL']);
+        } elseif (null !== $this->linkedin_id) {
             $select->where(['user.linkedin_id' => $this->linkedin_id])
                 ->where(['user.deleted_date IS NULL']);
         } elseif (null !== $this->credential && null !== $this->identity) {
@@ -169,5 +177,17 @@ class DbAdapter extends AbstractAdapter
     public function getLinkedinId()
     {
         return $this->linkedin_id;
+    }
+    
+    public function getSsoUid()
+    {
+        return $this->sso_uid;
+    }
+    
+    public function setSsoUid($sso_uid)
+    {
+        $this->sso_uid = $sso_uid;
+        
+        return $this;
     }
 }

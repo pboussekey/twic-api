@@ -32,6 +32,10 @@ class Page extends AbstractModel
 	protected $created_date;
 	protected $is_published;
 	protected $domaine;
+	protected $sso_entity_id;
+	protected $single_sign_on_service;
+	protected $single_logout_service;
+	protected $sso_x509cert;
 
 	protected $prefix = 'page';
 
@@ -343,6 +347,54 @@ class Page extends AbstractModel
 	public function setDomaine($domaine)
 	{
 		$this->domaine = $domaine;
+
+		return $this;
+	}
+
+	public function getSsoEntityId()
+	{
+		return $this->sso_entity_id;
+	}
+
+	public function setSsoEntityId($sso_entity_id)
+	{
+		$this->sso_entity_id = $sso_entity_id;
+
+		return $this;
+	}
+
+	public function getSingleSignOnService()
+	{
+		return $this->single_sign_on_service;
+	}
+
+	public function setSingleSignOnService($single_sign_on_service)
+	{
+		$this->single_sign_on_service = $single_sign_on_service;
+
+		return $this;
+	}
+
+	public function getSingleLogoutService()
+	{
+		return $this->single_logout_service;
+	}
+
+	public function setSingleLogoutService($single_logout_service)
+	{
+		$this->single_logout_service = $single_logout_service;
+
+		return $this;
+	}
+
+	public function getSsoX509cert()
+	{
+		return $this->sso_x509cert;
+	}
+
+	public function setSsoX509cert($sso_x509cert)
+	{
+		$this->sso_x509cert = $sso_x509cert;
 
 		return $this;
 	}
