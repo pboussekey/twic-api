@@ -46,6 +46,7 @@ class User extends AbstractModel
 	protected $graduation_year;
 	protected $linkedin_url;
 	protected $has_email_contact_request_notifier;
+	protected $sso_uid;
 
 	protected $prefix = 'user';
 
@@ -525,6 +526,18 @@ class User extends AbstractModel
 	public function setHasEmailContactRequestNotifier($has_email_contact_request_notifier)
 	{
 		$this->has_email_contact_request_notifier = $has_email_contact_request_notifier;
+
+		return $this;
+	}
+
+	public function getSsoUid()
+	{
+		return $this->sso_uid;
+	}
+
+	public function setSsoUid($sso_uid)
+	{
+		$this->sso_uid = $sso_uid;
 
 		return $this;
 	}

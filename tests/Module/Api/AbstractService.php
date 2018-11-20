@@ -202,6 +202,7 @@ abstract class AbstractService extends AbstractHttpControllerTestCase
                 'avatar' => 'avatar',
                 'lastname' => 'tata',
                 'cache' => 0,
+                'sso_uid' => '_ssouid',
                 'organizations' => [['id' => 1],['id' => 3]]];
         if (null !== $role) {
             if (! is_array($role)) {

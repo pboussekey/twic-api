@@ -14,6 +14,7 @@ class Identity implements IdentityInterface
     protected $avatar;
     protected $email;
     protected $linkedin_id;
+    protected $sso_uid;
     protected $organization_id;
     protected $suspension_date;
     protected $suspension_reason;
@@ -263,6 +264,18 @@ class Identity implements IdentityInterface
         return $this;
     }
     
+    public function getSsoUid()
+    {
+        return $this->sso_uid;
+    }
+    
+    public function setSsoUid($sso_uid)
+    {
+        $this->sso_uid = $sso_uid;
+        
+        return $this;
+    }
+    
     public function toArray()
     {
         return [
@@ -279,6 +292,7 @@ class Identity implements IdentityInterface
             'avatar' => $this->avatar,
             'expiration_date' => $this->expiration_date,
             'has_linkedin' => ($this->linkedin_id !== null),
+            'has_sso' => ($this->sso_uid !== null),
             'cgu_accepted' => $this->cgu_accepted,
             'swap_email' => $this->swap_email,
             'cache' => $this->cache,

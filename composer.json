@@ -27,7 +27,8 @@
 		"google/cloud-debugger" : "^0.14.0",
 		"google/cloud" : "^0.75.0",
 		"google/cloud-error-reporting" : "^0.11.5",
-		"google/cloud-logging" : "^1.12"
+		"google/cloud-logging" : "^1.12",
+		"onelogin/php-saml": "^3.0"
 	},
 	"require-dev" : {
 		"friendsofphp/php-cs-fixer" : "*",
