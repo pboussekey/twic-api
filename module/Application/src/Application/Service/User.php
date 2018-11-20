@@ -60,6 +60,35 @@ class User extends AbstractService
         return $identity;
     }
 
+    public function loginSaml($sso_uid)
+    {
+        $auth = $this->getServiceAuth();
+        
+        $auth->getAdapter()->setSsoUid($sso_uid);
+        
+        $code = - 32000;
+        $result = $auth->authenticate();
+        if (! $result->isValid()) {
+            switch ($result->getCode()) {
+                case - 5:
+                    $code = - 32031;
+                    break;
+            }
+            
+            throw new JrpcException($result->getMessages()[0], $code);
+        }
+        
+        $identity = $this->getIdentity(true);
+        
+        // ici on check que le role externe ne ce connect pas avec login
+        if (in_array(ModelRole::ROLE_EXTERNAL_STR, $identity['roles']) && count($identity['roles']) === 1) {
+            $this->logout();
+            throw new \Exception("Error: unauthorized Role");
+        }
+        
+        return $identity;
+    }
+    
     /**
      * Log user
      *
@@ -302,7 +331,9 @@ class User extends AbstractService
      *
      * @return int
      */
-    public function add($firstname, $lastname, $email, $gender = null, $origin = null, $nationality = null, $sis = null, $password = null, $birth_date = null, $position = null, $organization_id = null, $interest = null, $avatar = null, $roles = null, $timezone = null, $background = null, $nickname = null, $ambassador = null, $address = null)
+    public function add($firstname, $lastname, $email, $gender = null, $origin = null, $nationality = null, $sis = null, $password = null, $birth_date = null, 
+        $position = null, $organization_id = null, $interest = null, $avatar = null, $roles = null, $timezone = null, $background = null, $nickname = null, 
+        $ambassador = null, $address = null)
     {
 
         if (! empty($sis)) {
@@ -314,10 +345,14 @@ class User extends AbstractService
             throw new JrpcException('Unauthorized operation user.add', -38003);
         }
 
-        return $this->_add($firstname, $lastname, $email, $gender, $origin, $nationality, $sis, $password, $birth_date, $position, $organization_id, $interest, $avatar, $roles, $timezone, $background, $nickname, $ambassador, $address);
+        return $this->_add($firstname, $lastname, $email, $gender, $origin, $nationality, $sis, $password, $birth_date, $position, $organization_id, $interest, 
+            $avatar, $roles, $timezone, $background, $nickname, $ambassador, $address);
     }
 
-    public function _add($firstname, $lastname, $email, $gender = null, $origin = null, $nationality = null, $sis = null, $password = null, $birth_date = null, $position = null, $organization_id = null, $interest = null, $avatar = null, $roles = null, $timezone = null, $background = null, $nickname = null, $ambassador = null, $address = null, $active = null, $graduation_year = null)
+    public function _add($firstname = null, $lastname = null, $email = null, $gender = null, $origin = null, $nationality = null, $sis = null, 
+        $password = null, $birth_date = null, $position = null, $organization_id = null, $interest = null, $avatar = null, 
+        $roles = null, $timezone = null, $background = null, $nickname = null, $ambassador = null, $address = null, 
+        $active = null, $graduation_year = null, $sso_uid = null)
     {
         $m_user = $this->getModel();
 
@@ -346,6 +381,7 @@ class User extends AbstractService
             ->setEmailSent(0)
             ->setCreatedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'))
             ->setIsActive($active)
+            ->setSsoUid($sso_uid)
             ->setGraduationYear($graduation_year);
 
         if (! empty($password)) {
@@ -422,6 +458,7 @@ class User extends AbstractService
      * @param string $linkedin_url
      * @param bool $has_email_contact_request_notifier
      * @param string $page_program_name
+     * @param string $sso_uid
      *
      * @return int
      */
@@ -452,7 +489,8 @@ class User extends AbstractService
         $linkedin_url = null,
         $has_email_contact_request_notifier = null,
         $page_program_name = null,
-        $description = null
+        $description = null,
+        $sso_uid = null
     )
     {
         if ($this->getNbrEmailUnique($email, $id) > 0) {
@@ -497,11 +535,16 @@ class User extends AbstractService
             $linkedin_url,
             $has_email_contact_request_notifier,
             $page_program_name,
-            $description
+            $description,
+            $sso_uid
         );
     }
 
-    public function _update($id = null, $gender = null, $origin = null, $nationality = null, $firstname = null, $lastname = null, $sis = null, $email = null, $birth_date = null, $position = null, $organization_id = null, $interest = null, $avatar = null, $roles = null, $resetpassword = null, $has_email_notifier = null, $timezone = null, $background = null, $nickname = null, $suspend = null, $suspension_reason = null, $ambassador = null, $password = null, $address = null, $graduation_year = null, $linkedin_url = null, $has_email_contact_request_notifier = null, $page_program_name = null, $description = null)
+    public function _update($id = null, $gender = null, $origin = null, $nationality = null, $firstname = null, $lastname = null, $sis = null, $email = null, 
+        $birth_date = null, $position = null, $organization_id = null, $interest = null, $avatar = null, $roles = null, $resetpassword = null, 
+        $has_email_notifier = null, $timezone = null, $background = null, $nickname = null, $suspend = null, $suspension_reason = null, 
+        $ambassador = null, $password = null, $address = null, $graduation_year = null, $linkedin_url = null, $has_email_contact_request_notifier = null, 
+        $page_program_name = null, $description = null, $sso_uid = null)
     {
          $m_user = $this->getModel();
 
@@ -587,6 +630,7 @@ class User extends AbstractService
             ->setBackground($background)
             ->setNickname($nickname)
             ->setAmbassador($ambassador)
+            ->setSsoUid($sso_uid)
             ->setHasEmailContactRequestNotifier($has_email_contact_request_notifier)
             ->setGraduationYear(('null' === $graduation_year) ? new IsNull('graduation_year') : $graduation_year)
             ->setLinkedinUrl(('null' === $linkedin_url) ? new IsNull('linkedin_url') : $linkedin_url)
@@ -1002,6 +1046,20 @@ class User extends AbstractService
         $res_user = $this->getMapper()->select($this->getModel()->setEmail($email)->setDeletedDate(new IsNull('deleted_date')));
 
         return (is_array($email)) ? $res_user : $res_user->current();
+    }
+    
+    /**
+     *
+     * @param string $sso_uid
+     * @return \Application\Model\User|false
+     */
+    public function getLiteBySsoUid($sso_uid)
+    {
+        $res_user = $this->getMapper()->select($this->getModel()->setSsoUid($sso_uid)->setDeletedDate(new IsNull('deleted_date')));
+        
+        return ($res_user->count() > 0) ?
+            $res_user->current() : 
+            false;
     }
 
     /**

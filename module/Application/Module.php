@@ -73,9 +73,11 @@ class Module
             'aliases' => [
                 'gcm-client' => \ZendService\Google\Gcm\Client::class,
                 'fcm' => \Application\Service\Fcm::class,
+                'saml' => \Application\Service\Saml::class,
             ],
             'invokable' => [
                 \Application\Cache\Storage\Adapter\Memcached::class,
+                \Application\Service\Saml::class    => '\Application\Service\Saml',
             ],
             'factories' => [
                 \ZendService\Google\Gcm\Client::class => function ($container) {
@@ -93,7 +95,7 @@ class Module
                         $container->get('gcm-client'),
                         $container->get('app_service_user')->getIdentity()['token']
                     );
-                }
+                },
             ],
         ];
     }

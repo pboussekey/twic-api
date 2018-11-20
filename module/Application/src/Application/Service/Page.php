@@ -112,8 +112,12 @@ class Page extends AbstractService
      * @param string $subtype,
      * @param int    $circle_id
      * @param bool   $is_published
-     * @param string   $domaine
-     *
+     * @param string $domaine
+     * @param string $sso_entity_id
+     * @param string $single_sign_on_service
+     * @param string $single_logout_service
+     * @param string $sso_x509cert
+     * 
      * @return int
      */
     public function add(
@@ -141,7 +145,11 @@ class Page extends AbstractService
         $subtype = null,
         $circle_id = null,
         $is_published = null,
-        $domaine = null
+        $domaine = null,
+        $sso_entity_id = null,
+        $single_sign_on_service = null,
+        $single_logout_service = null,
+        $sso_x509cert = null
     ) {
 
         $identity = $this->getServiceUser()->getIdentity();
@@ -213,6 +221,10 @@ class Page extends AbstractService
             ->setConversationId($conversation_id)
             ->setShortTitle($short_title)
             ->setDomaine($domaine) /** @TODO check admin **/
+            ->setSsoX509cert($sso_x509cert) /** @TODO check admin **/
+            ->setSingleLogoutService($single_logout_service) /** @TODO check admin **/
+            ->setSingleSignOnService($single_sign_on_service) /** @TODO check admin **/
+            ->setSsoEntityId($sso_entity_id) /** @TODO check admin **/
             ->setCreatedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'));
 
         if ($address !== null) {
@@ -414,7 +426,11 @@ class Page extends AbstractService
      * @param int    $circle_id
      * @param bool   $is_published
      * @param int $confidentiality
-     *
+     * @param string $domaine
+     * @param string $sso_entity_id
+     * @param string $single_sign_on_service
+     * @param string $single_logout_service
+     * @param string $sso_x509cert
      *
      * @return int
      */
@@ -442,7 +458,11 @@ class Page extends AbstractService
         $circle_id = null,
         $is_published = null,
         $confidentiality = null,
-        $domaine = null
+        $domaine = null,
+        $sso_entity_id = null,
+        $single_sign_on_service = null,
+        $single_logout_service = null,
+        $sso_x509cert = null
     ) {
         if(!$this->getServiceUser()->isStudnetAdmin() &&  !$this->isAdmin($id)) {
             throw new JrpcException('Unauthorized operation page.update', -38003);
@@ -475,7 +495,11 @@ class Page extends AbstractService
             ->setShortTitle($short_title)
             ->setConfidentiality($confidentiality)
             ->setAdmission($admission)
-            ->setDomaine($domaine); /** @TODO check admin **/
+            ->setDomaine($domaine) /** @TODO check admin **/
+            ->setSsoX509cert($sso_x509cert) /** @TODO check admin **/
+            ->setSingleLogoutService($single_logout_service) /** @TODO check admin **/
+            ->setSingleSignOnService($single_sign_on_service) /** @TODO check admin **/
+            ->setSsoEntityId($sso_entity_id); /** @TODO check admin **/
 
         if ($address !== null) {
             if($address === 0) {
@@ -728,8 +752,6 @@ class Page extends AbstractService
         return $this->getServiceSubscription()->getListUserId('PP'.$id, $filter, $search, $order);
     }
 
-
-
     /**
      * Get Page
      *
@@ -965,8 +987,7 @@ class Page extends AbstractService
 
         $m_page->setOwner($owner);
     }
-
-
+    
      /**
       * Get page counts.
       *

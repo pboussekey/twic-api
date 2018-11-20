@@ -158,7 +158,16 @@ return [
         ),
         'invokables' => array(
             '\Application\Service\Opentok' => '\Application\Service\Opentok',
+            //\Application\Service\Saml::class    => '\Application\Service\Saml'
         ),
+        'factories' => [
+            \Application\Service\Saml::class    => function ($container) {
+                $saml = new \Application\Service\Saml();
+                $saml->setContainer($container);
+                
+                return $saml;
+            }
+        ],
     ),
     'translator' => array(
         'locale' => 'en_US',
