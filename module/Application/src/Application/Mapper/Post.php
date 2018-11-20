@@ -172,6 +172,7 @@ class Post extends AbstractMapper
           ->join(['post_parent_page' => 'page'], 'post_parent.page_id = post_parent_page.id', ['id', 'title', 'logo'], $select::JOIN_LEFT)
           ->join(['post_origin_page' => 'page'], new Expression('COALESCE(post.t_page_id, post_parent.t_page_id, post_origin.t_page_id) = post_origin_page.id'), ['id', 'title', 'logo'], $select::JOIN_LEFT)
           ->where(['post.id' => $id]);
+
           return $this->selectWith($select);
     }
 

@@ -26,7 +26,7 @@ class PostSubscription extends AbstractService
      * @param  mixed  $data
      * @return bool
      */
-    public function add($libelle, $post_id, $last_date, $action, $user_id, $sub_post_id =null, $data = null, $is_not_public = false)
+    public function add($libelle, $post_id, $last_date, $action, $user_id, $sub_post_id =null, $data = null, $is_not_public = false, $notify = null)
     {
         if (!is_array($libelle)) {
             $libelle = [$libelle];
@@ -55,7 +55,8 @@ class PostSubscription extends AbstractService
                 }
             }
         }
-        $this->getServiceEvent()->userPublication($libelle, ($sub_post_id !== null) ? $sub_post_id : $post_id, $m_post->getType(), $action, null);
+
+        $this->getServiceEvent()->create($m_post->getType().'.'.$action, ['id' => ($sub_post_id !== null) ? $sub_post_id : $post_id, 'name' => 'post'], $libelle, $notify );
 
         return true;
     }

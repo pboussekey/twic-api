@@ -10,6 +10,7 @@ use Dal\Service\AbstractService;
 use Zend\Json\Server\Request;
 use Zend\Http\Client;
 use Zend\Db\Sql\Predicate\IsNull;
+use ZendService\Google\Gcm\Notification as GcmNotification;
 
 /**
  * Class Event
@@ -94,7 +95,7 @@ class Event extends AbstractService
     }
 
     function limitText($text, $length = 50){
-        return strlen($text) > $length ? substr($text, $length).'...' : $text;
+        return strlen($text) > $length ? substr($text, 0,  $length).'...' : $text;
     }
 
     function getContent($content){
@@ -133,6 +134,10 @@ class Event extends AbstractService
                 return sprintf('%s mentionned you in a %s %s%s', $d['post_source'], $d['post_type'], $d['target_page'], $d['content']);
             case 'post.share':
                 return sprintf('%s shared %s post %s%s', $d['post_source'], $d['parent_source'], $d['target_page'], $d['content']);
+            case 'item.publish':
+                return sprintf('<b>%s</b> %s has been published on <b>%s</b>', $d['itemtitle'],$d['itemtype'], $d['pagetitle']);
+            case 'item.update':
+                return sprintf('<b>%s</b> %s has been updated on <b>%s</b>', $d['itemtitle'],$d['itemtype'], $d['pagetitle']);
 
         }
     }
@@ -152,41 +157,43 @@ class Event extends AbstractService
      *
      * @return int
      */
-    public function create($event, $source, $object, $libelle, $target, $user_id = null, $fcm_package = null, $send_email = false, $force_email = false)
+    public function create($event, $data, $libelle, $notify = null)
     {
+        if(null === $notify){
+            $notify = ['ntf' => true, 'fcm' => false, 'mail' => 7];
+        }
+        else if(false === $notify){
+            $notify = ['ntf' => false, 'fcm' => false, 'mail' => false];
+        }
+
         $date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
         $identity = $this->getServiceUser()->getIdentity();
+        $source = $this->getDataUser();
         $m_event = $this->getModel()
-            ->setUserId($user_id)
+            ->setUserId($identity['id'])
             ->setEvent($event)
             ->setSource(json_encode($source))
-            ->setObject(json_encode($object))
-            ->setTarget($target)
+            ->setObject(json_encode($data))
+            ->setTarget(self::TARGET_TYPE_USER)
             ->setDate($date);
-        if($object['name'] === 'post'){
-            $ar_post = $this->getServicePost()->getPostInfos($object['id']);
-            $post_source = !empty($ar_post['page']['id']) ? ('<b>'.$ar_post['page']['title'].'</b>') : ('<b>'.$this->getUsername($identity).'</b>');
+        if($data['name'] === 'post'){
+            $ar_post = $this->getServicePost()->getPostInfos($data['id']);
             $data = [
                 'source' => '<b>'.$this->getUsername($identity)."</b>",
-                'post_source' => $post_source,
-                'post_owner' => $ar_post['user']['id'] === $identity['id'] ? 'their' : $post_source,
+                'post_source' => !empty($ar_post['page']['id']) ? ('<b>'.$this->limitText($ar_post['page']['title']).'</b>') : ('<b>'.$this->getUsername($ar_post['user']).'</b>'),
+                'post_owner' => $ar_post['user']['id'] === $identity['id'] ? 'their' : (!empty($ar_post['page']['id']) ? ('<b>'.$this->limitText($ar_post['page']['title']).'</b>') : '{user}'),
                 'post_action'=> $ar_post['type'] === 'reply' ? 'replied to' : 'commented on',
                 'post_type' => $ar_post['type'],
-                'parent_source' =>  !empty($ar_post['parent']['page']['id']) ? ('<b>'.$ar_post['parent']['page']['title']."</b>'s") : "{user}",
+                'parent_source' =>  !empty($ar_post['parent']['page']['id']) ? ('<b>'.$this->limitText($ar_post['parent']['page']['title'])."</b>'s") : "{user}",
                 'parent_type' => $ar_post['type'] === 'comment' ? 'post' : 'comment',
-                'on' => !empty($ar_post['origin']['page']['id']) ? 'on' : '',
-                'target_page' => !empty($ar_post['origin']['page']['id']) ? 'on <b>'.$ar_post['origin']['page']['title'].'</b>' : '',
+                'target_page' => !empty($ar_post['origin']['page']['id']) ? 'in <b>'.$this->limitText($ar_post['origin']['page']['title']).'</b>' : '',
                 'content' => $this->getContent($ar_post['content'])
             ];
 
         }
         else{
-            if(isset($data['object']['data']) && (isset($data['object']['data']['t_page_id']) || isset($data['object']['page_id']))){
-                $data['target'] = $this->getServicePage()->getLite(isset($data['object']['page_id']) ? $data['object']['page_id'] : $data['object']['data']['t_page_id'])->toArray();
-            }
-            if(isset($data['object']['data']) && isset($data['object']['data']['user_id'])){
-                $data['user'] = $this->getServiceuser()->getLite($data['object']['data']['user_id'])->toArray();
-            }
+            $data = $object;
+            $data['source'] = '<b>'.$this->getUsername($identity)."</b>";
         }
         $m_event->setText($this->getText($event, $data));
         $target = null;
@@ -200,13 +207,17 @@ class Event extends AbstractService
                 $target = $ar_post['user'];
                 $m_event->setPicture($source['data']['avatar']);
             break;
+            case 'item.publish':
+            case 'item.update':
+                $target = $identity;
+                $m_event->setPicture(  !empty($data['pagelogo']) ? $data['pagelogo'] : null);
+            break;
             default:
                 $target = $ar_post['parent']['user'];
                 $m_event->setPicture( !empty($ar_post['page']['id']) ? $ar_post['page']['logo'] : $ar_post['user']['avatar']);
             break;
         }
         $m_event->setTargetId($target['id']);
-
         if ($this->getMapper()->insert($m_event) <= 0) {
             throw new \Exception('error insert event');// @codeCoverageIgnore
         }
@@ -215,54 +226,48 @@ class Event extends AbstractService
         $m_event->setId($this->getMapper()->getLastInsertValue());
         $this->getServiceEventSubscription()->add($libelle, $m_event->getId());
 
-        $user = $this->sendData(null, $event, $libelle, $source, $object, (new \DateTime($date))->format('Y-m-d\TH:i:s\Z'));
-        if (count($user) > 0) {
-            foreach ($user as $uid) {
-                if($uid === $identity['id']){
-                    continue;
-                }
-                $gcm_text = str_replace('{user}', $m_event->getTargetId() === $uid ? 'your' : ('<b>'.$this->getUsername($target)."</b>'s"), $m_event->getText());
-                $m_event_user = $this->getServiceEventUser()->add($m_event->getId(), $uid, $source, $data);
-                if(false !== $m_event_user && null !== $fcm_package){
-                    $fcm_service = $this->getServiceFcm();
-                    $gcm_notification = new GcmNotification();
-                    //@TODO Titre notification dynamique
-                    $gcm_notification->setTitle("Something happened in your network")
-                        ->setSound("default")
-                        ->setColor("#00A38B")
-                        ->setIcon("icon")
-                        ->setTag("TWIC:".$event)
-                        ->setBody(strip_tags ($gcm_text));
+        if(null !== $m_event->getText()){
+            $user = $this->sendData(null, $event, $libelle, $source,
+                                    ['text' => $m_event->getText(), 'target' => $m_event->getTargetId(), 'picture' => $m_event->getPicture() ],
+                                    (new \DateTime($date))->format('Y-m-d\TH:i:s\Z'));
+            if (count($user) > 0) {
+                foreach ($user as $uid) {
+                    if($uid === $identity['id']){
+                        continue;
+                    }
+                    $gcm_text = str_replace('{user}', $m_event->getTargetId() === $uid ? 'your' : ('<b>'.$this->getUsername($target)."</b>'s"), $m_event->getText());
 
-                    $this->getServiceFcm()->send($uid, null, $gcm_notification, $fcm_package );
+                    if(false !== $notify['ntf']){
+                       $m_event_user = $this->getServiceEventUser()->add($m_event->getId(), $uid, $source, $data);
+                    }
+                    if(false !== $notify['fcm']){
+
+                        try{
+                              $fcm_service = $this->getServiceFcm();
+                              $gcm_notification = new GcmNotification();
+                              //@TODO Titre notification dynamique
+                              $gcm_notification->setTitle("TWIC")
+                                  ->setSound("default")
+                                  ->setColor("#00A38B")
+                                  ->setIcon("icon")
+                                  ->setTag("TWIC:".$event)
+                                  ->setBody(strip_tags ($gcm_text));
+
+                              $this->getServiceFcm()->send($uid, null, $gcm_notification, $notify['fcm'] );
+                        }
+                        catch (\Exception $e) {
+                            syslog(1, 'GCM Notification : ' . json_encode($gcm_text));
+                            syslog(1, $e->getMessage());
+                        }
+                    }
+                }
+                if(false !== $notify['mail']){
+                    $this->sendRecapEmail($user, $event, $notify['mail']);
                 }
             }
-            $this->sendRecapEmail($user, $event);
         }
-
         return $m_event->getId();
     }
-
-    /**
-     * Event user.publication
-     *
-     * @param  int   $post_id
-     * @param  array $sub
-     *
-     * @return int
-     */
-    public function userPublication($sub, $post_id, $type = 'user', $ev = 'publication', $src = null)
-    {
-        $user_id = $this->getServiceUser()->getIdentity()['id'];
-        $data_post = $this->getDataPost($post_id);
-        $event = $type;
-        if (is_string($ev)) {
-            $event .= '.'.$ev;
-        }
-
-        return $this->create($event, $this->getDataUser($src), $data_post, $sub, self::TARGET_TYPE_USER, $user_id, null, true);
-    }
-
 
     /**
      * Get events list for current user.
@@ -465,7 +470,6 @@ class Event extends AbstractService
             ];
             $idx = 1;
             foreach($events as $event){
-                syslog(1, $ev.' => '.$event['event']);
                 if($event['event'] === $ev){
                     $labels['ntf_picture'] =  (null !== $event['picture']) ? ($urldms.$event['picture'].'-80m80') : null;
                     $labels['ntf_text'] = $event['text'];
