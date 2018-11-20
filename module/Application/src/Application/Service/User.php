@@ -991,7 +991,16 @@ class User extends AbstractService
             $this->getModel()
                 ->setId($id)
         );
-        return (is_array($id)) ? $res_user : $res_user->current();
+        if(!is_array($id)){
+            return $res_user->current();
+        }
+        else{
+            $users = [];
+            foreach($res_user as $m_user){
+                $users[$m_user->getId()] = $m_user;
+            }
+            return $users;
+        }
     }
 
     /**

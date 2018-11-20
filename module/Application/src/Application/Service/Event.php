@@ -27,6 +27,7 @@ class Event extends AbstractService
     const TARGET_TYPE_GLOBAL = 'global';
     const TARGET_TYPE_SCHOOL = 'school';
 
+
     /**
      * Envoie une notification "notification.publish" sans l'enregistrer dans la table event
      *
@@ -86,6 +87,57 @@ class Event extends AbstractService
         return (new \Zend\Json\Server\Client($this->container->get('config')['node']['addr'], $client))->doRequest($request);
     }
 
+
+    //Event text building
+    function getUsername($source){
+        return  $source['firstname'] .  " " . $source['lastname'];
+    }
+
+    function limitText($text, $length = 50){
+        return strlen($text) > $length ? substr($text, $length).'...' : $text;
+    }
+
+    function getContent($content){
+        if(empty($content)){
+            return "";
+        }
+        else{
+            $mentions = [];
+            $users = [];
+            preg_match_all ( '/@{user:(\d+)}/', $content, $mentions );
+            for ($i = 0; $i < count($mentions[0]); $i++) {
+                $mention = $mentions[0][$i];
+                $uid = $mentions[1][$i];
+                if(!isset($users[$uid] )){
+                    $users[$uid] = $this->getServiceUser()->getLite($uid);
+                }
+                if(false !== $users[$uid]){
+                    $content = str_replace($mention, strtolower('@'.$users[$uid]->getFirstname().$users[$uid]->getLastName()), $content);
+                }
+            }
+            return ": &laquo;".$this->limitText($content)."&raquo;";
+        }
+    }
+
+
+
+    function getText($event, $d){
+        switch($event){
+            case 'post.create':
+                return sprintf('%s just posted %s%s', $d['post_source'], $d['target_page'], $d['content']);
+            case 'post.com':
+                return sprintf('%s %s %s %s %s%s', $d['post_source'], $d['post_action'], $d['parent_source'], $d['parent_type'], $d['target_page'], $d['content']);
+            case 'post.like':
+                return sprintf('%s liked %s %s %s%s', $d['source'], $d['post_owner'], $d['post_type'],  $d['target_page'], $d['content']);
+            case 'post.tag':
+                return sprintf('%s mentionned you in a %s %s%s', $d['post_source'], $d['post_type'], $d['target_page'], $d['content']);
+            case 'post.share':
+                return sprintf('%s shared %s post %s%s', $d['post_source'], $d['parent_source'], $d['target_page'], $d['content']);
+
+        }
+    }
+
+
     /**
      * create un event puis envoye un evenement "notification.publish"
      *
@@ -103,6 +155,7 @@ class Event extends AbstractService
     public function create($event, $source, $object, $libelle, $target, $user_id = null, $fcm_package = null, $send_email = false, $force_email = false)
     {
         $date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
+        $identity = $this->getServiceUser()->getIdentity();
         $m_event = $this->getModel()
             ->setUserId($user_id)
             ->setEvent($event)
@@ -110,25 +163,22 @@ class Event extends AbstractService
             ->setObject(json_encode($object))
             ->setTarget($target)
             ->setDate($date);
-
-        if ($this->getMapper()->insert($m_event) <= 0) {
-            throw new \Exception('error insert event');// @codeCoverageIgnore
-        }
-
-        $event_id = $this->getMapper()->getLastInsertValue();
-        $this->getServiceEventSubscription()->add($libelle, $event_id);
-        $data = ['event' => $event];
         if($object['name'] === 'post'){
-            $data['initial'] = $this->getDataPost($object['id']);
-            if(isset($data['initial']['parent_id'])){
-                $data['parent'] = $this->getDataPost($data['initial']['parent_id']);
-            }
-            if(isset($data['initial']['origin_id'])){
-                $data['origin'] = $this->getDataPost($data['initial']['origin_id']);
-            }
-            if(isset($data['initial']['shared_id'])){
-                $data['shared'] = $this->getDataPost($data['initial']['shared_id']);
-            }
+            $ar_post = $this->getServicePost()->getPostInfos($object['id']);
+            $post_source = !empty($ar_post['page']['id']) ? ('<b>'.$ar_post['page']['title'].'</b>') : ('<b>'.$this->getUsername($identity).'</b>');
+            $data = [
+                'source' => '<b>'.$this->getUsername($identity)."</b>",
+                'post_source' => $post_source,
+                'post_owner' => $ar_post['user']['id'] === $identity['id'] ? 'their' : $post_source,
+                'post_action'=> $ar_post['type'] === 'reply' ? 'replied to' : 'commented on',
+                'post_type' => $ar_post['type'],
+                'parent_source' =>  !empty($ar_post['parent']['page']['id']) ? ('<b>'.$ar_post['parent']['page']['title']."</b>'s") : "{user}",
+                'parent_type' => $ar_post['type'] === 'comment' ? 'post' : 'comment',
+                'on' => !empty($ar_post['origin']['page']['id']) ? 'on' : '',
+                'target_page' => !empty($ar_post['origin']['page']['id']) ? 'on <b>'.$ar_post['origin']['page']['title'].'</b>' : '',
+                'content' => $this->getContent($ar_post['content'])
+            ];
+
         }
         else{
             if(isset($data['object']['data']) && (isset($data['object']['data']['t_page_id']) || isset($data['object']['page_id']))){
@@ -138,29 +188,59 @@ class Event extends AbstractService
                 $data['user'] = $this->getServiceuser()->getLite($data['object']['data']['user_id'])->toArray();
             }
         }
+        $m_event->setText($this->getText($event, $data));
+        $target = null;
+        switch($event){
+            case 'post.tag':
+            case 'post.create':
+                $target = $ar_post['user'];
+                $m_event->setPicture( !empty($ar_post['page']['id']) ? $ar_post['page']['logo'] : $ar_post['user']['avatar']);
+            break;
+            case 'post.like':
+                $target = $ar_post['user'];
+                $m_event->setPicture($source['data']['avatar']);
+            break;
+            default:
+                $target = $ar_post['parent']['user'];
+                $m_event->setPicture( !empty($ar_post['page']['id']) ? $ar_post['page']['logo'] : $ar_post['user']['avatar']);
+            break;
+        }
+        $m_event->setTargetId($target['id']);
+
+        if ($this->getMapper()->insert($m_event) <= 0) {
+            throw new \Exception('error insert event');// @codeCoverageIgnore
+        }
+
+
+        $m_event->setId($this->getMapper()->getLastInsertValue());
+        $this->getServiceEventSubscription()->add($libelle, $m_event->getId());
+
         $user = $this->sendData(null, $event, $libelle, $source, $object, (new \DateTime($date))->format('Y-m-d\TH:i:s\Z'));
         if (count($user) > 0) {
             foreach ($user as $uid) {
-                $m_event_user = $this->getServiceEventUser()->add($event_id, $uid, $source, $data);
+                if($uid === $identity['id']){
+                    continue;
+                }
+                $gcm_text = str_replace('{user}', $m_event->getTargetId() === $uid ? 'your' : ('<b>'.$this->getUsername($target)."</b>'s"), $m_event->getText());
+                $m_event_user = $this->getServiceEventUser()->add($m_event->getId(), $uid, $source, $data);
                 if(false !== $m_event_user && null !== $fcm_package){
                     $fcm_service = $this->getServiceFcm();
                     $gcm_notification = new GcmNotification();
-                    $gcm_notification->setTitle($m_page->getTitle())
+                    //@TODO Titre notification dynamique
+                    $gcm_notification->setTitle("Something happened in your network")
                         ->setSound("default")
                         ->setColor("#00A38B")
                         ->setIcon("icon")
                         ->setTag("TWIC:".$event)
-                        ->setBody(strip_tags ($m_event_user->getText()));
+                        ->setBody(strip_tags ($gcm_text));
 
                     $this->getServiceFcm()->send($uid, null, $gcm_notification, $fcm_package );
                 }
-                if(true === $send_email){
-                    $this->sendRecapEmail($uid, $event, $force_email);
-                }
             }
+            $this->sendRecapEmail($user, $event);
         }
 
-        return $event_id;
+        return $m_event->getId();
     }
 
     /**
@@ -252,6 +332,7 @@ class Event extends AbstractService
             ]
         ];
 
+
         if(null !== $ar_post['page_id']){
             $ar_page = $this->getServicePage()->getLite($ar_post['t_page_id'])->toArray();
             $ar_data['data']['page'] = $ar_page;
@@ -304,178 +385,106 @@ class Event extends AbstractService
         return strlen($text) > $length ? substr($text, $length).'...' : $text;
     }
 
-    function sendRecapEmail($user_id, $last_activity='event', $force = false){
-        $m_activity = $this->getServiceActivity()->getList(['n'=>1, 'p'=>1, 'o' => ['activity$id' =>  'DESC']], null, null, null, $user_id)['list']->current();
-        if($force || (false !== $m_activity && time() - strtotime($m_activity->getDate() > 60 * 60 * 24 * 7) )){
+    function sendRecapEmail($user_id, $ev, $force = false){
+
+        $urldms = $this->container->get('config')['app-conf']['urldms'];
+        $urlui = $this->container->get('config')['app-conf']['uiurl'];
+        $res_event =  $this->getMapper()->getListUnseen($user_id);
+
+        $ar_events = [];
+        foreach($res_event as $m_event){
+            if(!isset($ar_events[$m_event->getUserId()])){
+                $ar_events[$m_event->getUserId()] = [];
+            }
+            $ar_events[$m_event->getUserId()][] = $m_event->toArray();
+        }
+        $users = [];
+        $organizations = [];
+        if(count($ar_events) > 0){
+            $users = $this->getServiceUser()->getLite(array_keys($ar_events));
+            $oid = [];
+            foreach($users as $uid => $m_user){
+                if(!in_array($m_user->getOrganizationId(), $oid)){
+                    $oid[] = $m_user->getOrganizationId();
+                }
+            }
+            if(count($oid) > 0){
+                $organizations = $this->getServicePage()->getLite($oid);
+            }
+        }
+
+        foreach($ar_events as $uid => $events){
+            $m_user = $users[$uid];
+            $organization = $organizations[$m_user->getOrganizationId()];
             $labels = [
                 //MAIN NOTIFICATION
                 'ntf_picture' => '',
                 'ntf_text' => '',
-                //LIKE
-                'display_like' => 'none',
-                'like_text' => '',
-                'like_picture' => '',
-                'display_like_count'  => 'none',
-                'like_count'  => 0,
-                //REQUEST
-                'display_request' => 'none',
-                'request_text' => '',
-                'request_picture' => '',
-                'display_request_count'  => 'none',
-                'request_count'  => 0,
-                //CHAT
-                'display_chat' => 'none',
-                'chat_text' => '',
-                'chat_picture' => '',
-                'display_chat_count'  => 'none',
-                'chat_count'  => 0,
-                //POST
-                'display_post' => 'none',
-                'post_text' => '',
-                'post_picture' => '',
-                'display_post_count'  => 'none',
-                'post_count'  => 0,
-                //COM
-                'display_comment' => 'none',
-                'comment_text' => '',
-                'comment_picture' => '',
-                'display_comment_count'  => 'none',
-                'comment_count'  => 0,
-                //USERS
-                'display_user' => 'none',
-                'user_text' => '',
-                'user_picture' => '',
-                'display_user_count'  => 'none',
-                'user_count'  => 0,
+                'ntf_display_count' => 'none',
+                'ntf_count' => 0,
+                //NTF1
+                'ntf1_display' => 'none',
+                'ntf1_picture' => '',
+                'ntf1_text' => '',
+                'ntf1_display_count' => 'none',
+                'ntf1_count' => 0,
+                'ntf1_date' => 0,
+                'ntf1_icon' => 0,
+                //NTF2
+                'ntf2_display' => 'none',
+                'ntf2_picture' => '',
+                'ntf2_text' => '',
+                'ntf2_display_count' => 'none',
+                'ntf2_count' => 0,
+                'ntf2_date' => 0,
+                'ntf2_icon' => 0,
+                //NTF3
+                'ntf3_display' => 'none',
+                'ntf3_picture' => '',
+                'ntf3_text' => '',
+                'ntf3_display_count' => 'none',
+                'ntf3_count' => 0,
+                'ntf3_date' => 0,
+                'ntf3_icon' => 0,
+                //NTF4
+                'ntf4_display' => 'none',
+                'ntf4_picture' => '',
+                'ntf4_text' => '',
+                'ntf4_display_count' => 'none',
+                'ntf4_count' => 0,
+                'ntf4_date' => 0,
+                'ntf4_icon' => 0,
+                //NTF5
+                'ntf5_display' => 'none',
+                'ntf5_picture' => '',
+                'ntf5_text' => '',
+                'ntf5_display_count' => 'none',
+                'ntf5_count' => 0,
+                'ntf5_date' => 0,
+                'ntf5_icon' => 0,
             ];
-
-            syslog(1,"USER : ". $user_id);
-            $res_event = $this->_getList([ 'o' => ['event$id' => 'DESC'], 'c' => ['event.date' => '>'], 's' => $m_activity->getDate()], null, null, $user_id);
-            $res_message = $this->getServiceMessage()->getList($user_id, null, ['n' => 1, 'p' => 1, 'o' => ['message$id' => 'DESC']], true);
-            $ar_request = $this->getServiceContact()->getListRequestId($user_id, null, ['n' => 1, 'p' => 1, 'o' => ['contact$request_date' => 'DESC']], true);
-            $res_user = $this->getServiceUser()->getListId(null, null, ['c' => ['user$created_date' => '>'], 's' => $m_activity->getDate(), 'p' => 1, 'o' => ['user$id' => 'DESC']], null, null, null, null, null, null, null, null, null, true);
-            $urldms = $this->container->get('config')['app-conf']['urldms'];
-
-            foreach($res_event['list'] as $m_event){
-                if(empty($labels['ntf_text']) && !($m_event->getText() instanceof IsNull)){
-                    $labels['ntf_text'] = $m_event->getText();
-                    $labels['ntf_picture'] = !($m_event->getPicture() instanceof IsNull) ? $urldms.$m_event->getPicture().'-80m80' : null;
+            $idx = 1;
+            foreach($events as $event){
+                syslog(1, $ev.' => '.$event['event']);
+                if($event['event'] === $ev){
+                    $labels['ntf_picture'] =  (null !== $event['picture']) ? ($urldms.$event['picture'].'-80m80') : null;
+                    $labels['ntf_text'] = $event['text'];
+                    $labels['ntf_display_count'] = $event['count'] > 1 ? 'block' : 'none';
+                    $labels['ntf_count'] = $event['count'] - 1;
                 }
-                else{
-                     if($m_event->getEvent() === 'post.like'){
-                        $labels['display_like'] = 'block';
-                        if(empty($labels['like_text'])){
-                            $labels['like_text'] = $m_event->getText();
-                            $labels['like_picture'] = !($m_event->getPicture() instanceof IsNull) ? $urldms.$m_event->getPicture().'-80m80' : null;
-                        }
-                        else{
-                            $labels['like_count']++;
-                            $labels['display_like_count']  = 'block';
-                        }
-                    }
-                    if($m_event->getEvent() === 'post.create'){
-                       $labels['display_post'] = 'block';
-                       if(empty($labels['post_text']) && !($m_event->getText() instanceof IsNull)){
-                           $labels['post_text'] = $m_event->getText();
-                           $labels['post_picture'] = !($m_event->getPicture() instanceof IsNull) ? $urldms.$m_event->getPicture().'-80m80' : null;
-                       }
-                       else{
-                           $labels['post_count']++;
-                           $labels['display_post_count']  = 'block';
-                       }
-                   }
-                   if($m_event->getEvent() === 'post.com'){
-                      $labels['display_comment'] = 'block';
-                      if(empty($labels['comment_text']) && !($m_event->getText() instanceof IsNull)){
-                          $labels['comment_text'] = $m_event->getText();
-                          $labels['comment_picture'] = !($m_event->getPicture() instanceof IsNull) ? $urldms.$m_event->getPicture().'-80m80' : null;
-                      }
-                      else{
-                          $labels['comment_count']++;
-                          $labels['display_comment_count']  = 'block';
-                      }
-                   }
+                else if($idx < 6){
+                      $labels['ntf'.$idx.'_display'] = 'block';
+                      $labels['ntf'.$idx.'_picture'] = (null !== $event['picture']) ? ($urldms.$event['picture'].'-80m80') : null;
+                      $labels['ntf'.$idx.'_text'] = $event['text'];
+                      $labels['ntf'.$idx.'_display_count'] = $event['count'] > 1 ? 'block' : 'none';
+                      $labels['ntf'.$idx.'_count'] = $event['count'] - 1;
+                      $labels['ntf'.$idx.'_icon'] = $organization->getLibelle().".".$urlui.'/assets/img/mail/'.$event['event'].'.png';
+                      $labels['ntf'.$idx.'_date'] = $event['date'];
+                      $idx++;
                 }
             }
-            if(count($ar_request) > 0){
-                 $contact_id = $ar_request[0];
-                 $m_contact = $this->getServiceUser()->getLite($contact_id);
-                 if($last_activity  === 'connection.request' && empty($labels['ntf_text'])){
-                     $labels['ntf_text'] = '<b>'.$m_contact->getFirstname().' '.$m_contact->getLastname().'</b> sent you a connection request.';
-                     $labels['ntf_picture'] =  $urldms.$m_contact->getAvatar().'-80m80';
-                 }
-                 $idx = $last_activity  === 'connection.request' ? 1 : 0;
-                 if(count($ar_request) > $idx){
-                     $labels['display_request'] = 'block';
-                     $contact_id = $ar_request[$idx];
-                     $m_contact = $this->getServiceUser()->getLite($contact_id);
-                     $labels['request_text'] = '<b>'.$m_contact->getFirstname().' '.$m_contact->getLastname().'</b> sent you a connection request.';
-                     $labels['request_picture'] =  $urldms.$m_contact->getAvatar().'-80m80';
-                 }
-                 if(count($ar_request) > $idx + 1){
-                     $labels['request_count'] = count($ar_request) - $idx - 1;
-                     $labels['display_request_count']  = 'block';
-
-                 }
-            }
-            if($res_message['count'] > 0){
-                $m_message = $res_message['list']->current();
-                $m_contact = $this->getServiceUser()->getLite($m_message->getUserId());
-                if($last_activity  === 'chat' && empty($labels['ntf_text'])){
-                    if($m_message->getText() instanceof IsNull){
-                       $labels['ntf_text'] = '<b>'.$m_contact->getFirstname().' '.$m_contact->getLastname().'</b> shared a file';
-
-                    }
-                    else{
-                       $labels['ntf_text'] =  'You have an unread message from <b>'.$m_contact->getFirstname().' '.$m_contact->getLastname().'</b> : &laquo;'.$this->limit($m_message->getText())."&raquo;";
-                    }
-                    $labels['ntf_picture'] = $urldms.$m_contact->getAvatar().'-80m80';
-                }
-                $idx = $last_activity  === 'chat' ? 1 : 0;
-                if($res_message['count'] > $idx){
-                   $labels['display_chat'] = 'block';
-                   $res_message['list']->next();
-                   $m_message = $res_message['list']->current();
-                   $m_contact = $this->getServiceUser()->getLite($m_message->getUserId());
-                   if($m_message->getText() instanceof IsNull){
-                        $labels['chat_text'] = '<b>'.$m_contact->getFirstname().' '.$m_contact->getLastname().'</b> shared a file';
-
-                   }
-                   else{
-                      $labels['chat_text'] =  'You have an unread message from <b>'.$m_contact->getFirstname().' '.$m_contact->getLastname().'</b> : &laquo;'.$this->limit($m_message->getText())."&raquo;";
-                   }
-                   $labels['chat_picture'] = $urldms.$m_contact->getAvatar().'-80m80';
-                }
-                if($ar_request->count() > $idx + 1){
-                   $labels['chat_count'] = $ar_request->count() - $idx - 1;
-                   $labels['display_chat_count']  = 'block';
-                }
-            }
-
-            if($res_user['count'] > 0){
-               $uid = $res_user['list']->current();
-               $labels['display_all'] = 'block';
-               $labels['display_user'] = 'block';
-               $m_user = $this->getServiceUser()->getLite($m_message->getUserId());
-               if($m_message->getText() instanceof IsNull){
-                    $labels['chat_text'] = '<b>'.$m_contact->getFirstname().' '.$m_contact->getLastname().'</b> shared a file';
-
-               }
-               $labels['user_text'] =  $m_user->getFirstname().' '.$m_user->getLastname().' joined TWIC';
-               $labels['user_picture'] = $urldms.$m_user->getAvatar().'-80m80';
-               if($res_user['count'] > $idx + 1){
-                  $labels['user_count'] = $ar_request->count() - $idx - 1;
-                  $labels['display_user_count']  = 'block';
-               }
-            }
-            $m_user = $this->getServiceUser()->getLite($user_id);
-            syslog(1, json_encode($labels));
             $this->getServiceMail()->sendTpl('tpl_newactivity', $m_user->getEmail(), $labels);
         }
-    }
-
-    public function MailActivityCron(){
-        syslog(1, "!!!");
     }
 
 

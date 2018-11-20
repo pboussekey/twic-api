@@ -1,0 +1,25 @@
+ALTER TABLE `event`
+ADD COLUMN  `text` TEXT NULL DEFAULT NULL;
+ALTER TABLE `event`
+ADD COLUMN  `picture` VARCHAR(255) NULL DEFAULT NULL;
+ALTER TABLE `event`
+ADD COLUMN  `target_id` INT(11) UNSIGNED NULL DEFAULT NULL;
+ALTER TABLE `event`
+MODIFY  `user_id` INT(11) UNSIGNED NULL DEFAULT NULL;
+ALTER TABLE `event`
+ADD INDEX `fk_event_1_idx` (`target_id` ASC),
+ADD INDEX `fk_event_2_idx` (`user_id` ASC);
+
+ALTER TABLE `event`
+ADD CONSTRAINT `fk_event_1`
+    FOREIGN KEY (`target_id`)
+    REFERENCES `user` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION;
+
+ALTER TABLE `event`
+ADD CONSTRAINT `fk_event_2`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `user` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION;

@@ -9,6 +9,7 @@ class Event extends BaseEvent
     protected $read_date;
     protected $text;
     protected $picture;
+    protected $count;
 
     public function getReadDate()
     {
@@ -42,6 +43,18 @@ class Event extends BaseEvent
     public function setPicture($picture)
     {
         $this->picture = $picture;
+
+        return $this;
+    }
+
+    public function getCount()
+    {
+        return $this->count;
+    }
+
+    public function setCount($count)
+    {
+        $this->count = $count;
 
         return $this;
     }

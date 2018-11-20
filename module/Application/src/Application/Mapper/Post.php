@@ -151,12 +151,35 @@ class Post extends AbstractMapper
         return $this->selectWith($select);
     }
 
+    public function getPostInfos($id){
+          $select = $this->tableGateway->getSql()->select();
+          $select->columns([
+            'id',
+            'post$content' => new Expression('COALESCE(post.content, post_parent.content, post_origin.content)'),
+            'post$picture' => new Expression('COALESCE(post.picture,  post_parent.picture, post_origin.picture)'),
+            'post$name_picture' => new Expression('COALESCE(post.name_picture, post_parent.name_picture, post_origin.name_picture)'),
+            'post$link' => new Expression('COALESCE(post.link, post_parent.link, post_origin.link)'),
+            'post$type' => new Expression('CASE WHEN post.parent_id IS NULL THEN "post" WHEN post.parent_id = post.origin_id THEN "comment" ELSE "reply" END')
+          ])
+
+          ->join(['post_parent' => 'post'],  new Expression('COALESCE(post.shared_id, post.parent_id) = post_parent.id'), ['id'], $select::JOIN_LEFT)
+          ->join(['post_origin' => 'post'], 'post.origin_id = post_origin.id', ['id'], $select::JOIN_LEFT)
+
+          ->join(['post_user' => 'user'], 'post.user_id = post_user.id', ['id', 'firstname', 'lastname', 'avatar'], $select::JOIN_LEFT)
+          ->join(['post_parent_user' => 'user'], 'post_parent.user_id = post_parent_user.id', ['id', 'firstname', 'lastname', 'avatar'], $select::JOIN_LEFT)
+
+          ->join(['post_page' => 'page'], 'post.page_id = post_page.id', ['id', 'title', 'logo'], $select::JOIN_LEFT)
+          ->join(['post_parent_page' => 'page'], 'post_parent.page_id = post_parent_page.id', ['id', 'title', 'logo'], $select::JOIN_LEFT)
+          ->join(['post_origin_page' => 'page'], new Expression('COALESCE(post.t_page_id, post_parent.t_page_id, post_origin.t_page_id) = post_origin_page.id'), ['id', 'title', 'logo'], $select::JOIN_LEFT)
+          ->where(['post.id' => $id]);
+          return $this->selectWith($select);
+    }
 
 
     public function getCount($me, $interval, $start_date = null, $end_date = null, $page_id = null, $parent = null, $date_offset = 0)
     {
         $select = $this->tableGateway->getSql()->select();
-        $select->columns([ 'post$created_date' => new Expression('SUBSTRING(DATE_SUB(post.created_date, INTERVAL '.$date_offset.' HOUR) ,1,'.$interval.')'), 'post$count' => new Expression('COUNT(DISTINCT post.id)'), 'post$parent_id' => new Expression('IF(post.parent_id IS NOT NULL,1,0)')])
+        $select->columns([ 'post$created_date' => new Expression('SUBSTRING(DATE_SUB(post.created_date, INTERVAL '.$date_offset.' HOUR) ,1,'.$interval.')'), 'post$count' => new Expression('COUNT(DISTINCT post.id)'), 'parent_id' => new Expression('IF(post.parent_id IS NOT NULL,1,0)')])
             ->where('post.deleted_date IS NULL')
             ->where('post.uid IS NULL')
             ->group([new Expression('SUBSTRING(DATE_SUB(post.created_date, INTERVAL '.$date_offset.' HOUR) ,1,'.$interval.')'),  new Expression('IF(post.parent_id IS NOT NULL,1,0)') ]);

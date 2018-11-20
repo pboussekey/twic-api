@@ -767,7 +767,15 @@ class Post extends AbstractService
      */
     public function getLite($id = null, $uid = null, $item_id = null)
     {
-        return $this->getMapper()->select($this->getModel()->setId($id)->setUid($uid)->setItemId($item_id))->current();
+        $res_post = $this->getMapper()->select($this->getModel()->setId($id)->setUid($uid)->setItemId($item_id));
+        if(is_array($id)){
+            $ar_post = [];
+            foreach($res_post as $m_post){
+                $ar_post[$m_post->getId()] = $m_post;
+            }
+            return $ar_post;
+        }
+        return $res_post->current();
     }
 
     public function getOwner($m_post)
@@ -923,6 +931,10 @@ class Post extends AbstractService
         $identity = $this->getServiceUser()->getIdentity();
 
         return $this->getMapper()->getCount($identity['id'], $interval, $start_date, $end_date, $page_id, $parent, $date_offset);
+    }
+
+    public function getPostInfos($id){
+        return $this->getMapper()->getPostInfos($id)->current()->toArray();
     }
 
     /**

@@ -736,7 +736,19 @@ class Page extends AbstractService
     public function getLite($id = null, $conversation_id = null)
     {
 
-        return $this->getMapper()->select($this->getModel()->setId($id)->setConversationId($conversation_id))->current();
+        $res_page = $this->getMapper()->select($this->getModel()->setId($id)->setConversationId($conversation_id));
+
+
+        if(!is_array($id)){
+            return $res_page->current();
+        }
+        else{
+            $pages = [];
+            foreach($res_page as $m_page){
+                $pages[$m_page->getId()] = $m_page;
+            }
+            return $pages;
+        }
     }
 
     /**
