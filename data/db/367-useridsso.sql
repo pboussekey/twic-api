@@ -20,3 +20,6 @@ INSERT IGNORE INTO `permission` (`libelle`) VALUES ('saml.sls');
 INSERT IGNORE INTO `role_permission` (`role_id`, `permission_id`) VALUES (2,
 (SELECT `id` FROM `permission` WHERE `libelle`= 'saml.sls'));
 
+INSERT IGNORE INTO `permission` (`libelle`) VALUES ('saml.slsr');
+INSERT IGNORE INTO `role_permission` (`role_id`, `permission_id`) VALUES (2,
+(SELECT `id` FROM `permission` WHERE `libelle`= 'saml.slsr'));

@@ -156,4 +156,21 @@ class SsoTest extends AbstractService
         $this->assertEquals($data['jsonrpc'] , 2.0);
     }
     
+    /**
+     * @depends testValidLogin
+     */
+    public function testLogoutRequest($user_id)
+    {
+        $this->setIdentity($user_id);
+        $data = $this->jsonRpc(
+            'saml.slsr', [
+                'SAMLRequest' => "fZLdagIxEIVfZcm9Jtm/rEEtpZYiWIUqXvRGxmSsC7vJspMFH7+7llJLizeBzMx35nCSKUFdNXrlP3wX3pAa7wijS1050tfWjHWt0x6oJO2gRtLB6O3j60rHY6Gb1gdvfMVukPsEEGEbSu9YtFzM2EEpk8hUJio/2UQmxyTGVCWQxgVkouirAgBP0mY5i/bYUk/OWC/U40QdLh0FcKEvCVmMpBzFYiellrkW6TuLFkihdBCu1DmERnNeeQPV2VPQMlUxL53Fy7g5Nw9UUa/qvlPY+RnbrJ9Xm5fl+oDS2jxBdTQTJSamMBBn5qiKTKoMxNFKkMUEM8Xm0yEDfTXXzv+sLEQhOJV1U+Ewx4ej92AbXmMACwEGK1N+KzL9eqNtgNDR79uTtxjtoerwfup0ndbbzhgkYnz+teFHlP/3D+af\n",
+            ]);
+        
+        $this->assertEquals(count($data) , 3);
+        $this->assertEquals($data['id'] , 1);
+        $this->assertEquals(!empty($data['result']) , true);
+        $this->assertEquals($data['jsonrpc'] , 2.0);
+    }
+    
 }

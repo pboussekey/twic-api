@@ -196,10 +196,10 @@ class Saml extends AbstractService
      *
      * @invokable
      *
-     * @param string $request_id
      * @param string $SAMLRequest
+     * @param string $relaystate
      */
-    public function slsr($request_id, $SAMLRequest, $relaystate = null)
+    public function slsr($SAMLRequest, $relaystate = null)
     {
         $id = $this->getServiceUser()->getIdentity()['id'];
         $m_user = $this->getServiceUser()->getLite($id);
@@ -221,7 +221,7 @@ class Saml extends AbstractService
             $parameters['RelayState'] = $relaystate;
         }
         
-        $this->auth = new Auth($settings);
+        $this->auth = new Auth($this->getArrSetting($m_user->getOrganizationId()));
         $security = $settings->getSecurityData();
         if (isset($security['logoutResponseSigned']) && $security['logoutResponseSigned']) {
             $signature = $this->auth->buildResponseSignature($logoutResponse, isset($parameters['RelayState'])? $parameters['RelayState']: null, $security['signatureAlgorithm']);
