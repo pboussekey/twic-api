@@ -14,7 +14,7 @@
 
 return [
     'version' => "2.0.4",
-    'build-commit' => 1302,
+    'build-commit' => 1303,
     'app-conf' => [
         'cache' => 'storage_memcached',
     ],
@@ -139,24 +139,14 @@ return [
         'expire_time' => 60 * 60 * 24 * 30,
         'adapter' => 'http-adapter',
     ],
-    'cronModule' => [
-    'phpPath'    => 'php',
-    'scriptPath' => 'public/',
-    'jobs'       => [
-            [
-                'command'  => 'index.php Application Event MailActivityCron',
-                'schedule' => '* * * * *'
-            ]
-        ]
-    ],
     'caches' => [
         'storage_memcached' => [
             'adapter' => [
                 'name' => 'memcached',
                 'options' => [
-                    'namespace' => 'LMS1302',
+                    'namespace' => 'LMS1303',
                     'lib_options' => [
-                        ['option' => Memcached::OPT_PREFIX_KEY, 'value' => 'LMS1302'],
+                        ['option' => Memcached::OPT_PREFIX_KEY, 'value' => 'LMS1303'],
                     ],
                 ],
             ],
