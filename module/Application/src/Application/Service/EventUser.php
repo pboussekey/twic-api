@@ -18,6 +18,7 @@ class EventUser extends AbstractService
      * @return array
      */
     public function add($event_id, $user_id, $source = null, $data = null){
+
         $m_event_user = $this->getModel()
             ->setUserId($user_id)
             ->setEventId($event_id);

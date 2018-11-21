@@ -77,45 +77,6 @@ class Contact extends AbstractService
             );
         }
 
-        $m_user = $this->getServiceUser()->getLite($user_id);
-        $m_contact = $this->getServiceUser()->getLite($user);
-        $name = "";
-        if (!is_object($m_user->getNickname()) &&  null !== $m_user->getNickname()) {
-            $name = $m_user->getNickname();
-        } else {
-            if (!is_object($m_user->getFirstname()) &&  null !== $m_user->getFirstname()) {
-                $name = $m_user->getFirstname();
-            }
-            if (!is_object($m_user->getLastname()) &&  null !== $m_user->getLastname()) {
-                $name .= ' '.$m_user->getLastname();
-            }
-        }
-
-        $res_contact = $this->getMapper()->getListRequest(null, $user);
-
-        $gcm_notification = new GcmNotification();
-        $nbr = ($res_contact->count()-1);
-
-        $mess = ($nbr > 0) ? $name.' and '.  (($nbr > 1)? $nbr.' others': 'another'). ' sent you a connection request':
-            $name . ' sent you a connection request';
-
-        $gcm_notification->setTitle('Connection request')
-            ->setSound("default")
-            ->setColor("#00A38B")
-            ->setBody($mess);
-
-        $this->getServiceFcm()->send(
-            $user, [
-            'data' => [
-                'type' => 'connection',
-                'data' => [
-                    'state' => 'request',
-                    'user' => $user_id,
-                ],
-            ],
-
-          ], $gcm_notification
-        );
 
         $l = 'C'.(($user > $user_id) ? $user_id.'_'.$user : $user.'_'.$user_id);
         $this->getServicePost()->addSys(
@@ -127,23 +88,11 @@ class Contact extends AbstractService
             null,
             null,
             null,
-            'connection'
+            'connection',
+            null,
+            null,
+            ['ntf' => false, 'fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => 1]
         );
-
-
-        if($m_contact->getIsActive() && $m_contact->getHasEmailNotifier() === 1 && $m_contact->getHasEmailContactRequestNotifier() === 1 ) {
-            $m_page = $this->getServicePage()->getLite($m_contact->getOrganizationId());
-            $prefix = ($m_page !== false && is_string($m_page->getLibelle()) && !empty($m_page->getLibelle())) ?  $m_page->getLibelle() : null;
-            $url = sprintf("https://%s%s/profile/%s", ($prefix ? $prefix.'.':''),  $this->container->get('config')['app-conf']['uiurl'],$m_user->getId());
-            $this->getServiceMail()->sendTpl(
-                'tpl_newrequest', $m_contact->getEmail(), [
-                'firstname' =>$m_contact->getFirstname() instanceof IsNull ? $m_contact->getEmail() : $m_contact->getFirstname(),
-                'contactfirstname' => $m_user->getFirstname(),
-                'contactlastname' => $m_user->getLastName(),
-                'url' => $url
-                ]
-            );
-        }
 
         return $ret;
     }
@@ -201,24 +150,6 @@ class Contact extends AbstractService
             }
         }
 
-        /*
-                $gcm_notification = new GcmNotification();
-                $gcm_notification->setTitle($name)
-                    ->setSound("default")
-                    ->setColor("#00A38B")
-                    ->setBody('Accepted your request');
-
-                $this->getServiceFcm()->send(
-                    $user, ['data' => [
-                    'type' => 'connection',
-                    'data' => [
-                        'state' => 'accept',
-                        'user' => $user_id,
-                        ]
-                    ]
-                    ], $gcm_notification
-                );
-        */
         $l = 'C'.(($user > $user_id) ? $user_id.'_'.$user : $user.'_'.$user_id);
         $this->getServicePost()->updateSys(
             $l,
@@ -229,7 +160,8 @@ class Contact extends AbstractService
               'contact' => $user,
             ],
             'accept',
-            ['M'.$user_id, 'M'.$user]
+            ['M'.$user_id, 'M'.$user],
+            ['ntf' => false, 'fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => 7]
         );
 
         return true;

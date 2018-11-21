@@ -149,10 +149,6 @@ class Post extends AbstractService
             $t_user_id = $user_id;
         }
 
-        if (!empty($data) && !is_string($data)) {
-            $data = json_encode($data);
-        }
-
         if (null !== $parent_id) {
             $uid = null;
         }
@@ -175,7 +171,7 @@ class Post extends AbstractService
             ->setTUserId($t_user_id)
             ->setUid($uid)
             ->setType($type)
-            ->setData($data)
+            ->setData(!empty($data) && !is_string($data) ? json_encode($data) : $data)
             ->setSharedId($shared_id);
 
         if (!$is_notif || null !== $parent_id) {
@@ -252,6 +248,35 @@ class Post extends AbstractService
         $mentions = [];
         if (!$is_notif) {
             preg_match_all ( '/@{user:(\d+)}/', $content, $mentions );
+            if(count($mentions[0]) > 0){
+                $ar_users = $this->getServiceHashtag()->addMentions($id, $mentions);
+                if($is_not_public_page){
+                    $ar_buffer = [];
+                    $ar_subscribers = $this->getServicePage()->getListSuscribersId($m_post_base->getTPageId());
+                    foreach($ar_users as $user_id){
+                        if(in_array($user_id, $ar_subscribers)){
+                            $ar_buffer[] = $user_id;
+                        }
+                    }
+                    $ar_users = $ar_buffer;
+                }
+                if(count($ar_users) > 0){
+                    $date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
+                    foreach($ar_users as $uid){
+                        $this->getServicePostSubscription()->add(
+                            'M'.$uid,
+                            $id,
+                            $date,
+                            ModelPostSubscription::ACTION_TAG,
+                            $user_id,
+                            (($base_id!==$id) ? $id:null),
+                            $data,
+                            $is_not_public_page,
+                            $notify !== false ? ['ntf' => $notify['ntf'], 'fcm' => $notify['fcm'], 'mail' => false ] : false
+                        );
+                    }
+                }
+            }
         }
 
         if(count($pevent) > 0){
@@ -268,35 +293,7 @@ class Post extends AbstractService
             );
         }
 
-        if(count($mentions[0]) > 0){
-            $ar_users = $this->getServiceHashtag()->addMentions($id, $mentions);
-            if($is_not_public_page){
-                $ar_buffer = [];
-                $ar_subscribers = $this->getServicePage()->getListSuscribersId($m_post_base->getTPageId());
-                foreach($ar_users as $user_id){
-                    if(in_array($user_id, $ar_subscribers)){
-                        $ar_buffer[] = $user_id;
-                    }
-                }
-                $ar_users = $ar_buffer;
-            }
-            if(count($ar_users) > 0){
-                $date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
-                foreach($ar_users as $uid){
-                    $this->getServicePostSubscription()->add(
-                        'M'.$uid,
-                        $id,
-                        $date,
-                        ModelPostSubscription::ACTION_TAG,
-                        $user_id,
-                        (($base_id!==$id) ? $id:null),
-                        $data,
-                        $is_not_public_page,
-                        $notify !== false ? ['ntf' => $notify['ntf'], 'fcm' => $notify['fcm'], 'mail' => false ] : false
-                    );
-                }
-            }
-        }
+
 
         return $id;
     }
@@ -388,7 +385,6 @@ class Post extends AbstractService
         $replace_sub = null,
         $notify = null
     ) {
-
         $user_id = $this->getServiceUser()->getIdentity()['id'];
         $date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
 
@@ -403,11 +399,6 @@ class Post extends AbstractService
 
         // create where request
         $w = ($uid !== false) ?  ['id' => $id] : ['id' => $id, 'user_id' => $user_id];
-
-        if (!empty($data) && !is_string($data)) {
-            $data = json_encode($data);
-        }
-
         $m_post = $this->getModel()
             ->setContent($content)
             ->setLink(($link==='')?new IsNull():$link)
@@ -418,7 +409,7 @@ class Post extends AbstractService
             ->setLat($lat)
             ->setLng($lng)
             ->setItemId($item_id)
-            ->setData($data)
+            ->setData(!empty($data) && !is_string($data) ? json_encode($data) : $data)
             ->setUpdatedDate($date);
 
         if (null !== $docs) {
@@ -807,11 +798,12 @@ class Post extends AbstractService
      * @param  string $data
      * @param  string $event
      * @param  array  $sub
+     * @param  array  $notify
      * @return int
      */
-    public function updateSys($uid, $content, $data, $event, $sub = null)
+    public function updateSys($uid, $content, $data, $event, $sub = null, $notify = null)
     {
-       return $this->_update(null, $content, null, null, null, null, null, null, null, null, $data, $event, $uid, $sub);
+       return $this->_update(null, $content, null, null, null, null, null, null, null, null, $data, $event, $uid, $sub, null, null, $notify);
     }
 
     /**

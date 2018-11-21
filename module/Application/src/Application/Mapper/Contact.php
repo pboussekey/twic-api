@@ -54,20 +54,25 @@ class Contact extends AbstractMapper
                 deleted IS false'
             ]);
         if (null !== $user) {
-            $select->where(['contact.user_id' => $user]);
+            $select
+              ->join('user', 'contact.contact_id = user.id', [])
+              ->where('user.deleted_date IS NULL')
+              ->where(['contact.user_id' => $user]);
         }
         if (null !== $contact) {
-            $select->where(['contact.contact_id' => $contact]);
+            $select->where(['contact.contact_id' => $contact])
+              ->join('user', 'contact.user_id = user.id', [])
+              ->where('user.deleted_date IS NULL');
         }
         return $this->selectWith($select);
     }
-    
+
     public function getAcceptedCount($me, $interval, $start_date = null, $end_date = null, $organization_id = null, $date_offset = 0)
     {
         $select = $this->tableGateway->getSql()->select();
         $select->columns(
-            [ 
-                'contact$accepted_date' => new Expression('SUBSTRING(DATE_SUB(contact.accepted_date, INTERVAL '.$date_offset.' HOUR ),1,'.$interval.')'), 
+            [
+                'contact$accepted_date' => new Expression('SUBSTRING(DATE_SUB(contact.accepted_date, INTERVAL '.$date_offset.' HOUR ),1,'.$interval.')'),
             'contact$accepted' => new Expression('COUNT(DISTINCT contact.id)')]
         )
             ->where('contact.deleted_date IS NULL')
@@ -84,21 +89,21 @@ class Contact extends AbstractMapper
         if(null !== $end_date) {
             $select->where(['contact.accepted_date < ? ' => $end_date]);
         }
-        
+
         return $this->selectWith($select);
     }
-    
+
     public function getRequestsCount($me, $interval, $start_date = null, $end_date = null, $organization_id = null, $date_offset = 0)
     {
         $select = $this->tableGateway->getSql()->select();
         $select->columns(
-            [ 'contact$request_date' => new Expression(' SUBSTRING(DATE_SUB(contact.request_date, INTERVAL '.$date_offset. ' HOUR ),1,'.$interval.')'), 
+            [ 'contact$request_date' => new Expression(' SUBSTRING(DATE_SUB(contact.request_date, INTERVAL '.$date_offset. ' HOUR ),1,'.$interval.')'),
                           'contact$requested' => new Expression('COUNT(DISTINCT contact.id)')]
         )
             ->where('contact.deleted_date IS NULL')
             ->where('contact.requested IS TRUE')
             ->group(new Expression(' SUBSTRING(DATE_SUB(contact.request_date, INTERVAL '.$date_offset. ' HOUR ),1,'.$interval.')'));
-        
+
         if (null != $organization_id) {
             $select->join('user', 'contact.user_id = user.id', [])
                 ->join('page_user', 'user.id = page_user.user_id', [])
@@ -111,7 +116,7 @@ class Contact extends AbstractMapper
             $select->where(['contact.request_date < ? ' => $end_date]);
         }
         return $this->selectWith($select);
-        
-      
+
+
     }
 }

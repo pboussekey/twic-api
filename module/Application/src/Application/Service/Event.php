@@ -141,7 +141,20 @@ class Event extends AbstractService
                 return sprintf('<b>%s</b> %s has been published on <b>%s</b>', $d['itemtitle'],$d['itemtype'], $d['pagetitle']);
             case 'item.update':
                 return sprintf('<b>%s</b> %s has been updated on <b>%s</b>', $d['itemtitle'],$d['itemtype'], $d['pagetitle']);
+            case 'connection.request':
+                return sprintf('<b>%s</b>%s sent you a connection request', $d['user'],$d['others']);
+            case 'connection.accept':
+                return sprintf('<b>%s</b> accepted your connection request', $d['user']);
 
+        }
+    }
+
+    function getCount($event, $count){
+        switch($event){
+            case 'connection.request':
+                return "";
+            default:
+                return sprintf('And <b>%s</b> more...', $count);
         }
     }
 
@@ -149,7 +162,8 @@ class Event extends AbstractService
     /**
      * create un event puis envoye un evenement "notification.publish"
      *
-     * @param  string $event    Event name
+     * @param  string $type    Event type
+     * @param  string $action    Event action
      * @param  mixed $data    Event data
      * @param  array|string  $libelle Subscription to event
      * @param  mixed  $notify medium used to notify ['ntf' => true/false => "Enable/disable notification bell in header", 'fcm' => null/package => "Package to send for fcm", 'mail' => false/int => "Dont 'send or inactivity days required to send an email"]
@@ -158,7 +172,7 @@ class Event extends AbstractService
      *
      * @return int
      */
-    public function create($event, $data, $libelle, $notify = null)
+    public function create($type, $action, $data, $libelle, $notify = null)
     {
         if(null === $notify){
             $notify = ['ntf' => true, 'fcm' => false, 'mail' => 7];
@@ -166,7 +180,7 @@ class Event extends AbstractService
         else if(false === $notify){
             $notify = ['ntf' => false, 'fcm' => false, 'mail' => false];
         }
-
+        $event = $type.'.'.$action;
         $date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
         $identity = $this->getServiceUser()->getIdentity();
         $source = $this->getDataUser();
@@ -177,20 +191,32 @@ class Event extends AbstractService
             ->setObject(json_encode($data))
             ->setTarget(self::TARGET_TYPE_USER)
             ->setDate($date);
-        if($data['name'] === 'post'){
-            $ar_post = $this->getServicePost()->getPostInfos($data['id']);
+        $ar_data = [];
+        if($type === 'post'){
+            $ar_data = $this->getServicePost()->getPostInfos($data['id']);
             $data = [
                 'source' => '<b>'.$this->getUsername($identity)."</b>",
-                'post_source' => !empty($ar_post['page']['id']) ? ('<b>'.$this->limitText($ar_post['page']['title']).'</b>') : ('<b>'.$this->getUsername($ar_post['user']).'</b>'),
-                'post_owner' => $ar_post['user']['id'] === $identity['id'] ? 'their' : (!empty($ar_post['page']['id']) ? ('<b>'.$this->limitText($ar_post['page']['title']).'</b>') : '{user}'),
-                'post_action'=> $ar_post['type'] === 'reply' ? 'replied to' : 'commented on',
-                'post_type' => $ar_post['type'],
-                'parent_source' =>  !empty($ar_post['parent']['page']['id']) ? ('<b>'.$this->limitText($ar_post['parent']['page']['title'])."</b>'s") : "{user}",
-                'parent_type' => $ar_post['type'] === 'comment' ? 'post' : 'comment',
-                'target_page' => !empty($ar_post['origin']['page']['id']) ? 'in <b>'.$this->limitText($ar_post['origin']['page']['title']).'</b>' : '',
-                'content' => $this->getContent($ar_post['content'])
+                'post_source' => !empty($ar_data['page']['id']) ? ('<b>'.$this->limitText($ar_data['page']['title']).'</b>') : ('<b>'.$this->getUsername($ar_data['user']).'</b>'),
+                'post_owner' => $ar_data['user']['id'] === $identity['id'] ? 'their' : (!empty($ar_data['page']['id']) ? ('<b>'.$this->limitText($ar_data['page']['title']).'</b>') : '{user}'),
+                'post_action'=> $ar_data['type'] === 'reply' ? 'replied to' : 'commented on',
+                'post_type' => $ar_data['type'],
+                'parent_source' =>  !empty($ar_data['parent']['page']['id']) ? ('<b>'.$this->limitText($ar_data['parent']['page']['title'])."</b>'s") : "{user}",
+                'parent_type' => $ar_data['type'] === 'comment' ? 'post' : 'comment',
+                'target_page' => !empty($ar_data['origin']['page']['id']) ? 'in <b>'.$this->limitText($ar_data['origin']['page']['title']).'</b>' : '',
+                'content' => $this->getContent($ar_data['content'])
             ];
 
+        }
+        else if($type === 'connection'){
+            $res_request = $this->getServiceContact()->getListRequestId($data['contact']);
+            $nb_requests = count($res_request);
+            $ar_data = $this->getServiceUser()->getLite($data['user'])->toArray();
+
+            $data = [
+                'user' => $this->getUsername($ar_data),
+                'contact' => $data['contact'],
+                'others' => $nb_requests > 1 ? (' and '.($nb_requests - 1). ' other'.($nb_requests > 2 ? 's' : '')) : ''
+            ];
         }
         else{
             $data = $object;
@@ -201,11 +227,11 @@ class Event extends AbstractService
         switch($event){
             case 'post.tag':
             case 'post.create':
-                $target = $ar_post['user'];
-                $m_event->setPicture( !empty($ar_post['page']['id']) ? $ar_post['page']['logo'] : $ar_post['user']['avatar']);
+                $target = $ar_data['user'];
+                $m_event->setPicture( !empty($ar_data['page']['id']) ? $ar_data['page']['logo'] : $ar_data['user']['avatar']);
             break;
             case 'post.like':
-                $target = $ar_post['user'];
+                $target = $ar_data['user'];
                 $m_event->setPicture($source['data']['avatar']);
             break;
             case 'item.publish':
@@ -213,9 +239,14 @@ class Event extends AbstractService
                 $target = $identity;
                 $m_event->setPicture(  !empty($data['pagelogo']) ? $data['pagelogo'] : null);
             break;
+            case 'connection.accept':
+            case 'connection.request':
+                $target = ['id' => $data['contact']];
+                $m_event->setPicture(  !empty($ar_data['avatar']) ? $ar_data['avatar'] : null);
+            break;
             default:
-                $target = $ar_post['parent']['user'];
-                $m_event->setPicture( !empty($ar_post['page']['id']) ? $ar_post['page']['logo'] : $ar_post['user']['avatar']);
+                $target = $ar_data['parent']['user'];
+                $m_event->setPicture( !empty($ar_data['page']['id']) ? $ar_data['page']['logo'] : $ar_data['user']['avatar']);
             break;
         }
         $m_event->setTargetId($target['id']);
@@ -246,13 +277,12 @@ class Event extends AbstractService
                         try{
                               $fcm_service = $this->getServiceFcm();
                               $gcm_notification = new GcmNotification();
-                              //@TODO Titre notification dynamique
                               $gcm_notification->setTitle("TWIC")
                                   ->setSound("default")
                                   ->setColor("#00A38B")
                                   ->setIcon("icon")
                                   ->setTag("TWIC:".$event)
-                                  ->setBody(strip_tags ($gcm_text));
+                                  ->setBody(strip_tags(htmlspecialchars_decode($gcm_text)));
 
                               $this->getServiceFcm()->send($uid, null, $gcm_notification, $notify['fcm'] );
                         }
@@ -309,53 +339,6 @@ class Event extends AbstractService
 
     // ------------- DATA OBJECT -------------------
 
-    /**
-     * Get Data Post
-     *
-     * @param  int $post_id
-     * @return array
-     */
-    private function getDataPost($post_id)
-    {
-        $ar_post = $this->getServicePost()->getLite($post_id)->toArray();
-        $ar_data = [
-            'id' => $ar_post['id'],
-            'name' => 'post',
-            'data' => [
-                'id' =>  $ar_post['id'],
-                'content' => $ar_post['content'],
-                'picture' => $ar_post['picture'],
-                'name_picture' => $ar_post['name_picture'],
-                'link' => $ar_post['link'],
-                't_page_id' => $ar_post['t_page_id'],
-                't_user_id' => $ar_post['t_user_id'],
-                'user_id' => $ar_post['user_id'],
-                'parent_id' => $ar_post['parent_id'],
-                'origin_id' => $ar_post['origin_id'],
-                'shared_id' => $ar_post['shared_id'],
-                'page_id' => $ar_post['page_id'],
-                'type' => $ar_post['type'],
-            ]
-        ];
-
-
-        if(null !== $ar_post['page_id']){
-            $ar_page = $this->getServicePage()->getLite($ar_post['t_page_id'])->toArray();
-            $ar_data['data']['page'] = $ar_page;
-        }
-
-        if(null !== $ar_post['t_page_id']){
-            $ar_page = $this->getServicePage()->getLite($ar_post['t_page_id'])->toArray();
-            $ar_data['data']['target'] = $ar_page;
-        }
-
-        if(null !== $ar_post['user_id']){
-            $ar_page = $this->getServiceuser()->getLite($ar_post['user_id'])->toArray();
-            $ar_data['data']['user'] = $ar_page;
-        }
-
-        return $ar_data;
-    }
 
     /**
      * Get Data User.
@@ -426,63 +409,56 @@ class Event extends AbstractService
                 //MAIN NOTIFICATION
                 'ntf_picture' => '',
                 'ntf_text' => '',
-                'ntf_display_count' => 'none',
-                'ntf_count' => 0,
+                'ntf_count' => '',
                 //NTF1
                 'ntf1_display' => 'none',
                 'ntf1_picture' => '',
                 'ntf1_text' => '',
-                'ntf1_display_count' => 'none',
-                'ntf1_count' => 0,
-                'ntf1_date' => 0,
-                'ntf1_icon' => 0,
+                'ntf1_count' => '',
+                'ntf1_date' => '',
+                'ntf1_icon' => '',
                 //NTF2
                 'ntf2_display' => 'none',
                 'ntf2_picture' => '',
                 'ntf2_text' => '',
-                'ntf2_display_count' => 'none',
-                'ntf2_count' => 0,
-                'ntf2_date' => 0,
-                'ntf2_icon' => 0,
+                'ntf2_count' => '',
+                'ntf2_date' => '',
+                'ntf2_icon' => '',
                 //NTF3
                 'ntf3_display' => 'none',
                 'ntf3_picture' => '',
                 'ntf3_text' => '',
-                'ntf3_display_count' => 'none',
-                'ntf3_count' => 0,
-                'ntf3_date' => 0,
-                'ntf3_icon' => 0,
+                'ntf3_count' => '',
+                'ntf3_date' => '',
+                'ntf3_icon' => '',
                 //NTF4
                 'ntf4_display' => 'none',
                 'ntf4_picture' => '',
                 'ntf4_text' => '',
-                'ntf4_display_count' => 'none',
-                'ntf4_count' => 0,
-                'ntf4_date' => 0,
-                'ntf4_icon' => 0,
+                'ntf4_count' => '',
+                'ntf4_date' => '',
+                'ntf4_icon' => '',
                 //NTF5
                 'ntf5_display' => 'none',
                 'ntf5_picture' => '',
                 'ntf5_text' => '',
-                'ntf5_display_count' => 'none',
-                'ntf5_count' => 0,
-                'ntf5_date' => 0,
-                'ntf5_icon' => 0,
+                'ntf5_count' => '',
+                'ntf5_date' => '',
+                'ntf5_icon' => '',
             ];
             $idx = 1;
             foreach($events as $event){
                 if($event['event'] === $ev){
                     $labels['ntf_picture'] =  (null !== $event['picture']) ? ($urldms.$event['picture'].'-80m80') : null;
                     $labels['ntf_text'] = $event['text'];
-                    $labels['ntf_display_count'] = $event['count'] > 1 ? 'block' : 'none';
-                    $labels['ntf_count'] = $event['count'] - 1;
+                    $labels['title'] = strip_tags(htmlspecialchars_decode($event['text']));
+                    $labels['ntf_count'] = $event['count']  > 1 ? $this->getCount($event, $event['count']) : '';
                 }
                 else if($idx < 6){
                       $labels['ntf'.$idx.'_display'] = 'block';
                       $labels['ntf'.$idx.'_picture'] = (null !== $event['picture']) ? ($urldms.$event['picture'].'-80m80') : null;
                       $labels['ntf'.$idx.'_text'] = $event['text'];
-                      $labels['ntf'.$idx.'_display_count'] = $event['count'] > 1 ? 'block' : 'none';
-                      $labels['ntf'.$idx.'_count'] = $event['count'] - 1;
+                      $labels['ntf'.$idx.'_count'] = $event['count']  > 1 ? $this->getCount($event, $event['count']) : '';
                       $labels['ntf'.$idx.'_icon'] = $organization->getLibelle().".".$urlui.'/assets/img/mail/'.$event['event'].'.png';
                       $labels['ntf'.$idx.'_date'] = $event['date'];
                       $idx++;

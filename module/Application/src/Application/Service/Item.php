@@ -621,7 +621,7 @@ class Item extends AbstractService
 
 
                 $this->getServiceEvent()->create(
-                    'item.publish',
+                    'item', 'publish',
                     $this->getServiceEvent()->getDataUser($identity['id']),
                     [
                         'name' => 'item',
@@ -752,7 +752,7 @@ class Item extends AbstractService
                 $ar_pages = [];
                 $m_item = $this->getLite($id)->current();
                 $this->getServiceEvent()->create(
-                    'item.update',
+                    'item', 'update',
                     $this->getServiceEvent()->getDataUser($identity['id']),
                     [
                         'name' => 'item',

@@ -32,15 +32,12 @@ class PostSubscription extends AbstractService
             $libelle = [$libelle];
         }
 
-        if (is_array($data)) {
-            $data = json_encode($data);
-        }
         $m_post_subscription = $this->getModel()
             ->setPostId($post_id)
             ->setAction($action)
             ->setUserId($user_id)
             ->setSubPostId($sub_post_id)
-            ->setData($data)
+            ->setData(is_array($data) ? json_encode($data) : $data)
             ->setLastDate($last_date);
         foreach ($libelle as $l) {
             $m_post_subscription->setLibelle($l);
@@ -55,8 +52,7 @@ class PostSubscription extends AbstractService
                 }
             }
         }
-
-        $this->getServiceEvent()->create($m_post->getType().'.'.$action, ['id' => ($sub_post_id !== null) ? $sub_post_id : $post_id, 'name' => 'post'], $libelle, $notify );
+        $this->getServiceEvent()->create($m_post->getType(), $action, $data, $libelle, $notify );
 
         return true;
     }
