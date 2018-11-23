@@ -112,44 +112,26 @@ class Message extends AbstractService
         }
         $this->sendMessage($ar_message);
 
-        //////////////////// USER //////////////////////////////////
-        $res_user = $this->getServiceUser()->getLite($to);
-        $ar_name = [];
-        foreach ($res_user as $m_user) {
-            $ar_name[$m_user->getId()] = substr($m_user->getFirstname(),0,1).'. '.$m_user->getLastname();
-        }
+
+        $sub = [];
         foreach ($to as $user) {
-            ////////////////////// DOCUMENT /////////////////////////////
-            $docs = [];
-            if ($user_id != $user) {
-                $gcm_notification = new GcmNotification();
-                $tmp_ar_name = $ar_name;
-                unset($tmp_ar_name[$user]);
-                $gcm_notification->setTitle(implode(", ", $tmp_ar_name))
-                    ->setSound("default")
-                    ->setColor("#00A38B")
-                    ->setIcon("icon")
-                    ->setTag("CONV".$conversation_id)
-                    ->setBody(((count($to) > 2)? explode(' ', $ar_name[$user_id])[0] . ": ":"").(empty($text)?"shared a file.":$text));
-
-
-                $this->getServiceFcm()->send(
-                    $user,
-                    ['data' => [
-                        'type' => 'message',
-                        'data' => ['users' => $to,
-                            'from' => $user_id,
-                            'conversation' => (int)$conversation_id,
-                            'message' =>  (int)$id,
-                            'text' => $text,
-                            'doc' => 'document'
-                        ],
-                    ]],
-                    $gcm_notification,
-                    Fcm::PACKAGE_TWIC_MESSENGER
-                );
-            }
+            $sub[] = 'M'.$user;
         }
+        $m_user = $this->getServiceUser()->getLite($user_id);
+        $this->getServiceEvent()->create(
+            'message',
+            'send',
+            $sub,
+            [
+                'from_id' => $m_user->getId(),
+                'conversation_id' => (int)$conversation_id,
+                'picture' => $m_user->getAvatar()
+            ],
+            [
+              'user' => $m_user->getFirstname().' '.$m_user->getLastname(),
+              'text' => !empty($text) ? sprintf(": &laquo;%s&raquo;", $text) : $text
+            ],
+            [ 'fcm' => Fcm::PACKAGE_TWIC_MESSENGER, 'mail' => 3]);
 
         return [
         'message_id' => $id,
@@ -187,7 +169,7 @@ class Message extends AbstractService
      * @param int   $conversation_id
      * @param array $filter
      */
-    public function getList($conversation_id, $filter = [], $unread)
+    public function getList($conversation_id, $filter = [], $unread = null)
     {
         $user_id = $this->getServiceUser()->getIdentity()['id'];
 

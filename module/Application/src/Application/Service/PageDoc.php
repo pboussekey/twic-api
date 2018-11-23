@@ -36,69 +36,20 @@ class PageDoc extends AbstractService
         $this->getMapper()->insert($m_page_doc);
         $m_page = $this->getServicePage()->getLite($page_id);
         if ($m_page->getType() == ModelPage::TYPE_COURSE && $notify===true) {
-            $identity = $this->getServiceUser()->getIdentity();
-            $ar_pages = [];
-            $res_user = $this->getServiceUser()->getLite($this->getServicePageUser()->getListByPage($page_id)[$page_id]);
-            if ($res_user !== null) {
-                $logging = new LoggingClient([
-                    'projectId' => 'eloquent-optics-206213'
-                ]);
-                $logger = $logging->psrLogger('FCMLOG');
-                foreach ($res_user as $m_user) {
-                    $m_organization = false;
-                    if(!$m_user->getIsActive()){
-                        continue;
-                    }
-                    
-                    if (! $m_user->getOrganizationId() instanceof IsNull) {
-                        if (! array_key_exists($m_user->getOrganizationId(), $ar_pages)) {
-                            $ar_pages[$m_user->getOrganizationId()] = $this->getServicePage()->getLite($m_user->getOrganizationId());
-                        }
-                        if($m_user->getId() == $identity['id']){
-                            continue;
-                        }
-                        $m_organization = $ar_pages[$m_user->getOrganizationId()];
-
-                        try {
-                            if ($m_user->getHasEmailNotifier() === 1) {
-                                $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && ! empty($m_organization->getLibelle())) ? $m_organization->getLibelle() : null;
-                                $url = sprintf("https://%s%s/page/course/%s/resources", ($prefix ? $prefix . '.' : ''), $this->container->get('config')['app-conf']['uiurl'], $m_page->getId());
-                                $this->getServiceMail()->sendTpl('tpl_coursedoc', $m_user->getEmail(), [
-                                    'pagename' => $m_page->getTitle(),
-                                    'firstname' => $m_user->getFirstName(),
-                                    'pageurl' => $url
-                                ]);
-                            }
-
-                            $gcm_notification = new GcmNotification();
-                            $gcm_notification->setTitle($m_page->getTitle())
-                                ->setSound("default")
-                                ->setColor("#00A38B")
-                                ->setIcon("icon")
-                                ->setTag("PAGEDOV" . $page_id)
-                                ->setBody("A new material has been added to the course " . $m_page->getTitle());
-
-                            $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification, Fcm::PACKAGE_TWIC_APP);
-                            
-                        } catch (\Exception $e) {
-                            $logger->notice("Page Doc catch: " . $e->getMessage());
-                            syslog(1, 'Model name does not exist PageDoc <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode());
-                        }
-                    }
-                }
-                
-                $this->getServiceEvent()->create(
-                    'page.doc',
-                    $this->getServiceEvent()->getDataUser($identity['id']),
-                    [
-                        'library_id' => $library,
-                        'page_id'    => $page_id
-                    ],
-                    ["PP".$page_id],
-                    ModelEvent::TARGET_TYPE_USER,
-                    $identity['id']
-                );
-            }
+            $this->getServiceEvent()->create(
+                'page','doc',
+                ["PP".$page_id],
+                [
+                    'picture' => !($m_page->getLogo() instanceof IsNull) ? $m_page->getLogo() : null,
+                    'page_id'    => $page_id,
+                    'ressource_id'    => $library,
+                    'pagetype' => $m_page->getType(),
+                ],
+                [
+                    'pagetitle' => $m_page->getTitle()
+                ],
+                ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => 0]
+            );
         }
         return $library;
     }
@@ -157,7 +108,7 @@ class PageDoc extends AbstractService
     {
         return $this->container->get('app_service_library');
     }
-    
+
     /**
      * Get Service Event
      *

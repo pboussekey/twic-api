@@ -73,9 +73,26 @@ class Mail
             ->setEncoding('UTF-8')
             ->setBodyTpl($name, $datas)
             ->setTo($to);
-            
+
         $this->getTransport()->send($message);
 
+        return true;
+    }
+
+    public function sendMultiTpl($name, $to)
+    {
+        $template = $this->getMessage()
+            ->setTplStorage($this->tpl_storage)
+            ->setEncoding('UTF-8');
+
+        foreach($to as $email => $data){
+            $message = clone $template;
+            $message
+            ->setBodyTpl($name, $data)
+            ->setTo($email);
+            syslog(1, $email." => ".json_encode($data));
+            $this->getTransport()->send($message);
+        }
         return true;
     }
 

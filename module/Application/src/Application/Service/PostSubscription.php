@@ -14,6 +14,12 @@ use Application\Model\PostSubscription as ModelPostSubscription;
  */
 class PostSubscription extends AbstractService
 {
+
+    function limitText($text, $length = 50){
+        return strlen($text) > $length ? substr($text, 0,  $length).'...' : $text;
+    }
+
+
     /**
      * Add Post Subscription
      *
@@ -52,7 +58,62 @@ class PostSubscription extends AbstractService
                 }
             }
         }
-        $this->getServiceEvent()->create($m_post->getType(), $action, $data, $libelle, $notify );
+        $post_data = $this->getServicePost()->getPostInfos(null !== $sub_post_id ? $sub_post_id : $post_id);
+        $identity = $this->getServiceUser()->getIdentity();
+        if(!empty($post_data['content'])){
+            $mentions = [];
+            $users = [];
+            preg_match_all ( '/@{user:(\d+)}/', $post_data['content'], $mentions );
+            for ($i = 0; $i < count($mentions[0]); $i++) {
+                $mention = $mentions[0][$i];
+                $uid = $mentions[1][$i];
+                if(!isset($users[$uid] )){
+                    $users[$uid] = $this->getServiceUser()->getLite($uid);
+                }
+                if(false !== $users[$uid]){
+                    $post_data['content'] = str_replace($mention, strtolower('@'.$users[$uid]->getFirstname().$users[$uid]->getLastName()), $post_data['content']);
+                }
+            }
+            $post_data['content'] = ": &laquo;".$this->limitText($post_data['content'])."&raquo;";
+        }
+
+        $target = null;
+        $picture = null;
+        switch($action){
+            case 'like':
+              $data['target'] = $post_data['user']['id'];
+              $data['picture'] = $identity['avatar'];
+            break;
+            case 'create':
+            case 'tag':
+                $data['target'] = $post_data['user']['id'];
+                $data['picture'] = !empty($post_data['page']['id']) ? $post_data['page']['logo'] : $post_data['user']['avatar'];
+            break;
+            case 'request':
+            case 'accept':
+                $m_user = $this->getServiceUser()->getLite($data['user']);
+                $data['target'] = $data['contact'];
+                $data['picture'] = !($m_user->getAvatar() instanceof IsNull)? $m_user->getAvatar() : null;
+            break;
+            default:
+                $data['target'] = $post_data['parent']['user']['id'];
+                $data['picture'] = !empty($post_data['page']['id']) ? $post_data['page']['logo'] : $post_data['user']['avatar'];
+            break;
+        }
+
+        $labels = [
+            'source' => '<b>'.$identity['firstname'].' '.$identity['lastname']."</b>",
+            'post_source' => !empty($post_data['page']['id']) ? ('<b>'.$this->limitText($post_data['page']['title']).'</b>') : ('<b>'.$post_data['user']['firstname'].' '.$post_data['user']['lastname'].'</b>'),
+            'post_owner' => $post_data['user']['id'] === $identity['id'] ? 'their' : (!empty($post_data['page']['id']) ? ('<b>'.$this->limitText($post_data['page']['title']).'</b>') : '{user}'),
+            'post_action'=> $post_data['parent']['id'] === $post_data['origin']['id'] ? 'commented on' : 'replied to',
+            'post_type' => empty($post_data['parent']['id']) ? 'post' : ($post_data['parent']['id'] === $post_data['origin']['id'] ? 'comment' : 'reply'),
+            'parent_source' =>  !empty($post_data['parent']['page']['id']) ? ('<b>'.$this->limitText($post_data['parent']['page']['title'])."</b>'s") : ($identity['id'] === $target ? "their" : "{user}"),
+            'parent_type' =>  ($post_data['parent']['id'] === $post_data['origin']['id'] ? 'post' : 'comment'),
+            'target_page' => !empty($post_data['origin']['page']['id']) ? 'in <b>'.$this->limitText($post_data['origin']['page']['title']).'</b>' : '',
+            'content' => $post_data['content']
+        ];
+
+        $this->getServiceEvent()->create($post_data['type'], $action, $libelle, $data, $labels, $notify );
 
         return true;
     }

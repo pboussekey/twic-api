@@ -159,7 +159,7 @@ class Post extends AbstractMapper
             'post$picture' => new Expression('COALESCE(post.picture,  post_parent.picture, post_origin.picture)'),
             'post$name_picture' => new Expression('COALESCE(post.name_picture, post_parent.name_picture, post_origin.name_picture)'),
             'post$link' => new Expression('COALESCE(post.link, post_parent.link, post_origin.link)'),
-            'post$type' => new Expression('CASE WHEN post.parent_id IS NULL THEN "post" WHEN post.parent_id = post.origin_id THEN "comment" ELSE "reply" END')
+            'type'
           ])
 
           ->join(['post_parent' => 'post'],  new Expression('COALESCE(post.shared_id, post.parent_id) = post_parent.id'), ['id'], $select::JOIN_LEFT)

@@ -622,21 +622,20 @@ class Item extends AbstractService
 
                 $this->getServiceEvent()->create(
                     'item', 'publish',
-                    $this->getServiceEvent()->getDataUser($identity['id']),
+                    ["PP".$page_id],
                     [
-                        'name' => 'item',
                         'item_id' => $id,
                         'page_id'    => $page_id,
-                        'pagetitle' => $m_page->getTitle(),
-                        'pagelogo' => $m_page->getLogo(),
-                        'itemtitle' => $m_item->getTitle(),
-                        'itemtype' => ModelItem::type_relation[$m_item->getType()],
+                        'page_type' => $m_page->getType(),
+                        'picture' => !($m_page->getLogo() instanceof IsNull) ? $m_page->getLogo() : null
                     ],
-                    ["PP".$page_id],
-                    ModelEvent::TARGET_TYPE_USER,
-                    $identity['id'],
-                    Fcm::PACKAGE_TWIC_APP,
-                    0
+                    [
+                      'pagetitle' => $m_page->getTitle(),
+                      'pagelogo' => $m_page->getLogo(),
+                      'itemtitle' => $m_item->getTitle(),
+                      'itemtype' => ModelItem::type_relation[$m_item->getType()]
+                    ],
+                    ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => 0]
                 );
                 $res_group = $this->getServiceGroup()->getList($m_item->getId())[$m_item->getId()];
                 foreach($res_group as $m_group){
@@ -736,7 +735,7 @@ class Item extends AbstractService
 
 
         if (null !== $post_id) {
-            $this->getServicePost()->_update($post_id, null, null, null, null, null, null, null, null, null, null, null, null, null, $id);
+            $this->getServicePost()->_update($post_id, null, null, null, null, null, null, null, null, null, null, null, null, null, $id, null, false);
         }
         if (null !== $quiz_id) {
             $this->getServiceQuiz()->update($quiz_id, $id);
@@ -753,21 +752,19 @@ class Item extends AbstractService
                 $m_item = $this->getLite($id)->current();
                 $this->getServiceEvent()->create(
                     'item', 'update',
-                    $this->getServiceEvent()->getDataUser($identity['id']),
+                    ["PP".$m_page->getId()],
                     [
-                        'name' => 'item',
                         'item_id' => $id,
-                        'page_id'    => $m_page->getId(),
+                        'page_id' => $m_page->getId(),
+                        'page_type' => $m_page->getType(),
+                        'picture' => !($m_page->getLogo() instanceof IsNull) ? $m_page->getLogo() : null
+                    ],
+                    [
                         'pagetitle' => $m_page->getTitle(),
-                        'pagelogo' => $m_page->getLogo(),
                         'itemtitle' => $m_item->getTitle(),
                         'itemtype' => ModelItem::type_relation[$m_item->getType()],
                     ],
-                    ["PP".$m_page->getId()],
-                    ModelEvent::TARGET_TYPE_USER,
-                    $identity['id'],
-                    Fcm::PACKAGE_TWIC_APP,
-                    0
+                    ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => 0]
                 );
             }
         }

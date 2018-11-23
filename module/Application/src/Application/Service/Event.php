@@ -101,27 +101,7 @@ class Event extends AbstractService
         return strlen($text) > $length ? substr($text, 0,  $length).'...' : $text;
     }
 
-    function getContent($content){
-        if(empty($content)){
-            return "";
-        }
-        else{
-            $mentions = [];
-            $users = [];
-            preg_match_all ( '/@{user:(\d+)}/', $content, $mentions );
-            for ($i = 0; $i < count($mentions[0]); $i++) {
-                $mention = $mentions[0][$i];
-                $uid = $mentions[1][$i];
-                if(!isset($users[$uid] )){
-                    $users[$uid] = $this->getServiceUser()->getLite($uid);
-                }
-                if(false !== $users[$uid]){
-                    $content = str_replace($mention, strtolower('@'.$users[$uid]->getFirstname().$users[$uid]->getLastName()), $content);
-                }
-            }
-            return ": &laquo;".$this->limitText($content)."&raquo;";
-        }
-    }
+
 
 
 
@@ -138,26 +118,57 @@ class Event extends AbstractService
             case 'post.share':
                 return sprintf('%s shared %s post %s%s', $d['post_source'], $d['parent_source'], $d['target_page'], $d['content']);
             case 'item.publish':
-                return sprintf('<b>%s</b> %s has been published on <b>%s</b>', $d['itemtitle'],$d['itemtype'], $d['pagetitle']);
+                return sprintf('<b>%s</b> %s has been published in <b>%s</b>', $d['itemtitle'],$d['itemtype'], $d['pagetitle']);
             case 'item.update':
-                return sprintf('<b>%s</b> %s has been updated on <b>%s</b>', $d['itemtitle'],$d['itemtype'], $d['pagetitle']);
+                return sprintf('<b>%s</b> %s has been updated in <b>%s</b>', $d['itemtitle'],$d['itemtype'], $d['pagetitle']);
             case 'connection.request':
-                return sprintf('<b>%s</b>%s sent you a connection request', $d['user'],$d['others']);
+                return sprintf('%s sent you a connection request', $d['source']);
             case 'connection.accept':
-                return sprintf('<b>%s</b> accepted your connection request', $d['user']);
-
+                return sprintf('You are now connected with %s', $d['source']);
+            case 'message.send':
+                return sprintf('You have an unread message from <b>%s</b>%s', $d['user'], $d['text']);
+            case 'page.doc':
+                return sprintf('A new material has been added to in <b>%s</b>', $d['pagetitle']);
+            case 'page.member':
+                return sprintf('You are enrolled in <b>%s</b>',  $d['pagetitle']);
+            case 'page.pending':
+                return sprintf('You are invited to join <b>%s</b>', $d['pagetitle']);
+            case 'page.invited':
+                return sprintf('<b>%s</b> requested to join <b>%s</b>', $d['source'], $d['pagetitle']);
         }
     }
 
-    function getCount($event, $count){
+    function getLink($event, $d){
         switch($event){
+            case 'post.create':
+            case 'post.tag':
+            case 'post.share':
+                return sprintf('/dashboard/%s', $d['id']);
+            case 'post.com':
+            case 'post.like':
+                return sprintf('/dashboard/%s', !empty($d['origin_id']) ? $d['origin_id'] : $d['id'] );
             case 'connection.request':
-                return "";
-            default:
-                return sprintf('And <b>%s</b> more...', $count);
+            case 'connection.accept':
+                return sprintf('/profile/%s',  $d['user'] );
+            case 'item.publish':
+            case 'item.update':
+                return sprintf('/page/%s%/%s/content/%s',  $d['page_type'],  $d['page_id'],  $d['item_id'] );
+            case 'message.send':
+                return '';
+            case 'page.doc':
+                return sprintf('/page/%s%/%s/resources/%s',  $d['page_type'],  $d['page_id'],  $d['library'] );
+            case 'page.member':
+            case 'page.pending':
+            case 'page.invited':
+                $page_type = [
+                    'event' => 'event',
+                    'group' => 'club',
+                    'organization' => 'institution',
+                    'course' => 'course'
+                ];
+                return sprintf('/page/%s%/%s/everyone',  $page_type[$d['page_type']],  $d['page_id'] );
         }
     }
-
 
     /**
      * create un event puis envoye un evenement "notification.publish"
@@ -166,19 +177,19 @@ class Event extends AbstractService
      * @param  string $action    Event action
      * @param  mixed $data    Event data
      * @param  array|string  $libelle Subscription to event
-     * @param  mixed  $notify medium used to notify ['ntf' => true/false => "Enable/disable notification bell in header", 'fcm' => null/package => "Package to send for fcm", 'mail' => false/int => "Dont 'send or inactivity days required to send an email"]
+     * @param  mixed  $notify medium used to notify ['fcm' => null/package => "Package to send for fcm", 'mail' => false/int => "Dont 'send or inactivity days required to send an email"]
      *
      * @throws \Exception
      *
      * @return int
      */
-    public function create($type, $action, $data, $libelle, $notify = null)
+    public function create($type, $action,  $libelle, $event_data, $text_data, $notify = null)
     {
         if(null === $notify){
-            $notify = ['ntf' => true, 'fcm' => false, 'mail' => 7];
+            $notify = ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => 7];
         }
         else if(false === $notify){
-            $notify = ['ntf' => false, 'fcm' => false, 'mail' => false];
+            $notify = [ 'fcm' => false, 'mail' => false];
         }
         $event = $type.'.'.$action;
         $date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
@@ -188,112 +199,34 @@ class Event extends AbstractService
             ->setUserId($identity['id'])
             ->setEvent($event)
             ->setSource(json_encode($source))
-            ->setObject(json_encode($data))
+            ->setObject(json_encode($event_data))
             ->setTarget(self::TARGET_TYPE_USER)
+            ->setTargetId(isset($event_data['target']) ? $event_data['target'] : null)
+            ->setPicture(isset($event_data['picture']) ? $event_data['picture'] : null)
             ->setDate($date);
-        $ar_data = [];
-        if($type === 'post'){
-            $ar_data = $this->getServicePost()->getPostInfos($data['id']);
-            $data = [
-                'source' => '<b>'.$this->getUsername($identity)."</b>",
-                'post_source' => !empty($ar_data['page']['id']) ? ('<b>'.$this->limitText($ar_data['page']['title']).'</b>') : ('<b>'.$this->getUsername($ar_data['user']).'</b>'),
-                'post_owner' => $ar_data['user']['id'] === $identity['id'] ? 'their' : (!empty($ar_data['page']['id']) ? ('<b>'.$this->limitText($ar_data['page']['title']).'</b>') : '{user}'),
-                'post_action'=> $ar_data['type'] === 'reply' ? 'replied to' : 'commented on',
-                'post_type' => $ar_data['type'],
-                'parent_source' =>  !empty($ar_data['parent']['page']['id']) ? ('<b>'.$this->limitText($ar_data['parent']['page']['title'])."</b>'s") : "{user}",
-                'parent_type' => $ar_data['type'] === 'comment' ? 'post' : 'comment',
-                'target_page' => !empty($ar_data['origin']['page']['id']) ? 'in <b>'.$this->limitText($ar_data['origin']['page']['title']).'</b>' : '',
-                'content' => $this->getContent($ar_data['content'])
-            ];
 
-        }
-        else if($type === 'connection'){
-            $res_request = $this->getServiceContact()->getListRequestId($data['contact']);
-            $nb_requests = count($res_request);
-            $ar_data = $this->getServiceUser()->getLite($data['user'])->toArray();
-
-            $data = [
-                'user' => $this->getUsername($ar_data),
-                'contact' => $data['contact'],
-                'others' => $nb_requests > 1 ? (' and '.($nb_requests - 1). ' other'.($nb_requests > 2 ? 's' : '')) : ''
-            ];
-        }
-        else{
-            $data = $object;
-            $data['source'] = '<b>'.$this->getUsername($identity)."</b>";
-        }
-        $m_event->setText($this->getText($event, $data));
-        $target = null;
-        switch($event){
-            case 'post.tag':
-            case 'post.create':
-                $target = $ar_data['user'];
-                $m_event->setPicture( !empty($ar_data['page']['id']) ? $ar_data['page']['logo'] : $ar_data['user']['avatar']);
-            break;
-            case 'post.like':
-                $target = $ar_data['user'];
-                $m_event->setPicture($source['data']['avatar']);
-            break;
-            case 'item.publish':
-            case 'item.update':
-                $target = $identity;
-                $m_event->setPicture(  !empty($data['pagelogo']) ? $data['pagelogo'] : null);
-            break;
-            case 'connection.accept':
-            case 'connection.request':
-                $target = ['id' => $data['contact']];
-                $m_event->setPicture(  !empty($ar_data['avatar']) ? $ar_data['avatar'] : null);
-            break;
-            default:
-                $target = $ar_data['parent']['user'];
-                $m_event->setPicture( !empty($ar_data['page']['id']) ? $ar_data['page']['logo'] : $ar_data['user']['avatar']);
-            break;
-        }
-        $m_event->setTargetId($target['id']);
+        $m_event->setText($this->getText($event, $text_data));
+        $event_data['text'] = $m_event->getText();
         if ($this->getMapper()->insert($m_event) <= 0) {
             throw new \Exception('error insert event');// @codeCoverageIgnore
         }
 
-
         $m_event->setId($this->getMapper()->getLastInsertValue());
         $this->getServiceEventSubscription()->add($libelle, $m_event->getId());
-
         if(null !== $m_event->getText()){
-            $user = $this->sendData(null, $event, $libelle, $source,
-                                    ['text' => $m_event->getText(), 'target' => $m_event->getTargetId(), 'picture' => $m_event->getPicture() ],
-                                    (new \DateTime($date))->format('Y-m-d\TH:i:s\Z'));
-            if (count($user) > 0) {
-                foreach ($user as $uid) {
-                    if($uid === $identity['id']){
-                        continue;
-                    }
-                    $gcm_text = str_replace('{user}', $m_event->getTargetId() === $uid ? 'your' : ('<b>'.$this->getUsername($target)."</b>'s"), $m_event->getText());
-
-                    if(false !== $notify['ntf']){
-                       $m_event_user = $this->getServiceEventUser()->add($m_event->getId(), $uid, $source, $data);
-                    }
-                    if(false !== $notify['fcm']){
-
-                        try{
-                              $fcm_service = $this->getServiceFcm();
-                              $gcm_notification = new GcmNotification();
-                              $gcm_notification->setTitle("TWIC")
-                                  ->setSound("default")
-                                  ->setColor("#00A38B")
-                                  ->setIcon("icon")
-                                  ->setTag("TWIC:".$event)
-                                  ->setBody(strip_tags(htmlspecialchars_decode($gcm_text)));
-
-                              $this->getServiceFcm()->send($uid, null, $gcm_notification, $notify['fcm'] );
-                        }
-                        catch (\Exception $e) {
-                            syslog(1, 'GCM Notification : ' . json_encode($gcm_text));
-                            syslog(1, $e->getMessage());
-                        }
-                    }
+            $users = $this->sendData(null, $event, $libelle, $source,  $event_data, (new \DateTime($date))->format('Y-m-d\TH:i:s\Z'));
+            if (($idx = array_search($identity['id'], $users)) !== false) {
+                unset($users[$idx]);
+            }
+            if (count($users) > 0) {
+                foreach ($users as $uid) {
+                    $m_event_user = $this->getServiceEventUser()->add($m_event->getId(), $uid, $source, $event_data);
+                }
+                if(false !== $notify['fcm']){
+                    $this->sendFcmNotifications($users, $event, $m_event->getText(), $m_event->getTargetId(), $notify['fcm']);
                 }
                 if(false !== $notify['mail']){
-                    $this->sendRecapEmail($user, $event, $notify['mail']);
+                    $this->sendRecapEmail($users, $event, $notify['mail']);
                 }
             }
         }
@@ -374,11 +307,41 @@ class Event extends AbstractService
         return strlen($text) > $length ? substr($text, $length).'...' : $text;
     }
 
-    function sendRecapEmail($user_id, $ev, $force = false){
+    function sendFcmNotifications($users, $event, $text, $target_id, $package){
+        $target = null;
+        $your_text = $text;
+        $user_text = $text;
+        if(null !== $target_id && false !== strpos('{user}', $text)){
+            $target = $this->getServiceUser()->getLite($target_id);
+            $your_text = strip_tags(html_entity_decode(str_replace('{user}', 'your' , $your_text)));
+            $user_text = strip_tags(html_entity_decode(str_replace('{user}', ('<b>'.$target->getFirstname().' '.$target->getLastname()."</b>'s"), $user_text)));
+        }
+        foreach ($users as $uid) {
+              $ntf_text = $target_id === $uid ? $your_text : $user_text;
+              try{
+                    $fcm_service = $this->getServiceFcm();
+                    $gcm_notification = new GcmNotification();
+                    $gcm_notification->setTitle("TWIC")
+                        ->setSound("default")
+                        ->setColor("#00A38B")
+                        ->setIcon("icon")
+                        ->setTag("TWIC:".$event)
+                        ->setBody($ntf_text);
+
+                    $this->getServiceFcm()->send($uid, null, $gcm_notification, $package);
+              }
+              catch (\Exception $e) {
+                  syslog(1, 'GCM Notification : ' . $ntf_text);
+                  syslog(1, $e->getMessage());
+              }
+        }
+    }
+
+    function sendRecapEmail($users, $ev, $force = false){
 
         $urldms = $this->container->get('config')['app-conf']['urldms'];
         $urlui = $this->container->get('config')['app-conf']['uiurl'];
-        $res_event =  $this->getMapper()->getListUnseen($user_id);
+        $res_event =  $this->getMapper()->getListUnseen($users);
 
         $ar_events = [];
         foreach($res_event as $m_event){
@@ -401,19 +364,24 @@ class Event extends AbstractService
                 $organizations = $this->getServicePage()->getLite($oid);
             }
         }
-
+        $mails = [];
         foreach($ar_events as $uid => $events){
             $m_user = $users[$uid];
             $organization = $organizations[$m_user->getOrganizationId()];
+            $libelle = $organization->getLibelle() instanceof IsNull ? '' : $organization->getLibelle();
             $labels = [
+                'firstname' => $m_user->getFirstname(),
+                'img_folder' => sprintf('https://%s.%s',$libelle,$urlui),
                 //MAIN NOTIFICATION
                 'ntf_picture' => '',
                 'ntf_text' => '',
+                'ntf_link' => '',
                 'ntf_count' => '',
                 //NTF1
                 'ntf1_display' => 'none',
                 'ntf1_picture' => '',
                 'ntf1_text' => '',
+                'ntf1_link' => '',
                 'ntf1_count' => '',
                 'ntf1_date' => '',
                 'ntf1_icon' => '',
@@ -421,6 +389,7 @@ class Event extends AbstractService
                 'ntf2_display' => 'none',
                 'ntf2_picture' => '',
                 'ntf2_text' => '',
+                'ntf2_link' => '',
                 'ntf2_count' => '',
                 'ntf2_date' => '',
                 'ntf2_icon' => '',
@@ -428,6 +397,7 @@ class Event extends AbstractService
                 'ntf3_display' => 'none',
                 'ntf3_picture' => '',
                 'ntf3_text' => '',
+                'ntf3_link' => '',
                 'ntf3_count' => '',
                 'ntf3_date' => '',
                 'ntf3_icon' => '',
@@ -435,6 +405,7 @@ class Event extends AbstractService
                 'ntf4_display' => 'none',
                 'ntf4_picture' => '',
                 'ntf4_text' => '',
+                'ntf4_link' => '',
                 'ntf4_count' => '',
                 'ntf4_date' => '',
                 'ntf4_icon' => '',
@@ -442,6 +413,7 @@ class Event extends AbstractService
                 'ntf5_display' => 'none',
                 'ntf5_picture' => '',
                 'ntf5_text' => '',
+                'ntf5_link' => '',
                 'ntf5_count' => '',
                 'ntf5_date' => '',
                 'ntf5_icon' => '',
@@ -451,21 +423,24 @@ class Event extends AbstractService
                 if($event['event'] === $ev){
                     $labels['ntf_picture'] =  (null !== $event['picture']) ? ($urldms.$event['picture'].'-80m80') : null;
                     $labels['ntf_text'] = $event['text'];
-                    $labels['title'] = strip_tags(htmlspecialchars_decode($event['text']));
-                    $labels['ntf_count'] = $event['count']  > 1 ? $this->getCount($event, $event['count']) : '';
+                    $labels['title'] = strip_tags(html_entity_decode($event['text']));
+                    $labels['ntf_count'] = $event['count']  > 1 ? sprintf('And <b>%s</b> more...', $event['count']) : '';
+                    $labels['ntf_link'] =  sprintf('https://%s.%s%s',$libelle, $urlui, $this->getLink($event['event'],json_decode($event['object'], true)));
                 }
                 else if($idx < 6){
                       $labels['ntf'.$idx.'_display'] = 'block';
                       $labels['ntf'.$idx.'_picture'] = (null !== $event['picture']) ? ($urldms.$event['picture'].'-80m80') : null;
                       $labels['ntf'.$idx.'_text'] = $event['text'];
-                      $labels['ntf'.$idx.'_count'] = $event['count']  > 1 ? $this->getCount($event, $event['count']) : '';
-                      $labels['ntf'.$idx.'_icon'] = $organization->getLibelle().".".$urlui.'/assets/img/mail/'.$event['event'].'.png';
+                      $labels['ntf'.$idx.'_count'] = $event['count']  > 1 ? sprintf('And <b>%s</b> more...', $event['count']) : '';
+                      $labels['ntf'.$idx.'_icon'] = '/assets/img/mail/'.$event['event'].'.png';
                       $labels['ntf'.$idx.'_date'] = $event['date'];
+                      $labels['ntf'.$idx.'_link'] =  sprintf('https://%s.%s%s',$libelle, $urlui, $this->getLink($event['event'],json_decode($event['object'], true)));
                       $idx++;
                 }
             }
-            $this->getServiceMail()->sendTpl('tpl_newactivity', $m_user->getEmail(), $labels);
+            $mails[$m_user->getEmail()] = $labels;
         }
+        $this->getServiceMail()->sendMultiTpl('tpl_newactivity', $mails);
     }
 
 

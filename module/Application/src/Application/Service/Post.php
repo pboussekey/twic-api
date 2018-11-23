@@ -223,7 +223,7 @@ class Post extends AbstractService
             }
         }
         if($notify === null ) {
-            $notify = ['ntf' => true, 'fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => 7];
+            $notify = ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => 7];
             if($parent_id == null && null === $item_id && !$is_notif && $t_page_id != null && $this->getServicePage()->isAdmin($t_page_id)) {
                 $m_page = $this->getServicePage()->getLite($t_page_id);
                 if($m_page->getType() == ModelPage::TYPE_COURSE && $type === 'post' && $m_page->getIsPublished()) {
@@ -272,7 +272,7 @@ class Post extends AbstractService
                             (($base_id!==$id) ? $id:null),
                             $data,
                             $is_not_public_page,
-                            $notify !== false ? ['ntf' => $notify['ntf'], 'fcm' => $notify['fcm'], 'mail' => false ] : false
+                            $notify !== false ? ['fcm' => $notify['fcm'], 'mail' => false ] : false
                         );
                     }
                 }
@@ -399,6 +399,13 @@ class Post extends AbstractService
 
         // create where request
         $w = ($uid !== false) ?  ['id' => $id] : ['id' => $id, 'user_id' => $user_id];
+        $d = ['id' => (int)$id ];
+        if (is_array($data)) {
+            $data = array_merge($d, $data);
+        } else {
+            $data = $d;
+        }
+
         $m_post = $this->getModel()
             ->setContent($content)
             ->setLink(($link==='')?new IsNull():$link)
@@ -577,44 +584,7 @@ class Post extends AbstractService
      */
     public function like($id)
     {
-        $m_post = $this->getLite($id);
-        $user_id = $this->getServiceUser()->getIdentity()['id'];
-        if(!$m_post->getUserId() instanceof IsNull && $user_id != $m_post->getUserId()) {
-            $m_user = $this->getServiceUser()->getLite($m_post->getUserId());
-            $m_me = $this->getServiceUser()->getLite($user_id);
-            $m_page = false;
-            if($m_user->getOrganizationId()) {
-                $m_page =  $this->getServicePage()->getLite($m_user->getOrganizationId());
-            }
-            try{
-                $prefix = ($m_page !== false && is_string($m_page->getLibelle()) && !empty($m_page->getLibelle())) ?
-                $m_page->getLibelle() : null;
 
-                $url = sprintf("https://%s%s/", ($prefix ? $prefix.'.':''),  $this->container->get('config')['app-conf']['uiurl']);
-                /*$this->getServiceMail()->sendTpl(
-                    'tpl_postlike', $m_user->getEmail(), [
-                    'url' => $url,
-                    'firstname' => $m_user->getFirstname(),
-                    'someone' => $m_me->getFirstname(),
-                    ]
-                );*/
-
-                if($m_page !== false && $m_user->getIsActive()){
-                    $gcm_notification = new GcmNotification();
-                    $gcm_notification->setTitle($m_page->getTitle())
-                        ->setSound("default")
-                        ->setColor("#00A38B")
-                        ->setIcon("icon")
-                        ->setTag("PAGECOMMENT".$m_page->getId())
-                        ->setBody("Someone liked your post");
-
-                    $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification, Fcm::PACKAGE_TWIC_APP);
-                }
-            }
-            catch (\Exception $e) {
-                syslog(1, 'Model name does not exist <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode());
-            }
-        }
         return $this->getServicePostLike()->add($id);
     }
 

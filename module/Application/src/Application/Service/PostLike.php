@@ -78,8 +78,13 @@ class PostLike extends AbstractService
                 ModelPostSubscription::ACTION_LIKE,
                 $user_id,
                 $post_id,
-                ['id' => $post_id, 'parent_id' => $m_post->getParentId(), 'origin_id' => $m_post->getOriginId()],
-                $is_not_public
+                [
+                    'id' => $post_id,
+                    'parent_id' => $m_post->getParentId() instanceof IsNull ? null : $m_post->getParentId(),
+                    'origin_id' => $m_post->getOriginId() instanceof IsNull ? null : $m_post->getOriginId()
+                ],
+                $is_not_public,
+                ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => 7]
             );
         }
 

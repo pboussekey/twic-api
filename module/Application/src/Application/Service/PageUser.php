@@ -104,10 +104,10 @@ class PageUser extends AbstractService
                     'PPM'.$page_id.'_'.$uid,
                     '',
                     [
-                    'state' => 'pending',
-                    'user' => $uid,
-                    'page' => $page_id,
-                    'type' => $m_page->getType(),
+                        'state' => 'pending',
+                        'user' => $uid,
+                        'page' => $page_id,
+                        'page_type' => $m_page->getType(),
                     ],
                     'pending',
                     $sub,
@@ -115,7 +115,10 @@ class PageUser extends AbstractService
                     $page_id,
                     null,
                     'page',
-                    $page_id
+                    $page_id,
+                    null,
+                    true,
+                    ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => 7]
                 );
             }
             if ($state === ModelPageUser::STATE_INVITED && ModelPage::TYPE_ORGANIZATION !== $m_page->getType()) {
@@ -123,10 +126,10 @@ class PageUser extends AbstractService
                     'PPM'.$page_id.'_'.$uid,
                     '',
                     [
-                    'state' => 'invited',
-                    'user' => $uid,
-                    'page' => $page_id,
-                    'type' => $m_page->getType(),
+                        'state' => 'invited',
+                        'user' => $uid,
+                        'page' => $page_id,
+                        'page_type' => $m_page->getType(),
                     ],
                     'invited',
                     ['M'.$uid]/*sub*/,
@@ -134,7 +137,10 @@ class PageUser extends AbstractService
                     $page_id/*page*/,
                     null/*user*/,
                     'page',
-                    $page_id
+                    $page_id,
+                    null,
+                    null,
+                    ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => 7]
                 );
                 // member only group
             } elseif ($state === ModelPageUser::STATE_MEMBER) {
@@ -148,45 +154,29 @@ class PageUser extends AbstractService
                     }
                 }
 
-                // Si il n'est pas le propriétaire on lui envoie une notification
-                if ($m_page->getUserId() !== $uid) {
-                    //On envoye la notification qu'il viens d'etre ajouter a un cours qui est publié
-                    if(( $m_page->getType() === ModelPage::TYPE_COURSE && $m_page->getIsPublished() ) || $m_page->getType() !== ModelPage::TYPE_COURSE) {
-                        $this->getServicePost()->addSys(
-                            'PPM'.$page_id.'_'.$uid,
-                            '',
-                            [
-                                'state' => 'member',
-                                'user'  => $uid,
-                                'page'  => $page_id,
-                                'type'  => $m_page->getType(),
-                            ],
-                            'member',
-                            ['M'.$uid]/*sub*/,
-                            null/*parent*/,
-                            $page_id/*page*/,
-                            $uid/*user*/,
-                            'page',
-                            $page_id
-                        );
-                        
-                        $gcm_notification = new GcmNotification();
-                        $gcm_notification->setTitle($m_page->getTitle())
-                            ->setSound("default")
-                            ->setColor("#00A38B")
-                            ->setIcon("icon")
-                            ->setTag("PAGEADD".$page_id);
-                        
-                        if($m_page->getType() !== ModelPage::TYPE_COURSE) {
-                            $gcm_notification->setBody("You have just been added to the course " . $m_page->getTitle());
-                        } else if($m_page->getType() !== ModelPage::TYPE_EVENT) {
-                            $gcm_notification->setBody("You have just been added to the event " . $m_page->getTitle());
-                        } else if($m_page->getType() !== ModelPage::TYPE_GROUP) {
-                            $gcm_notification->setBody("You have just been added to the group " . $m_page->getTitle());
-                        }
-                        
-                        $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification, Fcm::PACKAGE_TWIC_APP);
-                    }
+                //On envoye la notification qu'il vient d'etre ajouter a un cours qui est publié
+                if(( $m_page->getType() === ModelPage::TYPE_COURSE && $m_page->getIsPublished() ) || $m_page->getType() !== ModelPage::TYPE_COURSE) {
+                    $this->getServicePost()->addSys(
+                        'PPM'.$page_id.'_'.$uid,
+                        '',
+                        [
+                            'state' => 'member',
+                            'user'  => $uid,
+                            'page'  => $page_id,
+                            'page_type' => $m_page->getType(),
+                        ],
+                        'member',
+                        ['M'.$uid]/*sub*/,
+                        null/*parent*/,
+                        $page_id/*page*/,
+                        $uid/*user*/,
+                        'page',
+                        $page_id,
+                        null,
+                        true,
+                        ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => 7]
+                    );
+
                 }
             }
         }
@@ -196,7 +186,7 @@ class PageUser extends AbstractService
             $ar_pages = [];
             $ar_user = $this->getServiceUser()->getLite($user_id);
             foreach($ar_user as $m_user){
-                
+
                 if(!$m_user->getIsActive()){
                     continue;
                 }
@@ -284,7 +274,7 @@ class PageUser extends AbstractService
                     'state' => 'member',
                     'user' => $user_id,
                     'page' => $page_id,
-                    'type' => $m_page->getType(),
+                    'page_type' => $m_page->getType(),
                     ],
                     'member',
                     ['M'.$user_id], /*sub ['M'.$user_id, 'PU'.$user_id] */
