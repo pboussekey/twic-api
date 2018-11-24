@@ -48,7 +48,7 @@ class PageDoc extends AbstractService
                 [
                     'pagetitle' => $m_page->getTitle()
                 ],
-                ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => 0]
+                ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => true]
             );
         }
         return $library;

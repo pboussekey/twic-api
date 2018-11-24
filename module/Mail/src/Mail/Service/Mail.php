@@ -90,8 +90,8 @@ class Mail
             $message
             ->setBodyTpl($name, $data)
             ->setTo($email);
-            syslog(1, $email." => ".json_encode($data));
             $this->getTransport()->send($message);
+            syslog(1, $email.' => '.json_encode($data));
         }
         return true;
     }

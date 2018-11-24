@@ -16,6 +16,7 @@ class Event extends AbstractModel
 	protected $text;
 	protected $picture;
 	protected $target_id;
+	protected $important;
 
 	protected $prefix = 'event';
 
@@ -135,6 +136,18 @@ class Event extends AbstractModel
 	public function setTargetId($target_id)
 	{
 		$this->target_id = $target_id;
+
+		return $this;
+	}
+
+	public function getImportant()
+	{
+		return $this->important;
+	}
+
+	public function setImportant($important)
+	{
+		$this->important = $important;
 
 		return $this;
 	}

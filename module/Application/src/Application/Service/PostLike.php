@@ -84,7 +84,7 @@ class PostLike extends AbstractService
                     'origin_id' => $m_post->getOriginId() instanceof IsNull ? null : $m_post->getOriginId()
                 ],
                 $is_not_public,
-                ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => 7]
+                ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => false]
             );
         }
 

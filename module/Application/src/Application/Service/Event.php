@@ -175,9 +175,10 @@ class Event extends AbstractService
      *
      * @param  string $type    Event type
      * @param  string $action    Event action
-     * @param  mixed $data    Event data
      * @param  array|string  $libelle Subscription to event
-     * @param  mixed  $notify medium used to notify ['fcm' => null/package => "Package to send for fcm", 'mail' => false/int => "Dont 'send or inactivity days required to send an email"]
+     * @param  mixed $event_data    Event data
+     * @param  mixed $text_data    Text data
+     * @param  mixed  $notify medium used to notify ['fcm' => null/package => "Package to send for fcm", 'mail' => false/true => "Request instant email or not"]
      *
      * @throws \Exception
      *
@@ -186,7 +187,7 @@ class Event extends AbstractService
     public function create($type, $action,  $libelle, $event_data, $text_data, $notify = null)
     {
         if(null === $notify){
-            $notify = ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => 7];
+            $notify = ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => false];
         }
         else if(false === $notify){
             $notify = [ 'fcm' => false, 'mail' => false];
@@ -203,7 +204,8 @@ class Event extends AbstractService
             ->setTarget(self::TARGET_TYPE_USER)
             ->setTargetId(isset($event_data['target']) ? $event_data['target'] : null)
             ->setPicture(isset($event_data['picture']) ? $event_data['picture'] : null)
-            ->setDate($date);
+            ->setDate($date)
+            ->setImportant($notify['mail']);
 
         $m_event->setText($this->getText($event, $text_data));
         $event_data['text'] = $m_event->getText();
@@ -211,8 +213,8 @@ class Event extends AbstractService
             throw new \Exception('error insert event');// @codeCoverageIgnore
         }
 
-        $m_event->setId($this->getMapper()->getLastInsertValue());
-        $this->getServiceEventSubscription()->add($libelle, $m_event->getId());
+        $event_id = $this->getMapper()->getLastInsertValue();
+        $this->getServiceEventSubscription()->add($libelle, $event_id);
         if(null !== $m_event->getText()){
             $users = $this->sendData(null, $event, $libelle, $source,  $event_data, (new \DateTime($date))->format('Y-m-d\TH:i:s\Z'));
             if (($idx = array_search($identity['id'], $users)) !== false) {
@@ -220,17 +222,35 @@ class Event extends AbstractService
             }
             if (count($users) > 0) {
                 foreach ($users as $uid) {
-                    $m_event_user = $this->getServiceEventUser()->add($m_event->getId(), $uid, $source, $event_data);
+                    $this->getServiceEventUser()->add($event_id, $uid, $source, $event_data);
                 }
                 if(false !== $notify['fcm']){
                     $this->sendFcmNotifications($users, $event, $m_event->getText(), $m_event->getTargetId(), $notify['fcm']);
                 }
-                if(false !== $notify['mail']){
-                    $this->sendRecapEmail($users, $event, $notify['mail']);
+                if(true !== $notify['mail']){
+                    $users = $this->getServiceActivity()->getListInactive($users, 7);
+                }
+                $ntf_date = new \DateTime('now', new \DateTimeZone('UTC'));
+                $ntf_date->modify('+1 minutes');
+                $ntf_data =   [
+                    'date' => $ntf_date->format('Y-m-d\TH:i:s\Z'),
+                    'uid' => 'mail.send.'.$event_id,
+                    'data' => [ 'type' => 'mail.send',
+                                'data' => ['users' => json_encode($users)]]
+                ];
+                try {
+                    $rep = $this->nodeRequest('notification.register', $ntf_data);
+                    if ($rep->isError()) {
+                        throw new \Exception('Error jrpc nodeJs: ' . $rep->getError()->getMessage(), $rep->getError()->getCode());
+                    }
+                } catch (\Exception $e) {
+                    syslog(1, 'Request notification.register : ' . json_encode($ntf_data));
+                    syslog(1, $e->getMessage());
+                    $this->sendRecapEmail($users);
                 }
             }
         }
-        return $m_event->getId();
+        return $event_id;
     }
 
     /**
@@ -337,12 +357,11 @@ class Event extends AbstractService
         }
     }
 
-    function sendRecapEmail($users, $ev, $force = false){
+    function sendRecapEmail($users){
 
         $urldms = $this->container->get('config')['app-conf']['urldms'];
         $urlui = $this->container->get('config')['app-conf']['uiurl'];
         $res_event =  $this->getMapper()->getListUnseen($users);
-
         $ar_events = [];
         foreach($res_event as $m_event){
             if(!isset($ar_events[$m_event->getUserId()])){
@@ -372,6 +391,7 @@ class Event extends AbstractService
             $labels = [
                 'firstname' => $m_user->getFirstname(),
                 'img_folder' => sprintf('https://%s.%s',$libelle,$urlui),
+                'current_year' => date("Y"),
                 //MAIN NOTIFICATION
                 'ntf_picture' => '',
                 'ntf_text' => '',
@@ -418,14 +438,15 @@ class Event extends AbstractService
                 'ntf5_date' => '',
                 'ntf5_icon' => '',
             ];
-            $idx = 1;
+            $idx = 0;
             foreach($events as $event){
-                if($event['event'] === $ev){
+                if($idx === 0){
                     $labels['ntf_picture'] =  (null !== $event['picture']) ? ($urldms.$event['picture'].'-80m80') : null;
                     $labels['ntf_text'] = $event['text'];
                     $labels['title'] = strip_tags(html_entity_decode($event['text']));
                     $labels['ntf_count'] = $event['count']  > 1 ? sprintf('And <b>%s</b> more...', $event['count']) : '';
                     $labels['ntf_link'] =  sprintf('https://%s.%s%s',$libelle, $urlui, $this->getLink($event['event'],json_decode($event['object'], true)));
+                    $idx++;
                 }
                 else if($idx < 6){
                       $labels['ntf'.$idx.'_display'] = 'block';
@@ -440,7 +461,10 @@ class Event extends AbstractService
             }
             $mails[$m_user->getEmail()] = $labels;
         }
+
         $this->getServiceMail()->sendMultiTpl('tpl_newactivity', $mails);
+
+        return true;
     }
 
 

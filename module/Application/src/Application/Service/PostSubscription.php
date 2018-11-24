@@ -104,7 +104,7 @@ class PostSubscription extends AbstractService
         $labels = [
             'source' => '<b>'.$identity['firstname'].' '.$identity['lastname']."</b>",
             'post_source' => !empty($post_data['page']['id']) ? ('<b>'.$this->limitText($post_data['page']['title']).'</b>') : ('<b>'.$post_data['user']['firstname'].' '.$post_data['user']['lastname'].'</b>'),
-            'post_owner' => $post_data['user']['id'] === $identity['id'] ? 'their' : (!empty($post_data['page']['id']) ? ('<b>'.$this->limitText($post_data['page']['title']).'</b>') : '{user}'),
+            'post_owner' => !empty($post_data['page']['id']) ?  ('<b>'.$this->limitText($post_data['page']['title'])."</b>'s") :  ($post_data['user']['id'] === $identity['id'] ? 'their' : '{user}'),
             'post_action'=> $post_data['parent']['id'] === $post_data['origin']['id'] ? 'commented on' : 'replied to',
             'post_type' => empty($post_data['parent']['id']) ? 'post' : ($post_data['parent']['id'] === $post_data['origin']['id'] ? 'comment' : 'reply'),
             'parent_source' =>  !empty($post_data['parent']['page']['id']) ? ('<b>'.$this->limitText($post_data['parent']['page']['title'])."</b>'s") : ($identity['id'] === $target ? "their" : "{user}"),

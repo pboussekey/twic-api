@@ -131,7 +131,7 @@ class Message extends AbstractService
               'user' => $m_user->getFirstname().' '.$m_user->getLastname(),
               'text' => !empty($text) ? sprintf(": &laquo;%s&raquo;", $text) : $text
             ],
-            [ 'fcm' => Fcm::PACKAGE_TWIC_MESSENGER, 'mail' => 3]);
+            [ 'fcm' => Fcm::PACKAGE_TWIC_MESSENGER, 'mail' => false]);
 
         return [
         'message_id' => $id,

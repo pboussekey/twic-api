@@ -91,7 +91,7 @@ class Contact extends AbstractService
             'connection',
             null,
             null,
-            ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => 1]
+            ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => false]
         );
 
         return $ret;
@@ -161,7 +161,7 @@ class Contact extends AbstractService
             ],
             'accept',
             ['M'.$user_id, 'M'.$user],
-            ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => 7]
+            ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => false]
         );
 
         return true;

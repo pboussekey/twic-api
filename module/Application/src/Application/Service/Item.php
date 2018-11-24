@@ -635,7 +635,7 @@ class Item extends AbstractService
                       'itemtitle' => $m_item->getTitle(),
                       'itemtype' => ModelItem::type_relation[$m_item->getType()]
                     ],
-                    ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => 0]
+                    ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => true]
                 );
                 $res_group = $this->getServiceGroup()->getList($m_item->getId())[$m_item->getId()];
                 foreach($res_group as $m_group){
@@ -764,7 +764,7 @@ class Item extends AbstractService
                         'itemtitle' => $m_item->getTitle(),
                         'itemtype' => ModelItem::type_relation[$m_item->getType()],
                     ],
-                    ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => 0]
+                    ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => true]
                 );
             }
         }

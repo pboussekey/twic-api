@@ -118,7 +118,7 @@ class PageUser extends AbstractService
                     $page_id,
                     null,
                     true,
-                    ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => 7]
+                    ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => false]
                 );
             }
             if ($state === ModelPageUser::STATE_INVITED && ModelPage::TYPE_ORGANIZATION !== $m_page->getType()) {
@@ -140,7 +140,7 @@ class PageUser extends AbstractService
                     $page_id,
                     null,
                     null,
-                    ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => 7]
+                    ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => false]
                 );
                 // member only group
             } elseif ($state === ModelPageUser::STATE_MEMBER) {
@@ -174,7 +174,7 @@ class PageUser extends AbstractService
                         $page_id,
                         null,
                         true,
-                        ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => 7]
+                        ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => false]
                     );
 
                 }
