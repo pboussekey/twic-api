@@ -28,15 +28,16 @@ class Page extends AbstractService
      * @param int $id
      * @return boolean
      */
-    public function isAdmin($id)
+    public function isAdmin($id, $user_id = null)
     {
         if($this->getServiceUser()->isStudnetAdmin()){
             return true;
         }
-        $identity = $this->getServiceUser()->getIdentity();
         $ar_pu = $this->getServicePageUser()->getListByPage($id, ModelPageUser::ROLE_ADMIN);
-
-        return (in_array($identity['id'], $ar_pu[$id]));
+        if(null === $user_id){
+            $user_id = $this->getServiceUser()->getIdentity()['id'];
+        }
+        return (in_array($user_id, $ar_pu[$id]));
     }
 
     /**

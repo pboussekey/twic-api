@@ -498,7 +498,6 @@ class User extends AbstractMapper
         ->join('event_user', 'event_user.user_id = user.id', [])
         ->join('event', new Expression('event_user.event_id = event.id AND MD5(CONCAT(user.id, event.id,  DATE_FORMAT(event.date, "%M %D"), event.object)) = ?', $key), []);
 
-        syslog(1, $this->printSql($update));
         return $this->updateWith($update);
     }
 }

@@ -1061,18 +1061,17 @@ class User extends AbstractService
 
     /**
      *
-     * @param string $sso_uid
-     * @return \Application\Model\User|false
+     * @param string $apikey
+     * @return \Dal\Db\ResultSet\ResultSet|\Application\Model\User
      */
-    public function getLiteBySsoUid($sso_uid)
+    public function getLiteByApiKey($apikey)
     {
-        $res_user = $this->getMapper()->select($this->getModel()->setSsoUid($sso_uid)->setDeletedDate(new IsNull('deleted_date')));
+        $res_user = $this->getMapper()->select($this->getModel()->setApiKey($apikey)->setDeletedDate(new IsNull('deleted_date')));
 
-        return ($res_user->count() > 0) ?
-            $res_user->current() :
-            false;
+        return (is_array($apikey)) ? $res_user : $res_user->current();
     }
 
+  
     /**
      *
      * @param string $sso_uid

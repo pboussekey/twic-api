@@ -194,10 +194,10 @@ class Event extends AbstractService
         }
         $event = $type.'.'.$action;
         $date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
-        $identity = $this->getServiceUser()->getIdentity();
-        $source = $this->getDataUser();
+        $user_id = $this->getServiceUser()->getIdentity()['id'];
+        $source = $this->getDataUser($user_id);
         $m_event = $this->getModel()
-            ->setUserId($identity['id'])
+            ->setUserId($user_id)
             ->setEvent($event)
             ->setSource(json_encode($source))
             ->setObject(json_encode($event_data))
@@ -217,7 +217,7 @@ class Event extends AbstractService
         $this->getServiceEventSubscription()->add($libelle, $event_id);
         if(null !== $m_event->getText()){
             $users = $this->sendData(null, $event, $libelle, $source,  $event_data, (new \DateTime($date))->format('Y-m-d\TH:i:s\Z'));
-            if (($idx = array_search($identity['id'], $users)) !== false) {
+            if (($idx = array_search($user_id, $users)) !== false) {
                 unset($users[$idx]);
             }
             if (count($users) > 0) {

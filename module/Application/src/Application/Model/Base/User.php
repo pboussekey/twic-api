@@ -47,6 +47,7 @@ class User extends AbstractModel
 	protected $linkedin_url;
 	protected $has_social_notifier;
 	protected $sso_uid;
+	protected $apikey;
 
 	protected $prefix = 'user';
 
@@ -542,14 +543,14 @@ class User extends AbstractModel
 		return $this;
 	}
 
-	public function getSsoUid()
+	public function getApikey()
 	{
-		return $this->sso_uid;
+		return $this->apikey;
 	}
 
-	public function setSsoUid($sso_uid)
+	public function setApikey($apikey)
 	{
-		$this->sso_uid = $sso_uid;
+		$this->apikey = $apikey;
 
 		return $this;
 	}

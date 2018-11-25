@@ -14,7 +14,7 @@
 
 return [
     'version' => "2.0.4",
-    'build-commit' => 1312,
+    'build-commit' => 1313,
     'app-conf' => [
         'cache' => 'storage_memcached',
     ],
@@ -144,9 +144,9 @@ return [
             'adapter' => [
                 'name' => 'memcached',
                 'options' => [
-                    'namespace' => 'LMS1312',
+                    'namespace' => 'LMS1313',
                     'lib_options' => [
-                        ['option' => Memcached::OPT_PREFIX_KEY, 'value' => 'LMS1312'],
+                        ['option' => Memcached::OPT_PREFIX_KEY, 'value' => 'LMS1313'],
                     ],
                 ],
             ],

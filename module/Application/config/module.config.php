@@ -6,6 +6,8 @@ use Application\Controller\Plugin\item;
 use Zend\Router\Http\Literal;
 use Application\Controller\Plugin\Library;
 use Application\Controller\Plugin\Mail;
+use Application\Controller\Plugin\Post;
+use Application\Controller\Plugin\ApiAuth;
 
 /**
  * Zend Framework (http://framework.zend.com/).
@@ -31,6 +33,12 @@ return [
               },
               'mail' => function ($container) {
                   return new mail($container->get('mail.service'), $container->get('app_service_event'));
+              },
+              'post' => function ($container) {
+                  return new Post( $container->get('app_service_post'));
+              },
+              'auth' => function ($container) {
+                  return new ApiAuth( $container->get('auth.service'));
               }
         ],
     ],
@@ -56,6 +64,16 @@ return [
                      ],
                      ],
              ],
+             'api' => [
+                  'type' => Literal::class,
+                      'options' => [
+                      'route' => '/api',
+                      'defaults' => [
+                          'controller' => 'Application\Controller\Index',
+                          'action' => 'api',
+                      ],
+                    ],
+              ],
             'notify' => [
                  'type' => Literal::class,
                      'options' => [

@@ -19,8 +19,12 @@ use JRpc\Json\Server\Exception\JrpcException;
  */
 class IndexController extends AbstractActionController
 {
+    //NTF TYPES
     const ITEM_STARTING = 'item.starting';
     const MAIL_SEND = 'mail.send';
+
+    //METHODS
+    const POST_ADD = 'post.add';
     /**
      * Index
      *
@@ -132,6 +136,32 @@ class IndexController extends AbstractActionController
         }
 
         return new JsonModel(['code'=>$ret, 'params' => $params]);
+    }
+
+    /**
+     * Check Status
+     *
+     * @return \Zend\View\Model\JsonModel
+     */
+    public function apiAction()
+    {
+          $params = json_decode($this->getRequest()->getContent(), true);
+          $apikey = isset($params['apikey']) ? $params['apikey'] : null;
+          $method = isset($params['method']) ? $params['method'] : null;
+          $content = isset($params['content']) ? $params['content'] : null;
+          $link = isset($params['link']) ? $params['link'] : null;
+          $page_id = isset($params['page_id']) ? $params['page_id'] : null;
+          $ret = -1;
+          if($this->auth()->authenticate($apikey)){
+
+                switch($method){
+                  case self::POST_ADD:
+                      $ret = $this->post()->add($apikey, $content, $link, $page_id);
+                  break;
+                }
+
+          }
+          return new JsonModel(['code'=>$ret]);
     }
 
 }

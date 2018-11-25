@@ -839,6 +839,62 @@ class Post extends AbstractService
         return $this->getMapper()->getPostInfos($id)->current()->toArray();
     }
 
+
+  public function addFromApi($apikey, $content = null, $link = null, $page_id = null){
+        $m_user = $this->getServiceUser()->getLiteByApiKey($apikey);
+        if(false !== $m_user && (null === $page_id || $this->getServicePage()->isAdmin($page_id, $m_user->getId()))){
+            $link_title = null;
+            $link_desc = null;
+            $picture = null;
+            if(null !== $link){
+                $meta = $this->linkPreview($link);
+                if( isset($meta['meta'])){
+                    if(isset($meta['meta']['title'])){
+                        $link_title = $meta['meta']['title'];
+                    }
+                    elseif(isset($meta['meta']['twitter:title'])){
+                        $link_title = $meta['meta']['twitter:title'];
+                    }
+                    if(isset($meta['meta']['description'])){
+                        $link_title = $meta['meta']['description'];
+                    }
+                    elseif(isset($meta['meta']['twitter:description'])){
+                        $link_title = $meta['meta']['twitter:description'];
+                    }
+                    if(isset($meta['meta']['image'])){
+                        $link_title = $meta['meta']['image'];
+                    }
+                    elseif(isset($meta['meta']['twitter:image'])){
+                        $link_title = $meta['meta']['twitter:image'];
+                    }
+                }
+                if( isset($meta['open_graph'])){
+                    if(isset($meta['open_graph']['title'])){
+                        $link_title = $meta['open_graph']['title'];
+                    }
+                    elseif(isset($meta['open_graph']['site_name'])){
+                        $link_title = $meta['open_graph']['site_name'];
+                    }
+                    if(isset($meta['open_graph']['description'])){
+                        $link_desc = $meta['open_graph']['description'];
+                    }
+                    if(isset($meta['open_graph']['image'])){
+                    syslog(1, json_encode($meta['open_graph']['image']));
+                        $picture = $meta['open_graph']['image'];
+                    }
+                }
+
+                if( null == $picture && isset($meta['images']) && count($meta['images']) > 0){
+                    $picture = $meta['images'][0];
+                }
+            }
+            return $this->add($content, $picture, null, $link, $link_title, $link_desc, null,
+                  $page_id, (null !== $page_id ? $m_user->getId() : null), $page_id, null,
+                  null, null, null, null, null, null, 'post');
+        }
+  }
+
+
     /**
      * Get Service User
      *

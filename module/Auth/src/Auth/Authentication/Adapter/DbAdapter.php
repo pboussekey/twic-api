@@ -57,12 +57,17 @@ class DbAdapter extends AbstractAdapter
      * @var string
      */
     protected $linkedin_id;
-    
+
     /**
      * @var string
      */
     protected $sso_uid;
-    
+
+    /**
+     * @var string
+     */
+    protected $apikey;
+
     /**
      * Sets username and password for authentication.
      */
@@ -93,8 +98,11 @@ class DbAdapter extends AbstractAdapter
         $select = $sql->select();
         $select->from($this->table)
             ->columns(['*']);
-        
-        if(null !== $this->sso_uid) {
+
+        if(null !== $this->apikey) {
+                $select->where(['user.apikey' => $this->apikey])
+                ->where(['user.deleted_date IS NULL']);
+        } elseif(null !== $this->sso_uid) {
             $select->where(['user.sso_uid' => $this->sso_uid])
             ->where(['user.deleted_date IS NULL']);
         } elseif (null !== $this->linkedin_id) {
@@ -108,7 +116,7 @@ class DbAdapter extends AbstractAdapter
         } else {
             throw new Exception("error authentification");
         }
-        
+
         $statement = $sql->prepareStatementForSqlObject($select);
         $results = $statement->execute();
 
@@ -127,7 +135,7 @@ class DbAdapter extends AbstractAdapter
             } else {
                 $code = Result::FAILURE_CREDENTIAL_INVALID;
             }
-            
+
             $message[] = 'A record with the supplied identity could not be found.';
         } elseif ($results->count() > 1) {
             $code = Result::FAILURE_IDENTITY_AMBIGUOUS;
@@ -151,7 +159,7 @@ class DbAdapter extends AbstractAdapter
         } else {
             throw new Exception("Error number result authentification");
         }
-        
+
         return new Result($code, $identity, $message);
     }
 
@@ -166,28 +174,40 @@ class DbAdapter extends AbstractAdapter
 
         return $this->result;
     }
-    
+
     public function setLinkedinId($linkedin_id)
     {
         $this->linkedin_id = trim($linkedin_id);
-        
+
         return $this;
     }
-    
+
     public function getLinkedinId()
     {
         return $this->linkedin_id;
     }
-    
+
     public function getSsoUid()
     {
         return $this->sso_uid;
     }
-    
+
     public function setSsoUid($sso_uid)
     {
         $this->sso_uid = $sso_uid;
-        
+
+        return $this;
+    }
+
+    public function getApikey()
+    {
+        return $this->apikey;
+    }
+
+    public function setApikey($apikey)
+    {
+        $this->apikey = $apikey;
+
         return $this;
     }
 }
