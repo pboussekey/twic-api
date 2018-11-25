@@ -16,12 +16,14 @@ class Activity extends AbstractMapper
     {
         $select = $this->tableGateway->getSql()->select();
         $select->columns(['id', 'user_id', 'event', 'object_name', 'object_data', 'activity$date' => new Expression('DATE_FORMAT(DATE_SUB(activity.date, INTERVAL '.$date_offset.' HOUR), "%Y-%m-%dT%TZ")')])
-            ->join('user', 'user.id = activity.user_id', ['firstname',  'lastname', 'nickname', 'avatar', 'organization_id']);
+            ->join('user', 'user.id = activity.user_id', ['firstname',  'lastname', 'nickname', 'avatar', 'organization_id'])
+            ->join('user_role', 'user.id = user_role.user_id', [])
+            ->where('user_role.role_id = 2');
         $array = explode(" ", $search);
         if (null != $array) {
             foreach ($array as $value)
             {
-                $select->where(['(event LIKE ? ' => '%'.$value.'%'], Predicate::OP_OR)
+                $select->where(['(event LIKE ? ' => '%'.$value.'%'])
                     ->where(['organization_id LIKE ? ' => '%'.$value.'%'], Predicate::OP_OR)
                     ->where(['object_name LIKE ? ' => '%'.$value.'%'], Predicate::OP_OR)
                     ->where(['event LIKE ? ' => '%'.$value.'%'], Predicate::OP_OR)
