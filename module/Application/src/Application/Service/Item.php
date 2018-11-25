@@ -243,7 +243,8 @@ class Item extends AbstractService
             'group',
             $m_item->getPageId(),
             $m_item->getId(),
-            true
+            true,
+            false
         );
         return $res;
     }
@@ -618,71 +619,25 @@ class Item extends AbstractService
                     return true;
                 }
 
-                $ar_pages = [];
-                $res_user = $this->getServiceUser()->getLite($this->getServicePageUser()->getListByPage($page_id)[$page_id]);
-                foreach($res_user as $m_user){
-                    if(!$m_user->getIsActive()){
-                        continue;
-                    }
-                    $m_organization = false;
-                    if(!$m_user->getOrganizationId() instanceof IsNull) {
-                        if(!isset($ar_pages[$m_user->getOrganizationId()])) {
-                            $ar_pages[$m_user->getOrganizationId()] = $this->getServicePage()->getLite($m_user->getOrganizationId());
-                        }
-                        $m_organization = $ar_pages[$m_user->getOrganizationId()];
-                    }
-                    if($m_user->getId() === $identity['id']){
-                        continue;
-                    }
-                    try{
-                        if($m_user->getHasEmailNotifier() === 1) {
-                            $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
-                            $m_organization->getLibelle() : null;
-                            $url = sprintf("https://%s%s/page/course/%s/content/%s", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl'], $m_page->getId(), $m_item->getId());
-                            $this->getServiceMail()->sendTpl(
-                                'tpl_itempublished', $m_user->getEmail(), [
-                                'itemtype' => ModelItem::type_relation[$m_item->getType()],
-                                'pagetitle' => $m_page->getTitle(),
-                                'itemtitle' => $m_item->getTitle(),
-                                'firstname' => $m_user->getFirstName(),
-                                'pageurl' => $url,
-                                ]
-                            );
-                        }
-                    }
-                    catch (\Exception $e) {
-                        syslog(1, 'Model name does not exist Item publish <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode());
-                    }
-
-                    try{
-
-                        $gcm_notification = new GcmNotification();
-                        $gcm_notification->setTitle($m_page->getTitle())
-                            ->setSound("default")
-                            ->setColor("#00A38B")
-                            ->setIcon("icon")
-                            ->setTag("PAGECOMMENT".$page_id)
-                            ->setBody("A new " . ModelItem::type_relation[$m_item->getType()] . " has been added to the course " . $m_page->getTitle());
-
-                        $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification, Fcm::PACKAGE_TWIC_APP );
-                    }
-                    catch (\Exception $e) {
-                        syslog(1, 'Error sending FCM notification');
-                    }
-                }
 
                 $this->getServiceEvent()->create(
-                    'item.publish',
-                    $this->getServiceEvent()->getDataUser($identity['id']),
+                    'item', 'publish',
+                    ["PP".$page_id],
                     [
                         'item_id' => $id,
-                        'page_id'    => $page_id
+                        'page_id'    => $page_id,
+                        'page_type' => $m_page->getType(),
+                        'picture' => !($m_page->getLogo() instanceof IsNull) ? $m_page->getLogo() : null
                     ],
-                    ["PP".$page_id],
-                    ModelEvent::TARGET_TYPE_USER,
-                    $identity['id']
+                    [
+                      'pagetitle' => $m_page->getTitle(),
+                      'pagelogo' => $m_page->getLogo(),
+                      'itemtitle' => $m_item->getTitle(),
+                      'itemtype' => ModelItem::type_relation[$m_item->getType()]
+                    ],
+                    ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => true]
                 );
-                $res_group = $this->getServiceGroup()->getList($page_id);
+                $res_group = $this->getServiceGroup()->getList($m_item->getId())[$m_item->getId()];
                 foreach($res_group as $m_group){
                     $res_item_user = $this->getServiceItemUser()->getList($m_group->getItemId(), null, null, $m_group->getId());
                     $users = [];
@@ -780,7 +735,7 @@ class Item extends AbstractService
 
 
         if (null !== $post_id) {
-            $this->getServicePost()->_update($post_id, null, null, null, null, null, null, null, null, null, null, null, null, null, $id);
+            $this->getServicePost()->_update($post_id, null, null, null, null, null, null, null, null, null, null, null, null, null, $id, null, false);
         }
         if (null !== $quiz_id) {
             $this->getServiceQuiz()->update($quiz_id, $id);
@@ -795,71 +750,21 @@ class Item extends AbstractService
             if($m_page->getIsPublished() == true) {
                 $ar_pages = [];
                 $m_item = $this->getLite($id)->current();
-                /** @TODO vérifier pour l'item que se soit que les personnes concerné qui recoive l'update */
-                $res_user = $this->getServiceUser()->getLite($this->getServicePageUser()->getListByPage($m_item->getPageId())[$m_item->getPageId()]);
-                foreach($res_user as $m_user){
-
-                    if(!$m_user->getIsActive()){
-                        continue;
-                    }
-                    $m_organization = false;
-                    if(!$m_user->getOrganizationId() instanceof IsNull) {
-                        if(!isset($ar_pages[$m_user->getOrganizationId()])) {
-                            $ar_pages[$m_user->getOrganizationId()] = $this->getServicePage()->getLite($m_user->getOrganizationId());
-                        }
-                        $m_organization = $ar_pages[$m_user->getOrganizationId()];
-                    }
-                    if($m_user->getId() === $identity['id']){
-                        continue;
-                    }
-                    $final_title = ($title !== null) ? $title : $m_item->getTitle();
-                    $final_title = empty($final_title) ? "Untitled" : $final_title;
-                    try{
-                        if($m_user->getHasEmailNotifier() === 1) {
-                            $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
-                            $m_organization->getLibelle() : null;
-                            $url = sprintf("https://%s%s/page/course/%s/content/%s", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl'], $m_page->getId(), $m_item->getId());
-                            $this->getServiceMail()->sendTpl(
-                                'tpl_itemupdate', $m_user->getEmail(), [
-                                'itemtype' => ModelItem::type_relation[$m_item->getType()],
-                                'itemtitle' => $final_title,
-                                'firstname' => $m_user->getFirstName(),
-                                'pagename' => $m_page->getTitle(),
-                                'pageurl' => $url,
-                                ]
-                            );
-                        }
-                    }
-                    catch (\Exception $e) {
-                        syslog(1, 'Model name does not exist Item update <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode());
-                    }
-
-                    try{
-                        $gcm_notification = new GcmNotification();
-                        $gcm_notification->setTitle($m_page->getTitle())
-                            ->setSound("default")
-                            ->setColor("#00A38B")
-                            ->setIcon("icon")
-                            ->setTag("ITEM".$m_item->getId())
-                            ->setBody("The " . ModelItem::type_relation[$m_item->getType()] ." " . $final_title . " of course " . $m_page->getTitle(). " has been update");
-
-                        $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification, Fcm::PACKAGE_TWIC_APP);
-                    }
-                    catch (\Exception $e) {
-                        syslog(1, 'Error when sending GCM notification');
-                    }
-                }
-
                 $this->getServiceEvent()->create(
-                    'item.update',
-                    $this->getServiceEvent()->getDataUser($identity['id']),
-                    [
-                        'item_id' => $m_item->getId(),
-                        'page_id'    => $m_page->getId(),
-                    ],
+                    'item', 'update',
                     ["PP".$m_page->getId()],
-                    ModelEvent::TARGET_TYPE_USER,
-                    $identity['id']
+                    [
+                        'item_id' => $id,
+                        'page_id' => $m_page->getId(),
+                        'page_type' => $m_page->getType(),
+                        'picture' => !($m_page->getLogo() instanceof IsNull) ? $m_page->getLogo() : null
+                    ],
+                    [
+                        'pagetitle' => $m_page->getTitle(),
+                        'itemtitle' => $m_item->getTitle(),
+                        'itemtype' => ModelItem::type_relation[$m_item->getType()],
+                    ],
+                    ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => true]
                 );
             }
         }

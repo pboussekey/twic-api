@@ -14,7 +14,7 @@ class Page extends BasePage
     const ADMISSION_FREE='free';
     const ADMISSION_OPEN='open';
     const ADMISSION_INVITATION='invitation';
-    
+
     const CONFIDENTIALITY_PUBLIC=0;
     const CONFIDENTIALITY_CLOSED=1;
     const CONFIDENTIALITY_SECRET=2;
@@ -27,7 +27,7 @@ class Page extends BasePage
     protected $address;
     protected $owner;
 
-    
+
     protected $average;
     protected $median;
     protected $percentile;
@@ -37,12 +37,12 @@ class Page extends BasePage
     public function exchangeArray(array &$data)
     {
         parent::exchangeArray($data);
-        
+
         $this->user = $this->requireModel('app_model_user', $data, 'p_user');
         $this->address = $this->requireModel('addr_model_address', $data);
         $this->page_relation = $this->requireModel('app_model_page_relation', $data);
     }
-    
+
     public function setOwner($owner)
     {
         $this->owner = $owner;
@@ -54,7 +54,7 @@ class Page extends BasePage
     {
         return $this->owner;
     }
-    
+
 
     public function setAddress($address)
     {
@@ -67,7 +67,7 @@ class Page extends BasePage
     {
         return $this->address;
     }
-    
+
     public function setUser($user)
     {
         $this->user = $user;
@@ -79,7 +79,7 @@ class Page extends BasePage
     {
         return $this->user;
     }
-    
+
     public function setTags($tags)
     {
         $this->tags = $tags;
@@ -91,7 +91,7 @@ class Page extends BasePage
     {
         return $this->tags;
     }
-   
+
     public function setRole($role)
     {
         $this->role = $role;
@@ -115,7 +115,7 @@ class Page extends BasePage
     {
         return $this->state;
     }
-    
+
     public function setMedian($median)
     {
         $this->median = $median;
@@ -127,7 +127,7 @@ class Page extends BasePage
     {
         return $this->median;
     }
-    
+
     public function setAverage($average)
     {
         $this->average = $average;
@@ -140,7 +140,7 @@ class Page extends BasePage
         return $this->average;
     }
 
-    
+
     public function setPercentile($percentile)
     {
         $this->percentile = $percentile;
@@ -152,7 +152,7 @@ class Page extends BasePage
     {
         return $this->percentile;
     }
-    
+
      /**
      * Get the value of Page Relation
      *
@@ -200,7 +200,7 @@ class Page extends BasePage
 
         return $this;
     }
-    
+
 
     /**
      * Get last post date

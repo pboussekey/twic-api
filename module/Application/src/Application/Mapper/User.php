@@ -41,8 +41,8 @@ class User extends AbstractMapper
             'nickname',
             'email',
             'background',
-            'has_email_notifier',
-            'has_email_contact_request_notifier',
+            'has_social_notifier',
+            'has_academic_notifier',
             'user$birth_date' => new Expression('DATE_FORMAT(user.birth_date, "%Y-%m-%dT%TZ")'),
             'position',
             'interest',
@@ -83,7 +83,6 @@ class User extends AbstractMapper
             $select->join(['circle_organization_user' => 'user'], 'circle_organization_user.organization_id=circle_organization.organization_id', []);
             $select->where([' ( circle_organization_user.id = ? OR user_role.role_id = '.ModelRole::ROLE_ADMIN_ID . ') ' => $me]);
         }
-
         return $this->selectWith($select);
     }
 
@@ -475,5 +474,31 @@ class User extends AbstractMapper
             ->where(array('contact.user_id = `user$id` AND user.deleted_date IS NULL AND contact.accepted_date IS NOT NULL AND contact.deleted_date IS NULL'));
 
         return $select;
+    }
+
+    /**
+     * Get settings
+     *
+     * @return \Zend\Db\Sql\Select
+     */
+    public function getSettings($key)
+    {
+        $select = $this->tableGateway->getSql()->select();
+        $select->columns(['has_social_notifier', 'has_academic_notifier'])
+            ->join('event_user', 'event_user.user_id = user.id', [])
+            ->join('event', new Expression('event_user.event_id = event.id AND MD5(CONCAT(user.id, event.id,  DATE_FORMAT(event.date, "%M %D"), event.object)) = ?', $key), []);
+        return $this->selectWith($select);
+    }
+
+
+    public function updateSettings($key, $has_social_notifier, $has_academic_notifier)
+    {
+        $update = $this->tableGateway->getSql()->update();
+        $update->set(['has_social_notifier' => $has_social_notifier, 'has_academic_notifier' => $has_academic_notifier])
+        ->join('event_user', 'event_user.user_id = user.id', [])
+        ->join('event', new Expression('event_user.event_id = event.id AND MD5(CONCAT(user.id, event.id,  DATE_FORMAT(event.date, "%M %D"), event.object)) = ?', $key), []);
+
+        syslog(1, $this->printSql($update));
+        return $this->updateWith($update);
     }
 }

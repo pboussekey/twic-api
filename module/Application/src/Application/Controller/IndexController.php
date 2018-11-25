@@ -20,6 +20,7 @@ use JRpc\Json\Server\Exception\JrpcException;
 class IndexController extends AbstractActionController
 {
     const ITEM_STARTING = 'item.starting';
+    const MAIL_SEND = 'mail.send';
     /**
      * Index
      *
@@ -57,13 +58,16 @@ class IndexController extends AbstractActionController
     {
         $authorization = $this->conf()->getAll()['node']['authorization'];
         $request = $this->getRequest();
-        
+        $ret = false;
         if($request->getHeaders()->get('x-auth-token') !== false && $authorization === $request->getHeader('x-auth-token')->getFieldValue()) {
             $notifs = json_decode($this->getRequest()->getContent(), true);
             foreach($notifs as $notif){
                 switch($notif['type']){
-                case self::ITEM_STARTING :
-                    $ret = $this->item()->starting($notif['data']['id']);
+                    case self::ITEM_STARTING :
+                        $ret = $this->item()->starting($notif['data']['id']);
+                    break;
+                    case self::MAIL_SEND :
+                        $ret = $this->mail()->sendRecapEmail(json_decode($notif['data']['users']));
                     break;
                 }
             }
@@ -75,7 +79,7 @@ class IndexController extends AbstractActionController
         }
 
     }
-    
+
     public function demorequestAction()
     {
         $conf = $this->conf()->getAll()['demo-conf'];
@@ -89,7 +93,7 @@ class IndexController extends AbstractActionController
             "<br><span style=\"font-weight:bold;\">Last name</span> : ".$params['lastName'].
             "<br><span style=\"font-weight:bold;\">Institution</span> : ".$params['institution'].
             "<br><span style=\"font-weight:bold;\">Email</span> : ".$params['email'], 'Demo request', 'request@twicapp.io');
-        
+
         $headers = $this->getResponse()->getHeaders();
         $headers->addHeaderLine('Content-Type', 'application/json');
         if (isset($conf['headers'])) {
@@ -97,10 +101,10 @@ class IndexController extends AbstractActionController
                 $headers->addHeaderLine($key, $value);
             }
         }
-        
+
         return $this->getResponse()->setContent(json_encode(['code'=>true]));
     }
-    
+
     /**
      * Check Status
      *
@@ -118,15 +122,15 @@ class IndexController extends AbstractActionController
             if($params['id'] && is_numeric($params['id']) && $params['box_id'] && is_numeric($params['box_id'])) {
                 $ret = $this->library()->updateBoxId($params['id'], $params['box_id']);
             }
-            
+
             if(isset($params['err'])) {
                 syslog(1, "ERROR BOX: " . json_encode($params['err']));
             }
-        }       
-        else {  
+        }
+        else {
             throw new JrpcException('No authorization: uptboxid', - 32029);
-        }  
-        
+        }
+
         return new JsonModel(['code'=>$ret, 'params' => $params]);
     }
 

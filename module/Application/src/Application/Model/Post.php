@@ -18,6 +18,9 @@ class Post extends BasePost
     protected $user;
     protected $subscription;
     protected $count;
+    protected $page;
+    protected $parent;
+    protected $origin;
 
     public function exchangeArray(array &$data)
     {
@@ -25,9 +28,12 @@ class Post extends BasePost
             return;
         }
 
-        parent::exchangeArray($data);
-
+        $this->parent = $this->requireModel('app_model_post', $data, 'parent');
+        $this->origin = $this->requireModel('app_model_post', $data, 'origin');
         $this->user = $this->requireModel('app_model_user', $data);
+        $this->page = $this->requireModel('app_model_page', $data);
+
+        parent::exchangeArray($data);
     }
 
     public function setSubscription($subscription)
@@ -161,6 +167,46 @@ class Post extends BasePost
     {
         return $this->user;
     }
+
+
+
+    public function setPage($page)
+    {
+        $this->page = $page;
+
+        return $this;
+    }
+
+    public function getPage()
+    {
+        return $this->page;
+    }
+
+    public function setParent($parent)
+    {
+        $this->parent = $parent;
+
+        return $this;
+    }
+
+    public function getParent()
+    {
+        return $this->parent;
+    }
+
+    public function setOrigin($origin)
+    {
+        $this->origin = $origin;
+
+        return $this;
+    }
+
+    public function getOrigin()
+    {
+        return $this->origin;
+    }
+
+
 
 
     /**

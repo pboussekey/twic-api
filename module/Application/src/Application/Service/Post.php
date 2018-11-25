@@ -34,9 +34,8 @@ class Post extends AbstractService
      * @invokable
      *
      * @param string $content
-     * @param string $link
      * @param string $picture
-     * @param string $name_picture
+     * @param string $link
      * @param string $link_title
      * @param string $link_desc
      * @param int    $parent_id
@@ -51,6 +50,8 @@ class Post extends AbstractService
      * @param string $uid
      * @param array  $sub
      * @param string $type
+     * @param int    $item_id
+     * @param int    $shared_id
      *
      * @return \Application\Model\Post
      */
@@ -76,6 +77,58 @@ class Post extends AbstractService
         $item_id = null,
         $shared_id = null
     ) {
+          return $this->_add($content, $picture,  $name_picture, $link, $link_title, $link_desc, $parent_id,$t_page_id, $t_user_id, $page_id, $lat, $lng, $docs, $data, $event, $uid, $sub, $type, $item_id, $shared_id);
+    }
+
+    /**
+     * Add Post
+     *
+     *
+     * @param string $content
+     * @param string $link
+     * @param string $picture
+     * @param string $name_picture
+     * @param string $link_title
+     * @param string $link_desc
+     * @param int    $parent_id
+     * @param int    $t_page_id
+     * @param int    $t_user_id
+     * @param int    $page_id
+     * @param int    $lat
+     * @param int    $lng
+     * @param array  $docs
+     * @param string $data
+     * @param string $event
+     * @param string $uid
+     * @param array  $sub
+     * @param string $type
+     * @param array  $notify
+     *
+     * @return \Application\Model\Post
+     */
+    public function _add(
+        $content = null,
+        $picture = null,
+        $name_picture = null,
+        $link = null,
+        $link_title = null,
+        $link_desc = null,
+        $parent_id = null,
+        $t_page_id = null,
+        $t_user_id = null,
+        $page_id = null,
+        $lat =null,
+        $lng = null,
+        $docs = null,
+        $data = null,
+        $event = null,
+        $uid = null,
+        $sub = null,
+        $type = null,
+        $item_id = null,
+        $shared_id = null,
+        $notify = null
+    ) {
         $user_id = $this->getServiceUser()->getIdentity()['id'];
         $origin_id = null;
         if (null !== $parent_id) {
@@ -94,10 +147,6 @@ class Post extends AbstractService
         $date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
         if (!$is_notif && null === $parent_id && null === $t_page_id && null === $t_user_id) {
             $t_user_id = $user_id;
-        }
-
-        if (!empty($data) && !is_string($data)) {
-            $data = json_encode($data);
         }
 
         if (null !== $parent_id) {
@@ -122,7 +171,7 @@ class Post extends AbstractService
             ->setTUserId($t_user_id)
             ->setUid($uid)
             ->setType($type)
-            ->setData($data)
+            ->setData(!empty($data) && !is_string($data) ? json_encode($data) : $data)
             ->setSharedId($shared_id);
 
         if (!$is_notif || null !== $parent_id) {
@@ -173,7 +222,18 @@ class Post extends AbstractService
                 $sub = $this->getServicePostSubscription()->getListLibelle($origin_id);
             }
         }
-
+        if($notify === null ) {
+            $notify = ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => false];
+            if($parent_id == null && null === $item_id && !$is_notif && $t_page_id != null && $this->getServicePage()->isAdmin($t_page_id)) {
+                $m_page = $this->getServicePage()->getLite($t_page_id);
+                if($m_page->getType() == ModelPage::TYPE_COURSE && $type === 'post' && $m_page->getIsPublished()) {
+                    $notify['mail'] = 0;
+                }
+                else if($m_page->getType() == ModelPage::TYPE_COURSE && $type === 'post' && !$m_page->getIsPublished()){
+                    $notify = false;
+                }
+            }
+        }
         if (!empty($sub)) {
             $pevent = array_merge($pevent, $sub);
         }
@@ -183,21 +243,10 @@ class Post extends AbstractService
         else{
             $ev=((!empty($event))? $event:(($base_id!==$id) ? ModelPostSubscription::ACTION_COM : ModelPostSubscription ::ACTION_CREATE));
         }
-        if(count($pevent) > 0){
-            $this->getServicePostSubscription()->add(
-                array_unique($pevent),
-                $base_id,
-                $date,
-                $ev,
-                ((!$is_notif) ? $user_id:null),
-                ($base_id !== $id ? $id : null),
-                $data,
-                $is_not_public_page
-            );
-        }
+
           // si c pas une notification on gére les hastags
+        $mentions = [];
         if (!$is_notif) {
-            $mentions = [];
             preg_match_all ( '/@{user:(\d+)}/', $content, $mentions );
             if(count($mentions[0]) > 0){
                 $ar_users = $this->getServiceHashtag()->addMentions($id, $mentions);
@@ -222,150 +271,29 @@ class Post extends AbstractService
                             $user_id,
                             (($base_id!==$id) ? $id:null),
                             $data,
-                            $is_not_public_page
+                            $is_not_public_page,
+                            $notify !== false ? ['fcm' => $notify['fcm'], 'mail' => false ] : false
                         );
                     }
                 }
             }
-
         }
-        if($parent_id == null && null === $item_id) {
-            if($t_page_id != null && $this->getServicePage()->isAdmin($t_page_id)) {
-                $m_page = $this->getServicePage()->getLite($t_page_id);
-                if($m_page->getType() == ModelPage::TYPE_COURSE && $type === 'post' && $m_page->getIsPublished() && !$is_notif) {
-                    $ar_pages = [];
-                    $res_user = $this->getServiceUser()->getLite($this->getServiceSubscription()->getListUserId('PP'.$t_page_id));
-                    if($res_user !== null) {
-                        foreach($res_user as $m_user){
-                            if(!$m_user->getIsActive()){
-                                continue;
-                            }
-                            $m_organization = false;
-                            if(is_numeric($m_user->getOrganizationId())) {
-                                if(!array_key_exists($m_user->getOrganizationId(), $ar_pages)) {
-                                    $ar_pages[$m_user->getOrganizationId()] = $this->getServicePage()->getLite($m_user->getOrganizationId());
-                                }
-                                $m_organization = $ar_pages[$m_user->getOrganizationId()];
-                            }
-                            if($m_user->getId() == $user_id ){
-                              continue;
-                            }
-                            try {
 
-                                if($m_user->getHasEmailNotifier() === 1) {
-                                    $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
-                                    $m_organization->getLibelle() : null;
-
-                                    $url = sprintf("https://%s%s/page/course/%s/timeline", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl'], $m_page->getId());
-                                    $this->getServiceMail()->sendTpl(
-                                        'tpl_coursepost', $m_user->getEmail(), [
-                                        'pagename' => $m_page->getTitle(),
-                                        'pageurl' => $url,
-                                        'firstname' => $m_user->getFirstName()
-                                        ]
-                                    );
-                                }
-
-                                $gcm_notification = new GcmNotification();
-                                $gcm_notification->setTitle($m_page->getTitle())
-                                    ->setSound("default")
-                                    ->setColor("#00A38B")
-                                    ->setIcon("icon")
-                                    ->setTag("PAGEPOST".$t_page_id)
-                                    ->setBody("Someone posted on the course ". $m_page->getTitle());
-
-                                $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification, Fcm::PACKAGE_TWIC_APP);
-                            }
-                            catch (\Exception $e) {
-                                syslog(1, 'Model name does not exist Post<MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode());
-                            }
-                        }
-                    }
-                } elseif($m_page->getType() == ModelPage::TYPE_ORGANIZATION &&  $type === 'post' && !$is_notif) {
-                    $ar_pages = [];
-                    $res_user = $this->getServiceUser()->getLite($this->getServiceSubscription()->getListUserId('PP'.$t_page_id));
-                    if($res_user !== null) {
-                        foreach($res_user as $m_user){
-                            if(!$m_user->getIsActive()) {
-                                continue;
-                            }
-                            if($m_user->getId() == $user_id) {
-                                continue;
-                            }
-                            $m_organization = false;
-                            if($m_user->getOrganizationId()) {
-                                if(!array_key_exists($m_user->getOrganizationId(), $ar_pages)) {
-                                    $ar_pages[$m_user->getOrganizationId()] = $this->getServicePage()->getLite($m_user->getOrganizationId());
-                                }
-                                $m_organization = $ar_pages[$m_user->getOrganizationId()];
-                            }
-                            try {
-                                $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
-                                $m_organization->getLibelle() : null;
-                                $url = sprintf("https://%s%s/page/organization/%s/timeline", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl'], $m_page->getId());
-                                /*$this->getServiceMail()->sendTpl(
-                                    'tpl_organizationpost', $m_user->getEmail(), [
-                                    'pagename' => $m_page->getTitle(),
-                                    'pageurl' => $url,
-                                    'firstname' => $m_user->getFirstName()
-                                    ]
-                                );*/
-
-                                $gcm_notification = new GcmNotification();
-                                $gcm_notification->setTitle($m_page->getTitle())
-                                    ->setSound("default")
-                                    ->setColor("#00A38B")
-                                    ->setIcon("icon")
-                                    ->setTag("PAGEPOST".$t_page_id)
-                                    ->setBody("Someone posted in ". $m_page->getTitle());
-
-                                $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification, Fcm::PACKAGE_TWIC_APP);
-                            }
-                            catch (\Exception $e) {
-                                syslog(1, 'Model name does not exist Post<MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode());
-                            }
-                        }
-                    }
-                }
-            }
-        } else if(null !== $parent_id && null === $item_id) {
-            $m_post = $this->getLite($parent_id);
-            if(!$m_post->getUserId() instanceof IsNull && $user_id != $m_post->getUserId()) {
-                $m_user = $this->getServiceUser()->getLite($m_post->getUserId());
-                $m_me = $this->getServiceUser()->getLite($user_id);
-                $m_page = false;
-                if($m_user->getOrganizationId()) {
-                    $m_page =  $this->getServicePage()->getLite($m_user->getOrganizationId());
-                }
-                try{
-                    $prefix = ($m_page !== false && is_string($m_page->getLibelle()) && !empty($m_page->getLibelle())) ?
-                    $m_page->getLibelle() : null;
-                    $url = sprintf("https://%s%s/", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl']);
-                    /*
-                     * $this->getServiceMail()->sendTpl(
-                        'tpl_postcomment', $m_user->getEmail(), [
-                        'url' => $url,
-                        'firstname' => $m_user->getFirstname(),
-                        'someone' => $m_me->getFirstname()
-                        ]
-                    );*/
-
-                    $gcm_notification = new GcmNotification();
-                    $gcm_notification->setTitle($m_page->getTitle())
-                        ->setSound("default")
-                        ->setColor("#00A38B")
-                        ->setIcon("icon")
-                        ->setTag("PAGECOMMENT".$t_page_id)
-                        ->setBody("Someone commented on your post");
-
-                    $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification, Fcm::PACKAGE_TWIC_APP);
-                }
-                catch (\Exception $e) {
-                    syslog(1, 'Model name does not exist post comment <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode());
-                }
-            }
-
+        if(count($pevent) > 0){
+            $this->getServicePostSubscription()->add(
+                array_unique($pevent),
+                $base_id,
+                $date,
+                $ev,
+                ((!$is_notif) ? $user_id:null),
+                ($base_id !== $id ? $id : null),
+                $data,
+                $is_not_public_page,
+                $notify
+            );
         }
+
+
 
         return $id;
     }
@@ -454,9 +382,9 @@ class Post extends AbstractService
         $uid = null,
         $sub = null,
         $item_id = null,
-        $replace_sub = null
+        $replace_sub = null,
+        $notify = null
     ) {
-
         $user_id = $this->getServiceUser()->getIdentity()['id'];
         $date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
 
@@ -471,9 +399,11 @@ class Post extends AbstractService
 
         // create where request
         $w = ($uid !== false) ?  ['id' => $id] : ['id' => $id, 'user_id' => $user_id];
-
-        if (!empty($data) && !is_string($data)) {
-            $data = json_encode($data);
+        $d = ['id' => (int)$id ];
+        if (is_array($data)) {
+            $data = array_merge($d, $data);
+        } else {
+            $data = $d;
         }
 
         $m_post = $this->getModel()
@@ -486,7 +416,7 @@ class Post extends AbstractService
             ->setLat($lat)
             ->setLng($lng)
             ->setItemId($item_id)
-            ->setData($data)
+            ->setData(!empty($data) && !is_string($data) ? json_encode($data) : $data)
             ->setUpdatedDate($date);
 
         if (null !== $docs) {
@@ -524,7 +454,8 @@ class Post extends AbstractService
                 $user_id,
                 null,
                 $data,
-                $is_not_public_page
+                $is_not_public_page,
+                $notify
             );
 
             if (!$is_notif) {
@@ -551,7 +482,11 @@ class Post extends AbstractService
                                 $id,
                                 $date,
                                 ModelPostSubscription::ACTION_TAG,
-                                $user_id
+                                $user_id,
+                                null,
+                                null,
+                                $is_not_public_page,
+                                $notify
                             );
                         }
                     }
@@ -649,44 +584,7 @@ class Post extends AbstractService
      */
     public function like($id)
     {
-        $m_post = $this->getLite($id);
-        $user_id = $this->getServiceUser()->getIdentity()['id'];
-        if(!$m_post->getUserId() instanceof IsNull && $user_id != $m_post->getUserId()) {
-            $m_user = $this->getServiceUser()->getLite($m_post->getUserId());
-            $m_me = $this->getServiceUser()->getLite($user_id);
-            $m_page = false;
-            if($m_user->getOrganizationId()) {
-                $m_page =  $this->getServicePage()->getLite($m_user->getOrganizationId());
-            }
-            try{
-                $prefix = ($m_page !== false && is_string($m_page->getLibelle()) && !empty($m_page->getLibelle())) ?
-                $m_page->getLibelle() : null;
 
-                $url = sprintf("https://%s%s/", ($prefix ? $prefix.'.':''),  $this->container->get('config')['app-conf']['uiurl']);
-                /*$this->getServiceMail()->sendTpl(
-                    'tpl_postlike', $m_user->getEmail(), [
-                    'url' => $url,
-                    'firstname' => $m_user->getFirstname(),
-                    'someone' => $m_me->getFirstname(),
-                    ]
-                );*/
-
-                if($m_page !== false && $m_user->getIsActive()){
-                    $gcm_notification = new GcmNotification();
-                    $gcm_notification->setTitle($m_page->getTitle())
-                        ->setSound("default")
-                        ->setColor("#00A38B")
-                        ->setIcon("icon")
-                        ->setTag("PAGECOMMENT".$m_page->getId())
-                        ->setBody("Someone liked your post");
-
-                    $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification, Fcm::PACKAGE_TWIC_APP);
-                }
-            }
-            catch (\Exception $e) {
-                syslog(1, 'Model name does not exist <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode());
-            }
-        }
         return $this->getServicePostLike()->add($id);
     }
 
@@ -767,7 +665,15 @@ class Post extends AbstractService
      */
     public function getLite($id = null, $uid = null, $item_id = null)
     {
-        return $this->getMapper()->select($this->getModel()->setId($id)->setUid($uid)->setItemId($item_id))->current();
+        $res_post = $this->getMapper()->select($this->getModel()->setId($id)->setUid($uid)->setItemId($item_id));
+        if(is_array($id)){
+            $ar_post = [];
+            foreach($res_post as $m_post){
+                $ar_post[$m_post->getId()] = $m_post;
+            }
+            return $ar_post;
+        }
+        return $res_post->current();
     }
 
     public function getOwner($m_post)
@@ -820,15 +726,15 @@ class Post extends AbstractService
      *
      * @return \Application\Model\Post
      */
-    public function addSys($uid, $content, $data, $event, $sub = null, $parent_id = null, $t_page_id = null, $t_user_id = null, $type = null, $page_id = null, $item_id = null, $replace_sub = null)
+    public function addSys($uid, $content, $data, $event, $sub = null, $parent_id = null, $t_page_id = null, $t_user_id = null, $type = null, $page_id = null, $item_id = null, $replace_sub = null, $notify = null)
     {
         $res_post = $this->getMapper()->select($this->getModel()->setUid($uid));
         if($res_post->count() > 0){
             $this->getServicePostUser()->show(null, $uid);
-            return $this->_update(null, $content, null, null, null, null, null, null, null, null, $data, $event, $uid, $sub, $item_id,  $replace_sub);
+            return $this->_update(null, $content, null, null, null, null, null, null, null, null, $data, $event, $uid, $sub, $item_id,  $replace_sub, $notify);
         }
         else{
-           return   $this->add(
+           return   $this->_add(
                  $content,
                  null,
                  null,
@@ -846,7 +752,10 @@ class Post extends AbstractService
                  $event,
                  $uid,
                  $sub,
-                 $type
+                 $type,
+                 null,
+                 null,
+                 $notify
              );
         }
     }
@@ -859,11 +768,12 @@ class Post extends AbstractService
      * @param  string $data
      * @param  string $event
      * @param  array  $sub
+     * @param  array  $notify
      * @return int
      */
-    public function updateSys($uid, $content, $data, $event, $sub = null)
+    public function updateSys($uid, $content, $data, $event, $sub = null, $notify = null)
     {
-       return $this->_update(null, $content, null, null, null, null, null, null, null, null, $data, $event, $uid, $sub);
+       return $this->_update(null, $content, null, null, null, null, null, null, null, null, $data, $event, $uid, $sub, null, null, $notify);
     }
 
     /**
@@ -923,6 +833,10 @@ class Post extends AbstractService
         $identity = $this->getServiceUser()->getIdentity();
 
         return $this->getMapper()->getCount($identity['id'], $interval, $start_date, $end_date, $page_id, $parent, $date_offset);
+    }
+
+    public function getPostInfos($id){
+        return $this->getMapper()->getPostInfos($id)->current()->toArray();
     }
 
     /**

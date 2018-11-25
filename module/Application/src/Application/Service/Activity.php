@@ -4,7 +4,7 @@
  *
  * Activity
  */
-namespace Application\Service; 
+namespace Application\Service;
 
 use Dal\Service\AbstractService;
 
@@ -23,7 +23,7 @@ class Activity extends AbstractService
      */
     public function add($activities)
     {
-        $ret = []; 
+        $ret = [];
         $user = $this->getServiceUser()->getIdentity()['id'];
         foreach ($activities as $activity) {
             $date = (isset($activity['date'])) ? $activity['date'] : null;
@@ -142,10 +142,10 @@ class Activity extends AbstractService
         foreach ($res_activity as $m_activity)
         {
             if(!array_key_exists($m_activity->getUserId(), $arrayUser)) {
-                $arrayUser[$m_activity->getUserId()] = 
+                $arrayUser[$m_activity->getUserId()] =
                     ['start_date' => $m_activity->getDate(), 'end_date' => $m_activity->getDate()];
             }
-            else 
+            else
             {
                 $difference = (strtotime($m_activity->getDate()) - strtotime($arrayUser[$m_activity->getUserId()]['end_date']));
                 if ($difference < 600 && strcmp(substr($m_activity->getDate(), 0, $interval), substr($arrayUser[$m_activity->getUserId()]['end_date'], 0, $interval)) == 0) {
@@ -159,7 +159,7 @@ class Activity extends AbstractService
                     }
                     $connections[$actual_day][] = strtotime($arrayUser[$m_activity->getUserId()]['end_date']) - strtotime($arrayUser[$m_activity->getUserId()]['start_date']);
 
-                    $arrayUser[$m_activity->getUserId()] = 
+                    $arrayUser[$m_activity->getUserId()] =
                         ['start_date' => $m_activity->getDate(), 'end_date' => $m_activity->getDate()];
                 }
             }
@@ -182,7 +182,7 @@ class Activity extends AbstractService
         return $connections;
     }
 
-    public function interval($interval = 'D') 
+    public function interval($interval = 'D')
     {
         $ret = 10;
         switch ($interval) {
@@ -202,7 +202,7 @@ class Activity extends AbstractService
 
     /**
      * @invokable
-     * 
+     *
      * @param string $start_date
      * @param string $end_date
      * @param string $object_name
@@ -212,7 +212,7 @@ class Activity extends AbstractService
         $mapper = $this->getMapper();
         return $mapper->getPages($object_name, $start_date, $end_date);
     }
-    
+
      /**
      * Get List connections.
      *
@@ -234,11 +234,11 @@ class Activity extends AbstractService
         }
         $interval = $this->interval($interval_date);
         $identity = $this->getServiceUser()->getIdentity();
-        
+
         return $this->getMapper()->getVisitsCount($identity['id'], $interval, $start_date, $end_date, $page_id, $date_offset);
-      
+
     }
-    
+
      /**
      * Get List connections.
      *
@@ -261,10 +261,10 @@ class Activity extends AbstractService
         $interval = $this->interval($interval_date);
         $identity = $this->getServiceUser()->getIdentity();
         return $this->getMapper()->getDocumentsOpeningCount($identity['id'], $interval, $start_date, $end_date, $page_id, $date_offset);
-      
+
     }
-    
-    
+
+
      /**
      * Get List connections.
      *
@@ -290,7 +290,7 @@ class Activity extends AbstractService
         }
         return $res_activity;
     }
-    
+
      /**
      * Get List connections.
      *
@@ -314,10 +314,10 @@ class Activity extends AbstractService
         }
         return $res_activity;
     }
-    
-    
-    
-     
+
+
+
+
      /**
      *
      * @invokable
@@ -335,6 +335,27 @@ class Activity extends AbstractService
         }
         return $res_activity;
     }
+
+    /**
+    *
+    * @invokable
+    *
+    * @param array $users
+    * @param int $delay
+    *
+    * @return array
+    */
+   public function getListInactive($users, $delay)
+   {
+       $res_activity = $this->getMapper()->getListActive($users, $delay);
+
+       foreach($res_activity as $m_activity){
+           if (($idx = array_search($m_activity->getUserId(), $users)) !== false) {
+               unset($users[$idx]);
+           }
+       }
+       return array_values($users);
+   }
 
     /**
      * Get Service User.

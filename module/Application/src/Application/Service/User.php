@@ -63,9 +63,9 @@ class User extends AbstractService
     public function loginSaml($sso_uid)
     {
         $auth = $this->getServiceAuth();
-        
+
         $auth->getAdapter()->setSsoUid($sso_uid);
-        
+
         $code = - 32000;
         $result = $auth->authenticate();
         if (! $result->isValid()) {
@@ -74,21 +74,21 @@ class User extends AbstractService
                     $code = - 32031;
                     break;
             }
-            
+
             throw new JrpcException($result->getMessages()[0], $code);
         }
-        
+
         $identity = $this->getIdentity(true);
-        
+
         // ici on check que le role externe ne ce connect pas avec login
         if (in_array(ModelRole::ROLE_EXTERNAL_STR, $identity['roles']) && count($identity['roles']) === 1) {
             $this->logout();
             throw new \Exception("Error: unauthorized Role");
         }
-        
+
         return $identity;
     }
-    
+
     /**
      * Log user
      *
@@ -331,8 +331,8 @@ class User extends AbstractService
      *
      * @return int
      */
-    public function add($firstname, $lastname, $email, $gender = null, $origin = null, $nationality = null, $sis = null, $password = null, $birth_date = null, 
-        $position = null, $organization_id = null, $interest = null, $avatar = null, $roles = null, $timezone = null, $background = null, $nickname = null, 
+    public function add($firstname, $lastname, $email, $gender = null, $origin = null, $nationality = null, $sis = null, $password = null, $birth_date = null,
+        $position = null, $organization_id = null, $interest = null, $avatar = null, $roles = null, $timezone = null, $background = null, $nickname = null,
         $ambassador = null, $address = null)
     {
 
@@ -345,13 +345,13 @@ class User extends AbstractService
             throw new JrpcException('Unauthorized operation user.add', -38003);
         }
 
-        return $this->_add($firstname, $lastname, $email, $gender, $origin, $nationality, $sis, $password, $birth_date, $position, $organization_id, $interest, 
+        return $this->_add($firstname, $lastname, $email, $gender, $origin, $nationality, $sis, $password, $birth_date, $position, $organization_id, $interest,
             $avatar, $roles, $timezone, $background, $nickname, $ambassador, $address);
     }
 
-    public function _add($firstname = null, $lastname = null, $email = null, $gender = null, $origin = null, $nationality = null, $sis = null, 
-        $password = null, $birth_date = null, $position = null, $organization_id = null, $interest = null, $avatar = null, 
-        $roles = null, $timezone = null, $background = null, $nickname = null, $ambassador = null, $address = null, 
+    public function _add($firstname = null, $lastname = null, $email = null, $gender = null, $origin = null, $nationality = null, $sis = null,
+        $password = null, $birth_date = null, $position = null, $organization_id = null, $interest = null, $avatar = null,
+        $roles = null, $timezone = null, $background = null, $nickname = null, $ambassador = null, $address = null,
         $active = null, $graduation_year = null, $sso_uid = null)
     {
         $m_user = $this->getModel();
@@ -447,7 +447,7 @@ class User extends AbstractService
      * @param string $avatar
      * @param array  $roles
      * @param string $resetpassword
-     * @param bool   $has_email_notifier
+     * @param bool   $has_academic_notifier
      * @param string $timezone
      * @param string $background
      * @param string $nickname
@@ -456,7 +456,7 @@ class User extends AbstractService
      * @param array  $address
      * @param int    $graduation_year
      * @param string $linkedin_url
-     * @param bool $has_email_contact_request_notifier
+     * @param bool $has_social_notifier
      * @param string $page_program_name
      * @param string $sso_uid
      *
@@ -476,7 +476,7 @@ class User extends AbstractService
         $interest = null,
         $avatar = null, $roles = null,
         $resetpassword = null,
-        $has_email_notifier = null,
+        $has_academic_notifier = null,
         $timezone = null,
         $background = null,
         $nickname = null,
@@ -487,7 +487,7 @@ class User extends AbstractService
         $address = null,
         $graduation_year = null,
         $linkedin_url = null,
-        $has_email_contact_request_notifier = null,
+        $has_social_notifier = null,
         $page_program_name = null,
         $description = null,
         $sso_uid = null
@@ -522,7 +522,7 @@ class User extends AbstractService
             $avatar,
             $roles,
             $resetpassword,
-            $has_email_notifier,
+            $has_academic_notifier,
             $timezone,
             $background,
             $nickname,
@@ -533,17 +533,17 @@ class User extends AbstractService
             $address,
             $graduation_year,
             $linkedin_url,
-            $has_email_contact_request_notifier,
+            $has_social_notifier,
             $page_program_name,
             $description,
             $sso_uid
         );
     }
 
-    public function _update($id = null, $gender = null, $origin = null, $nationality = null, $firstname = null, $lastname = null, $sis = null, $email = null, 
-        $birth_date = null, $position = null, $organization_id = null, $interest = null, $avatar = null, $roles = null, $resetpassword = null, 
-        $has_email_notifier = null, $timezone = null, $background = null, $nickname = null, $suspend = null, $suspension_reason = null, 
-        $ambassador = null, $password = null, $address = null, $graduation_year = null, $linkedin_url = null, $has_email_contact_request_notifier = null, 
+    public function _update($id = null, $gender = null, $origin = null, $nationality = null, $firstname = null, $lastname = null, $sis = null, $email = null,
+        $birth_date = null, $position = null, $organization_id = null, $interest = null, $avatar = null, $roles = null, $resetpassword = null,
+        $has_academic_notifier = null, $timezone = null, $background = null, $nickname = null, $suspend = null, $suspension_reason = null,
+        $ambassador = null, $password = null, $address = null, $graduation_year = null, $linkedin_url = null, $has_social_notifier = null,
         $page_program_name = null, $description = null, $sso_uid = null)
     {
          $m_user = $this->getModel();
@@ -625,13 +625,13 @@ class User extends AbstractService
             ->setPosition($position)
             ->setInterest($interest)
             ->setAvatar(('null' === $avatar) ? new IsNull('avatar') : $avatar)
-            ->setHasEmailNotifier($has_email_notifier)
+            ->setHasAcademicNotifier($has_academic_notifier)
             ->setTimezone($timezone)
             ->setBackground($background)
             ->setNickname($nickname)
             ->setAmbassador($ambassador)
             ->setSsoUid($sso_uid)
-            ->setHasEmailContactRequestNotifier($has_email_contact_request_notifier)
+            ->setHasSocialNotifier($has_social_notifier)
             ->setGraduationYear(('null' === $graduation_year) ? new IsNull('graduation_year') : $graduation_year)
             ->setLinkedinUrl(('null' === $linkedin_url) ? new IsNull('linkedin_url') : $linkedin_url)
             ->setDescription(('null' === $description) ? new IsNull('description') : $description);
@@ -1035,7 +1035,16 @@ class User extends AbstractService
             $this->getModel()
                 ->setId($id)
         );
-        return (is_array($id)) ? $res_user : $res_user->current();
+        if(!is_array($id)){
+            return $res_user->current();
+        }
+        else{
+            $users = [];
+            foreach($res_user as $m_user){
+                $users[$m_user->getId()] = $m_user;
+            }
+            return $users;
+        }
     }
 
     /**
@@ -1049,7 +1058,7 @@ class User extends AbstractService
 
         return (is_array($email)) ? $res_user : $res_user->current();
     }
-    
+
     /**
      *
      * @param string $sso_uid
@@ -1058,9 +1067,23 @@ class User extends AbstractService
     public function getLiteBySsoUid($sso_uid)
     {
         $res_user = $this->getMapper()->select($this->getModel()->setSsoUid($sso_uid)->setDeletedDate(new IsNull('deleted_date')));
-        
+
         return ($res_user->count() > 0) ?
-            $res_user->current() : 
+            $res_user->current() :
+            false;
+    }
+
+    /**
+     *
+     * @param string $sso_uid
+     * @return \Application\Model\User|false
+     */
+    public function getLiteBySsoUid($sso_uid)
+    {
+        $res_user = $this->getMapper()->select($this->getModel()->setSsoUid($sso_uid)->setDeletedDate(new IsNull('deleted_date')));
+
+        return ($res_user->count() > 0) ?
+            $res_user->current() :
             false;
     }
 
@@ -1168,7 +1191,7 @@ class User extends AbstractService
      * @return array
      */
     public function getListId($search = null, $exclude = null, $filter = null, $contact_state = null, $page_id = null, $post_id = null, $order = null,
-        $role = null, $conversation_id = null, $page_type = null, $unsent = null, $is_pinned = null, $shared_id = null, $tags = null, $is_active = null, $view_id = null)
+        $role = null, $conversation_id = null, $page_type = null, $unsent = null, $is_pinned = null, $shared_id = null, $tags = null, $is_active = null, $view_id = null , $created_date = null)
     {
         $identity = $this->getIdentity();
         if (null !== $exclude && ! is_array($exclude)) {
@@ -1601,6 +1624,38 @@ class User extends AbstractService
         }
         return $this->getServiceUserTag()->remove($id, $tag_id);
     }
+
+
+    /**
+     * Get user settings from key
+     *
+     * @invokable
+     *
+     * @param string $key
+     *
+     * @return int
+     */
+    public function getSettings($key)
+    {
+        return $this->getMapper()->getSettings($key)->current();
+    }
+
+    /**
+     * Update user settings with key
+     *
+     * @invokable
+     *
+     * @param string $key
+     * @param int $has_social_notifier
+     * @param int $has_academic_notifier
+     *
+     * @return int
+     */
+    public function updateSettings($key, $has_social_notifier, $has_academic_notifier)
+    {
+        return $this->getMapper()->updateSettings($key, $has_social_notifier, $has_academic_notifier);
+    }
+
 
     /**
      * Get Service Preregistration

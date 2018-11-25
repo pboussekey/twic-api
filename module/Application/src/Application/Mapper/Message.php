@@ -8,7 +8,7 @@ use Application\Model\Page as ModelPage;
 
 class Message extends AbstractMapper
 {
-    public function getList($user_id, $conversation_id = null, $message_id = null)
+    public function getList($user_id, $conversation_id = null, $message_id = null, $unread = null)
     {
         $select = $this->tableGateway->getSql()->select();
         $select->columns(['id', 'text', 'user_id','message$created_date' => new Expression('DATE_FORMAT(message.created_date, "%Y-%m-%dT%TZ")')])
@@ -24,12 +24,18 @@ class Message extends AbstractMapper
         if (null !== $conversation_id) {
             $select->where(['message.conversation_id' => $conversation_id]);
         }
+        if(true === $unread){
+            $select->where(['message_message_user$read_date IS NULL']);
+        }
+        else if(false === $unread){
+            $select->where(['message_message_user$read_date IS NOT NULL']);
+        }
 
         return $this->selectWith($select);
     }
-    
-    
-    
+
+
+
     public function getCount($me, $interval, $start_date = null, $end_date = null, $page_id = null, $type = null, $date_offset = 0)
     {
         $select = $this->tableGateway->getSql()->select();
@@ -48,7 +54,7 @@ class Message extends AbstractMapper
         if (null != $type) {
             $select->where(['conversation.type' => $type]);
         }
-        
+
         if (null != $page_id) {
             $select->join('user', 'message.user_id = user.id', [])
                 ->join('page', 'page.conversation_id = conversation.id',[], $select::JOIN_LEFT)
@@ -57,7 +63,7 @@ class Message extends AbstractMapper
                 ->notEqualTo(' page.type',ModelPage::TYPE_ORGANIZATION )->UNNEST->OR
                 ->in(' user.organization_id', $page_id)->UNNEST;
         }
-        
+
         return $this->selectWith($select);
     }
 }

@@ -1,9 +1,9 @@
 <?php
 
-use \Application\Controller\Plugin\ConfFactory;
-use \Application\Controller\Plugin\videoArchive;
-use \Application\Controller\Plugin\item;
-use \Zend\Router\Http\Literal;
+use Application\Controller\Plugin\ConfFactory;
+use Application\Controller\Plugin\videoArchive;
+use Application\Controller\Plugin\item;
+use Zend\Router\Http\Literal;
 use Application\Controller\Plugin\Library;
 use Application\Controller\Plugin\Mail;
 
@@ -22,7 +22,7 @@ return [
               'conf' => ConfFactory::class,
               'videoArchive' => function ($container) {
                   return new videoArchive($container->get('app_service_video_archive'));
-              },    
+              },
               'item' => function ($container) {
                   return new item($container->get('app_service_item'));
               },
@@ -30,7 +30,7 @@ return [
                   return new Library($container->get('app_service_library'));
               },
               'mail' => function ($container) {
-                  return new Mail($container->get('mail.service'));
+                  return new mail($container->get('mail.service'), $container->get('app_service_event'));
               }
         ],
     ],
@@ -164,7 +164,7 @@ return [
             \Application\Service\Saml::class    => function ($container) {
                 $saml = new \Application\Service\Saml();
                 $saml->setContainer($container);
-                
+
                 return $saml;
             }
         ],

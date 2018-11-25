@@ -17,18 +17,19 @@ class EventUser extends AbstractService
      *
      * @return array
      */
-    public function add($event_id, $user_id){
-        $ret = 0;
+    public function add($event_id, $user_id, $source = null, $data = null){
+
         $m_event_user = $this->getModel()
             ->setUserId($user_id)
             ->setEventId($event_id);
+
         $res_event_user = $this->getMapper()->select($m_event_user);
         if($res_event_user->count() === 0){
             $this->getMapper()->insert($m_event_user);
-            $ret++;
+            return $m_event_user;
         }
 
-        return $ret;
+        return false;
     }
 
     /**
