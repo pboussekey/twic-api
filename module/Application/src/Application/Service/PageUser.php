@@ -202,7 +202,7 @@ class PageUser extends AbstractService
                 }
 
                 try{
-                    if($m_user->getHasEmailNotifier() === 1) {
+                    if($m_user->getHasAcademicNotifier() === 1) {
                         $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
                         $m_organization->getLibelle() : null;
                         $url = sprintf("https://%s%s/page/course/%s/timeline", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl'], $m_page->getId());

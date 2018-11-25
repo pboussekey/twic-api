@@ -316,7 +316,6 @@ class Event extends AbstractService
             'name' => 'user','data' =>
             ['firstname' => $m_user['firstname'],'email' => $m_user['email'],'lastname' => $m_user['lastname'],'nickname' => $m_user['nickname'],'gender' =>
                 $m_user['gender'],
-                'has_email_notifier' => $m_user['has_email_notifier'],
                 'avatar' => $m_user['avatar'],
                 'organization' => $m_user['organization_id'],
                 'user_roles' => $m_user['roles']]];
@@ -446,7 +445,9 @@ class Event extends AbstractService
                     $labels['title'] = strip_tags(html_entity_decode($event['text']));
                     $labels['ntf_count'] = $event['count']  > 1 ? sprintf('And <b>%s</b> more...', $event['count']) : '';
                     $labels['ntf_link'] =  sprintf('https://%s.%s%s',$libelle, $urlui, $this->getLink($event['event'],json_decode($event['object'], true)));
+                    $labels['unsubscribe'] =  sprintf('https://%s.%s/unsubscribe/%s',$libelle, $urlui, md5($uid.$event['id'].$event['date'].$event['object']));
                     $idx++;
+                    syslog(1, $uid.$event['id'].$event['date'].$event['object']." => ".md5($uid.$event['id'].$event['date'].$event['object']));
                 }
                 else if($idx < 6){
                       $labels['ntf'.$idx.'_display'] = 'block';

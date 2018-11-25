@@ -22,7 +22,7 @@ class User extends AbstractModel
 	protected $nationality;
 	protected $origin;
 	protected $avatar;
-	protected $has_email_notifier;
+	protected $has_academic_notifier;
 	protected $deleted_date;
 	protected $background;
 	protected $timezone;
@@ -45,7 +45,7 @@ class User extends AbstractModel
 	protected $description;
 	protected $graduation_year;
 	protected $linkedin_url;
-	protected $has_email_contact_request_notifier;
+	protected $has_social_notifier;
 	protected $sso_uid;
 
 	protected $prefix = 'user';
@@ -242,14 +242,14 @@ class User extends AbstractModel
 		return $this;
 	}
 
-	public function getHasEmailNotifier()
+	public function getHasAcademicNotifier()
 	{
-		return $this->has_email_notifier;
+		return $this->has_academic_notifier;
 	}
 
-	public function setHasEmailNotifier($has_email_notifier)
+	public function setHasAcademicNotifier($has_academic_notifier)
 	{
-		$this->has_email_notifier = $has_email_notifier;
+		$this->has_academic_notifier = $has_academic_notifier;
 
 		return $this;
 	}
@@ -518,14 +518,14 @@ class User extends AbstractModel
 		return $this;
 	}
 
-	public function getHasEmailContactRequestNotifier()
+	public function getHasSocialNotifier()
 	{
-		return $this->has_email_contact_request_notifier;
+		return $this->has_social_notifier;
 	}
 
-	public function setHasEmailContactRequestNotifier($has_email_contact_request_notifier)
+	public function setHasSocialNotifier($has_social_notifier)
 	{
-		$this->has_email_contact_request_notifier = $has_email_contact_request_notifier;
+		$this->has_social_notifier = $has_social_notifier;
 
 		return $this;
 	}

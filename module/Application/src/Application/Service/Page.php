@@ -117,7 +117,7 @@ class Page extends AbstractService
      * @param string $single_sign_on_service
      * @param string $single_logout_service
      * @param string $sso_x509cert
-     * 
+     *
      * @return int
      */
     public function add(
@@ -577,7 +577,7 @@ class Page extends AbstractService
                     }
 
                     try{
-                        if($m_user->getHasEmailNotifier() === 1) {
+                        if($m_user->getHasAcademicNotifier() === 1) {
                             $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
                             $m_organization->getLibelle() : null;
 
@@ -1026,7 +1026,7 @@ class Page extends AbstractService
 
         $m_page->setOwner($owner);
     }
-    
+
      /**
       * Get page counts.
       *
