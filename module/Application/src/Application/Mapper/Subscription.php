@@ -16,7 +16,7 @@ class Subscription extends AbstractMapper
             ->quantifier('DISTINCT');
 
         $select->join('user', 'subscription.user_id = user.id', ['firstname', 'lastname', 'email', 'initial_email'])
-              ->where(['user.deleted_date IS NULL']);
+              ->where(['user.deleted_date IS NULL AND user.is_active = 1']);
         if (null !== $search) {
           $tags = explode(' ', $search);
           $select->join('user_tag', 'user_tag.user_id = subscription.user_id', [], $select::JOIN_LEFT)

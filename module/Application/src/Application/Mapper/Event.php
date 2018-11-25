@@ -51,6 +51,8 @@ class Event extends AbstractMapper
         'count' =>  new Expression('COUNT(DISTINCT event.id)')
       ])
       ->join('event_user', new Expression('event.id = event_user.event_id AND event.text IS NOT NULL AND event.date >=  DATE_SUB(NOW(), INTERVAL 7 DAY) '), ['user_id' => 'user_id'])
+      ->join('user', 'event_user.user_id = user.id', [])
+      ->where('user.is_active = 1')
       ->where(['event_user.user_id' => $users])
       ->where(new Expression(' NOT EXISTS (SELECT id FROM activity WHERE date > event.date AND activity.user_id = event_user.user_id)'))
       ->group(['event', ' event_user.user_id']);
@@ -72,9 +74,9 @@ class Event extends AbstractMapper
                       WHEN events.user_id THEN 'your'
                       WHEN event.user_id THEN 'their'
                       ELSE CONCAT('<b>',
-                              user.firstname,
+                              target.firstname,
                               ' ',
-                              user.lastname,
+                              target.lastname,
                               '</b>\'s')
                   END), event.text)
             "),
@@ -82,12 +84,10 @@ class Event extends AbstractMapper
             'target_id'
       ])
       ->join(['events' => $events_select], 'event.id = events.id', ['event$user_id' => 'user_id', 'event$count' => 'count', 'event$important' => 'important'])
-      ->join('user', 'event.target_id = user.id', [], $select::JOIN_LEFT)
+      ->join(['target' => 'user'], 'event.target_id = target.id', [], $select::JOIN_LEFT)
       ->order(['events.user_id DESC', 'events.important DESC', 'event.id DESC']);
 
 
-
-          syslog(1, $this->printSql($select));
-          return $this->selectWith($select);
+       return $this->selectWith($select);
     }
 }

@@ -393,12 +393,14 @@ class Event extends AbstractService
                 'current_year' => date("Y"),
                 //MAIN NOTIFICATION
                 'ntf_picture' => '',
+                'ntf_display_picture' => 'none',
                 'ntf_text' => '',
                 'ntf_link' => '',
                 'ntf_count' => '',
                 //NTF1
                 'ntf1_display' => 'none',
                 'ntf1_picture' => '',
+                'ntf1_display_picture' => 'none',
                 'ntf1_text' => '',
                 'ntf1_link' => '',
                 'ntf1_count' => '',
@@ -407,6 +409,7 @@ class Event extends AbstractService
                 //NTF2
                 'ntf2_display' => 'none',
                 'ntf2_picture' => '',
+                'ntf2_display_picture' => 'none',
                 'ntf2_text' => '',
                 'ntf2_link' => '',
                 'ntf2_count' => '',
@@ -415,6 +418,7 @@ class Event extends AbstractService
                 //NTF3
                 'ntf3_display' => 'none',
                 'ntf3_picture' => '',
+                'ntf3_display_picture' => 'none',
                 'ntf3_text' => '',
                 'ntf3_link' => '',
                 'ntf3_count' => '',
@@ -423,6 +427,7 @@ class Event extends AbstractService
                 //NTF4
                 'ntf4_display' => 'none',
                 'ntf4_picture' => '',
+                'ntf4_display_picture' => 'none',
                 'ntf4_text' => '',
                 'ntf4_link' => '',
                 'ntf4_count' => '',
@@ -431,6 +436,7 @@ class Event extends AbstractService
                 //NTF5
                 'ntf5_display' => 'none',
                 'ntf5_picture' => '',
+                'ntf5_display_picture' => 'none',
                 'ntf5_text' => '',
                 'ntf5_link' => '',
                 'ntf5_count' => '',
@@ -438,20 +444,24 @@ class Event extends AbstractService
                 'ntf5_icon' => '',
             ];
             $idx = 0;
+            $important = 0;
+            $date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d\TH:i:s\Z');
             foreach($events as $event){
                 if($idx === 0){
                     $labels['ntf_picture'] =  (null !== $event['picture']) ? ($urldms.$event['picture'].'-80m80') : null;
+                    $labels['ntf_display_picture'] =  (null !== $event['picture']) ? 'block' : 'none';
                     $labels['ntf_text'] = $event['text'];
                     $labels['title'] = strip_tags(html_entity_decode($event['text']));
                     $labels['ntf_count'] = $event['count']  > 1 ? sprintf('And <b>%s</b> more...', $event['count']) : '';
                     $labels['ntf_link'] =  sprintf('https://%s.%s%s',$libelle, $urlui, $this->getLink($event['event'],json_decode($event['object'], true)));
                     $labels['unsubscribe'] =  sprintf('https://%s.%s/unsubscribe/%s',$libelle, $urlui, md5($uid.$event['id'].$event['date'].$event['object']));
                     $idx++;
-                    syslog(1, $uid.$event['id'].$event['date'].$event['object']." => ".md5($uid.$event['id'].$event['date'].$event['object']));
+                    $important = $event['important'];
                 }
                 else if($idx < 6){
                       $labels['ntf'.$idx.'_display'] = 'block';
                       $labels['ntf'.$idx.'_picture'] = (null !== $event['picture']) ? ($urldms.$event['picture'].'-80m80') : null;
+                      $labels['ntf'.$idx.'_display_picture'] =  (null !== $event['picture']) ? 'block' : 'none';
                       $labels['ntf'.$idx.'_text'] = $event['text'];
                       $labels['ntf'.$idx.'_count'] = $event['count']  > 1 ? sprintf('And <b>%s</b> more...', $event['count']) : '';
                       $labels['ntf'.$idx.'_icon'] = '/assets/img/mail/'.$event['event'].'.png';
@@ -460,7 +470,11 @@ class Event extends AbstractService
                       $idx++;
                 }
             }
-            $mails[$m_user->getEmail()] = $labels;
+            if(($important === 0 && $m_user->getHasSocialNotifier() === 1) ||
+               ($important === 1 && $m_user->getHasAcademicNotifier() === 1)){
+                $mails[$m_user->getEmail()] = $labels;
+                $this->getServiceActivity()->_add($date, 'mail', ['name' =>'received', 'data' => $labels ], null, $uid);
+            }
         }
 
         $this->getServiceMail()->sendMultiTpl('tpl_newactivity', $mails);

@@ -879,7 +879,6 @@ class Post extends AbstractService
                         $link_desc = $meta['open_graph']['description'];
                     }
                     if(isset($meta['open_graph']['image'])){
-                    syslog(1, json_encode($meta['open_graph']['image']));
                         $picture = $meta['open_graph']['image'];
                     }
                 }

@@ -486,7 +486,7 @@ class User extends AbstractMapper
         $select = $this->tableGateway->getSql()->select();
         $select->columns(['has_social_notifier', 'has_academic_notifier'])
             ->join('event_user', 'event_user.user_id = user.id', [])
-            ->join('event', new Expression('event_user.event_id = event.id AND MD5(CONCAT(user.id, event.id,  DATE_FORMAT(event.date, "%M %D"), event.object)) = ?', $key), []);
+            ->join('event', new Expression('event.date >=  DATE_SUB(NOW(), INTERVAL 14 DAY) AND event_user.event_id = event.id AND MD5(CONCAT(user.id, event.id,  DATE_FORMAT(event.date, "%M %D"), event.object)) = ?', $key), []);
         return $this->selectWith($select);
     }
 
@@ -496,7 +496,7 @@ class User extends AbstractMapper
         $update = $this->tableGateway->getSql()->update();
         $update->set(['has_social_notifier' => $has_social_notifier, 'has_academic_notifier' => $has_academic_notifier])
         ->join('event_user', 'event_user.user_id = user.id', [])
-        ->join('event', new Expression('event_user.event_id = event.id AND MD5(CONCAT(user.id, event.id,  DATE_FORMAT(event.date, "%M %D"), event.object)) = ?', $key), []);
+        ->join('event', new Expression('event.date >=  DATE_SUB(NOW(), INTERVAL 14 DAY) AND event_user.event_id = event.id AND MD5(CONCAT(user.id, event.id,  DATE_FORMAT(event.date, "%M %D"), event.object)) = ?', $key), []);
 
         return $this->updateWith($update);
     }
