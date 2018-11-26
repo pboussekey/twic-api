@@ -108,6 +108,7 @@ class PageUser extends AbstractService
                         'user' => $uid,
                         'page' => $page_id,
                         'page_type' => $m_page->getType(),
+                        'page_title' => $m_page->getTitle()
                     ],
                     'pending',
                     $sub,
@@ -130,6 +131,7 @@ class PageUser extends AbstractService
                         'user' => $uid,
                         'page' => $page_id,
                         'page_type' => $m_page->getType(),
+                        'page_title' => $m_page->getTitle()
                     ],
                     'invited',
                     ['M'.$uid]/*sub*/,
@@ -164,6 +166,7 @@ class PageUser extends AbstractService
                             'user'  => $uid,
                             'page'  => $page_id,
                             'page_type' => $m_page->getType(),
+                            'page_title' => $m_page->getTitle()
                         ],
                         'member',
                         ['M'.$uid]/*sub*/,

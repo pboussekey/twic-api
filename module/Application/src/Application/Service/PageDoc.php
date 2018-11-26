@@ -22,16 +22,17 @@ class PageDoc extends AbstractService
     public function add($page_id, $library, $notify=true)
     {
         if (is_array($library)) {
-            $library = $this->getServiceLibrary()
-                ->_add($library)
-                ->getId();
+            $m_library = $this->getServiceLibrary()
+                ->_add($library);
+
+            $library_id = $m_library->getId();
         } elseif (! is_numeric($var)) {
             throw new \Exception('error add document');
         }
 
         $m_page_doc = $this->getModel()
             ->setPageId($page_id)
-            ->setLibraryId($library);
+            ->setLibraryId($library_id);
 
         $this->getMapper()->insert($m_page_doc);
         $m_page = $this->getServicePage()->getLite($page_id);
@@ -42,11 +43,12 @@ class PageDoc extends AbstractService
                 [
                     'picture' => !($m_page->getLogo() instanceof IsNull) ? $m_page->getLogo() : null,
                     'page_id'    => $page_id,
-                    'ressource_id'    => $library,
-                    'pagetype' => $m_page->getType(),
+                    'library_id'    => $library_id,
+                    'page_type' => $m_page->getType(),
                 ],
                 [
-                    'pagetitle' => $m_page->getTitle()
+                    'page_title' => $m_page->getTitle(),
+                    'library_name' => $m_library->getName(),
                 ],
                 ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => true]
             );

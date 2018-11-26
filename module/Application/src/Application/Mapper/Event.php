@@ -21,7 +21,7 @@ class Event extends AbstractMapper
             'picture',
             'target_id',
             'event$text' => new Expression(
-              'replace(event.text, "{user}", CASE event.target_id WHEN event_user.user_id THEN "your" WHEN event.user_id THEN "their" ELSE CONCAT("<b>", user.firstname, " ", user.lastname,"</b>\'s") END)'
+              'COALESCE(replace(event.text, "{user}", CASE event.target_id WHEN event_user.user_id THEN "your" WHEN event.user_id THEN "their" ELSE CONCAT("<b>", user.firstname, " ", user.lastname,"</b>\'s") END), event.text)'
             ),
             'target'])
                 ->join('event_user',
@@ -36,6 +36,7 @@ class Event extends AbstractMapper
         if($unread === true){
             $select->where('event_user.read_date IS NULL');
         }
+
         return $this->selectWith($select);
     }
 

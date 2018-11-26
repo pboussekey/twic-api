@@ -118,7 +118,9 @@ class Event extends AbstractService
             case 'post.share':
                 return sprintf('%s shared %s post %s%s', $d['post_source'], $d['parent_source'], $d['target_page'], $d['content']);
             case 'item.publish':
-                return sprintf('<b>%s</b> %s has been published in <b>%s</b>', $d['itemtitle'],$d['itemtype'], $d['pagetitle']);
+                return sprintf('A new %s : <b>%s</b> has been published in <b>%s</b>', $d['itemtype'], $d['itemtitle'],$d['pagetitle']);
+            case 'section.publish':
+                return sprintf('A new %s : <b>%s</b> has been published in <b>%s</b>', $d['itemtype'], $d['itemtitle'], $d['pagetitle']);
             case 'item.update':
                 return sprintf('<b>%s</b> %s has been updated in <b>%s</b>', $d['itemtitle'],$d['itemtype'], $d['pagetitle']);
             case 'connection.request':
@@ -128,17 +130,24 @@ class Event extends AbstractService
             case 'message.send':
                 return sprintf('You have an unread message from <b>%s</b>%s', $d['user'], $d['text']);
             case 'page.doc':
-                return sprintf('A new material has been added to in <b>%s</b>', $d['pagetitle']);
+                return sprintf('A new material : <b>%s</b> has been added in <b>%s</b>', $d['library_name'], $d['page_title']);
             case 'page.member':
                 return sprintf('You are enrolled in <b>%s</b>',  $d['pagetitle']);
             case 'page.pending':
                 return sprintf('You are invited to join <b>%s</b>', $d['pagetitle']);
             case 'page.invited':
-                return sprintf('<b>%s</b> requested to join <b>%s</b>', $d['source'], $d['pagetitle']);
+                return sprintf('<b>%s</b> requested to join <b>%s</b>', $d['source'], $d['page_title']);
         }
     }
 
     function getLink($event, $d){
+
+          $page_type = [
+              'event' => 'event',
+              'group' => 'club',
+              'organization' => 'institution',
+              'course' => 'course'
+          ];
         switch($event){
             case 'post.create':
             case 'post.tag':
@@ -152,21 +161,17 @@ class Event extends AbstractService
                 return sprintf('/profile/%s',  $d['user'] );
             case 'item.publish':
             case 'item.update':
-                return sprintf('/page/%s%/%s/content/%s',  $d['page_type'],  $d['page_id'],  $d['item_id'] );
+                return sprintf('/page/%s/%s/content/%s',  $page_type[$d['page_type']],  $d['page_id'],  $d['item_id'] );
+            case 'section.publish':
+                return sprintf('/page/%s/%s/content/',  $page_type[$d['page_type']],  $d['page_id']);
             case 'message.send':
                 return '';
             case 'page.doc':
-                return sprintf('/page/%s%/%s/resources/%s',  $d['page_type'],  $d['page_id'],  $d['library'] );
+                return sprintf('/page/%s/%s/resources/%s',  $page_type[$d['page_type']],  $d['page_id'],  $d['library_id'] );
             case 'page.member':
             case 'page.pending':
             case 'page.invited':
-                $page_type = [
-                    'event' => 'event',
-                    'group' => 'club',
-                    'organization' => 'institution',
-                    'course' => 'course'
-                ];
-                return sprintf('/page/%s%/%s/everyone',  $page_type[$d['page_type']],  $d['page_id'] );
+                return sprintf('/page/%s/%s/everyone',  $page_type[$d['page_type']],  $d['page_id'] );
         }
     }
 

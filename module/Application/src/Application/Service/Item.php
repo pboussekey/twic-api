@@ -614,8 +614,26 @@ class Item extends AbstractService
                 if($m_item->getType() === ModelItem::TYPE_SECTION){
                     $res_children= $this->getListId(null, $m_item->getId(), true)[$m_item->getId()];
                     foreach($res_children as $child){
-                        $this->publish($child, null, null, $m_item->getId(), true);
+                        $this->publish($child, null, null, $m_item->getId(), false);
                     }
+                    $this->getServiceEvent()->create(
+                        'section', 'publish',
+                        ["PP".$page_id],
+                        [
+                            'item_id' => $id,
+                            'page_id'    => $page_id,
+                            'page_type' => $m_page->getType(),
+                            'picture' => !($m_page->getLogo() instanceof IsNull) ? $m_page->getLogo() : null
+                        ],
+                        [
+                          'pagetitle' => $m_page->getTitle(),
+                          'pagelogo' => $m_page->getLogo(),
+                          'itemtitle' => $m_item->getTitle(),
+                          'children' => count($res_children),
+                          'itemtype' => ModelItem::type_relation[$m_item->getType()]
+                        ],
+                        ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => true]
+                    );
                     return true;
                 }
 
@@ -638,8 +656,8 @@ class Item extends AbstractService
                     ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => true]
                 );
                 $res_group = $this->getServiceGroup()->getList($m_item->getId())[$m_item->getId()];
-                foreach($res_group as $m_group){
-                    $res_item_user = $this->getServiceItemUser()->getList($m_group->getItemId(), null, null, $m_group->getId());
+                foreach($res_group as $group){
+                    $res_item_user = $this->getServiceItemUser()->getList($group['item_id'], null, null, $group['id']);
                     $users = [];
                     $sub = [];
                     foreach($res_item_user as $m_item_user){
@@ -647,13 +665,13 @@ class Item extends AbstractService
                         $users[] = $m_item_user->getUserId();
                     }
                     $this->getServicePost()->addSys(
-                        'GR'.$m_group->getId(),
+                        'GR'.$group['id'],
                         '',
                         [
                           'users' => $users,
-                          'id' => $m_group->getId(),
-                          'name' => $m_group->getName(),
-                          'item' => $m_group->getItemId()
+                          'id' => $group['id'],
+                          'name' => $group['name'],
+                          'item' => $group['item_id']
                         ],
                         'member',
                         $sub/*sub*/,
@@ -662,7 +680,7 @@ class Item extends AbstractService
                         null/*user*/,
                         'group',
                         $page_id,
-                        $m_group->getItemId()
+                        $group['item_id']
                     );
                 }
             }
