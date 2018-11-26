@@ -77,22 +77,16 @@ class Contact extends AbstractService
             );
         }
 
-
-        $l = 'C'.(($user > $user_id) ? $user_id.'_'.$user : $user.'_'.$user_id);
-        $this->getServicePost()->addSys(
-            $l,
-            'Sent you a connection request',
-            ['state' => 'request','user' => $user_id,'contact' => $user],
-            'request',
-            ['M'.$user],
-            null,
-            null,
-            null,
-            'connection',
-            null,
-            null,
-            ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => false]
-        );
+        $this->getServiceEvent()->create('connection', 'request',
+              ['M'.$user],
+              [
+                'state' => 'request','user' => $user_id,'contact' => $user,
+                'picture' => !empty($identity['avatar']) ? $identity['avatar'] : null,
+                'target' => $user
+              ],
+              [
+                'source' => $identity['firstname'].' '.$identity['lastname']
+              ],   ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => false] );
 
         return $ret;
     }
@@ -150,19 +144,18 @@ class Contact extends AbstractService
             }
         }
 
-        $l = 'C'.(($user > $user_id) ? $user_id.'_'.$user : $user.'_'.$user_id);
-        $this->getServicePost()->updateSys(
-            $l,
-            'Accepted your request',
-            [
-              'state' => 'accept',
-              'user' => $user_id,
-              'contact' => $user,
-            ],
-            'accept',
-            ['M'.$user_id, 'M'.$user],
-            ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => false]
-        );
+        $this->getServiceEvent()->create('connection', 'accept',
+              ['M'.$user, 'M'.$user_id],
+              [
+                'state' => 'accept',
+                'user' => $user_id,
+                'contact' => $user,
+                'picture' => !empty($identity['avatar']) ? $identity['avatar'] : null,
+                'target' => $user
+              ],
+              [
+                'source' => $identity['firstname'].' '.$identity['lastname']
+              ],   ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => false] );
 
         return true;
     }

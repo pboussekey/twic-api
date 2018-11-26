@@ -100,50 +100,38 @@ class PageUser extends AbstractService
                 foreach($arr_user as $user){
                     $sub[] = 'M'.$user;
                 }
-                $this->getServicePost()->addSys(
-                    'PPM'.$page_id.'_'.$uid,
-                    '',
-                    [
-                        'state' => 'pending',
-                        'user' => $uid,
-                        'page' => $page_id,
+
+                $this->getServiceEvent()->create('page', 'pending',
+                      $sub,
+                      [
+                          'state' => 'pending',
+                          'user'  => $uid,
+                          'page'  => $page_id,
+                          'page_type' => $m_page->getType(),
+                          'picture' => !($m_user->getAvatar() instanceof IsNull) ? $m_user->getAvatar() : null
+                      ],
+                      [
+                        'source' => $m_user->getFirstname().' '.$m_user->getLastname(),
                         'page_type' => $m_page->getType(),
                         'page_title' => $m_page->getTitle()
-                    ],
-                    'pending',
-                    $sub,
-                    null,
-                    $page_id,
-                    null,
-                    'page',
-                    $page_id,
-                    null,
-                    true,
-                    ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => false]
-                );
+                      ],   ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => false] );
             }
             if ($state === ModelPageUser::STATE_INVITED && ModelPage::TYPE_ORGANIZATION !== $m_page->getType()) {
-                $this->getServicePost()->addSys(
-                    'PPM'.$page_id.'_'.$uid,
-                    '',
-                    [
+
+                $this->getServiceEvent()->create('page', 'invited',
+                      ['M'.$uid],
+                      [
                         'state' => 'invited',
-                        'user' => $uid,
-                        'page' => $page_id,
+                        'user'  => $uid,
+                        'page'  => $page_id,
+                        'target' => $uid,
+                        'page_type' => $m_page->getType(),
+                        'picture' => !($m_page->getLogo() instanceof IsNull) ? $m_page->getLogo() : null
+                      ],
+                      [
                         'page_type' => $m_page->getType(),
                         'page_title' => $m_page->getTitle()
-                    ],
-                    'invited',
-                    ['M'.$uid]/*sub*/,
-                    null/*parent*/,
-                    $page_id/*page*/,
-                    null/*user*/,
-                    'page',
-                    $page_id,
-                    null,
-                    null,
-                    ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => false]
-                );
+                      ],   ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => false] );
                 // member only group
             } elseif ($state === ModelPageUser::STATE_MEMBER) {
 
@@ -155,30 +143,23 @@ class PageUser extends AbstractService
                         $this->getServiceSubscription()->add("PP".$m_page_relation->getParentId(), $uid);
                     }
                 }
-
-                //On envoye la notification qu'il vient d'etre ajouter a un cours qui est publié
+                //On envoi la notification qu'il vient d'être ajouté à un cours publié
                 if(( $m_page->getType() === ModelPage::TYPE_COURSE && $m_page->getIsPublished() ) || $m_page->getType() !== ModelPage::TYPE_COURSE) {
-                    $this->getServicePost()->addSys(
-                        'PPM'.$page_id.'_'.$uid,
-                        '',
-                        [
+
+
+                    $this->getServiceEvent()->create('page', 'member',
+                          ['M'.$uid],   [
                             'state' => 'member',
                             'user'  => $uid,
                             'page'  => $page_id,
+                            'target' => $uid,
+                            'page_type' => $m_page->getType(),
+                            'picture' => !($m_page->getLogo() instanceof IsNull) ? $m_page->getLogo() : null
+                          ],
+                          [
                             'page_type' => $m_page->getType(),
                             'page_title' => $m_page->getTitle()
-                        ],
-                        'member',
-                        ['M'.$uid]/*sub*/,
-                        null/*parent*/,
-                        $page_id/*page*/,
-                        $uid/*user*/,
-                        'page',
-                        $page_id,
-                        null,
-                        true,
-                        ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => false]
-                    );
+                          ],   ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => false] );
 
                 }
             }

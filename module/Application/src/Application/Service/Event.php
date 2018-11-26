@@ -132,10 +132,10 @@ class Event extends AbstractService
             case 'page.doc':
                 return sprintf('A new material : <b>%s</b> has been added in <b>%s</b>', $d['library_name'], $d['page_title']);
             case 'page.member':
-                return sprintf('You are enrolled in <b>%s</b>',  $d['pagetitle']);
-            case 'page.pending':
-                return sprintf('You are invited to join <b>%s</b>', $d['pagetitle']);
+                return sprintf('You are enrolled in <b>%s</b>',  $d['page_title']);
             case 'page.invited':
+                return sprintf('You are invited to join <b>%s</b>', $d['page_title']);
+            case 'page.pending':
                 return sprintf('<b>%s</b> requested to join <b>%s</b>', $d['source'], $d['page_title']);
         }
     }
@@ -243,15 +243,17 @@ class Event extends AbstractService
                     'data' => [ 'type' => 'mail.send',
                                 'data' => ['users' => json_encode($users)]]
                 ];
-                try {
-                    $rep = $this->nodeRequest('notification.register', $ntf_data);
-                    if ($rep->isError()) {
-                        throw new \Exception('Error jrpc nodeJs: ' . $rep->getError()->getMessage(), $rep->getError()->getCode());
+                if(count($users) > 0){
+                    try {
+                        $rep = $this->nodeRequest('notification.register', $ntf_data);
+                        if ($rep->isError()) {
+                            throw new \Exception('Error jrpc nodeJs: ' . $rep->getError()->getMessage(), $rep->getError()->getCode());
+                        }
+                    } catch (\Exception $e) {
+                        syslog(1, 'Request notification.register : ' . json_encode($ntf_data));
+                        syslog(1, $e->getMessage());
+                        $this->sendRecapEmail($users);
                     }
-                } catch (\Exception $e) {
-                    syslog(1, 'Request notification.register : ' . json_encode($ntf_data));
-                    syslog(1, $e->getMessage());
-                    $this->sendRecapEmail($users);
                 }
             }
         }
