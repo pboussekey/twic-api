@@ -42,8 +42,8 @@ class PageDoc extends AbstractService
                 ["PP".$page_id],
                 [
                     'picture' => !($m_page->getLogo() instanceof IsNull) ? $m_page->getLogo() : null,
-                    'page_id'    => $page_id,
-                    'library_id'    => $library_id,
+                    'page'    => $page_id,
+                    'library'    => $library_id,
                     'page_type' => $m_page->getType(),
                 ],
                 [

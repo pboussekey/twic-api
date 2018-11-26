@@ -620,8 +620,7 @@ class Item extends AbstractService
                         'section', 'publish',
                         ["PP".$page_id],
                         [
-                            'item_id' => $id,
-                            'page_id'    => $page_id,
+                            'page'    => $page_id,
                             'page_type' => $m_page->getType(),
                             'picture' => !($m_page->getLogo() instanceof IsNull) ? $m_page->getLogo() : null
                         ],
@@ -642,8 +641,8 @@ class Item extends AbstractService
                     'item', 'publish',
                     ["PP".$page_id],
                     [
-                        'item_id' => $id,
-                        'page_id'    => $page_id,
+                        'item' => $id,
+                        'page'    => $page_id,
                         'page_type' => $m_page->getType(),
                         'picture' => !($m_page->getLogo() instanceof IsNull) ? $m_page->getLogo() : null
                     ],
@@ -772,8 +771,8 @@ class Item extends AbstractService
                     'item', 'update',
                     ["PP".$m_page->getId()],
                     [
-                        'item_id' => $id,
-                        'page_id' => $m_page->getId(),
+                        'item' => $id,
+                        'page' => $m_page->getId(),
                         'page_type' => $m_page->getType(),
                         'picture' => !($m_page->getLogo() instanceof IsNull) ? $m_page->getLogo() : null
                     ],

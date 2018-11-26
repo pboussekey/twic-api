@@ -161,17 +161,17 @@ class Event extends AbstractService
                 return sprintf('/profile/%s',  $d['user'] );
             case 'item.publish':
             case 'item.update':
-                return sprintf('/page/%s/%s/content/%s',  $page_type[$d['page_type']],  $d['page_id'],  $d['item_id'] );
+                return sprintf('/page/%s/%s/content/%s',  $page_type[$d['page_type']],  $d['page'],  $d['item'] );
             case 'section.publish':
-                return sprintf('/page/%s/%s/content/',  $page_type[$d['page_type']],  $d['page_id']);
+                return sprintf('/page/%s/%s/content/',  $page_type[$d['page_type']],  $d['page']);
             case 'message.send':
                 return '';
             case 'page.doc':
-                return sprintf('/page/%s/%s/resources/%s',  $page_type[$d['page_type']],  $d['page_id'],  $d['library_id'] );
+                return sprintf('/page/%s/%s/resources/%s',  $page_type[$d['page_type']],  $d['page'],  $d['library'] );
             case 'page.member':
             case 'page.pending':
             case 'page.invited':
-                return sprintf('/page/%s/%s/everyone',  $page_type[$d['page_type']],  $d['page_id'] );
+                return sprintf('/page/%s/%s/everyone',  $page_type[$d['page_type']],  $d['page'] );
         }
     }
 
