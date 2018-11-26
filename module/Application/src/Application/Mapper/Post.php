@@ -161,7 +161,8 @@ class Post extends AbstractMapper
             'post$link' => new Expression('COALESCE(post.link, post_parent.link, post_origin.link)'),
             'type'
           ])
-
+          ->join('post_doc', 'post_doc.post_id = post.id', [], $select::JOIN_LEFT)
+          ->join('library', new Expression('library.id = post_doc.library_id AND library.type LIKE "image%"'), ['post$image' => 'token'], $select::JOIN_LEFT)
           ->join(['post_parent' => 'post'],  new Expression('COALESCE(post.shared_id, post.parent_id) = post_parent.id'), ['id'], $select::JOIN_LEFT)
           ->join(['post_origin' => 'post'], 'post.origin_id = post_origin.id', ['id'], $select::JOIN_LEFT)
 
@@ -171,8 +172,8 @@ class Post extends AbstractMapper
           ->join(['post_page' => 'page'], 'post.page_id = post_page.id', ['id', 'title', 'logo'], $select::JOIN_LEFT)
           ->join(['post_parent_page' => 'page'], 'post_parent.page_id = post_parent_page.id', ['id', 'title', 'logo'], $select::JOIN_LEFT)
           ->join(['post_origin_page' => 'page'], new Expression('COALESCE(post.t_page_id, post_parent.t_page_id, post_origin.t_page_id) = post_origin_page.id'), ['id', 'title', 'logo'], $select::JOIN_LEFT)
-          ->where(['post.id' => $id]);
-
+          ->where(['post.id' => $id])
+          ->limit(1);
           return $this->selectWith($select);
     }
 

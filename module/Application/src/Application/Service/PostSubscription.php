@@ -77,6 +77,16 @@ class PostSubscription extends AbstractService
             $post_data['content'] = ": &laquo;".$this->limitText($post_data['content'])."&raquo;";
         }
 
+        if(!empty($post_data['picture'])){
+            $data['link_picture'] = $post_data['picture'];
+        }
+        else if(!empty($post_data['image'])){
+            $data['image'] = $post_data['image'];
+        }
+        else if(!empty($post_data['origin']['page']['logo']) && empty($post_data['page']['id'])){
+            $data['logo'] = $post_data['origin']['page']['logo'];
+        }
+
         $target = null;
         $picture = null;
         switch($action){

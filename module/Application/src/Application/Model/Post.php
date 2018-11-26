@@ -21,6 +21,7 @@ class Post extends BasePost
     protected $page;
     protected $parent;
     protected $origin;
+    protected $image;
 
     public function exchangeArray(array &$data)
     {
@@ -206,6 +207,17 @@ class Post extends BasePost
         return $this->origin;
     }
 
+    public function setImage($image)
+    {
+        $this->image = $image;
+
+        return $this;
+    }
+
+    public function getImage()
+    {
+        return $this->image;
+    }
 
 
 
