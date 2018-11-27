@@ -107,7 +107,10 @@ class Group extends AbstractService
      */
     public function getOrCreate($name, $item_id, $id = null)
     {
-        $m_group = $this->getModel()->setName($name)->setItemId($item_id)->setId($id);
+        $m_group = $this->getModel()->setItemId($item_id)->setId($id);
+        if($id === null){
+            $m_group->setName($name);
+        }
 
         $res_group = $this->getMapper()->select($m_group);
         if ($res_group->count() <= 0) {
@@ -115,6 +118,10 @@ class Group extends AbstractService
             $m_group->setId($this->getMapper()->getLastInsertValue());
         } else {
             $m_group = $res_group->current();
+            if($m_group->getName() !== $name){
+                $m_group->setName($name);
+                $this->update($id, $name);
+            }
         }
 
         return $m_group;
