@@ -616,23 +616,26 @@ class Item extends AbstractService
                     foreach($res_children as $child){
                         $this->publish($child, null, null, $m_item->getId(), false);
                     }
-                    $this->getServiceEvent()->create(
-                        'section', 'publish',
-                        ["PP".$page_id],
-                        [
-                            'page'    => $page_id,
-                            'page_type' => $m_page->getType(),
-                            'picture' => !($m_page->getLogo() instanceof IsNull) ? $m_page->getLogo() : null
-                        ],
-                        [
-                          'pagetitle' => $m_page->getTitle(),
-                          'pagelogo' => $m_page->getLogo(),
-                          'itemtitle' => $m_item->getTitle(),
-                          'children' => count($res_children),
-                          'itemtype' => ModelItem::type_relation[$m_item->getType()]
-                        ],
-                        ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => true]
-                    );
+                    if(count($res_children) > 0){
+                        $this->getServiceEvent()->create(
+                            'section', 'publish',
+                            ["PP".$page_id],
+                            [
+                                'page'    => $page_id,
+                                'page_type' => $m_page->getType(),
+                                'picture' => !($m_page->getLogo() instanceof IsNull) ? $m_page->getLogo() : null
+                            ],
+                            [
+                              'pagetitle' => $m_page->getTitle(),
+                              'pagelogo' => $m_page->getLogo(),
+                              'itemtitle' => $m_item->getTitle(),
+                              'children' => count($res_children),
+                              'itemtype' => ModelItem::type_relation[$m_item->getType()]
+                            ],
+                            ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => true]
+                        );
+                    }
+
                     return true;
                 }
 

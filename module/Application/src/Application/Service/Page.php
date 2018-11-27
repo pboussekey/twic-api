@@ -561,68 +561,20 @@ class Page extends AbstractService
                 $res_user = $this->getServiceUser()->getLite($this->getServicePageUser()->getListByPage($id)[$id]);
                 foreach($res_user as $m_user) {
 
-                    // if user is not
-                    if(!$m_user->getIsActive()){
-                        continue;
-                    }
-
-                    $m_organization = false;
-                    if($m_user->getOrganizationId()) {
-                        if(!array_key_exists($m_user->getOrganizationId(), $ar_pages)) {
-                            $ar_pages[$m_user->getOrganizationId()] = $this->getLite($m_user->getOrganizationId());
-                        }
-                        $m_organization = $ar_pages[$m_user->getOrganizationId()];
-                    }
-                    if($m_user->getId() == $user_id ){
-                      continue;
-                    }
-
-                    try{
-                        if($m_user->getHasAcademicNotifier() === 1) {
-                            $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
-                            $m_organization->getLibelle() : null;
-
-                            $url = sprintf("https://%s%s/page/course/%s/timeline", ($prefix ? $prefix.'.':''),  $this->container->get('config')['app-conf']['uiurl'], $tmp_m_page->getId());
-                          /*  $this->getServiceMail()->sendTpl(
-                                'tpl_coursepublished', $m_user->getEmail(), [
-                                'pagename' => $tmp_m_page->getTitle(),
-                                'firstname' => $m_user->getFirstName(),
-                                'pageurl' => $url
-                                ]
-                            );*/
-                        }
-
-                       $this->getServicePost()->addSys(
-                            'PPM'.$id.'_'.$m_user->getId(),
-                            '',
-                            [
-                                'state' => 'member',
-                                'user' => $m_user->getId(),
-                                'page' => $id,
-                                'type' => $tmp_m_page->getType(),
+                      $this->getServiceEvent()->create('page', 'member',
+                            ['M'.$m_user->getId()],   [
+                              'state' => 'member',
+                              'user'  => $m_user->getId(),
+                              'page'  => $id,
+                              'target' => $m_user->getId(),
+                              'page_type' => $tmp_m_page->getType(),
+                              'picture' => !($tmp_m_page->getLogo() instanceof IsNull) ? $tmp_m_page->getLogo() : null
                             ],
-                            'member',
-                            ['M'.$m_user->getId()]/*sub*/,
-                            null/*parent*/,
-                            $id/*page*/,
-                            $m_user->getId()/*user*/,
-                            'page',
-                            $id
-                        );
+                            [
+                              'page_type' => $tmp_m_page->getType(),
+                              'page_title' => $tmp_m_page->getTitle()
+                            ],   ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => true] );
 
-                        $gcm_notification = new GcmNotification();
-                        $gcm_notification->setTitle($tmp_m_page->getTitle())
-                            ->setSound("default")
-                            ->setColor("#00A38B")
-                            ->setIcon("icon")
-                            ->setTag("PAGEADD".$id)
-                            ->setBody("You have just been added to the course " . $tmp_m_page->getTitle());
-
-                        $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification, Fcm::PACKAGE_TWIC_APP);
-                    }
-                    catch (\Exception $e) {
-                        syslog(1, 'Model name does not exist Page publish <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode());
-                    }
                 }
                 $res_group = $this->getServiceGroup()->getListByPage($tmp_m_page->getId());
                 foreach($res_group as $m_group){

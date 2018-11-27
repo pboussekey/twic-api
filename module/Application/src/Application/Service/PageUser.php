@@ -165,56 +165,7 @@ class PageUser extends AbstractService
             }
         }
 
-        if ($m_page->getIsPublished() && $m_page->getType() == ModelPage::TYPE_COURSE) {
-            $identity = $this->getServiceUser()->getIdentity();
-            $ar_pages = [];
-            $ar_user = $this->getServiceUser()->getLite($user_id);
-            foreach($ar_user as $m_user){
 
-                if(!$m_user->getIsActive()){
-                    continue;
-                }
-                $m_organization = false;
-                if(!$m_user->getOrganizationId() instanceof IsNull) {
-                    if(!array_key_exists($m_user->getOrganizationId(), $ar_pages)) {
-                        $ar_pages[$m_user->getOrganizationId()] = $this->getServicePage()->getLite($m_user->getOrganizationId());
-                    }
-                    $m_organization = $ar_pages[$m_user->getOrganizationId()];
-                }
-                if($m_user->getId() == $identity['id'] ){
-                    continue;
-                }
-
-                try{
-                    if($m_user->getHasAcademicNotifier() === 1) {
-                        $prefix = ($m_organization !== false && is_string($m_organization->getLibelle()) && !empty($m_organization->getLibelle())) ?
-                        $m_organization->getLibelle() : null;
-                        $url = sprintf("https://%s%s/page/course/%s/timeline", ($prefix ? $prefix.'.':''), $this->container->get('config')['app-conf']['uiurl'], $m_page->getId());
-                        $this->getServiceMail()->sendTpl(
-                            'tpl_coursepublished', $m_user->getEmail(), [
-                            'pagename' => $m_page->getTitle(),
-                            'firstname' => $m_user->getFirstName(),
-                            'pageurl' => $url,
-                            ]
-                        );
-                    }
-
-                    $gcm_notification = new GcmNotification();
-                    $gcm_notification->setTitle($m_page->getTitle())
-                        ->setSound("default")
-                        ->setColor("#00A38B")
-                        ->setIcon("icon")
-                        ->setTag("PAGECOMMENT".$m_page->getId())
-                        ->setBody("You have just been added to the course " . $m_page->getTitle());
-
-                    $this->getServiceFcm()->send($m_user->getId(), null, $gcm_notification, Fcm::PACKAGE_TWIC_APP);
-                }
-                catch (Exception $e) {
-                    syslog(1, 'Model name does not exist <MESSAGE> ' . $e->getMessage() . '  <CODE> ' . $e->getCode());
-                }
-            }
-
-        }
 
         return $ret;
     }
