@@ -559,23 +559,23 @@ class Page extends AbstractService
 
                 $ar_pages = [];
                 $res_user = $this->getServiceUser()->getLite($this->getServicePageUser()->getListByPage($id)[$id]);
+                $sub = [];
                 foreach($res_user as $m_user) {
-
-                      $this->getServiceEvent()->create('page', 'member',
-                            ['M'.$m_user->getId()],   [
-                              'state' => 'member',
-                              'user'  => $m_user->getId(),
-                              'page'  => $id,
-                              'target' => $m_user->getId(),
-                              'page_type' => $tmp_m_page->getType(),
-                              'picture' => !($tmp_m_page->getLogo() instanceof IsNull) ? $tmp_m_page->getLogo() : null
-                            ],
-                            [
-                              'page_type' => $tmp_m_page->getType(),
-                              'page_title' => $tmp_m_page->getTitle()
-                            ],   ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => true] );
-
+                      $sub[] = 'M'.$m_user->getId();
                 }
+                $this->getServiceEvent()->create('page', 'member',
+                        $sub,   [
+                        'state' => 'member',
+                        'user'  => $m_user->getId(),
+                        'page'  => $id,
+                        'target' => $m_user->getId(),
+                        'page_type' => $tmp_m_page->getType(),
+                        'picture' => !($tmp_m_page->getLogo() instanceof IsNull) ? $tmp_m_page->getLogo() : null
+                      ],
+                      [
+                        'page_type' => $tmp_m_page->getType(),
+                        'page_title' => $tmp_m_page->getTitle()
+                      ],   ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => true] );
                 $res_group = $this->getServiceGroup()->getListByPage($tmp_m_page->getId());
                 foreach($res_group as $m_group){
                     $res_item_user = $this->getServiceItemUser()->getList($m_group->getItemId(), null, null, $m_group->getId());

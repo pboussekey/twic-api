@@ -225,6 +225,7 @@ class Event extends AbstractService
             if (($idx = array_search($user_id, $users)) !== false) {
                 unset($users[$idx]);
             }
+            $users = array_values($users);
             if (count($users) > 0) {
                 foreach ($users as $uid) {
                     $this->getServiceEventUser()->add($event_id, $uid, $source, $event_data);
@@ -367,6 +368,7 @@ class Event extends AbstractService
 
         $urldms = $this->container->get('config')['app-conf']['urldms'];
         $urlui = $this->container->get('config')['app-conf']['uiurl'];
+        syslog(1, "RECAP ? ".json_encode($users));
         $res_event =  $this->getMapper()->getListUnseen($users);
         $ar_events = [];
         foreach($res_event as $m_event){
