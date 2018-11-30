@@ -363,7 +363,6 @@ class User extends AbstractMapper
 
 
 
-        syslog(1, $this->printSql($select));
         return $this->selectWith($select);
     }
 
