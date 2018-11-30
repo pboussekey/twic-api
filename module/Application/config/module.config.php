@@ -44,7 +44,7 @@ return [
     ],
     'router' =>[
         'routes' => [
-            /*'home' => array(
+            'home' => array(
                 'type' => Literal::class,
                 'options' => array(
                     'route' => '/',
@@ -53,7 +53,7 @@ return [
                         'action' => 'index',
                     ),
                 ),
-            ),*/
+            ),
             'statuschange' => [
                  'type' => Literal::class,
                      'options' => [

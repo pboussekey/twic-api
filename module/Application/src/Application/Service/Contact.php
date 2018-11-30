@@ -92,73 +92,56 @@ class Contact extends AbstractService
     }
 
     /**
-     * Accept Contact.
+     * Request Contact.
      *
      * @invokable
      *
      * @param int $user
      *
-     * @return bool
+     * @return int
      */
-    public function accept($user)
+    public function follow($user)
     {
         $identity = $this->getServiceUser()->getIdentity();
         $user_id = $identity['id'];
+        if ($user == $user_id) {
+            throw new \Exception("You can't add yourself");
+        }
+
         $date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
 
         $m_contact = $this->getModel()
-            ->setAcceptedDate($date)
-            ->setAccepted(false);
-        $this->getMapper()->update(
-            $m_contact,
-            array(
-            'user_id' => $user,
-            'contact_id' => $user_id,
-            )
-        );
+            ->setUserId($identity['id'])
+            ->setContactId($user);
 
-        $m_contact = $this->getModel()
-            ->setAcceptedDate($date)
-            ->setAccepted(true);
-        $this->getMapper()->update(
-            $m_contact,
-            array(
-            'user_id' => $user_id,
-            'contact_id' => $user,
-            )
-        );
+        $ret = 0;
+        $res_contact = $this->getMapper()->select($m_contact);
+        if ($res_contact->count() === 0) {
+            $m_contact->setRequestDate($date);
+            $ret = $this->getMapper()->insert($m_contact);
+            $this->getServiceEvent()->create('user', 'follow',
+                  ['M'.$user],
+                  [
+                    'state' => 'request','user' => $user_id,'contact' => $user,
+                    'picture' => !empty($identity['avatar']) ? $identity['avatar'] : null,
+                    'target' => $user
+                  ],
+                  [
+                    'source' => $identity['firstname'].' '.$identity['lastname']
+                  ],   ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => false] );
 
-        $this->getServiceSubscription()->add('PU'.$user, $user_id);
-        $this->getServiceSubscription()->add('PU'.$user_id, $user);
-
-        $m_user = $this->getServiceUser()->getLite($user_id);
-        $name = "";
-        if (!is_object($m_user->getNickname()) &&  null !== $m_user->getNickname()) {
-            $name = $m_user->getNickname();
-        } else {
-            if (!is_object($m_user->getFirstname()) &&  null !== $m_user->getFirstname()) {
-                $name = $m_user->getFirstname();
-            }
-            if (!is_object($m_user->getLastname()) &&  null !== $m_user->getLastname()) {
-                $name .= ' '.$m_user->getLastname();
-            }
         }
+        else{
+            $m_contact = $res_contact->current();
+            $m_contact->setRequestDate($date)
+                      ->setDeletedDate(new IsNull('deleted_date'));
+            $ret = $this->getMapper()->update($m_contact);
+        }
+        $this->getServiceSubscription()->add('PU'.$user, $user_id);
+        return $ret;
 
-        $this->getServiceEvent()->create('connection', 'accept',
-              ['M'.$user, 'M'.$user_id],
-              [
-                'state' => 'accept',
-                'user' => $user_id,
-                'contact' => $user,
-                'picture' => !empty($identity['avatar']) ? $identity['avatar'] : null,
-                'target' => $user
-              ],
-              [
-                'source' => $identity['firstname'].' '.$identity['lastname']
-              ],   ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => false] );
-
-        return true;
     }
+
 
     /**
      * Remove Contact
@@ -169,52 +152,36 @@ class Contact extends AbstractService
      *
      * @return bool
      */
-    public function remove($user)
+    public function unfollow($user)
     {
-        $identity = $this->getServiceUser()->getIdentity();
-        $user_id = $identity['id'];
-        $date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
+          $identity = $this->getServiceUser()->getIdentity();
+          $user_id = $identity['id'];
+          $date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
 
-        $m_contact = $this->getModel()
-            ->setDeletedDate($date)
-            ->setDeleted(false);
-        $this->getMapper()->update(
-            $m_contact,
-            array(
-            'user_id' => $user,
-            'contact_id' => $user_id,
-            )
-        );
 
-        $m_contact = $this->getModel()
-            ->setDeletedDate($date)
-            ->setDeleted(true);
-        $this->getMapper()->update(
-            $m_contact,
-            array(
-            'user_id' => $user_id,
-            'contact_id' => $user,
-            )
-        );
+
+          $m_contact = $this->getModel()
+              ->setDeletedDate($date)
+              ->setDeleted(true);
+          $this->getMapper()->update(
+              $m_contact,
+              array(
+              'user_id' => $user_id,
+              'contact_id' => $user,
+              )
+          );
 
         $this->getServiceSubscription()->delete('PU'.$user, $user_id);
-        $this->getServiceSubscription()->delete('PU'.$user_id, $user);
-        /*  $this->getServiceFcm()->send(
-              $user, ['data' => [
-              'type' => 'connection',
-              'data' => [
-                  'state' => 'remove',
-                  'user' => $user_id,
-                  ]
-              ]
-              ]
-          );*/
-        $this->getServiceEvent()->sendData($user_id, 'connection.remove', ['SU'.$user]);
+
+        $this->getServiceEvent()->sendData($user_id, 'user.unfollow', ['SU'.$user]);
         $l = 'C'.(($user > $user_id) ? $user_id.'_'.$user : $user.'_'.$user_id);
         $this->getServicePost()->hardDelete($l);
 
         return true;
     }
+
+
+
 
     /**
      * Get List Id of contact.
@@ -268,42 +235,55 @@ class Contact extends AbstractService
      * @invokable
      *
      * @param int|array $user_id
-     * @param int|array $contact_id
      *
      * @return \Dal\Db\ResultSet\ResultSet
      */
-    public function getListRequestId($user_id = null, $contact_id = null)
+    public function getListFollowersId($user_id)
     {
-        if ((null === $user_id && null === $contact_id) ||  (null !== $user_id && null !== $contact_id)) {
-            throw new \Exception("Error Params user and contact", 1);
-        }
-        $res_contact = $this->getMapper()->getListRequest($user_id, $contact_id);
 
-        $cu_id = (null !== $user_id) ? $user_id:$contact_id;
+        $res_contact = $this->getMapper()->getListFollowers($user_id);
 
         $request = [];
-        if (is_array($cu_id)) {
-            foreach ($cu_id as $cu) {
-                $request[$cu] = [];
+        if (is_array($user_id)) {
+            foreach ($user_id as $uid) {
+                $request[$uid] = [];
             }
-            if (null === $user_id) {
-                foreach ($res_contact as $m_contact) {
-                    $request[$m_contact->getContactId()][] = $m_contact->getUserId();
-                }
-            } else {
-                foreach ($res_contact as $m_contact) {
-                    $request[$m_contact->getUserId()][] = $m_contact->getContactId();
-                }
+            foreach ($res_contact as $m_contact) {
+                $request[$m_contact->getContactId()][] = $m_contact->getUserId();
             }
         } else {
-            if (null === $user_id) {
-                foreach ($res_contact as $m_contact) {
-                    $request[] = $m_contact->getUserId();
-                }
-            } else {
-                foreach ($res_contact as $m_contact) {
-                    $request[] = $m_contact->getContactId();
-                }
+            foreach ($res_contact as $m_contact) {
+                $request[] = $m_contact->getUserId();
+            }
+        }
+
+        return $request;
+    }
+
+    /**
+     * Get list contact id by users.
+     *
+     * @invokable
+     *
+     * @param int|array $user_id
+     *
+     * @return \Dal\Db\ResultSet\ResultSet
+     */
+    public function getListFollowingsId($user_id)
+    {
+        $res_contact = $this->getMapper()->getListFollowings($user_id);
+
+        $request = [];
+        if (is_array($user_id)) {
+            foreach ($user_id as $uid) {
+                $request[$uid] = [];
+            }
+            foreach ($res_contact as $m_contact) {
+                $request[$m_contact->getUserId()][] = $m_contact->getContactId();
+            }
+        } else {
+            foreach ($res_contact as $m_contact) {
+                $request[] = $m_contact->getContactId();
             }
         }
 

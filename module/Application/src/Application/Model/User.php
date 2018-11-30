@@ -12,6 +12,8 @@ class User extends BaseUser
     protected $selected;
     protected $contact_state;
     protected $contacts_count;
+    protected $followers_count;
+    protected $followings_count;
     protected $gender;
     protected $nationality;
     protected $origin;

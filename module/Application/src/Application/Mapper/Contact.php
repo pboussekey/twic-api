@@ -14,15 +14,16 @@ class Contact extends AbstractMapper
     public function getList($user_id, $exclude = null, $search = null)
     {
         $select = $this->tableGateway->getSql()->select();
-        $select->columns(['accepted_date', 'contact_id', 'user_id'])
-            ->join('user', 'user.id=contact.contact_id', [])
-            ->where(array('contact.user_id' => $user_id))
-            ->where(array('contact.accepted_date IS NOT NULL'))
-            ->where(array('contact.deleted_date IS NULL'))
-            ->where(array('user.deleted_date IS NULL'));
+        $select->columns(['accepted_date', 'user_id', 'contact_id'])
+            ->join(['ocontact' => 'contact'], 'ocontact.user_id = contact.contact_id AND ocontact.contact_id = contact.user_id', [])
+            ->join('user', 'user.id= contact.contact_id', [])
+            ->where(['contact.user_id' => $user_id])
+            ->where(['ocontact.deleted_date IS NULL'])
+            ->where(['contact.deleted_date IS NULL'])
+            ->where(['user.deleted_date IS NULL']);
 
         if (!empty($exclude)) {
-            $select->where->notIn('contact.contact_id', $exclude);
+            $select->where->notIn('user.id', $exclude);
         }
 
         if (null !== $search) {
@@ -30,14 +31,13 @@ class Contact extends AbstractMapper
                 ->where(array('CONCAT_WS(" ", user.lastname, user.firstname) LIKE ? ' => ''.$search.'%'), Predicate::OP_OR)
                 ->where(array('user.nickname LIKE ? )' => ''.$search.'%'), Predicate::OP_OR);
         }
-
         return $this->selectWith($select);
     }
 
     /**
      * @return \Zend\Db\ResultSet\ResultSet
      */
-    public function getListRequest($user = null, $contact = null)
+    public function getListFollowers($user = null)
     {
         if (null === $user && null === $contact) {
             throw new \Exception('Invalid params');
@@ -45,27 +45,33 @@ class Contact extends AbstractMapper
         $select = $this->tableGateway->getSql()->select();
 
         $select->columns(['request_date', 'user_id', 'contact_id'])
-            ->where(['
-                contact.request_date IS NOT NULL AND
-                contact.accepted_date IS NULL AND
-                contact.deleted_date IS NULL AND
-                requested IS false AND
-                accepted IS false AND
-                deleted IS false'
-            ]);
-        if (null !== $user) {
-            $select
-              ->join('user', 'contact.contact_id = user.id', [])
+            ->where(['contact.request_date IS NOT NULL',
+                'contact.deleted_date IS NULL'
+            ])->join('user', 'contact.user_id = user.id', [])
               ->where('user.deleted_date IS NULL')
-              ->where(['contact.user_id' => $user]);
-        }
-        if (null !== $contact) {
-            $select->where(['contact.contact_id' => $contact])
-              ->join('user', 'contact.user_id = user.id', [])
-              ->where('user.deleted_date IS NULL');
-        }
+              ->where(['contact.contact_id' => $user]);
         return $this->selectWith($select);
     }
+
+    /**
+     * @return \Zend\Db\ResultSet\ResultSet
+     */
+    public function getListFollowings($user = null)
+    {
+        if (null === $user && null === $contact) {
+            throw new \Exception('Invalid params');
+        }
+        $select = $this->tableGateway->getSql()->select();
+
+        $select->columns(['request_date', 'user_id', 'contact_id'])
+            ->where(['contact.request_date IS NOT NULL',
+                'contact.deleted_date IS NULL'
+            ])->join('user', 'contact.contact_id = user.id', [])
+              ->where('user.deleted_date IS NULL')
+              ->where(['contact.user_id' => $user]);
+        return $this->selectWith($select);
+    }
+
 
     public function getAcceptedCount($me, $interval, $start_date = null, $end_date = null, $organization_id = null, $date_offset = 0)
     {

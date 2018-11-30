@@ -17,20 +17,64 @@ use Application\Model\Role as ModelRole;
  */
 class User extends AbstractMapper
 {
+
+
+
+    function getFollowSelects($user_id){
+
+            $followers_select = new Select('contact');
+            $followers_select->columns([
+                'user_id' => 'contact_id',
+                'count' => new Expression('SUM(IF(contact.user_id IS NOT NULL, 1, 0))')
+            ])
+            ->join('user', 'user.id = contact.user_id', [])
+            ->where('contact.deleted_date IS NULL')
+            ->where('user.deleted_date IS NULL')
+            ->where(['contact.contact_id' => $user_id])
+            ->group('contact.contact_id');
+
+            $followings_select = new Select('contact');
+            $followings_select->columns([
+                'user_id' => 'user_id',
+                'count' => new Expression('SUM(IF(contact.contact_id IS NOT NULL, 1, 0))')
+            ])
+            ->join('user', 'user.id = contact.contact_id', [])
+            ->where('contact.deleted_date IS NULL')
+            ->where('user.deleted_date IS NULL')
+            ->where(['contact.user_id' => $user_id])
+            ->group('contact.user_id');
+
+            $connections_select = new Select('contact');
+            $connections_select->columns([
+                'user_id' => 'user_id',
+                'count' => new Expression('SUM(IF(contact.contact_id IS NOT NULL, 1, 0))')
+            ])
+            ->join(['connection' => 'contact'], 'contact.contact_id = connection.user_id AND contact.user_id = connection.contact_id', [])
+            ->join('user', 'user.id = contact.contact_id', [])
+            ->where('contact.deleted_date IS NULL')
+            ->where('connection.deleted_date IS NULL')
+            ->where('user.deleted_date IS NULL')
+            ->where(['contact.user_id' => $user_id])
+            ->group('contact.user_id');
+            return [
+                'followers' => $followers_select,
+                'followings' => $followings_select,
+                'connections' => $connections_select,
+            ];
+
+    }
+
     public function get($user_id, $me, $is_admin = false)
     {
-        /*
-         * select count(true) from user
-         JOIN contact ON contact.user_id=user.id AND contact.accepted_date IS NOT NULL AND contact.deleted_date IS NULL
-         JOIN contact ct ON contact.contact_id=ct.contact_id AND ct.accepted_date IS NOT NULL AND ct.deleted_date IS NULL
-         WHERE user.id=1 AND ct.user_id=3
-         */
+
+        $follow_selects = $this->getFollowSelects($user_id);
         $select_communs_user = $this->tableGateway->getSql()->select();
         $select_communs_user->columns(['user$nbr_user_common' => new Expression('COUNT(true)')])
             ->join('contact', new Expression('contact.user_id=user.id AND contact.accepted_date IS NOT NULL AND contact.deleted_date IS NULL'), [])
             ->join(['ct' => 'contact'], new Expression('contact.contact_id=ct.contact_id AND ct.accepted_date IS NOT NULL AND ct.deleted_date IS NULL'), [])
             ->where(['user.id' => $me])
             ->where(['user.id=`user$id`']);
+
 
 
         $columns = [
@@ -54,7 +98,6 @@ class User extends AbstractMapper
             'linkedin_url',
             'user$created_date' => new Expression('DATE_FORMAT(user.created_date, "%Y-%m-%dT%TZ")'),
             'user$invitation_date' => new Expression('DATE_FORMAT(user.invitation_date, "%Y-%m-%dT%TZ")'),
-            'user$contacts_count' => $this->getSelectContactCount(),
             'user$contact_state' => $this->getSelectContactState($me),
             'user$nbr_user_common' => $select_communs_user,
             'user$welcome_date' =>  new Expression('DATE_FORMAT(DATE_ADD(user.welcome_date, INTERVAL user.welcome_delay DAY), "%Y-%m-%dT%TZ")')
@@ -66,8 +109,11 @@ class User extends AbstractMapper
 
         $select = $this->tableGateway->getSql()->select();
         $select->columns($columns)
-            ->join(array('nationality' => 'country'), 'nationality.id=user.nationality', ['nationality!id' => 'id', 'short_name'], $select::JOIN_LEFT)
-            ->join(array('origin' => 'country'), 'origin.id=user.origin', ['origin!id' => 'id', 'short_name'], $select::JOIN_LEFT)
+            ->join(['followers' => $follow_selects['followers']], 'followers.user_id = user.id', ['user$followers_count' => 'count'], $select::JOIN_LEFT)
+            ->join(['followings' => $follow_selects['followings']], 'followings.user_id = user.id', ['user$followings_count' => 'count'], $select::JOIN_LEFT)
+            ->join(['connections' => $follow_selects['connections']], 'connections.user_id = user.id', ['user$connections_count' => 'count'], $select::JOIN_LEFT)
+            ->join(['nationality' => 'country'], 'nationality.id=user.nationality', ['nationality!id' => 'id', 'short_name'], $select::JOIN_LEFT)
+            ->join(['origin' => 'country'], 'origin.id=user.origin', ['origin!id' => 'id', 'short_name'], $select::JOIN_LEFT)
             ->join(['user_address' => 'address'], 'user.address_id = user_address.id', ['user_address!id' => 'id','street_no','street_type','street_name','floor','door','apartment','building','longitude','latitude','timezone'], $select::JOIN_LEFT)
             ->join(['user_address_division' => 'division'], 'user_address_division.id=user_address.division_id', ['user_address_division!id' => 'id','name'], $select::JOIN_LEFT)
             ->join(['user_address_city' => 'city'], 'user_address_city.id=user_address.city_id', ['school_address_city!id' => 'id','name'], $select::JOIN_LEFT)
@@ -83,6 +129,7 @@ class User extends AbstractMapper
             $select->join(['circle_organization_user' => 'user'], 'circle_organization_user.organization_id=circle_organization.organization_id', []);
             $select->where([' ( circle_organization_user.id = ? OR user_role.role_id = '.ModelRole::ROLE_ADMIN_ID . ') ' => $me]);
         }
+        syslog(1, $this->printSql($select));
         return $this->selectWith($select);
     }
 
@@ -171,6 +218,8 @@ class User extends AbstractMapper
         $tags = null,
         $view_id = null
     ) {
+        $follow_selects = $this->getFollowSelects($user_id);
+
         $select = $this->tableGateway->getSql()->select();
 
         if ($is_admin) {
@@ -179,24 +228,26 @@ class User extends AbstractMapper
                 'firstname', 'lastname', 'email', 'nickname', 'ambassador', 'email_sent', 'initial_email',
                 'user$birth_date' => new Expression('DATE_FORMAT(user.birth_date, "%Y-%m-%dT%TZ")'),
                 'position', 'interest', 'avatar', 'suspension_date', 'suspension_reason', 'graduation_year',
-                'user$contact_state' => $this->getSelectContactState($user_id),
-                'user$contacts_count' => $this->getSelectContactCount()
+                'user$contact_state' => $this->getSelectContactState($user_id)
                 ];
         } else {
              $columns =
                 [
-                'user$id' => new Expression('user.id'),
-                'firstname', 'lastname', 'email', 'nickname','ambassador', 'initial_email',
-                'user$birth_date' => new Expression('DATE_FORMAT(user.birth_date, "%Y-%m-%dT%TZ")'),
-                'position', 'interest', 'avatar', 'graduation_year',
-                'user$contact_state' => $this->getSelectContactState($user_id),
-                'user$contacts_count' => $this->getSelectContactCount()
+                  'user$id' => new Expression('user.id'),
+                  'firstname', 'lastname', 'email', 'nickname','ambassador', 'initial_email',
+                  'user$birth_date' => new Expression('DATE_FORMAT(user.birth_date, "%Y-%m-%dT%TZ")'),
+                  'position', 'interest', 'avatar', 'graduation_year',
+                  'user$contact_state' => $this->getSelectContactState($user_id)
                 ];
 
-            $select->join(['co' => 'circle_organization'], 'co.organization_id=user.organization_id', []);
-            $select->join('circle_organization', 'circle_organization.circle_id=co.circle_id', []);
-            $select->join(['circle_organization_user' => 'user'], 'circle_organization_user.organization_id=circle_organization.organization_id', []);
-            $select->where(['circle_organization_user.id' => $user_id]);
+            $select
+                  ->join(['followers' => $follow_selects['followers']], 'followers.user_id = user.id', ['user$followers_count' => 'count'], $select::JOIN_LEFT)
+                  ->join(['followings' => $follow_selects['followings']], 'followings.user_id = user.id', ['user$followings_count' => 'count'], $select::JOIN_LEFT)
+                  ->join(['connections' => $follow_selects['connections']], 'connections.user_id = user.id', ['user$connections_count' => 'count'], $select::JOIN_LEFT)
+                  ->join(['co' => 'circle_organization'], 'co.organization_id=user.organization_id', [])
+                  ->join('circle_organization', 'circle_organization.circle_id=co.circle_id', [])
+                  ->join(['circle_organization_user' => 'user'], 'circle_organization_user.organization_id=circle_organization.organization_id', [])
+                  ->where(['circle_organization_user.id' => $user_id]);
         }
         if(null !== $email){
             $columns[] = 'initial_email';
@@ -361,9 +412,6 @@ class User extends AbstractMapper
         }
 
 
-
-
-        syslog(1, $this->printSql($select));
         return $this->selectWith($select);
     }
 
@@ -454,15 +502,11 @@ class User extends AbstractMapper
     {
         $select = $this->tableGateway->getSql()->select();
         $select->columns(
-            array('user$contact_state' => new Expression(
-                'IF(contact.accepted_date IS NOT NULL AND contact.deleted_date IS NULL, 3,
-	         IF(contact.request_date IS NOT  NULL AND contact.requested <> 1 AND contact.deleted_date IS NULL, 2,
-		     IF(contact.request_date IS NOT  NULL AND contact.requested = 1 AND contact.deleted_date IS NULL, 1,0)))'
-            ))
+            ['user$contact_state' => new Expression('IF(followers.id IS NOT NULL, 2, 0) + IF(followings.id IS NOT NULL, 1, 0)')]
         )
-            ->join('contact', 'contact.contact_id = user.id', [])
-            ->where(['user.id=`user$id`'])
-            ->where(['contact.user_id' => $user]);
+            ->join(['followers' => 'contact'], new Expression('followers.contact_id = ? AND followers.user_id = user.id AND followers.deleted_date IS NULL', $user), [], $select::JOIN_LEFT)
+            ->join(['followings' => 'contact'], new Expression('followings.user_id = ? AND followings.contact_id = user.id AND followings.deleted_date IS NULL', $user), [], $select::JOIN_LEFT)
+            ->where(['user.id=`user$id`']);
 
         return $select;
     }
@@ -474,14 +518,22 @@ class User extends AbstractMapper
      *
      * @return \Zend\Db\Sql\Select
      */
-    public function getSelectContactCount()
+    public function getSelectContactCount($user_id)
     {
-        $select = $this->tableGateway->getSql()->select();
-        $select->columns(array('user$contacts_count' => new Expression('COUNT(1)')))
-            ->join('contact', 'contact.contact_id = user.id', [])
-            ->where(array('contact.user_id = `user$id` AND user.deleted_date IS NULL AND contact.accepted_date IS NOT NULL AND contact.deleted_date IS NULL'));
-
-        return $select;
+          $select = $this->tableGateway->getSql()->select();
+          $select->columns([
+              'user_id' => 'id',
+              'contacts_count' => new Expression('COUNT( DISTINCT connection.id )'),
+              'followings_count' => new Expression('COUNT( DISTINCT followings.id )'),
+              'followers_count' => new Expression('COUNT( DISTINCT followers.id )')
+            ])
+            ->join(['followers' => 'contact'], new Expression('followers.contact_id = user.id AND followers.deleted_date IS NULL'), [], $select::JOIN_LEFT)
+            ->join(['follower_user' => 'user'], new Expression('followers.user_id = follower_user.id AND follower_user.deleted_date IS NULL'), [], $select::JOIN_LEFT)
+            ->join(['connection' => 'contact'], new Expression('connection.user_id = user.id AND connection.contact_id = follower_user.id'), [], $select::JOIN_LEFT)
+            ->join(['followings' => 'contact'], new Expression('followings.user_id = user.id AND followings.deleted_date IS NULL'), [], $select::JOIN_LEFT)
+            ->join(['following_user' => 'user'], new Expression('followings.user_id = following_user.id AND following_user.deleted_date IS NULL'), [], $select::JOIN_LEFT)
+            ->where(['user.id' => $user_id]);
+          return $select;
     }
 
     /**
