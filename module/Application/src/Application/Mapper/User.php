@@ -111,7 +111,7 @@ class User extends AbstractMapper
         $select->columns($columns)
             ->join(['followers' => $follow_selects['followers']], 'followers.user_id = user.id', ['user$followers_count' => 'count'], $select::JOIN_LEFT)
             ->join(['followings' => $follow_selects['followings']], 'followings.user_id = user.id', ['user$followings_count' => 'count'], $select::JOIN_LEFT)
-            ->join(['connections' => $follow_selects['connections']], 'connections.user_id = user.id', ['user$connections_count' => 'count'], $select::JOIN_LEFT)
+            ->join(['connections' => $follow_selects['connections']], 'connections.user_id = user.id', ['user$contacts_count' => 'count'], $select::JOIN_LEFT)
             ->join(['nationality' => 'country'], 'nationality.id=user.nationality', ['nationality!id' => 'id', 'short_name'], $select::JOIN_LEFT)
             ->join(['origin' => 'country'], 'origin.id=user.origin', ['origin!id' => 'id', 'short_name'], $select::JOIN_LEFT)
             ->join(['user_address' => 'address'], 'user.address_id = user_address.id', ['user_address!id' => 'id','street_no','street_type','street_name','floor','door','apartment','building','longitude','latitude','timezone'], $select::JOIN_LEFT)
@@ -129,7 +129,6 @@ class User extends AbstractMapper
             $select->join(['circle_organization_user' => 'user'], 'circle_organization_user.organization_id=circle_organization.organization_id', []);
             $select->where([' ( circle_organization_user.id = ? OR user_role.role_id = '.ModelRole::ROLE_ADMIN_ID . ') ' => $me]);
         }
-        syslog(1, $this->printSql($select));
         return $this->selectWith($select);
     }
 
@@ -243,7 +242,7 @@ class User extends AbstractMapper
             $select
                   ->join(['followers' => $follow_selects['followers']], 'followers.user_id = user.id', ['user$followers_count' => 'count'], $select::JOIN_LEFT)
                   ->join(['followings' => $follow_selects['followings']], 'followings.user_id = user.id', ['user$followings_count' => 'count'], $select::JOIN_LEFT)
-                  ->join(['connections' => $follow_selects['connections']], 'connections.user_id = user.id', ['user$connections_count' => 'count'], $select::JOIN_LEFT)
+                  ->join(['connections' => $follow_selects['connections']], 'connections.user_id = user.id', ['user$contacts_count' => 'count'], $select::JOIN_LEFT)
                   ->join(['co' => 'circle_organization'], 'co.organization_id=user.organization_id', [])
                   ->join('circle_organization', 'circle_organization.circle_id=co.circle_id', [])
                   ->join(['circle_organization_user' => 'user'], 'circle_organization_user.organization_id=circle_organization.organization_id', [])

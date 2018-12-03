@@ -209,23 +209,14 @@ class Contact extends AbstractService
         $res_contact = $mapper->usePaginator($filter)->getList($user_id, $exclude, $search);
         $ret = [];
 
-        if (is_array($user_id)) {
-            foreach ($user_id as $id) {
-                $ret[$id] = [];
-            }
-            foreach ($res_contact as $m_contact) {
-                $ret[$m_contact->getUserId()][] = $m_contact->getContactId();
-            }
-        } else {
-            foreach ($res_contact as $m_contact) {
-                $ret[] = $m_contact->getContactId();
-            }
+        foreach ($res_contact as $m_contact) {
+            $ret[] = $m_contact->getContactId();
         }
 
         return (null === $filter) ?
           $ret : [
-          'list' => $ret,
-          'count' => $mapper->count()
+            'list' => $ret,
+            'count' => $mapper->count()
           ];
     }
 
@@ -234,30 +225,29 @@ class Contact extends AbstractService
      *
      * @invokable
      *
-     * @param int|array $user_id
+     * @param int $user_id
+     * @param string $search
+     * @param array $filters
      *
      * @return \Dal\Db\ResultSet\ResultSet
      */
-    public function getListFollowersId($user_id)
+    public function getListFollowersId($user_id, $search = null, $filter = null)
     {
+        $mapper = $this->getMapper();
+        $res_contact = $mapper->usePaginator($filter)
+                            ->getListFollowers(
+                                  $user_id,
+                                  $search,
+                                  isset($filter) && isset($filter['order']) ? $filter['order'] : null
+                              );
 
-        $res_contact = $this->getMapper()->getListFollowers($user_id);
+        $ret = [];
 
-        $request = [];
-        if (is_array($user_id)) {
-            foreach ($user_id as $uid) {
-                $request[$uid] = [];
-            }
-            foreach ($res_contact as $m_contact) {
-                $request[$m_contact->getContactId()][] = $m_contact->getUserId();
-            }
-        } else {
-            foreach ($res_contact as $m_contact) {
-                $request[] = $m_contact->getUserId();
-            }
+        foreach ($res_contact as $m_contact) {
+            $ret[] = $m_contact->getUserId();
         }
 
-        return $request;
+        return null !== $filter ? ['list' => $ret, 'count' => $mapper->count()] : $ret;
     }
 
     /**
@@ -269,25 +259,20 @@ class Contact extends AbstractService
      *
      * @return \Dal\Db\ResultSet\ResultSet
      */
-    public function getListFollowingsId($user_id)
+    public function getListFollowingsId($user_id, $search = null, $filter = null)
     {
-        $res_contact = $this->getMapper()->getListFollowings($user_id);
+        $mapper = $this->getMapper();
+        $res_contact = $mapper->usePaginator($filter)->getListFollowings(
+              $user_id,
+              $search,
+              isset($filter) && isset($filter['order']) ? $filter['order'] : null);
 
-        $request = [];
-        if (is_array($user_id)) {
-            foreach ($user_id as $uid) {
-                $request[$uid] = [];
-            }
-            foreach ($res_contact as $m_contact) {
-                $request[$m_contact->getUserId()][] = $m_contact->getContactId();
-            }
-        } else {
-            foreach ($res_contact as $m_contact) {
-                $request[] = $m_contact->getContactId();
-            }
+        $ret = [];
+        foreach ($res_contact as $m_contact) {
+            $ret[] = $m_contact->getContactId();
         }
 
-        return $request;
+        return null !== $filter ? ['list' => $ret, 'count' => $mapper->count()] : $ret;
     }
 
      /**

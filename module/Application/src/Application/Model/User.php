@@ -133,6 +133,30 @@ class User extends BaseUser
         return $this;
     }
 
+    public function getFollowersCount()
+    {
+        return $this->followers_count;
+    }
+
+    public function setFollowersCount($followers_count)
+    {
+        $this->followers_count = ($followers_count=== null || $followers_count instanceof IsNull) ? 0 : $followers_count;
+
+        return $this;
+    }
+
+    public function getFollowingsCount()
+    {
+        return $this->followings_count;
+    }
+
+    public function setFollowingsCount($followings_count)
+    {
+        $this->followings_count = ($followings_count=== null || $followings_count instanceof IsNull) ? 0 : $followings_count;
+
+        return $this;
+    }
+
     public function setRoles($roles)
     {
         $this->roles = $roles;

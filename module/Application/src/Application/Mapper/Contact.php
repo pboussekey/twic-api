@@ -11,7 +11,7 @@ class Contact extends AbstractMapper
     /**
      * @return \Zend\Db\ResultSet\ResultSet
      */
-    public function getList($user_id, $exclude = null, $search = null)
+    public function getList($user_id, $exclude = null, $search = null, $order = null)
     {
         $select = $this->tableGateway->getSql()->select();
         $select->columns(['accepted_date', 'user_id', 'contact_id'])
@@ -26,10 +26,26 @@ class Contact extends AbstractMapper
             $select->where->notIn('user.id', $exclude);
         }
 
-        if (null !== $search) {
-            $select->where(array('( CONCAT_WS(" ", user.firstname, user.lastname) LIKE ? ' => ''.$search.'%'))
-                ->where(array('CONCAT_WS(" ", user.lastname, user.firstname) LIKE ? ' => ''.$search.'%'), Predicate::OP_OR)
-                ->where(array('user.nickname LIKE ? )' => ''.$search.'%'), Predicate::OP_OR);
+
+        if(null !== $search){
+            $select->where(new Expression('(CONCAT(user.firstname, " ", user.lastname) LIKE ? ', $search.'%'))
+                   ->where(new Expression('CONCAT(user.lastname, " ", user.firstname) LIKE ? )',$search.'%'), Predicate::OP_OR);
+        }
+        if(null !== $order){
+            switch($order){
+                case 'lastname':
+                    $select->order('user.lastname');
+                break;
+                case 'organization':
+                    $select->order('user.organization_id');
+                break;
+                case 'popularity':
+                    $select->join(['followers' => 'contact'], 'user.id = followers.contact_id', [])
+                           ->join(['follower' => 'user'], new Expression('follower.deleted_date IS NULL AND follower.id = followers.user_id'))
+                           ->group(['contact.user_id', 'contact.contact_id'])
+                           ->order(new Expression('COUNT(DISTINCT follower.id) DESC'));
+                break;
+            }
         }
         return $this->selectWith($select);
     }
@@ -37,30 +53,46 @@ class Contact extends AbstractMapper
     /**
      * @return \Zend\Db\ResultSet\ResultSet
      */
-    public function getListFollowers($user = null)
+    public function getListFollowers($user, $search = null, $order = null)
     {
-        if (null === $user && null === $contact) {
-            throw new \Exception('Invalid params');
-        }
+
         $select = $this->tableGateway->getSql()->select();
 
-        $select->columns(['request_date', 'user_id', 'contact_id'])
+        $select->columns(['user_id', 'contact_id'])
             ->where(['contact.request_date IS NOT NULL',
                 'contact.deleted_date IS NULL'
             ])->join('user', 'contact.user_id = user.id', [])
               ->where('user.deleted_date IS NULL')
               ->where(['contact.contact_id' => $user]);
+
+        if(null !== $search){
+            $select->where(new Expression('(CONCAT(user.firstname, " ", user.lastname) LIKE ? ', $search.'%'))
+                   ->where(new Expression('CONCAT(user.lastname, " ", user.firstname) LIKE ? )',$search.'%'), Predicate::OP_OR);
+        }
+        if(null !== $order){
+            switch($order){
+                case 'lastname':
+                    $select->order('user.lastname');
+                break;
+                case 'organization':
+                    $select->order('user.organization_id');
+                break;
+                case 'popularity':
+                    $select->join(['followers' => 'contact'], 'user.id = followers.contact_id', [])
+                           ->join(['follower' => 'user'], new Expression('follower.deleted_date IS NULL AND follower.id = followers.user_id'))
+                           ->group(['contact.user_id', 'contact.contact_id'])
+                           ->order(new Expression('COUNT(DISTINCT follower.id) DESC'));
+                break;
+            }
+        }
         return $this->selectWith($select);
     }
 
     /**
      * @return \Zend\Db\ResultSet\ResultSet
      */
-    public function getListFollowings($user = null)
+    public function getListFollowings($user, $search = null, $order = null)
     {
-        if (null === $user && null === $contact) {
-            throw new \Exception('Invalid params');
-        }
         $select = $this->tableGateway->getSql()->select();
 
         $select->columns(['request_date', 'user_id', 'contact_id'])
@@ -69,6 +101,28 @@ class Contact extends AbstractMapper
             ])->join('user', 'contact.contact_id = user.id', [])
               ->where('user.deleted_date IS NULL')
               ->where(['contact.user_id' => $user]);
+
+        if(null !== $search){
+            $select->where(new Expression('(CONCAT(user.firstname, " ", user.lastname) LIKE ? ', $search.'%'))
+                   ->where(new Expression('CONCAT(user.lastname, " ", user.firstname) LIKE ? )',$search.'%'), Predicate::OP_OR);
+        }
+        if(null !== $order){
+            switch($order){
+                case 'lastname':
+                    $select->order('user.lastname');
+                break;
+                case 'organization':
+                    $select->order('user.organization_id');
+                break;
+                case 'popularity':
+                    $select->join(['followers' => 'contact'], 'user.id = followers.contact_id', [])
+                           ->join(['follower' => 'user'], new Expression('follower.deleted_date IS NULL AND follower.id = followers.user_id'))
+                           ->group(['contact.user_id', 'contact.contact_id'])
+                           ->order(new Expression('COUNT(DISTINCT follower.id) DESC'));
+                break;
+            }
+        }
+        syslog(1, $this->printSql($select));
         return $this->selectWith($select);
     }
 
