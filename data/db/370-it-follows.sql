@@ -13,3 +13,5 @@ INSERT IGNORE INTO `role_permission` (`role_id`, `permission_id`) VALUES (2,
 INSERT IGNORE INTO `permission` (`libelle`) VALUES ('contact.getListFollowingsId');
 INSERT IGNORE INTO `role_permission` (`role_id`, `permission_id`) VALUES (2,
 (SELECT `id` FROM `permission` WHERE `libelle`= 'contact.getListFollowingsId'));
+
+DELETE FROM contact WHERE requested IS FALSE AND accepted IS FALSE;
