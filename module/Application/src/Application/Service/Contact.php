@@ -105,7 +105,7 @@ class Contact extends AbstractService
         $identity = $this->getServiceUser()->getIdentity();
         $user_id = $identity['id'];
         if ($user == $user_id) {
-            throw new \Exception("You can't add yourself");
+            throw new \Exception("You can't follow yourself");
         }
 
         $date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
@@ -119,15 +119,17 @@ class Contact extends AbstractService
         if ($res_contact->count() === 0) {
             $m_contact->setRequestDate($date);
             $ret = $this->getMapper()->insert($m_contact);
+            $m_user = $this->getServiceUser()->getLite($user);
             $this->getServiceEvent()->create('user', 'follow',
                   ['M'.$user],
                   [
-                    'state' => 'request','user' => $user_id,'contact' => $user,
+                    'state' => 'follow', 'user' => $user_id,'contact' => $user,
                     'picture' => !empty($identity['avatar']) ? $identity['avatar'] : null,
                     'target' => $user
                   ],
                   [
-                    'source' => $identity['firstname'].' '.$identity['lastname']
+                    'source' => $identity['firstname'].' '.$identity['lastname'],
+                    'contact_state' => $m_user->getContactState()
                   ],   ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => false] );
 
         }
@@ -136,6 +138,7 @@ class Contact extends AbstractService
             $m_contact->setRequestDate($date)
                       ->setDeletedDate(new IsNull('deleted_date'));
             $ret = $this->getMapper()->update($m_contact);
+            $this->getServiceEvent()->sendData($user_id, 'user.follow', ['SU'.$user]);
         }
         $this->getServiceSubscription()->add('PU'.$user, $user_id);
         return $ret;

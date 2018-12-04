@@ -127,6 +127,8 @@ class Event extends AbstractService
                 return sprintf('%s sent you a connection request', $d['source']);
             case 'connection.accept':
                 return sprintf('You are now connected with %s', $d['source']);
+            case 'user.follow':
+                return sprintf( $d['contact_state'] === 0 ? '%s is following you' : 'You are now connected with %s', $d['source']);
             case 'message.send':
                 return sprintf('You have an unread message from <b>%s</b>%s', $d['user'], $d['text']);
             case 'page.doc':
