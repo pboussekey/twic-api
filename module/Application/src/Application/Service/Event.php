@@ -122,7 +122,7 @@ class Event extends AbstractService
             case 'connection.request':
                 return sprintf('%s {more} sent you a connection request', $d['source']);
             case 'connection.accept':
-                return sprintf('You are now connected with %s', $d['source']);
+                return sprintf('You are now connected with <b>%s</b>', $d['source']);
             case 'message.send':
                 return sprintf('You have an unread message from <b>%s</b>%s {more}', $d['user'], $d['text']);
             case 'page.doc':
@@ -134,6 +134,23 @@ class Event extends AbstractService
             case 'page.pending':
                 return sprintf('<b>%s</b> requested to join <b>%s</b>', $d['source'], $d['page_title']);
         }
+    }
+
+    function formatText($text, $user_id, $me, $target){
+        $text = str_replace('{more}', '', $text);
+        if(null !== $target){
+            if($me === $target->getId()){
+                $text = str_replace('{user}',  'their' , $text);
+            }
+            else if($user_id === $target_id){
+                $text = str_replace('{user}',  'your' , $text);
+            }
+            else{
+                $text = str_replace('{user}',  ('<b>'.$target->getFirstname().' '.$target->getLastname()."</b>'s") , $text);
+            }
+        }
+        return strip_tags(html_entity_decode($text));
+
     }
 
     function getLink($event, $d){
@@ -345,13 +362,12 @@ class Event extends AbstractService
         $target = null;
         $your_text = $text;
         $user_text = $text;
+        $me = $this->getServiceUser()->getIdentity()['id'];
         if(null !== $target_id && false !== strpos('{user}', $text)){
             $target = $this->getServiceUser()->getLite($target_id);
-            $your_text = strip_tags(html_entity_decode(str_replace('{more}', '', str_replace('{user}', 'your' , $your_text))));
-            $user_text = strip_tags(html_entity_decode(str_replace('{more}', '', str_replace('{user}', ('<b>'.$target->getFirstname().' '.$target->getLastname()."</b>'s"), $user_text))));
         }
         foreach ($users as $uid) {
-              $ntf_text = $target_id === $uid ? $your_text : $user_text;
+              $ntf_text =  $this->formatText($text, $uid, $me, $target);
               try{
                     $fcm_service = $this->getServiceFcm();
                     $gcm_notification = new GcmNotification();

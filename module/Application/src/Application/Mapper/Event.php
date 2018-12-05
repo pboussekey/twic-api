@@ -36,7 +36,7 @@ class Event extends AbstractMapper
             'event$text' => new Expression(
               'COALESCE(REPLACE(
                           REPLACE(event.text, "{user}",
-                            CASE 
+                            CASE
                               WHEN event_user.user_id  = event.target_id THEN "your"
                               WHEN event.user_id = event.target_id AND previous_user.id IS NULL THEN "their"
                               ELSE CONCAT("<b>", user.firstname, " ", user.lastname,"</b>\'s") END),
@@ -52,7 +52,7 @@ class Event extends AbstractMapper
                   ['event$read_date' => 'read_date']
                 )
                 -> join('user', 'event.target_id = user.id', [], $select::JOIN_LEFT)
-                ->join(['previous' => 'event'], 'event.previous_id = previous.id', [], $select::JOIN_LEFT)
+                ->join(['previous' => 'event'], new Expression('event.previous_id = previous.id AND previous.user_id <> ? ', $user_id), [], $select::JOIN_LEFT)
                 ->join(['previous_user' => 'user'], 'previous.user_id = previous_user.id', [], $select::JOIN_LEFT)
                 -> join(['events' => $events_select], 'events.id = event.id', [])
                 ->where(['event.user_id <> ? ' => $user_id]);
@@ -63,7 +63,6 @@ class Event extends AbstractMapper
             $select->where('event_user.read_date IS NULL');
         }
 
-        syslog(1, $this->printSql($select));
         return $this->selectWith($select);
     }
 
@@ -118,7 +117,7 @@ class Event extends AbstractMapper
         ])
         ->join(['events' => $events_select], 'event.id = events.id', ['event$user_id' => 'user_id', 'event$count' => 'count', 'event$important' => 'important'])
         ->join(['target' => 'user'], 'event.target_id = target.id', [], $select::JOIN_LEFT)
-        ->join(['previous' => 'event'], 'event.previous_id = previous.id', [], $select::JOIN_LEFT)
+        ->join(['previous' => 'event'],  new Expression('event.previous_id = previous.id AND previous.user_id <> events.user_id'), [], $select::JOIN_LEFT)
         ->join(['previous_user' => 'user'], 'previous.user_id = previous_user.id', [], $select::JOIN_LEFT)
         ->order(['events.user_id DESC', 'events.important DESC', 'event.id DESC']);
 
@@ -130,7 +129,8 @@ class Event extends AbstractMapper
     {
       $select  = $this->tableGateway->getSql()->select();
       $select->columns([
-          'event$id' => new Expression('MAX(id)')
+          'event$id' => new Expression('MAX(id)'),
+          'event$count' => new Expression('COUNT(DISTINCT event.user_id)')
       ])
       ->where(['uid' => $uid])
       ->where(['user_id <> ? ' => $user_id]);

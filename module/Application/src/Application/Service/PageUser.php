@@ -102,7 +102,7 @@ class PageUser extends AbstractService
                 }
 
                 $this->getServiceEvent()->create('page', 'pending',
-                     'PGUSR'.$id,
+                     'PGUSR'.$page_id,
                       $sub,
                       [
                           'state' => 'pending',
@@ -120,7 +120,7 @@ class PageUser extends AbstractService
             if ($state === ModelPageUser::STATE_INVITED && ModelPage::TYPE_ORGANIZATION !== $m_page->getType()) {
 
                 $this->getServiceEvent()->create('page', 'invited',
-                     'PGUSR'.$id,
+                     'PGUSR'.$page_id,
                       ['M'.$uid],
                       [
                         'state' => 'invited',
@@ -150,7 +150,7 @@ class PageUser extends AbstractService
 
 
                     $this->getServiceEvent()->create('page', 'member',
-                         'PGUSR'.$id,
+                         'PGUSR'.$page_id,
                           ['M'.$uid],   [
                             'state' => 'member',
                             'user'  => $uid,
@@ -205,23 +205,9 @@ class PageUser extends AbstractService
                         $this->getServiceSubscription()->add("PP".$m_page_relation->getParentId(), $user_id);
                     }
                 }
-                $this->getServicePost()->addSys(
-                    'PPM'.$page_id.'_'.$user_id,
-                    '',
-                    [
-                    'state' => 'member',
-                    'user' => $user_id,
-                    'page' => $page_id,
-                    'page_type' => $m_page->getType(),
-                    ],
-                    'member',
-                    ['M'.$user_id], /*sub ['M'.$user_id, 'PU'.$user_id] */
-                    null/*parent*/,
-                    null/*page*/,
-                    $user_id/*user*/,
-                    'page',
-                    $page_id
-                );
+
+                $this->getServiceEvent()->sendData($page_id, 'page.member', ['M'.$user_id]);
+              
             }
         }
         /*
