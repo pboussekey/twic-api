@@ -77,7 +77,7 @@ class Contact extends AbstractService
             );
         }
 
-        $this->getServiceEvent()->create('connection', 'request',
+        $this->getServiceEvent()->create('connection', 'request', 'C'.$user,
               ['M'.$user],
               [
                 'state' => 'request','user' => $user_id,'contact' => $user,
@@ -144,7 +144,7 @@ class Contact extends AbstractService
             }
         }
 
-        $this->getServiceEvent()->create('connection', 'accept',
+        $this->getServiceEvent()->create('connection', 'accept', 'C'.$user,
               ['M'.$user, 'M'.$user_id],
               [
                 'state' => 'accept',

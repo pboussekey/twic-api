@@ -101,34 +101,30 @@ class Event extends AbstractService
         return strlen($text) > $length ? substr($text, 0,  $length).'...' : $text;
     }
 
-
-
-
-
     function getText($event, $d){
         switch($event){
             case 'post.create':
                 return sprintf('%s just posted %s%s', $d['post_source'], $d['target_page'], $d['content']);
             case 'post.com':
-                return sprintf('%s %s %s %s %s%s', $d['post_source'], $d['post_action'], $d['parent_source'], $d['parent_type'], $d['target_page'], $d['content']);
+                return sprintf('%s {more} %s %s %s %s%s', $d['post_source'], $d['post_action'], $d['parent_source'], $d['parent_type'], $d['target_page'], $d['content']);
             case 'post.like':
-                return sprintf('%s liked %s %s %s%s', $d['source'], $d['post_owner'], $d['post_type'],  $d['target_page'], $d['content']);
+                return sprintf('%s {more} liked %s %s %s%s', $d['source'], $d['post_owner'], $d['post_type'],  $d['target_page'], $d['content']);
             case 'post.tag':
                 return sprintf('%s mentionned you in a %s %s%s', $d['post_source'], $d['post_type'], $d['target_page'], $d['content']);
             case 'post.share':
-                return sprintf('%s shared %s post %s%s', $d['post_source'], $d['parent_source'], $d['target_page'], $d['content']);
+                return sprintf('%s {more} shared %s post %s%s', $d['post_source'], $d['parent_source'], $d['target_page'], $d['content']);
             case 'item.publish':
-                return sprintf('A new %s : <b>%s</b> has been published in <b>%s</b>', $d['itemtype'], $d['itemtitle'],$d['pagetitle']);
+                return sprintf('A new %s <b>%s</b> has been published in <b>%s</b>', $d['itemtype'], $d['itemtitle'],$d['pagetitle']);
             case 'section.publish':
-                return sprintf('A new %s : <b>%s</b> has been published in <b>%s</b>', $d['itemtype'], $d['itemtitle'], $d['pagetitle']);
+                return sprintf('A new %s <b>%s</b> has been published in <b>%s</b>', $d['itemtype'], $d['itemtitle'], $d['pagetitle']);
             case 'item.update':
-                return sprintf('<b>%s</b> %s has been updated in <b>%s</b>', $d['itemtitle'],$d['itemtype'], $d['pagetitle']);
+                return sprintf('%s <b>%s</b> has been updated in <b>%s</b>', $d['itemtype'],$d['itemtitle'], $d['pagetitle']);
             case 'connection.request':
-                return sprintf('%s sent you a connection request', $d['source']);
+                return sprintf('%s {more} sent you a connection request', $d['source']);
             case 'connection.accept':
                 return sprintf('You are now connected with %s', $d['source']);
             case 'message.send':
-                return sprintf('You have an unread message from <b>%s</b>%s', $d['user'], $d['text']);
+                return sprintf('You have an unread message from <b>%s</b>%s {more}', $d['user'], $d['text']);
             case 'page.doc':
                 return sprintf('A new material : <b>%s</b> has been added in <b>%s</b>', $d['library_name'], $d['page_title']);
             case 'page.member':
@@ -175,6 +171,10 @@ class Event extends AbstractService
         }
     }
 
+    function getLast($uid, $user_id){
+        return $this->getMapper()->getLast($uid, $user_id)->current();
+    }
+
     /**
      * create un event puis envoye un evenement "notification.publish"
      *
@@ -189,7 +189,7 @@ class Event extends AbstractService
      *
      * @return int
      */
-    public function create($type, $action,  $libelle, $event_data, $text_data, $notify = null)
+    public function create($type, $action, $uid,  $libelle, $event_data, $text_data, $notify = null)
     {
         if(null === $notify){
             $notify = ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => false];
@@ -199,12 +199,19 @@ class Event extends AbstractService
         }
         $event = $type.'.'.$action;
         $date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
+
         $user_id = $this->getServiceUser()->getIdentity()['id'];
+        $m_previous = false;
+        if(null !== $uid){
+            $m_previous = $this->getLast($uid, $user_id);
+        }
         $source = $this->getDataUser($user_id);
         $m_event = $this->getModel()
             ->setUserId($user_id)
             ->setEvent($event)
             ->setSource(json_encode($source))
+            ->setUid($uid)
+            ->setPreviousId(false !== $m_previous ? $m_previous->getId() : null)
             ->setObject(json_encode($event_data))
             ->setTarget(self::TARGET_TYPE_USER)
             ->setTargetId(isset($event_data['target']) ? $event_data['target'] : null)
@@ -340,8 +347,8 @@ class Event extends AbstractService
         $user_text = $text;
         if(null !== $target_id && false !== strpos('{user}', $text)){
             $target = $this->getServiceUser()->getLite($target_id);
-            $your_text = strip_tags(html_entity_decode(str_replace('{user}', 'your' , $your_text)));
-            $user_text = strip_tags(html_entity_decode(str_replace('{user}', ('<b>'.$target->getFirstname().' '.$target->getLastname()."</b>'s"), $user_text)));
+            $your_text = strip_tags(html_entity_decode(str_replace('{more}', '', str_replace('{user}', 'your' , $your_text))));
+            $user_text = strip_tags(html_entity_decode(str_replace('{more}', '', str_replace('{user}', ('<b>'.$target->getFirstname().' '.$target->getLastname()."</b>'s"), $user_text))));
         }
         foreach ($users as $uid) {
               $ntf_text = $target_id === $uid ? $your_text : $user_text;
@@ -368,7 +375,6 @@ class Event extends AbstractService
 
         $urldms = $this->container->get('config')['app-conf']['urldms'];
         $urlui = $this->container->get('config')['app-conf']['uiurl'];
-        syslog(1, "RECAP ? ".json_encode($users));
         $res_event =  $this->getMapper()->getListUnseen($users);
         $ar_events = [];
         foreach($res_event as $m_event){

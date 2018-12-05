@@ -11,6 +11,12 @@ ALTER TABLE `event`
 ADD COLUMN  `important` TINYINT(1) NOT NULL DEFAULT 0;
 
 ALTER TABLE `event`
+ADD COLUMN  `uid` VARCHAR(45) NULL DEFAULT NULL;
+
+ALTER TABLE `event`
+ADD COLUMN  `previous_id` INT(11) UNSIGNED NULL DEFAULT NULL;
+
+ALTER TABLE `event`
 MODIFY  `user_id` INT(11) UNSIGNED NULL DEFAULT NULL;
 ALTER TABLE `event`
 ADD INDEX `fk_event_1_idx` (`target_id` ASC),
@@ -40,6 +46,14 @@ ALTER TABLE `event`
 ADD CONSTRAINT `fk_event_2`
     FOREIGN KEY (`user_id`)
     REFERENCES `user` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION;
+
+
+ALTER TABLE `event`
+ADD CONSTRAINT `fk_event_3`
+    FOREIGN KEY (`previous_id`)
+    REFERENCES `event` (`id`)
     ON DELETE CASCADE
     ON UPDATE NO ACTION;
 

@@ -58,7 +58,8 @@ class PostSubscription extends AbstractService
                 }
             }
         }
-        $post_data = $this->getServicePost()->getPostInfos(null !== $sub_post_id ? $sub_post_id : $post_id);
+        $post_id = null !== $sub_post_id ? $sub_post_id : $post_id;
+        $post_data = $this->getServicePost()->getPostInfos($post_id);
         $identity = $this->getServiceUser()->getIdentity();
         if(!empty($post_data['content'])){
             $mentions = [];
@@ -123,7 +124,7 @@ class PostSubscription extends AbstractService
             'content' => $post_data['content']
         ];
 
-        $this->getServiceEvent()->create($post_data['type'], $action, $libelle, $data, $labels, $notify );
+        $this->getServiceEvent()->create($post_data['type'], $action, 'POST'.$action.$post_id, $libelle, $data, $labels, $notify );
 
         return true;
     }

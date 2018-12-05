@@ -564,11 +564,10 @@ class Page extends AbstractService
                       $sub[] = 'M'.$m_user->getId();
                 }
                 $this->getServiceEvent()->create('page', 'member',
+                        'PGUSR'.$id,
                         $sub,   [
                         'state' => 'member',
-                        'user'  => $m_user->getId(),
                         'page'  => $id,
-                        'target' => $m_user->getId(),
                         'page_type' => $tmp_m_page->getType(),
                         'picture' => !($tmp_m_page->getLogo() instanceof IsNull) ? $tmp_m_page->getLogo() : null
                       ],
