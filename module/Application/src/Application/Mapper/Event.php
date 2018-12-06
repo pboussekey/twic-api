@@ -51,10 +51,10 @@ class Event extends AbstractMapper
                   new Expression('event_user.event_id = event.id AND event_user.user_id = '.$user_id),
                   ['event$read_date' => 'read_date']
                 )
-                -> join('user', 'event.target_id = user.id', [], $select::JOIN_LEFT)
+                ->join('user', 'event.target_id = user.id', [], $select::JOIN_LEFT)
                 ->join(['previous' => 'event'], new Expression('event.previous_id = previous.id AND previous.user_id <> ? ', $user_id), [], $select::JOIN_LEFT)
                 ->join(['previous_user' => 'user'], 'previous.user_id = previous_user.id', [], $select::JOIN_LEFT)
-                -> join(['events' => $events_select], 'events.id = event.id', [])
+                ->join(['events' => $events_select], 'events.id = event.id', [])
                 ->where(['event.user_id <> ? ' => $user_id]);
         if(null !== $events){
             $select->where(['event.event' => $events]);
@@ -81,6 +81,7 @@ class Event extends AbstractMapper
         ->join('user', 'event_user.user_id = user.id', [])
         ->join('activity', new Expression('event_user.user_id = activity.user_id AND activity.date >= event.date'), [], $events_select::JOIN_LEFT)
         ->where('user.is_active = 1')
+        ->where('(( event.important IS TRUE AND user.has_academic_notifier) OR (event.important IS FALSE AND user.has_social_notifier))')
         ->where('activity.id IS NULL')
         ->where(['event_user.user_id' => $users])
         ->group(['event.uid', 'event.event', ' event_user.user_id']);

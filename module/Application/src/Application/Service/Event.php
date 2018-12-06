@@ -422,84 +422,67 @@ class Event extends AbstractService
                 'firstname' => $m_user->getFirstname(),
                 'img_folder' => sprintf('https://%s.%s',$libelle,$urlui),
                 'current_year' => date("Y"),
+                'dates' => '',
+                'unsubscribe_link' => '',
                 //MAIN NOTIFICATION
-                'ntf_picture' => '',
-                'ntf_display_picture' => 'none',
+                'ntf_display' => 'none',
                 'ntf_text' => '',
                 'ntf_link' => '',
-                'ntf_count' => '',
+                'ntf_cta' => '',
+                //NTFS
+                'ntfs_display' => 'none',
                 //NTF1
                 'ntf1_display' => 'none',
-                'ntf1_picture' => '',
-                'ntf1_display_picture' => 'none',
                 'ntf1_text' => '',
                 'ntf1_link' => '',
-                'ntf1_count' => '',
-                'ntf1_date' => '',
-                'ntf1_icon' => '',
+                'ntf1_cta' => '',
                 //NTF2
                 'ntf2_display' => 'none',
-                'ntf2_picture' => '',
-                'ntf2_display_picture' => 'none',
                 'ntf2_text' => '',
                 'ntf2_link' => '',
-                'ntf2_count' => '',
-                'ntf2_date' => '',
-                'ntf2_icon' => '',
+                'ntf2_cta' => '',
                 //NTF3
                 'ntf3_display' => 'none',
-                'ntf3_picture' => '',
-                'ntf3_display_picture' => 'none',
                 'ntf3_text' => '',
                 'ntf3_link' => '',
-                'ntf3_count' => '',
-                'ntf3_date' => '',
-                'ntf3_icon' => '',
+                'ntf3_cta' => '',
                 //NTF4
                 'ntf4_display' => 'none',
-                'ntf4_picture' => '',
-                'ntf4_display_picture' => 'none',
                 'ntf4_text' => '',
                 'ntf4_link' => '',
-                'ntf4_count' => '',
-                'ntf4_date' => '',
-                'ntf4_icon' => '',
+                'ntf4_cta' => '',
                 //NTF5
                 'ntf5_display' => 'none',
-                'ntf5_picture' => '',
-                'ntf5_display_picture' => 'none',
                 'ntf5_text' => '',
                 'ntf5_link' => '',
-                'ntf5_count' => '',
-                'ntf5_date' => '',
-                'ntf5_icon' => '',
+                'ntf5_cta' => '',
             ];
             $idx = 0;
             $important = 0;
             $date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d\TH:i:s\Z');
             foreach($events as $event){
                 if($idx === 0){
-                    $labels['ntf_picture'] =  (null !== $event['picture']) ? ($urldms.$event['picture'].'-80m80') : null;
-                    $labels['ntf_display_picture'] =  (null !== $event['picture']) ? 'block' : 'none';
                     $labels['ntf_text'] = $event['text'];
                     $labels['title'] = strip_tags(html_entity_decode($event['text']));
-                    $labels['ntf_count'] = $event['count']  > 1 ? sprintf('And <b>%s</b> more...', $event['count']) : '';
                     $labels['ntf_link'] =  sprintf('https://%s.%s%s',$libelle, $urlui, $this->getLink($event['event'],json_decode($event['object'], true)));
-                    $labels['unsubscribe'] =  sprintf('https://%s.%s/unsubscribe/%s',$libelle, $urlui, md5($uid.$event['id'].$event['date'].$event['object']));
+                    $labels['unsubscribe_link'] =  sprintf('https://%s.%s/unsubscribe/%s',$libelle, $urlui, md5($uid.$event['id'].$event['date'].$event['object']));
                     $idx++;
                     $important = $event['important'];
                 }
                 else if($idx < 6){
+                      $labels['ntfs_display'] = 'block';
+                      if($idx === 1){
+                          $labels['dates'] = $event['date'];
+                      }
+                      $last_date = $event['date'];
                       $labels['ntf'.$idx.'_display'] = 'block';
-                      $labels['ntf'.$idx.'_picture'] = (null !== $event['picture']) ? ($urldms.$event['picture'].'-80m80') : null;
-                      $labels['ntf'.$idx.'_display_picture'] =  (null !== $event['picture']) ? 'block' : 'none';
                       $labels['ntf'.$idx.'_text'] = $event['text'];
-                      $labels['ntf'.$idx.'_count'] = $event['count']  > 1 ? sprintf('And <b>%s</b> more...', $event['count']) : '';
-                      $labels['ntf'.$idx.'_icon'] = '/assets/img/mail/'.$event['event'].'.png';
-                      $labels['ntf'.$idx.'_date'] = $event['date'];
                       $labels['ntf'.$idx.'_link'] =  sprintf('https://%s.%s%s',$libelle, $urlui, $this->getLink($event['event'],json_decode($event['object'], true)));
                       $idx++;
                 }
+            }
+            if($last_date !== $labels['dates']){
+                $labels['date'] = $labels['date'].' - '.$last_date;
             }
             if(($important === 0 && $m_user->getHasSocialNotifier() === 1) ||
                ($important === 1 && $m_user->getHasAcademicNotifier() === 1)){
