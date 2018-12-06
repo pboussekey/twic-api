@@ -101,36 +101,32 @@ class Event extends AbstractService
         return strlen($text) > $length ? substr($text, 0,  $length).'...' : $text;
     }
 
-
-
-
-
     function getText($event, $d){
         switch($event){
             case 'post.create':
                 return sprintf('%s just posted %s%s', $d['post_source'], $d['target_page'], $d['content']);
             case 'post.com':
-                return sprintf('%s %s %s %s %s%s', $d['post_source'], $d['post_action'], $d['parent_source'], $d['parent_type'], $d['target_page'], $d['content']);
+                return sprintf('%s {more} %s %s %s %s%s', $d['post_source'], $d['post_action'], $d['parent_source'], $d['parent_type'], $d['target_page'], $d['content']);
             case 'post.like':
-                return sprintf('%s liked %s %s %s%s', $d['source'], $d['post_owner'], $d['post_type'],  $d['target_page'], $d['content']);
+                return sprintf('%s {more} liked %s %s %s%s', $d['source'], $d['post_owner'], $d['post_type'],  $d['target_page'], $d['content']);
             case 'post.tag':
                 return sprintf('%s mentionned you in a %s %s%s', $d['post_source'], $d['post_type'], $d['target_page'], $d['content']);
             case 'post.share':
-                return sprintf('%s shared %s post %s%s', $d['post_source'], $d['parent_source'], $d['target_page'], $d['content']);
+                return sprintf('%s {more} shared %s post %s%s', $d['post_source'], $d['parent_source'], $d['target_page'], $d['content']);
             case 'item.publish':
-                return sprintf('A new %s : <b>%s</b> has been published in <b>%s</b>', $d['itemtype'], $d['itemtitle'],$d['pagetitle']);
+                return sprintf('A new %s <b>%s</b> has been published in <b>%s</b>', $d['itemtype'], $d['itemtitle'],$d['pagetitle']);
             case 'section.publish':
-                return sprintf('A new %s : <b>%s</b> has been published in <b>%s</b>', $d['itemtype'], $d['itemtitle'], $d['pagetitle']);
+                return sprintf('A new %s <b>%s</b> has been published in <b>%s</b>', $d['itemtype'], $d['itemtitle'], $d['pagetitle']);
             case 'item.update':
-                return sprintf('<b>%s</b> %s has been updated in <b>%s</b>', $d['itemtitle'],$d['itemtype'], $d['pagetitle']);
+                return sprintf('%s <b>%s</b> has been updated in <b>%s</b>', $d['itemtype'],$d['itemtitle'], $d['pagetitle']);
             case 'connection.request':
-                return sprintf('%s sent you a connection request', $d['source']);
+                return sprintf('%s {more} sent you a connection request', $d['source']);
             case 'connection.accept':
                 return sprintf('You are now connected with %s', $d['source']);
             case 'user.follow':
                 return sprintf( $d['contact_state'] === 0 ? '%s is following you' : 'You are now connected with %s', $d['source']);
             case 'message.send':
-                return sprintf('You have an unread message from <b>%s</b>%s', $d['user'], $d['text']);
+                return sprintf('You have an unread message from <b>%s</b>%s {more}', $d['user'], $d['text']);
             case 'page.doc':
                 return sprintf('A new material : <b>%s</b> has been added in <b>%s</b>', $d['library_name'], $d['page_title']);
             case 'page.member':
@@ -140,6 +136,23 @@ class Event extends AbstractService
             case 'page.pending':
                 return sprintf('<b>%s</b> requested to join <b>%s</b>', $d['source'], $d['page_title']);
         }
+    }
+
+    function formatText($text, $user_id, $me, $target){
+        $text = str_replace('{more}', '', $text);
+        if(null !== $target){
+            if($me === $target->getId()){
+                $text = str_replace('{user}',  'their' , $text);
+            }
+            else if($user_id === $target_id){
+                $text = str_replace('{user}',  'your' , $text);
+            }
+            else{
+                $text = str_replace('{user}',  ('<b>'.$target->getFirstname().' '.$target->getLastname()."</b>'s") , $text);
+            }
+        }
+        return strip_tags(html_entity_decode($text));
+
     }
 
     function getLink($event, $d){
@@ -177,6 +190,10 @@ class Event extends AbstractService
         }
     }
 
+    function getLast($uid, $user_id){
+        return $this->getMapper()->getLast($uid, $user_id)->current();
+    }
+
     /**
      * create un event puis envoye un evenement "notification.publish"
      *
@@ -191,7 +208,7 @@ class Event extends AbstractService
      *
      * @return int
      */
-    public function create($type, $action,  $libelle, $event_data, $text_data, $notify = null)
+    public function create($type, $action, $uid,  $libelle, $event_data, $text_data, $notify = null)
     {
         if(null === $notify){
             $notify = ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => false];
@@ -201,12 +218,19 @@ class Event extends AbstractService
         }
         $event = $type.'.'.$action;
         $date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
+
         $user_id = $this->getServiceUser()->getIdentity()['id'];
+        $m_previous = false;
+        if(null !== $uid){
+            $m_previous = $this->getLast($uid, $user_id);
+        }
         $source = $this->getDataUser($user_id);
         $m_event = $this->getModel()
             ->setUserId($user_id)
             ->setEvent($event)
             ->setSource(json_encode($source))
+            ->setUid($uid)
+            ->setPreviousId(false !== $m_previous ? $m_previous->getId() : null)
             ->setObject(json_encode($event_data))
             ->setTarget(self::TARGET_TYPE_USER)
             ->setTargetId(isset($event_data['target']) ? $event_data['target'] : null)
@@ -340,13 +364,12 @@ class Event extends AbstractService
         $target = null;
         $your_text = $text;
         $user_text = $text;
+        $me = $this->getServiceUser()->getIdentity()['id'];
         if(null !== $target_id && false !== strpos('{user}', $text)){
             $target = $this->getServiceUser()->getLite($target_id);
-            $your_text = strip_tags(html_entity_decode(str_replace('{user}', 'your' , $your_text)));
-            $user_text = strip_tags(html_entity_decode(str_replace('{user}', ('<b>'.$target->getFirstname().' '.$target->getLastname()."</b>'s"), $user_text)));
         }
         foreach ($users as $uid) {
-              $ntf_text = $target_id === $uid ? $your_text : $user_text;
+              $ntf_text =  $this->formatText($text, $uid, $me, $target);
               try{
                     $fcm_service = $this->getServiceFcm();
                     $gcm_notification = new GcmNotification();
@@ -370,7 +393,6 @@ class Event extends AbstractService
 
         $urldms = $this->container->get('config')['app-conf']['urldms'];
         $urlui = $this->container->get('config')['app-conf']['uiurl'];
-        syslog(1, "RECAP ? ".json_encode($users));
         $res_event =  $this->getMapper()->getListUnseen($users);
         $ar_events = [];
         foreach($res_event as $m_event){
@@ -402,84 +424,67 @@ class Event extends AbstractService
                 'firstname' => $m_user->getFirstname(),
                 'img_folder' => sprintf('https://%s.%s',$libelle,$urlui),
                 'current_year' => date("Y"),
+                'dates' => '',
+                'unsubscribe_link' => '',
                 //MAIN NOTIFICATION
-                'ntf_picture' => '',
-                'ntf_display_picture' => 'none',
+                'ntf_display' => 'none',
                 'ntf_text' => '',
                 'ntf_link' => '',
-                'ntf_count' => '',
+                'ntf_cta' => '',
+                //NTFS
+                'ntfs_display' => 'none',
                 //NTF1
                 'ntf1_display' => 'none',
-                'ntf1_picture' => '',
-                'ntf1_display_picture' => 'none',
                 'ntf1_text' => '',
                 'ntf1_link' => '',
-                'ntf1_count' => '',
-                'ntf1_date' => '',
-                'ntf1_icon' => '',
+                'ntf1_cta' => '',
                 //NTF2
                 'ntf2_display' => 'none',
-                'ntf2_picture' => '',
-                'ntf2_display_picture' => 'none',
                 'ntf2_text' => '',
                 'ntf2_link' => '',
-                'ntf2_count' => '',
-                'ntf2_date' => '',
-                'ntf2_icon' => '',
+                'ntf2_cta' => '',
                 //NTF3
                 'ntf3_display' => 'none',
-                'ntf3_picture' => '',
-                'ntf3_display_picture' => 'none',
                 'ntf3_text' => '',
                 'ntf3_link' => '',
-                'ntf3_count' => '',
-                'ntf3_date' => '',
-                'ntf3_icon' => '',
+                'ntf3_cta' => '',
                 //NTF4
                 'ntf4_display' => 'none',
-                'ntf4_picture' => '',
-                'ntf4_display_picture' => 'none',
                 'ntf4_text' => '',
                 'ntf4_link' => '',
-                'ntf4_count' => '',
-                'ntf4_date' => '',
-                'ntf4_icon' => '',
+                'ntf4_cta' => '',
                 //NTF5
                 'ntf5_display' => 'none',
-                'ntf5_picture' => '',
-                'ntf5_display_picture' => 'none',
                 'ntf5_text' => '',
                 'ntf5_link' => '',
-                'ntf5_count' => '',
-                'ntf5_date' => '',
-                'ntf5_icon' => '',
+                'ntf5_cta' => '',
             ];
             $idx = 0;
             $important = 0;
             $date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d\TH:i:s\Z');
             foreach($events as $event){
                 if($idx === 0){
-                    $labels['ntf_picture'] =  (null !== $event['picture']) ? ($urldms.$event['picture'].'-80m80') : null;
-                    $labels['ntf_display_picture'] =  (null !== $event['picture']) ? 'block' : 'none';
                     $labels['ntf_text'] = $event['text'];
                     $labels['title'] = strip_tags(html_entity_decode($event['text']));
-                    $labels['ntf_count'] = $event['count']  > 1 ? sprintf('And <b>%s</b> more...', $event['count']) : '';
                     $labels['ntf_link'] =  sprintf('https://%s.%s%s',$libelle, $urlui, $this->getLink($event['event'],json_decode($event['object'], true)));
-                    $labels['unsubscribe'] =  sprintf('https://%s.%s/unsubscribe/%s',$libelle, $urlui, md5($uid.$event['id'].$event['date'].$event['object']));
+                    $labels['unsubscribe_link'] =  sprintf('https://%s.%s/unsubscribe/%s',$libelle, $urlui, md5($uid.$event['id'].$event['date'].$event['object']));
                     $idx++;
                     $important = $event['important'];
                 }
                 else if($idx < 6){
+                      $labels['ntfs_display'] = 'block';
+                      if($idx === 1){
+                          $labels['dates'] = $event['date'];
+                      }
+                      $last_date = $event['date'];
                       $labels['ntf'.$idx.'_display'] = 'block';
-                      $labels['ntf'.$idx.'_picture'] = (null !== $event['picture']) ? ($urldms.$event['picture'].'-80m80') : null;
-                      $labels['ntf'.$idx.'_display_picture'] =  (null !== $event['picture']) ? 'block' : 'none';
                       $labels['ntf'.$idx.'_text'] = $event['text'];
-                      $labels['ntf'.$idx.'_count'] = $event['count']  > 1 ? sprintf('And <b>%s</b> more...', $event['count']) : '';
-                      $labels['ntf'.$idx.'_icon'] = '/assets/img/mail/'.$event['event'].'.png';
-                      $labels['ntf'.$idx.'_date'] = $event['date'];
                       $labels['ntf'.$idx.'_link'] =  sprintf('https://%s.%s%s',$libelle, $urlui, $this->getLink($event['event'],json_decode($event['object'], true)));
                       $idx++;
                 }
+            }
+            if($last_date !== $labels['dates']){
+                $labels['date'] = $labels['date'].' - '.$last_date;
             }
             if(($important === 0 && $m_user->getHasSocialNotifier() === 1) ||
                ($important === 1 && $m_user->getHasAcademicNotifier() === 1)){

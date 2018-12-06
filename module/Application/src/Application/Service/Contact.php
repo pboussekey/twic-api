@@ -77,7 +77,7 @@ class Contact extends AbstractService
             );
         }
 
-        $this->getServiceEvent()->create('connection', 'request',
+        $this->getServiceEvent()->create('connection', 'request', 'C'.$user,
               ['M'.$user],
               [
                 'state' => 'request','user' => $user_id,'contact' => $user,
@@ -143,6 +143,20 @@ class Contact extends AbstractService
         $this->getServiceSubscription()->add('PU'.$user, $user_id);
         return $ret;
 
+        $this->getServiceEvent()->create('connection', 'accept', 'C'.$user,
+              ['M'.$user, 'M'.$user_id],
+              [
+                'state' => 'accept',
+                'user' => $user_id,
+                'contact' => $user,
+                'picture' => !empty($identity['avatar']) ? $identity['avatar'] : null,
+                'target' => $user
+              ],
+              [
+                'source' => $identity['firstname'].' '.$identity['lastname']
+              ],   ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => false] );
+
+        return true;
     }
 
 

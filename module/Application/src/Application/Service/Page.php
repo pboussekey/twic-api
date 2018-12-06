@@ -291,33 +291,7 @@ class Page extends AbstractService
             $this->getServicePageDoc()->_add($id, $docs);
         }
 
-        if ($type !== ModelPage::TYPE_ORGANIZATION && $type !== ModelPage::TYPE_COURSE) {
-            /*$sub=[];
-            if (null !== $page_id) {
-                $sub[] = 'EP'.$page_id;
-            } else {
-                $sub[] = 'EU'.$owner_id;
-            }*/
-
-            $this->getServicePost()->addSys(
-                'PP'.$id,
-                '',
-                [
-                'state' => 'create',
-                'user' => $owner_id,
-                'parent' => $page_id,
-                'page' => $id,
-                'type' => $type,
-                ],
-                'create',
-                null/*sub*/,
-                null/*parent*/,
-                $page_id/*page*/,
-                $owner_id/*user*/,
-                'page',
-                $page_id
-            );
-        }
+      
 
         return $id;
     }
@@ -564,11 +538,10 @@ class Page extends AbstractService
                       $sub[] = 'M'.$m_user->getId();
                 }
                 $this->getServiceEvent()->create('page', 'member',
+                        'PGUSR'.$id,
                         $sub,   [
                         'state' => 'member',
-                        'user'  => $m_user->getId(),
                         'page'  => $id,
-                        'target' => $m_user->getId(),
                         'page_type' => $tmp_m_page->getType(),
                         'picture' => !($tmp_m_page->getLogo() instanceof IsNull) ? $tmp_m_page->getLogo() : null
                       ],

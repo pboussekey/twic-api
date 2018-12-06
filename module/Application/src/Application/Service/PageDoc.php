@@ -38,7 +38,7 @@ class PageDoc extends AbstractService
         $m_page = $this->getServicePage()->getLite($page_id);
         if ($m_page->getType() == ModelPage::TYPE_COURSE && $notify===true) {
             $this->getServiceEvent()->create(
-                'page','doc',
+                'page','doc', null,
                 ["PP".$page_id],
                 [
                     'picture' => !($m_page->getLogo() instanceof IsNull) ? $m_page->getLogo() : null,

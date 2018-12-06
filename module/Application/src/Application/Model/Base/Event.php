@@ -17,6 +17,8 @@ class Event extends AbstractModel
 	protected $picture;
 	protected $target_id;
 	protected $important;
+	protected $uid;
+	protected $previous_id;
 
 	protected $prefix = 'event';
 
@@ -148,6 +150,30 @@ class Event extends AbstractModel
 	public function setImportant($important)
 	{
 		$this->important = $important;
+
+		return $this;
+	}
+
+	public function getUid()
+	{
+		return $this->uid;
+	}
+
+	public function setUid($uid)
+	{
+		$this->uid = $uid;
+
+		return $this;
+	}
+
+	public function getPreviousId()
+	{
+		return $this->previous_id;
+	}
+
+	public function setPreviousId($previous_id)
+	{
+		$this->previous_id = $previous_id;
 
 		return $this;
 	}

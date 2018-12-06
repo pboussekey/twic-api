@@ -121,6 +121,7 @@ class Message extends AbstractService
         $this->getServiceEvent()->create(
             'message',
             'send',
+            'MSGUSR'.$user_id,
             $sub,
             [
                 'from_id' => $m_user->getId(),

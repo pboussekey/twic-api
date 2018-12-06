@@ -10,6 +10,19 @@ class Event extends AbstractMapper
 {
     public function getList($user_id, $events = null, $unread = null)
     {
+
+
+        $events_select  = $this->tableGateway->getSql()->select();
+        $events_select->columns([
+          'id' => new Expression('MAX(event.id)'),
+          'count' => new Expression('COUNT(DISTINCT event.user_id)')
+        ])
+        ->join('event_user', 'event.id = event_user.event_id' ,[])
+        ->join('user', 'event_user.user_id = user.id', [])
+        ->where(['event.user_id <> ? ' => $user_id])
+        ->where(['event_user.user_id' => $user_id])
+        ->group(new Expression('COALESCE(event.uid, event.id)'));
+
         $select = $this->tableGateway->getSql()->select();
         $select->columns([
             'id',
@@ -21,15 +34,28 @@ class Event extends AbstractMapper
             'picture',
             'target_id',
             'event$text' => new Expression(
-              'COALESCE(replace(event.text, "{user}", CASE event.target_id WHEN event_user.user_id THEN "your" WHEN event.user_id THEN "their" ELSE CONCAT("<b>", user.firstname, " ", user.lastname,"</b>\'s") END), event.text)'
+              'COALESCE(REPLACE(
+                          REPLACE(event.text, "{user}",
+                            CASE
+                              WHEN event_user.user_id  = event.target_id THEN "your"
+                              WHEN event.user_id = event.target_id AND previous_user.id IS NULL THEN "their"
+                              ELSE CONCAT("<b>", user.firstname, " ", user.lastname,"</b>\'s") END),
+                          "{more}",
+                          CASE WHEN events.count = 2 AND previous_user.id IS NOT NULL THEN CONCAT(" and <b>", previous_user.firstname, " ", previous_user.lastname,"</b>")
+                               WHEN events.count > 2 THEN CONCAT(" and ", events.count - 1, " others")
+                               ELSE "" END)
+                          , event.text)'
             ),
             'target'])
                 ->join('event_user',
                   new Expression('event_user.event_id = event.id AND event_user.user_id = '.$user_id),
                   ['event$read_date' => 'read_date']
                 )
-                -> join('user', 'event.target_id = user.id', [], $select::JOIN_LEFT)
-                ->where(['event.user_id != ? ' => $user_id]);
+                ->join('user', 'event.target_id = user.id', [], $select::JOIN_LEFT)
+                ->join(['previous' => 'event'], new Expression('event.previous_id = previous.id AND previous.user_id <> ? ', $user_id), [], $select::JOIN_LEFT)
+                ->join(['previous_user' => 'user'], 'previous.user_id = previous_user.id', [], $select::JOIN_LEFT)
+                ->join(['events' => $events_select], 'events.id = event.id', [])
+                ->where(['event.user_id <> ? ' => $user_id]);
         if(null !== $events){
             $select->where(['event.event' => $events]);
         }
@@ -55,9 +81,10 @@ class Event extends AbstractMapper
         ->join('user', 'event_user.user_id = user.id', [])
         ->join('activity', new Expression('event_user.user_id = activity.user_id AND activity.date >= event.date'), [], $events_select::JOIN_LEFT)
         ->where('user.is_active = 1')
+        ->where('(( event.important IS TRUE AND user.has_academic_notifier) OR (event.important IS FALSE AND user.has_social_notifier))')
         ->where('activity.id IS NULL')
         ->where(['event_user.user_id' => $users])
-        ->group(['event.event', ' event_user.user_id']);
+        ->group(['event.uid', 'event.event', ' event_user.user_id']);
 
 
 
@@ -70,7 +97,7 @@ class Event extends AbstractMapper
             'object',
             'target',
             'event$text' => new Expression("
-                COALESCE(REPLACE(event.text,
+                COALESCE(REPLACE(REPLACE(event.text,
                     '{user}',
                     CASE event.target_id
                         WHEN events.user_id THEN 'your'
@@ -80,15 +107,35 @@ class Event extends AbstractMapper
                                 ' ',
                                 target.lastname,
                                 '</b>\'s')
-                    END), event.text)
+                    END), '{more}',
+                    CASE
+                        WHEN events.count = 2 AND previous_user.id IS NOT NULL THEN CONCAT('and <b>', previous_user.firstname, ' ', previous_user.lastname, '</b>')
+                        WHEN events.count > 2 THEN CONCAT(' and ', events.count - 1,' others')  ELSE '' END)
+                  , event.text)
               "),
               'picture',
               'target_id'
         ])
         ->join(['events' => $events_select], 'event.id = events.id', ['event$user_id' => 'user_id', 'event$count' => 'count', 'event$important' => 'important'])
         ->join(['target' => 'user'], 'event.target_id = target.id', [], $select::JOIN_LEFT)
+        ->join(['previous' => 'event'],  new Expression('event.previous_id = previous.id AND previous.user_id <> events.user_id'), [], $select::JOIN_LEFT)
+        ->join(['previous_user' => 'user'], 'previous.user_id = previous_user.id', [], $select::JOIN_LEFT)
         ->order(['events.user_id DESC', 'events.important DESC', 'event.id DESC']);
 
+        syslog(1, $this->printSql($select));
         return $this->selectWith($select);
+    }
+
+    public function getLast($uid, $user_id)
+    {
+      $select  = $this->tableGateway->getSql()->select();
+      $select->columns([
+          'event$id' => new Expression('MAX(id)'),
+          'event$count' => new Expression('COUNT(DISTINCT event.user_id)')
+      ])
+      ->where(['uid' => $uid])
+      ->where(['user_id <> ? ' => $user_id]);
+
+      return $this->selectWith($select);
     }
 }
