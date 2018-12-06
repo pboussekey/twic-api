@@ -16,7 +16,7 @@ class Event extends AbstractModel
 	protected $text;
 	protected $picture;
 	protected $target_id;
-	protected $important;
+	protected $academic;
 	protected $uid;
 	protected $previous_id;
 
@@ -142,14 +142,14 @@ class Event extends AbstractModel
 		return $this;
 	}
 
-	public function getImportant()
+	public function getAcademic()
 	{
-		return $this->important;
+		return $this->academic;
 	}
 
-	public function setImportant($important)
+	public function setAcademic($academic)
 	{
-		$this->important = $important;
+		$this->academic = $academic;
 
 		return $this;
 	}
