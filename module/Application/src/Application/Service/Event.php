@@ -106,9 +106,9 @@ class Event extends AbstractService
             case 'post.create':
                 return sprintf('%s just posted %s%s', $d['post_source'], $d['target_page'], $d['content']);
             case 'post.com':
-                return sprintf('%s {more} %s %s %s %s%s', $d['post_source'], $d['post_action'], $d['parent_source'], $d['parent_type'], $d['target_page'], $d['content']);
+                return sprintf('%s{more} %s %s %s %s%s', $d['post_source'], $d['post_action'], $d['parent_source'], $d['parent_type'], $d['target_page'], $d['content']);
             case 'post.like':
-                return sprintf('%s {more} liked %s %s %s%s', $d['source'], $d['post_owner'], $d['post_type'],  $d['target_page'], $d['content']);
+                return sprintf('%s{more} liked %s %s %s%s', $d['source'], $d['post_owner'], $d['post_type'],  $d['target_page'], $d['content']);
             case 'post.tag':
                 return sprintf('%s mentionned you in a %s %s%s', $d['post_source'], $d['post_type'], $d['target_page'], $d['content']);
             case 'post.share':
@@ -120,13 +120,13 @@ class Event extends AbstractService
             case 'item.update':
                 return sprintf('%s <b>%s</b> has been updated in <b>%s</b>', $d['itemtype'],$d['itemtitle'], $d['pagetitle']);
             case 'connection.request':
-                return sprintf('%s {more} sent you a connection request', $d['source']);
+                return sprintf('%s{more} sent you a connection request', $d['source']);
             case 'connection.accept':
                 return sprintf('You are now connected with %s', $d['source']);
             case 'user.follow':
                 return sprintf( $d['contact_state'] === 0 ? '%s is following you' : 'You are now connected with %s', $d['source']);
             case 'message.send':
-                return sprintf('You have an unread message from <b>%s</b>%s {more}', $d['user'], $d['text']);
+                return sprintf('<b>%s</b>{more} sent you a message %s', $d['user'], $d['text']);
             case 'page.doc':
                 return sprintf('A new material : <b>%s</b> has been added in <b>%s</b>', $d['library_name'], $d['page_title']);
             case 'page.member':
@@ -137,6 +137,45 @@ class Event extends AbstractService
                 return sprintf('<b>%s</b> requested to join <b>%s</b>', $d['source'], $d['page_title']);
         }
     }
+
+
+        function getCTAText($event, $d){
+            switch($event){
+                case 'post.create':
+                    return "View post";
+                case 'post.com':
+                    return sprintf('View %s', $d['post_type']);
+                case 'post.like':
+                    return sprintf('View %s', $d['post_type']);
+                case 'post.tag':
+                    return sprintf('View %s', $d['post_type']);
+                case 'post.share':
+                    return "View post";
+                case 'item.publish':
+                    return "View item";
+                case 'section.publish':
+                    return "View item";
+                case 'item.update':
+                    return "View item";
+                case 'connection.request':
+                    return "View profile";
+                case 'connection.accept':
+                    return "View profile";
+                case 'user.follow':
+                    return "View profile";
+                case 'message.send':
+                    return "View message";
+                case 'page.doc':
+                    return "View material";
+                case 'page.member':
+                    return "View";
+                case 'page.invited':
+                    return "View";
+                case 'page.pending':
+                    return "View";
+            }
+        }
+
 
     function formatText($text, $user_id, $me, $target){
         $text = str_replace('{more}', '', $text);
@@ -236,7 +275,7 @@ class Event extends AbstractService
             ->setTargetId(isset($event_data['target']) ? $event_data['target'] : null)
             ->setPicture(isset($event_data['picture']) ? $event_data['picture'] : null)
             ->setDate($date)
-            ->setImportant($notify['mail']);
+            ->setAcademic($notify['mail']);
 
         $m_event->setText($this->getText($event, $text_data));
         $event_data['text'] = $m_event->getText();
@@ -422,15 +461,17 @@ class Event extends AbstractService
             $libelle = $organization->getLibelle() instanceof IsNull ? '' : $organization->getLibelle();
             $labels = [
                 'firstname' => $m_user->getFirstname(),
-                'img_folder' => sprintf('https://%s.%s',$libelle,$urlui),
+                'ui_url' => sprintf('https://%s.%s',$libelle,$urlui),
                 'current_year' => date("Y"),
                 'dates' => '',
                 'unsubscribe_link' => '',
+                'more_display' => 'none',
                 //MAIN NOTIFICATION
                 'ntf_display' => 'none',
                 'ntf_text' => '',
                 'ntf_link' => '',
                 'ntf_cta' => '',
+                'ntf_display_cta' => 'none',
                 //NTFS
                 'ntfs_display' => 'none',
                 //NTF1
@@ -438,56 +479,75 @@ class Event extends AbstractService
                 'ntf1_text' => '',
                 'ntf1_link' => '',
                 'ntf1_cta' => '',
+                'ntf1_display_cta' => 'none',
                 //NTF2
                 'ntf2_display' => 'none',
                 'ntf2_text' => '',
                 'ntf2_link' => '',
                 'ntf2_cta' => '',
+                'ntf2_display_cta' => 'none',
                 //NTF3
                 'ntf3_display' => 'none',
                 'ntf3_text' => '',
                 'ntf3_link' => '',
                 'ntf3_cta' => '',
+                'ntf3_display_cta' => 'none',
                 //NTF4
                 'ntf4_display' => 'none',
                 'ntf4_text' => '',
                 'ntf4_link' => '',
                 'ntf4_cta' => '',
+                'ntf4_display_cta' => 'none',
                 //NTF5
                 'ntf5_display' => 'none',
                 'ntf5_text' => '',
                 'ntf5_link' => '',
                 'ntf5_cta' => '',
+                'ntf5_display_cta' => 'none',
             ];
             $idx = 0;
-            $important = 0;
+            $academic = 0;
             $date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d\TH:i:s\Z');
             foreach($events as $event){
+                $data = json_decode($event['object']);
                 if($idx === 0){
-                    $labels['ntf_text'] = $event['text'];
-                    $labels['title'] = strip_tags(html_entity_decode($event['text']));
-                    $labels['ntf_link'] =  sprintf('https://%s.%s%s',$libelle, $urlui, $this->getLink($event['event'],json_decode($event['object'], true)));
-                    $labels['unsubscribe_link'] =  sprintf('https://%s.%s/unsubscribe/%s',$libelle, $urlui, md5($uid.$event['id'].$event['date'].$event['object']));
+                    if($event['academic'] === 1){
+                        $labels['ntf_text'] = $event['text'];
+                        $labels['ntf_display'] = 'block';
+                        $labels['ntf_cta'] = $this->getCTAText($event['event'], $data);
+                        $labels['ntf_display_cta'] = 'block';
+                        $labels['title'] = strip_tags(html_entity_decode($event['text']));
+                        $labels['ntf_link'] =  sprintf('https://%s.%s%s',$libelle, $urlui, $this->getLink($event['event'],json_decode($event['object'], true)));
+                        $labels['unsubscribe_link'] =  sprintf('https://%s.%s/unsubscribe/%s',$libelle, $urlui, md5($uid.$event['id'].$event['date'].$event['object']));
+                        $academic = 1;
+                    }
                     $idx++;
-                    $important = $event['important'];
                 }
-                else if($idx < 6){
+                if($idx < 6 && $event['academic'] === 0){
                       $labels['ntfs_display'] = 'block';
-                      if($idx === 1){
+                      if(empty($labels['dates'])){
                           $labels['dates'] = $event['date'];
+                      }
+                      if(empty($labels['title'])){
+                         $labels['title'] = strip_tags(html_entity_decode($event['text']));
                       }
                       $last_date = $event['date'];
                       $labels['ntf'.$idx.'_display'] = 'block';
+                      $labels['ntf'.$idx.'_cta'] = $this->getCTAText($event['event'], $data);
+                      $labels['ntf'.$idx.'_display_cta'] = 'block';
                       $labels['ntf'.$idx.'_text'] = $event['text'];
                       $labels['ntf'.$idx.'_link'] =  sprintf('https://%s.%s%s',$libelle, $urlui, $this->getLink($event['event'],json_decode($event['object'], true)));
                       $idx++;
                 }
+                else{
+                    $labels['more_display'] = 'block';
+                }
             }
             if($last_date !== $labels['dates']){
-                $labels['date'] = $labels['date'].' - '.$last_date;
+                $labels['dates'] = $last_date.' - '.$labels['dates'];
             }
-            if(($important === 0 && $m_user->getHasSocialNotifier() === 1) ||
-               ($important === 1 && $m_user->getHasAcademicNotifier() === 1)){
+            if(($academic === 0 && $m_user->getHasSocialNotifier() === 1) ||
+               ($academic === 1 && $m_user->getHasAcademicNotifier() === 1)){
                 $mails[$m_user->getEmail()] = $labels;
                 $this->getServiceActivity()->_add($date, 'mail', ['name' =>'received', 'data' => $labels ], null, $uid);
             }
