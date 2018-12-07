@@ -124,7 +124,7 @@ class PostSubscription extends AbstractService
             'content' => $post_data['content']
         ];
 
-        $this->getServiceEvent()->create($post_data['type'], $action, 'POST'.$action.$post_id, $libelle, $data, $labels, $notify );
+        $this->getServiceEvent()->create($post_data['type'], $action, null, $libelle, $data, $labels, $notify );
 
         return true;
     }
