@@ -140,25 +140,17 @@ class Event extends AbstractService
         function getCTAText($event, $d){
             switch($event){
                 case 'post.create':
-                    return "View post";
                 case 'post.com':
-                    return sprintf('View %s', $d['post_type']);
                 case 'post.like':
-                    return sprintf('View %s', $d['post_type']);
                 case 'post.tag':
-                    return sprintf('View %s', $d['post_type']);
                 case 'post.share':
                     return "View post";
                 case 'item.publish':
-                    return "View item";
                 case 'section.publish':
-                    return "View item";
                 case 'item.update':
                     return "View item";
                 case 'connection.request':
-                    return "View profile";
                 case 'connection.accept':
-                    return "View profile";
                 case 'user.follow':
                     return "View profile";
                 case 'message.send':
@@ -166,9 +158,7 @@ class Event extends AbstractService
                 case 'page.doc':
                     return "View material";
                 case 'page.member':
-                    return "View";
                 case 'page.invited':
-                    return "View";
                 case 'page.pending':
                     return "View";
             }
@@ -507,12 +497,11 @@ class Event extends AbstractService
             $academic = 0;
             $date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d\TH:i:s\Z');
             foreach($events as $event){
-                $data = json_decode($event['object']);
                 if($idx === 0){
                     if($event['academic'] === 1){
                         $labels['ntf_text'] = $event['text'];
                         $labels['ntf_display'] = 'block';
-                        $labels['ntf_cta'] = $this->getCTAText($event['event'], $data);
+                        $labels['ntf_cta'] = $this->getCTAText($event['event']);
                         $labels['ntf_display_cta'] = 'block';
                         $labels['title'] = strip_tags(html_entity_decode($event['text']));
                         $labels['ntf_link'] =  sprintf('https://%s.%s%s',$libelle, $urlui, $this->getLink($event['event'],json_decode($event['object'], true)));
