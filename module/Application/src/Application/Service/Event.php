@@ -520,7 +520,7 @@ class Event extends AbstractService
                       }
                       $last_date = $event['date'];
                       $labels['ntf'.$idx.'_display'] = 'block';
-                      $labels['ntf'.$idx.'_cta'] = $this->getCTAText($event['event'], $data);
+                      $labels['ntf'.$idx.'_cta'] = $this->getCTAText($event['event']);
                       $labels['ntf'.$idx.'_display_cta'] = 'block';
                       $labels['ntf'.$idx.'_text'] = $event['text'];
                       $labels['ntf'.$idx.'_link'] =  sprintf('https://%s.%s%s',$libelle, $urlui, $this->getLink($event['event'],json_decode($event['object'], true)));
