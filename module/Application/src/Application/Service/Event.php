@@ -137,7 +137,7 @@ class Event extends AbstractService
     }
 
 
-        function getCTAText($event, $d){
+        function getCTAText($event){
             switch($event){
                 case 'post.create':
                 case 'post.com':
