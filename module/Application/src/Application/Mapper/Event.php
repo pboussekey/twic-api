@@ -126,7 +126,7 @@ class Event extends AbstractMapper
             'event$id' => new Expression('MAX(event.id)')
         ])
         ->join('event_user', 'event_user.event_id = event.id', ['event$user_id' => 'user_id'])
-        ->join(['last' => 'event'], new Expression('last.id = ? AND last.id <> event.id AND last.event = event.event',$event_id ), [])
+        ->join(['last' => 'event'], new Expression('last.id = ? AND last.user_id <> event.user_id AND last.id <> event.id AND last.event = event.event',$event_id ), [])
         ->where(['event_user.user_id' => $user_id])
         ->group(['event_user.user_id']);
 
