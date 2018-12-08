@@ -538,6 +538,7 @@ class Page extends AbstractService
                       $sub[] = 'M'.$m_user->getId();
                 }
                 $this->getServiceEvent()->create('page', 'member',
+                        null,
                         $sub,   [
                         'state' => 'member',
                         'page'  => $id,

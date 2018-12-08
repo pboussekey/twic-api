@@ -90,6 +90,10 @@ class PostSubscription extends AbstractService
 
         $target = null;
         $picture = null;
+        $uid = 'post.'.$action.'.'.$post_id;
+        $data['target'] = $post_data['parent']['user']['id'];
+        $data['picture'] = !empty($post_data['page']['id']) ? $post_data['page']['logo'] : $post_data['user']['avatar'];
+
         switch($action){
             case 'like':
               $data['target'] = $post_data['user']['id'];
@@ -106,9 +110,8 @@ class PostSubscription extends AbstractService
                 $data['target'] = $data['contact'];
                 $data['picture'] = !($m_user->getAvatar() instanceof IsNull)? $m_user->getAvatar() : null;
             break;
-            default:
-                $data['target'] = $post_data['parent']['user']['id'];
-                $data['picture'] = !empty($post_data['page']['id']) ? $post_data['page']['logo'] : $post_data['user']['avatar'];
+            case 'com':
+                $uid = 'post.'.$action.'.'.$data['parent_id'];
             break;
         }
 
@@ -124,7 +127,7 @@ class PostSubscription extends AbstractService
             'content' => $post_data['content']
         ];
 
-        $this->getServiceEvent()->create($post_data['type'], $action, $libelle, $data, $labels, $notify );
+        $this->getServiceEvent()->create($post_data['type'], $action, $uid, $libelle, $data, $labels, $notify );
 
         return true;
     }

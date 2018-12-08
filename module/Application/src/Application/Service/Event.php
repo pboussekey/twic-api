@@ -112,13 +112,13 @@ class Event extends AbstractService
             case 'post.tag':
                 return sprintf('%s mentionned you in a %s %s%s', $d['post_source'], $d['post_type'], $d['target_page'], $d['content']);
             case 'post.share':
-                return sprintf('%s {more} shared %s post %s%s', $d['post_source'], $d['parent_source'], $d['target_page'], $d['content']);
+                return sprintf('%s{more} shared %s post %s%s', $d['post_source'], $d['parent_source'], $d['target_page'], $d['content']);
             case 'item.publish':
                 return sprintf('A new %s <b>%s</b> has been published in <b>%s</b>', $d['itemtype'], $d['itemtitle'],$d['pagetitle']);
             case 'section.publish':
                 return sprintf('A new %s <b>%s</b> has been published in <b>%s</b>', $d['itemtype'], $d['itemtitle'], $d['pagetitle']);
             case 'item.update':
-                return sprintf('%s <b>%s</b> has been updated in <b>%s</b>', $d['itemtype'],$d['itemtitle'], $d['pagetitle']);
+                return sprintf('The %s <b>%s</b> has been updated in <b>%s</b>', $d['itemtype'],$d['itemtitle'], $d['pagetitle']);
             case 'connection.request':
                 return sprintf('%s{more} sent you a connection request', $d['source']);
             case 'connection.accept':
@@ -128,9 +128,9 @@ class Event extends AbstractService
             case 'message.send':
                 return sprintf('<b>%s</b>{more} sent you a message %s', $d['user'], $d['text']);
             case 'page.doc':
-                return sprintf('A new material : <b>%s</b> has been added in <b>%s</b>', $d['library_name'], $d['page_title']);
+                return sprintf('A new material : <b>%s</b> has been added in the course page <b>%s</b>', $d['library_name'], $d['page_title']);
             case 'page.member':
-                return sprintf('You are enrolled in <b>%s</b>',  $d['page_title']);
+                return sprintf('You are enrolled in a new course <b>%s</b>',  $d['page_title']);
             case 'page.invited':
                 return sprintf('You are invited to join <b>%s</b>', $d['page_title']);
             case 'page.pending':
