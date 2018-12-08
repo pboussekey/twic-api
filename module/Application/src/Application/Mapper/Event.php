@@ -111,7 +111,8 @@ class Event extends AbstractMapper
         ])
         ->join(['events' => $events_select], 'event.id = events.id', ['event$user_id' => 'user_id', 'event$count' => 'count', 'event$academic' => 'academic'])
         ->join(['target' => 'user'], 'event.target_id = target.id', [], $select::JOIN_LEFT)
-        ->join(['previous' => 'event'],  new Expression('event.previous_id = previous.id AND previous.user_id <> events.user_id'), [], $select::JOIN_LEFT)
+        ->join('event_user', 'event.id = event_user.event_id AND events.user_id = event_user.user_id', [])
+        ->join(['previous' => 'event'],  new Expression('event_user.previous_id = previous.id AND previous.user_id <> events.user_id'), [], $select::JOIN_LEFT)
         ->join(['previous_user' => 'user'], 'previous.user_id = previous_user.id', [], $select::JOIN_LEFT)
         ->order(['events.user_id DESC', 'events.academic DESC', 'event.id DESC']);
 
