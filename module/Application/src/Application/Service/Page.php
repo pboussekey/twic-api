@@ -291,7 +291,7 @@ class Page extends AbstractService
             $this->getServicePageDoc()->_add($id, $docs);
         }
 
-      
+
 
         return $id;
     }
@@ -538,7 +538,6 @@ class Page extends AbstractService
                       $sub[] = 'M'.$m_user->getId();
                 }
                 $this->getServiceEvent()->create('page', 'member',
-                        'PGUSR'.$id,
                         $sub,   [
                         'state' => 'member',
                         'page'  => $id,

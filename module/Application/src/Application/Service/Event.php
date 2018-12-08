@@ -41,9 +41,11 @@ class Event extends AbstractService
      *
      * @return array get users sended
      */
-    public function sendData($data, $type, $libelle, $source = null, $object = null, $date = null)
+    public function sendData($data, $type, $libelle = null, $source = null, $object = null, $date = null, $users = null)
     {
-        $users = $this->getServiceSubscription()->getListUserId($libelle);
+        if(null === $users){
+            $users = $this->getServiceSubscription()->getListUserId($libelle);
+        }
         $rep = false;
         if (count($users) > 0) {
             try {
@@ -219,8 +221,14 @@ class Event extends AbstractService
         }
     }
 
-    function getLast($uid, $user_id){
-        return $this->getMapper()->getLast($uid, $user_id)->current();
+    function getLast($event, $user_id){
+        $res_event = $this->getMapper()->getLast($event, $user_id);
+        $lasts = [];
+        foreach($res_event as $m_event){
+            $lasts[$m_event->getUserId()] = $m_event->getId();
+        }
+
+        return $lasts;
     }
 
     /**
@@ -237,7 +245,7 @@ class Event extends AbstractService
      *
      * @return int
      */
-    public function create($type, $action, $uid,  $libelle, $event_data, $text_data, $notify = null)
+    public function create($type, $action, $libelle, $event_data, $text_data, $notify = null)
     {
         if(null === $notify){
             $notify = ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => false];
@@ -249,17 +257,12 @@ class Event extends AbstractService
         $date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
 
         $user_id = $this->getServiceUser()->getIdentity()['id'];
-        $m_previous = false;
-        if(null !== $uid){
-            $m_previous = $this->getLast($uid, $user_id);
-        }
+
         $source = $this->getDataUser($user_id);
         $m_event = $this->getModel()
             ->setUserId($user_id)
             ->setEvent($event)
             ->setSource(json_encode($source))
-            ->setUid($uid)
-            ->setPreviousId(false !== $m_previous ? $m_previous->getId() : null)
             ->setObject(json_encode($event_data))
             ->setTarget(self::TARGET_TYPE_USER)
             ->setTargetId(isset($event_data['target']) ? $event_data['target'] : null)
@@ -267,6 +270,8 @@ class Event extends AbstractService
             ->setDate($date)
             ->setAcademic($notify['mail']);
 
+        $users = $this->getServiceSubscription()->getListUserId($libelle);
+        $previous = $this->getLast($event, $users);
         $m_event->setText($this->getText($event, $text_data));
         $event_data['text'] = $m_event->getText();
         if ($this->getMapper()->insert($m_event) <= 0) {
@@ -276,14 +281,14 @@ class Event extends AbstractService
         $event_id = $this->getMapper()->getLastInsertValue();
         $this->getServiceEventSubscription()->add($libelle, $event_id);
         if(null !== $m_event->getText()){
-            $users = $this->sendData(null, $event, $libelle, $source,  $event_data, (new \DateTime($date))->format('Y-m-d\TH:i:s\Z'));
+            $users = $this->sendData(null, $event, null, $source,  $event_data, (new \DateTime($date))->format('Y-m-d\TH:i:s\Z'), $users);
             if (($idx = array_search($user_id, $users)) !== false) {
                 unset($users[$idx]);
             }
             $users = array_values($users);
             if (count($users) > 0) {
-                foreach ($users as $uid) {
-                    $this->getServiceEventUser()->add($event_id, $uid, $source, $event_data);
+                foreach($users as $uid){
+                    $this->getServiceEventUser()->add($event_id, $uid, isset($previous[$uid]) ? $previous[$uid] : null);
                 }
                 if(false !== $notify['fcm']){
                     $this->sendFcmNotifications($users, $event, $m_event->getText(), $m_event->getTargetId(), $notify['fcm']);
@@ -541,6 +546,7 @@ class Event extends AbstractService
                 $this->getServiceActivity()->_add($date, 'mail', ['name' =>'received', 'data' => $labels ], null, $uid);
             }
         }
+        syslog(1, "OK");
 
         $this->getServiceMail()->sendMultiTpl('tpl_newactivity', $mails);
 
