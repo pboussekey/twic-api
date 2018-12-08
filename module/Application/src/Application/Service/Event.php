@@ -525,6 +525,9 @@ class Event extends AbstractService
                       if(empty($labels['title'])){
                          $labels['title'] = strip_tags(html_entity_decode($event['text']));
                       }
+                      if(empty($labels['unsubscribe_link'])){
+                          $labels['unsubscribe_link'] =  sprintf('https://%s.%s/unsubscribe/%s',$libelle, $urlui, md5($uid.$event['id'].$event['date'].$event['object']));
+                      }
                       $last_date = $event['date'];
                       $labels['ntf'.$idx.'_display'] = 'block';
                       $labels['ntf'.$idx.'_cta'] = $this->getCTAText($event['event']);
@@ -546,7 +549,6 @@ class Event extends AbstractService
                 $this->getServiceActivity()->_add($date, 'mail', ['name' =>'received', 'data' => $labels ], null, $uid);
             }
         }
-        syslog(1, "OK");
 
         $this->getServiceMail()->sendMultiTpl('tpl_newactivity', $mails);
 

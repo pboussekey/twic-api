@@ -91,7 +91,6 @@ class Mail
             ->setBodyTpl($name, $data)
             ->setTo($email);
             $this->getTransport()->send($message);
-            syslog(1, $email.' => '.json_encode($data));
         }
         return true;
     }
