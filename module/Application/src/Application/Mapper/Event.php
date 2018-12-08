@@ -103,7 +103,7 @@ class Event extends AbstractMapper
                                 '</b>\'s')
                     END), '{more}',
                     CASE
-                        WHEN events.count = 2 AND previous_user.id IS NOT NULL THEN CONCAT('and <b>', previous_user.firstname, ' ', previous_user.lastname, '</b>')
+                        WHEN events.count = 2 AND previous_user.id IS NOT NULL THEN CONCAT(' and <b>', previous_user.firstname, ' ', previous_user.lastname, '</b>')
                         WHEN events.count > 2 THEN CONCAT(' and ', events.count - 1,' others')  ELSE '' END)
               "),
               'picture',
