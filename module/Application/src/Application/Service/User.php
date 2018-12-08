@@ -1071,7 +1071,7 @@ class User extends AbstractService
         return (is_array($apikey)) ? $res_user : $res_user->current();
     }
 
-  
+
     /**
      *
      * @param string $sso_uid

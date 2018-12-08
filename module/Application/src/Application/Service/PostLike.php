@@ -66,8 +66,7 @@ class PostLike extends AbstractService
             $sub_post = array_merge(
                 $sub_post,
                 [
-                'P'.$this->getServicePost()->getOwner($m_post),
-                'P'.$this->getUserLike($m_post_like),
+                'P'.$this->getServicePost()->getOwner($m_post)
                 ]
             );
 
