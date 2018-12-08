@@ -41,11 +41,9 @@ class Event extends AbstractService
      *
      * @return array get users sended
      */
-    public function sendData($data, $type, $libelle = null, $source = null, $object = null, $date = null, $users = null)
+    public function sendData($data, $type, $libelle, $source = null, $object = null, $date = null)
     {
-        if(null === $users){
-            $users = $this->getServiceSubscription()->getListUserId($libelle);
-        }
+        $users = $this->getServiceSubscription()->getListUserId($libelle);
         $rep = false;
         if (count($users) > 0) {
             try {
@@ -277,11 +275,11 @@ class Event extends AbstractService
         $event_id = $this->getMapper()->getLastInsertValue();
         $this->getServiceEventSubscription()->add($libelle, $event_id);
         if(null !== $m_event->getText()){
-            $users = $this->sendData(null, $event, null, $source,  $event_data, (new \DateTime($date))->format('Y-m-d\TH:i:s\Z'), $users);
+            $users = $this->sendData(null, $event, $libelle, $source,  $event_data, (new \DateTime($date))->format('Y-m-d\TH:i:s\Z'));
             if (($idx = array_search($user_id, $users)) !== false) {
                 unset($users[$idx]);
+                $users = array_values($users);
             }
-            $users = array_values($users);
             if (count($users) > 0) {
                 $this->getServiceEventUser()->add($event_id, $users);
                 if(false !== $notify['fcm']){

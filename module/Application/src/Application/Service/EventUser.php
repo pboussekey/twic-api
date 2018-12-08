@@ -24,21 +24,19 @@ class EventUser extends AbstractService
               $user_id = [$user_id];
           }
           $last = [];
-          $previous = $this->getServiceEvent()->getLast($event_id, $users);
-          foreach($previous as $m_event){
-            $last[$m_event->getUserId()] = $m_event->getId();
-          }
+          $previous = $this->getServiceEvent()->getLast($event_id, $user_id);
           $ret = 0;
           foreach($user_id as $uid){
               $m_event_user = $this->getModel()
-                  ->setUserId($user_id)
-                  ->setEventId($event_id)
-                  ->setPreviousId(isset($last[$uid]) ? $last[$uid] : null);
-
+                  ->setUserId($uid)
+                  ->setEventId($event_id);
+              if(isset($previous[$uid])){
+                  $m_event_user->setPreviousId($previous[$uid]);
+              }
               $ret += $this->getMapper()->insert($m_event_user);
           }
 
-          retur $ret;
+          return $ret;
 
     }
 
