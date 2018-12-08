@@ -95,7 +95,7 @@ class Event extends AbstractMapper
                     '{user}',
                     CASE event.target_id
                         WHEN events.user_id THEN 'your'
-                        WHEN event.user_id THEN 'their'
+                        WHEN event.user_id AND previous_user.id IS NULL THEN 'their'
                         ELSE CONCAT('<b>',
                                 COALESCE(target.firstname,''),
                                 ' ',
@@ -119,14 +119,14 @@ class Event extends AbstractMapper
         return $this->selectWith($select);
     }
 
-    public function getLast($event, $user_id)
+    public function getLast($event_id, $user_id)
     {
         $select  = $this->tableGateway->getSql()->select();
         $select->columns([
             'event$id' => new Expression('MAX(event.id)')
         ])
         ->join('event_user', 'event_user.event_id = event.id', ['event$user_id' => 'user_id'])
-        ->where(['event.event' => $event])
+        ->join(['last' => 'event'], new Expression('last.id = ? AND last.id <> event.id AND last.event = event.event'))
         ->where(['event_user.user_id' => $user_id])
         ->group(['event_user.user_id']);
 

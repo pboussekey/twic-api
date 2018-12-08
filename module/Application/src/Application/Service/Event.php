@@ -270,8 +270,6 @@ class Event extends AbstractService
             ->setDate($date)
             ->setAcademic($notify['mail']);
 
-        $users = $this->getServiceSubscription()->getListUserId($libelle);
-        $previous = $this->getLast($event, $users);
         $m_event->setText($this->getText($event, $text_data));
         $event_data['text'] = $m_event->getText();
         if ($this->getMapper()->insert($m_event) <= 0) {
@@ -287,9 +285,7 @@ class Event extends AbstractService
             }
             $users = array_values($users);
             if (count($users) > 0) {
-                foreach($users as $uid){
-                    $this->getServiceEventUser()->add($event_id, $uid, isset($previous[$uid]) ? $previous[$uid] : null);
-                }
+                $this->getServiceEventUser()->add($event_id, $users);
                 if(false !== $notify['fcm']){
                     $this->sendFcmNotifications($users, $event, $m_event->getText(), $m_event->getTargetId(), $notify['fcm']);
                 }
