@@ -56,6 +56,3 @@ ADD CONSTRAINT `fk_event_3`
     REFERENCES `event` (`id`)
     ON DELETE CASCADE
     ON UPDATE NO ACTION;
-
-ALTER TABLE `user`
-ADD COLUMN  `email_delay` INT(11) NULL DEFAULT NULL;

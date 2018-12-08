@@ -618,7 +618,7 @@ class Item extends AbstractService
                     }
                     if(count($res_children) > 0){
                         $this->getServiceEvent()->create(
-                            'section', 'publish', 'ITMUPD'.$m_item->getId(),
+                            'section', 'publish', null,
                             ["PP".$page_id],
                             [
                                 'page'    => $page_id,
@@ -641,7 +641,7 @@ class Item extends AbstractService
 
 
                 $this->getServiceEvent()->create(
-                    'item', 'publish','ITMUPD'.$m_item->getId(),
+                    'item', 'publish', null,
                     ["PP".$page_id],
                     [
                         'item' => $id,
@@ -771,7 +771,7 @@ class Item extends AbstractService
                 $ar_pages = [];
                 $m_item = $this->getLite($id)->current();
                 $this->getServiceEvent()->create(
-                    'item', 'update', 'ITMUPD'.$m_item->getId(),
+                    'item', 'update', null,
                     ["PP".$m_page->getId()],
                     [
                         'item' => $id,

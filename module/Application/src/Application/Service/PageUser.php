@@ -102,7 +102,7 @@ class PageUser extends AbstractService
                 }
 
                 $this->getServiceEvent()->create('page', 'pending',
-                     'PGUSR'.$page_id,
+                     null,
                       $sub,
                       [
                           'state' => 'pending',
@@ -120,7 +120,7 @@ class PageUser extends AbstractService
             if ($state === ModelPageUser::STATE_INVITED && ModelPage::TYPE_ORGANIZATION !== $m_page->getType()) {
 
                 $this->getServiceEvent()->create('page', 'invited',
-                     'PGUSR'.$page_id,
+                     null,
                       ['M'.$uid],
                       [
                         'state' => 'invited',
@@ -150,7 +150,7 @@ class PageUser extends AbstractService
 
 
                     $this->getServiceEvent()->create('page', 'member',
-                         'PGUSR'.$page_id,
+                         null,
                           ['M'.$uid],   [
                             'state' => 'member',
                             'user'  => $uid,
@@ -207,7 +207,7 @@ class PageUser extends AbstractService
                 }
 
                 $this->getServiceEvent()->sendData($page_id, 'page.member', ['M'.$user_id]);
-              
+
             }
         }
         /*

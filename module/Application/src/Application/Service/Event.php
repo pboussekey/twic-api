@@ -112,7 +112,7 @@ class Event extends AbstractService
             case 'post.tag':
                 return sprintf('%s mentionned you in a %s %s%s', $d['post_source'], $d['post_type'], $d['target_page'], $d['content']);
             case 'post.share':
-                return sprintf('%s {more} shared %s post %s%s', $d['post_source'], $d['parent_source'], $d['target_page'], $d['content']);
+                return sprintf('%s{more} shared %s post %s%s', $d['post_source'], $d['parent_source'], $d['target_page'], $d['content']);
             case 'item.publish':
                 return sprintf('A new %s <b>%s</b> has been published in <b>%s</b>', $d['itemtype'], $d['itemtitle'],$d['pagetitle']);
             case 'section.publish':
