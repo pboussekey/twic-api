@@ -13,23 +13,20 @@ class EventUser extends AbstractService
      * Get events list for current user.
      *
      * @param array|int $event_id
+     * @param int $user_id
+     * @param int $previous_id
      *
      *
      * @return array
      */
-    public function add($event_id, $user_id, $source = null, $data = null){
+    public function add($event_id, $user_id, $previous_id = null){
 
         $m_event_user = $this->getModel()
             ->setUserId($user_id)
-            ->setEventId($event_id);
+            ->setEventId($event_id)
+            ->setPreviousId($previous_id);
 
-        $res_event_user = $this->getMapper()->select($m_event_user);
-        if($res_event_user->count() === 0){
-            $this->getMapper()->insert($m_event_user);
-            return $m_event_user;
-        }
-
-        return false;
+        return $this->getMapper()->insert($m_event_user);
     }
 
     /**
