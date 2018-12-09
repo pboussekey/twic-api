@@ -526,11 +526,11 @@ class Event extends AbstractService
                       $labels['ntf'.$idx.'_link'] =  sprintf('https://%s.%s%s',$libelle, $urlui, $this->getLink($event['event'],json_decode($event['object'], true)));
                       $idx++;
                 }
-                else{
+                else if($event['academic'] === 0){
                     $labels['more_display'] = 'block';
                 }
             }
-            if($last_date !== $labels['dates']){
+            if(isset($last_date) && $last_date !== $labels['dates']){
                 $labels['dates'] = $last_date.' - '.$labels['dates'];
             }
             if(($academic === 0 && $m_user->getHasSocialNotifier() === 1) ||
