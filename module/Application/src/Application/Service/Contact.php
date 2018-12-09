@@ -120,7 +120,7 @@ class Contact extends AbstractService
             $m_contact->setRequestDate($date);
             $ret = $this->getMapper()->insert($m_contact);
             $m_user = $this->getServiceUser()->getLite($user);
-            $this->getServiceEvent()->create('user', 'follow',
+            $this->getServiceEvent()->create('user', 'follow', null,
                   ['M'.$user],
                   [
                     'state' => 'follow', 'user' => $user_id,'contact' => $user,
@@ -143,20 +143,6 @@ class Contact extends AbstractService
         $this->getServiceSubscription()->add('PU'.$user, $user_id);
         return $ret;
 
-        $this->getServiceEvent()->create('connection', 'accept', null,
-              ['M'.$user, 'M'.$user_id],
-              [
-                'state' => 'accept',
-                'user' => $user_id,
-                'contact' => $user,
-                'picture' => !empty($identity['avatar']) ? $identity['avatar'] : null,
-                'target' => $user
-              ],
-              [
-                'source' => $identity['firstname'].' '.$identity['lastname']
-              ],   ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => false] );
-
-        return true;
     }
 
 
