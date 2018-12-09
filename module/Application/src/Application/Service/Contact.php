@@ -119,7 +119,7 @@ class Contact extends AbstractService
         if ($res_contact->count() === 0) {
             $m_contact->setRequestDate($date);
             $ret = $this->getMapper()->insert($m_contact);
-            $m_user = $this->getServiceUser()->getLite($user);
+            $state = $this->getMapper()->select($this->getModel()->setUserId($user)->setContactId($identity['id']))->count() === 0 ? 'follower' : 'connected';
             $this->getServiceEvent()->create('user', 'follow', null,
                   ['M'.$user],
                   [
@@ -129,7 +129,7 @@ class Contact extends AbstractService
                   ],
                   [
                     'source' => $identity['firstname'].' '.$identity['lastname'],
-                    'contact_state' => $m_user->getContactState()
+                    'contact_state' => $state
                   ],   ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => false] );
 
         }

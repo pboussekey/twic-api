@@ -13,31 +13,23 @@ class EventUser extends AbstractService
      * Get events list for current user.
      *
      * @param array|int $event_id
-     * @param array|int $user_id
      *
      *
      * @return array
      */
-    public function add($event_id, $user_id){
+    public function add($event_id, $user_id, $source = null, $data = null){
 
-          if(!is_array($user_id)){
-              $user_id = [$user_id];
-          }
-          $last = [];
-          $previous = $this->getServiceEvent()->getLast($event_id, $user_id);
-          $ret = 0;
-          foreach($user_id as $uid){
-              $m_event_user = $this->getModel()
-                  ->setUserId($uid)
-                  ->setEventId($event_id);
-              if(isset($previous[$uid])){
-                  $m_event_user->setPreviousId($previous[$uid]);
-              }
-              $ret += $this->getMapper()->insert($m_event_user);
-          }
+        $m_event_user = $this->getModel()
+            ->setUserId($user_id)
+            ->setEventId($event_id);
 
-          return $ret;
+        $res_event_user = $this->getMapper()->select($m_event_user);
+        if($res_event_user->count() === 0){
+            $this->getMapper()->insert($m_event_user);
+            return $m_event_user;
+        }
 
+        return false;
     }
 
     /**
@@ -84,15 +76,5 @@ class EventUser extends AbstractService
     private function getServiceUser()
     {
         return $this->container->get('app_service_user');
-    }
-
-    /**
-     * Get Service Event.
-     *
-     * @return \Application\Service\Event
-     */
-    private function getServiceEvent()
-    {
-        return $this->container->get('app_service_event');
     }
 }

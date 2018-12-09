@@ -124,7 +124,7 @@ class Event extends AbstractService
             case 'connection.accept':
                 return sprintf('You are now connected with %s', $d['source']);
             case 'user.follow':
-                return sprintf( $d['contact_state'] === 0 ? '%s is following you' : 'You are now connected with %s', $d['source']);
+                return sprintf($d['contact_state'] === 'follower' ? '%s{more} is following you' : 'You are now connected with %s', $d['source']);
             case 'message.send':
                 return sprintf('<b>%s</b>{more} sent you a message %s', $d['user'], $d['text']);
             case 'page.doc':
@@ -219,14 +219,8 @@ class Event extends AbstractService
         }
     }
 
-    function getLast($event, $user_id){
-        $res_event = $this->getMapper()->getLast($event, $user_id);
-        $lasts = [];
-        foreach($res_event as $m_event){
-            $lasts[$m_event->getUserId()] = $m_event->getId();
-        }
-
-        return $lasts;
+    function getLast($uid, $user_id){
+        return $this->getMapper()->getLast($uid, $user_id)->current();
     }
 
     /**
@@ -243,7 +237,7 @@ class Event extends AbstractService
      *
      * @return int
      */
-    public function create($type, $action, $libelle, $event_data, $text_data, $notify = null)
+    public function create($type, $action, $uid,  $libelle, $event_data, $text_data, $notify = null)
     {
         if(null === $notify){
             $notify = ['fcm' => Fcm::PACKAGE_TWIC_APP, 'mail' => false];
@@ -255,12 +249,17 @@ class Event extends AbstractService
         $date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
 
         $user_id = $this->getServiceUser()->getIdentity()['id'];
-
+        $m_previous = false;
+        if(null !== $uid){
+            $m_previous = $this->getLast($uid, $user_id);
+        }
         $source = $this->getDataUser($user_id);
         $m_event = $this->getModel()
             ->setUserId($user_id)
             ->setEvent($event)
             ->setSource(json_encode($source))
+            ->setUid($uid)
+            ->setPreviousId(false !== $m_previous ? $m_previous->getId() : null)
             ->setObject(json_encode($event_data))
             ->setTarget(self::TARGET_TYPE_USER)
             ->setTargetId(isset($event_data['target']) ? $event_data['target'] : null)
@@ -277,13 +276,15 @@ class Event extends AbstractService
         $event_id = $this->getMapper()->getLastInsertValue();
         $this->getServiceEventSubscription()->add($libelle, $event_id);
         if(null !== $m_event->getText()){
-            $users = $this->sendData(null, $event, $libelle, $source,  $event_data, (new \DateTime($date))->format('Y-m-d\TH:i:s\Z'));
+            $users = $this->sendData($event_data, $event, $libelle, $source,  null, (new \DateTime($date))->format('Y-m-d\TH:i:s\Z'));
             if (($idx = array_search($user_id, $users)) !== false) {
                 unset($users[$idx]);
-                $users = array_values($users);
             }
+            $users = array_values($users);
             if (count($users) > 0) {
-                $this->getServiceEventUser()->add($event_id, $users);
+                foreach ($users as $uid) {
+                    $this->getServiceEventUser()->add($event_id, $uid, $source, $event_data);
+                }
                 if(false !== $notify['fcm']){
                     $this->sendFcmNotifications($users, $event, $m_event->getText(), $m_event->getTargetId(), $notify['fcm']);
                 }
@@ -518,9 +519,6 @@ class Event extends AbstractService
                       }
                       if(empty($labels['title'])){
                          $labels['title'] = strip_tags(html_entity_decode($event['text']));
-                      }
-                      if(empty($labels['unsubscribe_link'])){
-                          $labels['unsubscribe_link'] =  sprintf('https://%s.%s/unsubscribe/%s',$libelle, $urlui, md5($uid.$event['id'].$event['date'].$event['object']));
                       }
                       $last_date = $event['date'];
                       $labels['ntf'.$idx.'_display'] = 'block';

@@ -10,7 +10,6 @@ class EventUser extends AbstractModel
 	protected $user_id;
 	protected $read_date;
 	protected $view_date;
-	protected $previous_id;
 
 	protected $prefix = 'event_user';
 
@@ -58,18 +57,6 @@ class EventUser extends AbstractModel
 	public function setViewDate($view_date)
 	{
 		$this->view_date = $view_date;
-
-		return $this;
-	}
-
-	public function getPreviousId()
-	{
-		return $this->previous_id;
-	}
-
-	public function setPreviousId($previous_id)
-	{
-		$this->previous_id = $previous_id;
 
 		return $this;
 	}
