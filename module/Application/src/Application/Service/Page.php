@@ -518,17 +518,6 @@ class Page extends AbstractService
 
         //@TODO voir ce bout de code avec CRO
         if ($is_published === true) {
-            $res_post = $this->getServicePost()->getListId(null, null, $id, null, true);
-            $date = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
-            foreach ($res_post as $m_post) {
-                $this->getServicePostSubscription()->add(
-                    'PP'.$id,
-                    $m_post->getId(),
-                    $date,
-                    'UPDATE',
-                    $owner_id
-                );
-            }
             if(!$tmp_m_page->getIsPublished() && $tmp_m_page->getType() == ModelPage::TYPE_COURSE) {
 
                 $ar_pages = [];

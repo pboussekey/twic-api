@@ -227,7 +227,7 @@ class Post extends AbstractService
             if($parent_id == null && null === $item_id && !$is_notif && $t_page_id != null && $this->getServicePage()->isAdmin($t_page_id)) {
                 $m_page = $this->getServicePage()->getLite($t_page_id);
                 if($m_page->getType() == ModelPage::TYPE_COURSE && $type === 'post' && $m_page->getIsPublished()) {
-                    $notify['mail'] = 0;
+                    $notify['mail'] = true;
                 }
                 else if($m_page->getType() == ModelPage::TYPE_COURSE && $type === 'post' && !$m_page->getIsPublished()){
                     $notify = false;
@@ -272,7 +272,7 @@ class Post extends AbstractService
                             (($base_id!==$id) ? $id:null),
                             $data,
                             $is_not_public_page,
-                            $notify !== false ? ['fcm' => $notify['fcm'], 'mail' => false ] : false
+                            $notify !== false ? ['fcm' => $notify['fcm'], 'mail' => 0 ] : false
                         );
                     }
                 }
