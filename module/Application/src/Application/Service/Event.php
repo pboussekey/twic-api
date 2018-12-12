@@ -228,7 +228,8 @@ class Event extends AbstractService
      *
      * @param  string $type    Event type
      * @param  string $action    Event action
-     * @param  array|string  $libelle Subscription to event
+     * @param  string $uid    Event uid (Used to group notifications)
+     * @param  array|string  $libelle Subscription of the event
      * @param  mixed $event_data    Event data
      * @param  mixed $text_data    Text data
      * @param  mixed  $notify medium used to notify ['fcm' => null/package => "Package to send for fcm", 'mail' => false/true => "Request instant email or not"]
@@ -320,6 +321,9 @@ class Event extends AbstractService
      * Get events list for current user.
      *
      * @param array $filter
+     * @param array $events
+     * @param bool $unread
+     * @param string $start_date ISO Format
      *
      * @invokable
      *

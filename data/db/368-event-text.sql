@@ -19,8 +19,8 @@ ALTER TABLE `event`
 ADD INDEX `fk_event_1_idx` (`target_id` ASC),
 ADD INDEX `fk_event_2_idx` (`user_id` ASC);
 
-ALTER TABLE user CHANGE has_email_notifier has_academic_notifier TINYINT(1);
-ALTER TABLE user CHANGE has_email_contact_request_notifier has_social_notifier TINYINT(1);
+ALTER TABLE user CHANGE has_email_notifier has_academic_notifier TINYINT(1) DEFAULT 1;
+ALTER TABLE user CHANGE has_email_contact_request_notifier has_social_notifier TINYINT(1) DEFAULT 1;
 
 
 INSERT IGNORE INTO `permission` (`libelle`) VALUES ('user.getSettings');

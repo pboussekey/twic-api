@@ -35,6 +35,7 @@ class Post extends AbstractService
      *
      * @param string $content
      * @param string $picture
+     * @param string $name_picture
      * @param string $link
      * @param string $link_title
      * @param string $link_desc
@@ -85,9 +86,9 @@ class Post extends AbstractService
      *
      *
      * @param string $content
-     * @param string $link
      * @param string $picture
      * @param string $name_picture
+     * @param string $link
      * @param string $link_title
      * @param string $link_desc
      * @param int    $parent_id
@@ -102,6 +103,8 @@ class Post extends AbstractService
      * @param string $uid
      * @param array  $sub
      * @param string $type
+     * @param int    $item_id
+     * @param int    $shared_id
      * @param array  $notify
      *
      * @return \Application\Model\Post
@@ -548,6 +551,7 @@ class Post extends AbstractService
      * @param int   $page_id
      * @param int   $parent_id
      * @param bool  $is_item
+     * @param string  $type
      */
     public function getListId($filter = null, $user_id = null, $page_id = null, $parent_id = null, $is_item = null, $type = null)
     {
@@ -661,6 +665,7 @@ class Post extends AbstractService
      *
      * @param  int $id
      * @param  int $uid
+     * @param  int $item_id
      * @return \Application\Model\Post
      */
     public function getLite($id = null, $uid = null, $item_id = null)
@@ -723,6 +728,9 @@ class Post extends AbstractService
      * @param int    $t_user_id
      * @param string $type
      * @param int    $page_id
+     * @param int    $item_id
+     * @param bool    $replace_sub
+     * @param array    $notify
      *
      * @return \Application\Model\Post
      */

@@ -36,7 +36,7 @@ class PageUser extends AbstractService
      * @param  string    $role
      * @param  string    $state
      * @param  string    $email
-     * @param  int       $is_pinned
+     * @param  bool       $is_pinned
      * @return int
      */
     public function add($page_id, $user_id, $role, $state, $email = null, $is_pinned = 0)
@@ -183,6 +183,7 @@ class PageUser extends AbstractService
      * @param  int    $user_id
      * @param  string $role
      * @param  string $state
+     * @param  bool $is_pinned
      * @return int
      */
     public function update($page_id, $user_id, $role = null, $state = null, $is_pinned = null)
@@ -317,9 +318,10 @@ class PageUser extends AbstractService
      * @param string    $role
      * @param string    $state
      * @param bool    $sent
-     * @param int       $is_pinned
+     * @param bool       $is_pinned
      * @param string    $search
      * @param array    $order
+     * @param bool    $alumni
      */
     public function getListByPage($page_id, $role = null, $state = null,
         $sent = null, $is_pinned = null, $search = null, $order = null, $alumni = null)

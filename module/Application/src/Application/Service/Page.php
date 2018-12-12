@@ -366,7 +366,8 @@ class Page extends AbstractService
      *
      * @invokable
      *
-     * @param $library_id
+     * @param int $library_id
+     * @param array $filter
      **/
     public function getListDocument($id, $filter = null)
     {
@@ -669,7 +670,8 @@ class Page extends AbstractService
      *
      * @invokable
      *
-     * @param  int $id
+     * @param  int|array $id
+     * @param  int $conversation_id
      * @return \Application\Model\Page
      */
     public function getLite($id = null, $conversation_id = null)
@@ -804,6 +806,9 @@ class Page extends AbstractService
      * @param string $search
      * @param array  $tags
      * @param int    $children_id
+     * @param bool   $is_member_admin
+     * @param array   $exclude
+     * @param bool   $is_published
      *
      * @throws \Exception
      * @return \Dal\Db\ResultSet\ResultSet
