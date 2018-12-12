@@ -222,9 +222,9 @@ class Contact extends AbstractService
      * @invokable
      *
      * @param int $user_id
-     * @param int $search
+     * @param string $search
      * @param int $exclude
-     * @param int $filter
+     * @param array $filter
      *
      * @return array
      */

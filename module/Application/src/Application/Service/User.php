@@ -451,6 +451,8 @@ class User extends AbstractService
      * @param string $timezone
      * @param string $background
      * @param string $nickname
+     * @param bool $suspend
+     * @param string $suspension_reason
      * @param bool   $ambassador
      * @param string $password
      * @param array  $address
@@ -941,7 +943,8 @@ class User extends AbstractService
      * @invokable
      *
      * @param array|int $id
-     * @param int       $page_id
+     * @param int $page_id
+     * @param bool $unsent
      */
     public function sendPassword($id = null, $page_id = null, $unsent = true)
     {
