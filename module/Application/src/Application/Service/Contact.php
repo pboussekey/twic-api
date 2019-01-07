@@ -258,7 +258,9 @@ class Contact extends AbstractService
      *
      * @invokable
      *
-     * @param int|array $user_id
+     * @param int $user_id
+     * @param string $search
+     * @param array $filters
      *
      * @return \Dal\Db\ResultSet\ResultSet
      */

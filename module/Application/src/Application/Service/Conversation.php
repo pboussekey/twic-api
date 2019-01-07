@@ -89,7 +89,7 @@ class Conversation extends AbstractService
                 $ar_uid = $this->getServiceConversationUser()->getListUserIdByConversation($cid);
             }
             $m_conversation->setUsers($ar_uid);
-            
+
             $m_page = $this->getServicePage()->getByConversationId($cid);
             if ($m_page) {
                 $role = $this->getServicePageUser()->getRole($m_page->getId());
@@ -113,10 +113,10 @@ class Conversation extends AbstractService
                           "askScreen"             => false,
                           "forceMute"             => false,
                           "forceUnpublish"        => false,
-                          "kick"                  => false 
+                          "kick"                  => false
                       ]
                     ]
-                );               
+                );
             } elseif ($m_conversation->getType() === ModelConversation::TYPE_LIVECLASS) {
                 $m_conversation->setOptions(
                     [
@@ -168,15 +168,15 @@ class Conversation extends AbstractService
         }
         foreach($res_conversation_user as $m_conversation_user){
             if($me !== $m_conversation_user->getUserId()){
-                $res[$m_conversation_user->getConversationId()][$m_conversation_user->getUserId()] = 
-                    $m_conversation_user->getLastMessage() instanceof IsNull ? 
-                        null : 
+                $res[$m_conversation_user->getConversationId()][$m_conversation_user->getUserId()] =
+                    $m_conversation_user->getLastMessage() instanceof IsNull ?
+                        null :
                         $m_conversation_user->getLastMessage();
             }
         }
-        return $res;        
+        return $res;
     }
-    
+
     /**
      * Get Conversation Unread
      *
@@ -196,7 +196,7 @@ class Conversation extends AbstractService
         foreach ($res_conversation as $m_conversation) {
             if ($m_conversation->getType() !==  ModelConversation::TYPE_CHANNEL && $m_conversation->getType() !==  ModelConversation::TYPE_LIVECLASS) {
                 $m_conversation->setUsers($this->getServiceConversationUser()->getListUserIdByConversation($m_conversation->getId()));
-            } 
+            }
         }
 
         $res_conversation->rewind();
@@ -257,12 +257,12 @@ class Conversation extends AbstractService
                 $page_id = $m_page->getId();
             }
         }
-        
+
         if(null !== $page_id) {
             $ar_pu = $this->getServicePageUser()->getListByPage($page_id, ModelPageUser::ROLE_ADMIN);
             $is_admin = (in_array($user_id, $ar_pu[$page_id]));
         }
-            
+
         return [
             'token' => $this->getServiceZOpenTok()->createToken($token, '{"id":' . $user_id . '}', ($is_admin ? OpenTokRole::MODERATOR: OpenTokRole::PUBLISHER)),
             'session' => $token,
@@ -292,6 +292,7 @@ class Conversation extends AbstractService
     /**
      * Get Conversation
      *
+     * @param int $id
      * @return \Application\Model\Conversation
      */
     public function getLite($id)
@@ -314,7 +315,7 @@ class Conversation extends AbstractService
     {
         return $this->getServiceConversationUser()->read($id);
     }
-    
+
      /**
       * Check If is in conversation.
       *
@@ -326,8 +327,8 @@ class Conversation extends AbstractService
     public function isInConversation($conversation_id, $user_id)
     {
         $m_conversation = $this->get($conversation_id);
-       
-        
+
+
 
         return in_array($user_id, $m_conversation->getUsers());
     }
@@ -391,7 +392,7 @@ class Conversation extends AbstractService
     {
         return $this->container->get('app_service_page');
     }
-    
+
     /**
      * Get Service Item
      *

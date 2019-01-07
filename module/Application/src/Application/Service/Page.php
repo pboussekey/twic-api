@@ -26,11 +26,12 @@ class Page extends AbstractService
      * Check if is admin of the page id
      *
      * @param int $id
+     * @param int $user_id
      * @return boolean
      */
     public function isAdmin($id, $user_id = null)
     {
-        if($this->getServiceUser()->isStudnetAdmin()){
+        if($this->getServiceUser()->isStudnetAdmin() && null === $user_id){
             return true;
         }
         $ar_pu = $this->getServicePageUser()->getListByPage($id, ModelPageUser::ROLE_ADMIN);
@@ -637,7 +638,7 @@ class Page extends AbstractService
      * @param string $type
      */
     public function get($id = null, $parent_id = null, $type = null)
-    {
+    {   
         if (null === $id && null === $parent_id) {
             throw new \Exception('Error: params is null');
         }
