@@ -396,7 +396,7 @@ class Event extends AbstractService
         $your_text = $text;
         $user_text = $text;
         $me = $this->getServiceUser()->getIdentity()['id'];
-        if(null !== $target_id && false !== strpos('{user}', $text)){
+        if(null !== $target_id && false !== strpos($text, '{user}')){
             $target = $this->getServiceUser()->getLite($target_id);
         }
         foreach ($users as $uid) {
