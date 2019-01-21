@@ -28,8 +28,10 @@ class Item extends AbstractMapper
 
         if ($is_admin_page !== true) {
             $select->where(['item.is_published IS TRUE']);
-	    $select->where(["( item.participants = 'all' || item_user.user_id = ? )" => $me]);
-	    $select->where(['page_user.user_id' => $me]);
+      	    $select->where(["( item.participants = 'all' || item_user.user_id = ? )" => $me]);
+      	    $select->where(['page_user.user_id' => $me]);
+            $select->join(['parent' => 'item'], 'item.parent_id = parent.id', [], $select::JOIN_LEFT)
+                   ->where('(parent.id IS NULL OR parent.is_published IS TRUE)');
         }elseif ($is_admin_page === true && $is_publish === true) {
             $select->where(['item.is_published IS TRUE']);
         }
