@@ -60,8 +60,7 @@ class Submission extends AbstractService
         } else {
             $m_submission = $res_submission->current();
         }
-
-        $m_submission->setItemUsers($this->getServiceItemUser()->getList($item_id, null, $submission_id));
+        $m_submission->setItemUsers($this->getServiceItemUser()->getList($item_id, null, $m_submission->getId()));
         if (!is_numeric($m_submission->getPostId())) {
             $post_id = $this->getServicePost()->add(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'submission');
             $m_submission->setPostId($post_id);
