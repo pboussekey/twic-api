@@ -3,6 +3,7 @@
 namespace Application\Service;
 
 use Dal\Service\AbstractService;
+use Zend\Db\Sql\Predicate\IsNull;
 
 class Submission extends AbstractService
 {
@@ -193,8 +194,10 @@ class Submission extends AbstractService
      * @invokable
      *
      * @param int $id
+     * @param int $item_id
+     * @param bool $submit
      */
-    public function submit($id = null, $item_id = null)
+    public function submit($id = null, $item_id = null, $submit = true)
     {
         $identity = $this->getServiceUser()->getIdentity();
 
@@ -205,8 +208,8 @@ class Submission extends AbstractService
         if (!$id && $this->getServiceItemUser()->getLite(null, $identity['id'], $id)->count() <= 0) {
             throw new \Exception("Bad User", 1);
         }
-
-        return $this->getMapper()->update($this->getModel()->setId($id)->setSubmitDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s')));
+        $submit_date = $submit === true ? (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s') : new IsNull('submit_date');
+        return $this->getMapper()->update($this->getModel()->setId($id)->setSubmitDate($submit_date));
     }
 
     /**

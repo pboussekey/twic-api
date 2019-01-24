@@ -49,7 +49,9 @@ class PostSubscription extends AbstractService
             $m_post_subscription->setLibelle($l);
             $this->getMapper()->insert($m_post_subscription);
         }
-
+        if($notify === false){
+            return true;
+        }
         $m_post = $this->getServicePost()->getLite($post_id);
         if($is_not_public){
             foreach($libelle as $key => $val){

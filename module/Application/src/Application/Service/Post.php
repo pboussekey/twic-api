@@ -199,7 +199,10 @@ class Post extends AbstractService
 
         $base_id = ($origin_id !== null && $shared_id === null) ? $origin_id:$id;
         $m_post_base = $this->getLite($base_id);
-        $is_not_public_page = (is_numeric($m_post_base->getTPageId()) && ($this->getServicePage()->getLite($m_post_base->getTPageId())->getConfidentiality() !== ModelPage::CONFIDENTIALITY_PUBLIC));
+        if($m_post_base->getType() !== 'post'){
+            $notify = false;
+        }
+        $is_not_public_page = $m_post_base->getType() !== 'post' || (is_numeric($m_post_base->getTPageId()) && ($this->getServicePage()->getLite($m_post_base->getTPageId())->getConfidentiality() !== ModelPage::CONFIDENTIALITY_PUBLIC));
         $pevent = [];
         $et = $this->getTarget($m_post_base);
         // S'IL Y A UNE CIBLE A LA BASE ET que l'on a pas definie d'abonnement ON NOTIFIE  P{target}nbr
@@ -428,7 +431,7 @@ class Post extends AbstractService
 
         $ret = $this->getMapper()->update($m_post, $w);
         if ($ret > 0) {
-            $is_not_public_page = (is_numeric($m_post_base->getTPageId()) && ($this->getServicePage()->getLite($m_post_base->getTPageId())->getConfidentiality() !== ModelPage::CONFIDENTIALITY_PUBLIC));
+            $is_not_public_page = $m_post_base->getType() !== 'post' || (is_numeric($m_post_base->getTPageId()) && ($this->getServicePage()->getLite($m_post_base->getTPageId())->getConfidentiality() !== ModelPage::CONFIDENTIALITY_PUBLIC));
 
            // si c pas une notification on gére les hastags
 

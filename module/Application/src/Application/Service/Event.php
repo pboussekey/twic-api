@@ -171,7 +171,7 @@ class Event extends AbstractService
             if($me === $target->getId()){
                 $text = str_replace('{user}',  'their' , $text);
             }
-            else if($user_id === $target_id){
+            else if($user_id ===  $target->getId()){
                 $text = str_replace('{user}',  'your' , $text);
             }
             else{
