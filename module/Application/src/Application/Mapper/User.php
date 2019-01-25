@@ -539,7 +539,6 @@ class User extends AbstractMapper
         $select = $this->tableGateway->getSql()->select();
         $select->columns([
             'user$id' => new Expression('user.id'),
-            'user$contacts_count' => $this->getSelectContactCount($user_id),
             'user$course_count' => $this->getSelectPageCount($user_id, ModelPage::TYPE_COURSE),
             'user$group_count' => $this->getSelectPageCount($user_id, ModelPage::TYPE_GROUP),
             'user$event_count' => $this->getSelectPageCount($user_id, ModelPage::TYPE_EVENT)
