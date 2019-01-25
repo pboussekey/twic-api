@@ -12,6 +12,9 @@ class User extends BaseUser
     protected $selected;
     protected $contact_state;
     protected $contacts_count;
+    protected $course_count;
+    protected $group_count;
+    protected $event_count;
     protected $gender;
     protected $nationality;
     protected $origin;
@@ -127,6 +130,42 @@ class User extends BaseUser
     public function setContactsCount($contacts_count)
     {
         $this->contacts_count = ($contacts_count === null || $contacts_count instanceof IsNull) ? 0 : $contacts_count;
+
+        return $this;
+    }
+
+    public function getCourseCount()
+    {
+        return $this->course_count;
+    }
+
+    public function setCourseCount($course_count)
+    {
+        $this->course_count = ($course_count === null || $course_count instanceof IsNull) ? 0 : $course_count;
+
+        return $this;
+    }
+
+    public function getGroupCount()
+    {
+        return $this->group_count;
+    }
+
+    public function setGroupCount($group_count)
+    {
+        $this->group_count = ($group_count === null || $group_count instanceof IsNull) ? 0 : $group_count;
+
+        return $this;
+    }
+
+    public function getEventCount()
+    {
+        return $this->event_count;
+    }
+
+    public function setEventCount($event_count)
+    {
+        $this->event_count = ($event_count === null || $event_count instanceof IsNull) ? 0 : $event_count;
 
         return $this;
     }

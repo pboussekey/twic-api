@@ -1658,6 +1658,21 @@ class User extends AbstractService
         return $this->getMapper()->updateSettings($key, $has_social_notifier, $has_academic_notifier);
     }
 
+    /**
+     * Get counts for user card
+     *
+     * @invokable
+     *
+     * @return array
+     */
+    public function getCounts()
+    {
+        return $this->getMapper()->getCounts($this->getIdentity()['id'])->current();
+    }
+
+
+
+
 
     /**
      * Get Service Preregistration

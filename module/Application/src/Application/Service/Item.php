@@ -73,10 +73,7 @@ class Item extends AbstractService
             ->setCreatedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'))
             ->setUserId($user_id);
 
-        if($type === ModelItem::TYPE_LIVE_CLASS) {
-            $m_item->setConversationId($this->getServiceConversation()->_create(ModelConversation::TYPE_LIVECLASS, null, true));
-        }
-
+      
         $this->getMapper()->insert($m_item);
 
         $id = (int) $this->getMapper()->getLastInsertValue();
@@ -805,16 +802,7 @@ class Item extends AbstractService
             ->setUpdatedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'))
             ->setParentId($parent_id);
 
-        if($m_item->getType() === ModelItem::TYPE_LIVE_CLASS ) {
-            if((is_string($start_date) || is_string($m_item->getStartDate()))
-                && ($is_published === 1 || ($is_published === null && $m_item->getIsPublished()))
-            ) {
-                $this->register($id, is_string($start_date) ? $start_date : $m_item->getStartDate());
-            }
-            else{
-                $this->unregister($id);
-            }
-        }
+
         return $this->getMapper()->update($m_updateditem);
     }
 

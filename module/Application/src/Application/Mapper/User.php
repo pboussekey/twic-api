@@ -10,7 +10,9 @@ use Dal\Mapper\AbstractMapper;
 use Zend\Db\Sql\Predicate\Predicate;
 use Zend\Db\Sql\Expression;
 use Zend\Db\Sql\Select;
+use Application\Model\Page as ModelPage;
 use Application\Model\Role as ModelRole;
+use Application\Model\PageUser as ModelPageUser;
 
 /**
  * Class  User
@@ -473,13 +475,30 @@ class User extends AbstractMapper
      *
      * @return \Zend\Db\Sql\Select
      */
-    public function getSelectContactCount()
+    public function getSelectContactCount($user_id = null)
     {
         $select = $this->tableGateway->getSql()->select();
         $select->columns(array('user$contacts_count' => new Expression('COUNT(1)')))
             ->join('contact', 'contact.contact_id = user.id', [])
             ->where(array('contact.user_id = `user$id` AND user.deleted_date IS NULL AND contact.accepted_date IS NOT NULL AND contact.deleted_date IS NULL'));
-
+        if(null !== $user_id){
+            $select->where(['contact.user_id' => $user_id]);
+        }
+        return $select;
+    }
+    /**
+     * Get Select Objet for Contact Count
+     *
+     * @return \Zend\Db\Sql\Select
+     */
+    public function getSelectPageCount($user_id, $type)
+    {
+        $select = new Select('page_user');
+        $select->columns(array('user$'.$type.'_count' => new Expression('COUNT(1)')))
+            ->join('page', new Expression('page_user.page_id = page.id AND page.deleted_date IS NULL'), [])
+            ->where(['page_user.user_id' => $user_id])
+            ->where(['page.type' => $type])
+            ->where(new Expression('page_user.state = ?', ModelPageUser::STATE_MEMBER));
         return $select;
     }
 
@@ -506,5 +525,26 @@ class User extends AbstractMapper
         ->join('event', new Expression('event.date >=  DATE_SUB(NOW(), INTERVAL 14 DAY) AND event_user.event_id = event.id AND MD5(CONCAT(user.id, event.id,  DATE_FORMAT(event.date, "%M %D"), event.object)) = ?', $key), []);
 
         return $this->updateWith($update);
+    }
+
+    /**
+     * Get settings
+     *
+     * @return \Zend\Db\Sql\Select
+     */
+    public function getCounts($user_id)
+    {
+
+
+        $select = $this->tableGateway->getSql()->select();
+        $select->columns([
+            'user$id' => new Expression('user.id'),
+            'user$contacts_count' => $this->getSelectContactCount($user_id),
+            'user$course_count' => $this->getSelectPageCount($user_id, ModelPage::TYPE_COURSE),
+            'user$group_count' => $this->getSelectPageCount($user_id, ModelPage::TYPE_GROUP),
+            'user$event_count' => $this->getSelectPageCount($user_id, ModelPage::TYPE_EVENT)
+          ])
+          ->where(['user.id' => $user_id]);
+        return $this->selectWith($select);
     }
 }
