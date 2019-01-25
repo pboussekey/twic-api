@@ -73,7 +73,7 @@ class Item extends AbstractService
             ->setCreatedDate((new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s'))
             ->setUserId($user_id);
 
-      
+
         $this->getMapper()->insert($m_item);
 
         $id = (int) $this->getMapper()->getLastInsertValue();
@@ -679,7 +679,9 @@ class Item extends AbstractService
                         null/*user*/,
                         'group',
                         $page_id,
-                        $group['item_id']
+                        $group['item_id'],
+                        null,
+                        false
                     );
                 }
             }
