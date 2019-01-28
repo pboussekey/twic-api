@@ -83,7 +83,7 @@ class Page extends AbstractMapper
         $is_published = null
     ) {
         $select = $this->tableGateway->getSql()->select();
-        $select->columns(['id', 'title'])
+        $select->columns(['id', 'title', 'start_date'])
             ->join('post',new Expression('post.t_page_id = page.id AND post.user_id = ?' , $me), ['page$last_post' => new Expression('MAX(post.created_date)')], $select::JOIN_LEFT)
             ->where(['page.deleted_date IS NULL'])
             ->quantifier('DISTINCT');
