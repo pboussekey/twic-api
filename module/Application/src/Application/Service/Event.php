@@ -120,7 +120,7 @@ class Event extends AbstractService
             case 'item.update':
                 return sprintf('The %s <b>%s</b> has been updated in <b>%s</b>', $d['itemtype'],$d['itemtitle'], $d['pagetitle']);
             case 'connection.request':
-                return sprintf('%s{more} sent you a connection request', $d['source']);
+                return sprintf('<b>%s</b>{more} sent you a connection request', $d['source']);
             case 'connection.accept':
                 return sprintf('You are now connected with %s', $d['source']);
             case 'message.send':
@@ -521,6 +521,9 @@ class Event extends AbstractService
                       }
                       if(empty($labels['title'])){
                          $labels['title'] = strip_tags(html_entity_decode($event['text']));
+                      }
+                      if(empty($labels['unsubscribe_link'])){
+                          $labels['unsubscribe_link'] =  sprintf('https://%s.%s/unsubscribe/%s',$libelle, $urlui, md5($uid.$event['id'].$event['date'].$event['object']));
                       }
                       $last_date = $event['date'];
                       $labels['ntf'.$idx.'_display'] = 'block';
